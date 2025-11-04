@@ -172,6 +172,9 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.2.0(react@19.2.0)
+      react-gantt-chart:
+        specifier: 0.3.0-rc.11
+        version: 0.3.0-rc.11(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-hook-form:
         specifier: ^7.64.0
         version: 7.64.0(react@19.2.0)
@@ -179,7 +182,7 @@ importers:
         specifier: ^3.0.6
         version: 3.0.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       recharts:
-        specifier: ^2.15.2
+        specifier: ^2.15.4
         version: 2.15.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       sonner:
         specifier: ^2.0.7
@@ -3729,6 +3732,13 @@ packages:
     resolution: {integrity: sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ==}
     peerDependencies:
       react: ^19.2.0
+
+  react-gantt-chart@0.3.0-rc.11:
+    resolution: {integrity: sha512-Skgk6xPZcYKsJ77zUJWpzc6i99Yb3JAsEJ3+PDtayrPq/9Ci5GqzkkWMyJwkd5rGfD9CXITuqKj39Lzv4Fm8wQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: ^17.0.2
+      react-dom: ^17.0.2
 
   react-hook-form@7.64.0:
     resolution: {integrity: sha512-fnN+vvTiMLnRqKNTVhDysdrUay0kUUAymQnFIznmgDvapjveUWOOPqMNzPg+A+0yf9DuE2h6xzBjN1s+Qx8wcg==}
@@ -8326,6 +8336,11 @@ snapshots:
     dependencies:
       react: 19.2.0
       scheduler: 0.27.0
+
+  react-gantt-chart@0.3.0-rc.11(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+    dependencies:
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
 
   react-hook-form@7.64.0(react@19.2.0):
     dependencies:

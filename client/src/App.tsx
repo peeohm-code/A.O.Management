@@ -8,6 +8,12 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 import QCInspection from "./pages/QCInspection";
+import Defects from "./pages/Defects";
+import NotificationCenter from "./pages/NotificationCenter";
+import ProjectDetail from "./pages/ProjectDetail";
+import TaskDetail from "./pages/TaskDetail";
+import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
 import Home from "./pages/Home";
 import DashboardLayout from "./components/DashboardLayout";
 
@@ -40,6 +46,48 @@ function Router() {
         {() => (
           <DashboardLayout>
             <QCInspection />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/defects"}>
+        {() => (
+          <DashboardLayout>
+            <Defects />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/notifications"}>
+        {() => (
+          <DashboardLayout>
+            <NotificationCenter />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects/:id"}>
+        {() => (
+          <DashboardLayout>
+            <ProjectDetail />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/tasks/:id"}>
+        {() => (
+          <DashboardLayout>
+            <TaskDetail />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/settings"}>
+        {() => (
+          <DashboardLayout>
+            <Settings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/reports"}>
+        {() => (
+          <DashboardLayout>
+            <Reports />
           </DashboardLayout>
         )}
       </Route>
