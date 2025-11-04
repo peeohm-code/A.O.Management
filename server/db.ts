@@ -1,7 +1,24 @@
-import { eq } from "drizzle-orm";
+import { eq, and, or, desc, asc, isNull, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  users,
+  projects,
+  projectMembers,
+  tasks,
+  taskDependencies,
+  checklistTemplates,
+  checklistTemplateItems,
+  taskChecklists,
+  checklistItemResults,
+  defects,
+  taskComments,
+  taskAttachments,
+  taskFollowers,
+  notifications,
+  activityLog,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -18,6 +35,9 @@ export async function getDb() {
   return _db;
 }
 
+/**
+ * User Management
+ */
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
@@ -56,8 +76,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -84,9 +104,598 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Project Management
+ */
+export async function createProject(data: {
+  name: string;
+  code?: string;
+  location?: string;
+  startDate?: Date;
+  endDate?: Date;
+  budget?: number;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(projects).values(data);
+  return result;
+}
+
+export async function getProjectById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getProjectsByUser(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(projects)
+    .innerJoin(projectMembers, eq(projects.id, projectMembers.projectId))
+    .where(eq(projectMembers.userId, userId));
+}
+
+export async function updateProject(
+  id: number,
+  data: Partial<{
+    name: string;
+    status: "planning" | "active" | "on_hold" | "completed" | "cancelled";
+    progress: number;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: Record<string, any> = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.status !== undefined) updateData.status = data.status;
+  if (data.progress !== undefined) updateData.progress = data.progress;
+
+  return await db.update(projects).set(updateData).where(eq(projects.id, id));
+}
+
+export async function addProjectMember(data: {
+  projectId: number;
+  userId: number;
+  role: "owner" | "pm" | "engineer" | "qc" | "viewer";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(projectMembers).values({
+    projectId: data.projectId,
+    userId: data.userId,
+    role: data.role,
+  });
+}
+
+/**
+ * Task Management
+ */
+export async function createTask(data: {
+  projectId: number;
+  parentTaskId?: number;
+  name: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  assigneeId?: number;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(tasks).values({
+    ...data,
+    status: "todo",
+    progress: 0,
+  });
+}
+
+export async function getTaskById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getTasksByProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId))
+    .orderBy(asc(tasks.order));
+}
+
+export async function getTasksByAssignee(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.assigneeId, userId))
+    .orderBy(desc(tasks.updatedAt));
+}
+
+export async function updateTask(
+  id: number,
+  data: Partial<{
+    name: string;
+    description: string;
+    status: "todo" | "pending_pre_inspection" | "ready_to_start" | "in_progress" | "pending_final_inspection" | "rectification_needed" | "completed";
+    progress: number;
+    assigneeId: number;
+    startDate: Date;
+    endDate: Date;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: Record<string, any> = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.status !== undefined) updateData.status = data.status;
+  if (data.progress !== undefined) updateData.progress = data.progress;
+  if (data.assigneeId !== undefined) updateData.assigneeId = data.assigneeId;
+  if (data.startDate !== undefined) updateData.startDate = data.startDate;
+  if (data.endDate !== undefined) updateData.endDate = data.endDate;
+
+  return await db.update(tasks).set(updateData).where(eq(tasks.id, id));
+}
+
+export async function addTaskDependency(data: {
+  taskId: number;
+  dependsOnTaskId: number;
+  type: "finish_to_start" | "start_to_start" | "finish_to_finish";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(taskDependencies).values({
+    taskId: data.taskId,
+    dependsOnTaskId: data.dependsOnTaskId,
+    type: data.type,
+  });
+}
+
+/**
+ * Checklist Template Management
+ */
+export async function createChecklistTemplate(data: {
+  name: string;
+  category?: string;
+  stage: "pre_execution" | "in_progress" | "post_execution";
+  description?: string;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(checklistTemplates).values({
+    name: data.name,
+    category: data.category,
+    stage: data.stage,
+    description: data.description,
+    createdBy: data.createdBy,
+  });
+}
+
+export async function getChecklistTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(checklistTemplates)
+    .where(eq(checklistTemplates.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getChecklistTemplatesByStage(stage: "pre_execution" | "in_progress" | "post_execution") {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(checklistTemplates)
+    .where(eq(checklistTemplates.stage, stage));
+}
+
+export async function addChecklistTemplateItem(data: {
+  templateId: number;
+  itemText: string;
+  requirePhoto?: boolean;
+  acceptanceCriteria?: string;
+  order: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(checklistTemplateItems).values({
+    templateId: data.templateId,
+    itemText: data.itemText,
+    requirePhoto: data.requirePhoto || false,
+    acceptanceCriteria: data.acceptanceCriteria,
+    order: data.order,
+  });
+}
+
+export async function getChecklistTemplateItems(templateId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(checklistTemplateItems)
+    .where(eq(checklistTemplateItems.templateId, templateId))
+    .orderBy(asc(checklistTemplateItems.order));
+}
+
+/**
+ * Task Checklist Management
+ */
+export async function createTaskChecklist(data: {
+  taskId: number;
+  templateId: number;
+  stage: "pre_execution" | "in_progress" | "post_execution";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(taskChecklists).values({
+    taskId: data.taskId,
+    templateId: data.templateId,
+    stage: data.stage,
+    status: "pending",
+  });
+}
+
+export async function getTaskChecklistsByTask(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.taskId, taskId));
+}
+
+export async function getTaskChecklistById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateTaskChecklist(
+  id: number,
+  data: Partial<{
+    status: "pending" | "in_progress" | "passed" | "failed";
+    inspectedBy: number;
+    inspectedAt: Date;
+    signature: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: Record<string, any> = {};
+  if (data.status !== undefined) updateData.status = data.status;
+  if (data.inspectedBy !== undefined) updateData.inspectedBy = data.inspectedBy;
+  if (data.inspectedAt !== undefined) updateData.inspectedAt = data.inspectedAt;
+  if (data.signature !== undefined) updateData.signature = data.signature;
+
+  return await db.update(taskChecklists).set(updateData).where(eq(taskChecklists.id, id));
+}
+
+export async function addChecklistItemResult(data: {
+  taskChecklistId: number;
+  templateItemId: number;
+  result: "pass" | "fail" | "na";
+  comment?: string;
+  photoUrls?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(checklistItemResults).values({
+    taskChecklistId: data.taskChecklistId,
+    templateItemId: data.templateItemId,
+    result: data.result,
+    comment: data.comment,
+    photoUrls: data.photoUrls,
+  });
+}
+
+export async function getChecklistItemResults(taskChecklistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(checklistItemResults)
+    .where(eq(checklistItemResults.taskChecklistId, taskChecklistId));
+}
+
+/**
+ * Defect Management
+ */
+export async function createDefect(data: {
+  taskId: number;
+  checklistItemResultId?: number;
+  title: string;
+  description?: string;
+  photoUrls?: string;
+  severity: "low" | "medium" | "high" | "critical";
+  reportedBy: number;
+  assignedTo?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(defects).values({
+    taskId: data.taskId,
+    checklistItemResultId: data.checklistItemResultId,
+    title: data.title,
+    description: data.description,
+    photoUrls: data.photoUrls,
+    severity: data.severity,
+    reportedBy: data.reportedBy,
+    assignedTo: data.assignedTo,
+    status: "open",
+  });
+}
+
+export async function getDefectById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(defects).where(eq(defects.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getDefectsByTask(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(defects)
+    .where(eq(defects.taskId, taskId))
+    .orderBy(desc(defects.createdAt));
+}
+
+export async function getOpenDefects() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(defects)
+    .where(eq(defects.status, "open"))
+    .orderBy(desc(defects.severity));
+}
+
+export async function updateDefect(
+  id: number,
+  data: Partial<{
+    status: "open" | "in_progress" | "resolved" | "verified";
+    assignedTo: number;
+    resolvedBy: number;
+    resolvedAt: Date;
+    resolutionPhotoUrls: string;
+    resolutionComment: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: Record<string, any> = {};
+  if (data.status !== undefined) updateData.status = data.status;
+  if (data.assignedTo !== undefined) updateData.assignedTo = data.assignedTo;
+  if (data.resolvedBy !== undefined) updateData.resolvedBy = data.resolvedBy;
+  if (data.resolvedAt !== undefined) updateData.resolvedAt = data.resolvedAt;
+  if (data.resolutionPhotoUrls !== undefined) updateData.resolutionPhotoUrls = data.resolutionPhotoUrls;
+  if (data.resolutionComment !== undefined) updateData.resolutionComment = data.resolutionComment;
+
+  return await db.update(defects).set(updateData).where(eq(defects.id, id));
+}
+
+/**
+ * Task Comments & Collaboration
+ */
+export async function addTaskComment(data: {
+  taskId: number;
+  userId: number;
+  content: string;
+  mentions?: string;
+  attachmentUrls?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(taskComments).values({
+    taskId: data.taskId,
+    userId: data.userId,
+    content: data.content,
+    mentions: data.mentions,
+    attachmentUrls: data.attachmentUrls,
+  });
+}
+
+export async function getTaskComments(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskComments)
+    .where(eq(taskComments.taskId, taskId))
+    .orderBy(desc(taskComments.createdAt));
+}
+
+export async function addTaskAttachment(data: {
+  taskId: number;
+  fileName: string;
+  fileUrl: string;
+  fileKey: string;
+  fileSize?: number;
+  mimeType?: string;
+  uploadedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(taskAttachments).values(data);
+}
+
+export async function getTaskAttachments(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskAttachments)
+    .where(eq(taskAttachments.taskId, taskId))
+    .orderBy(desc(taskAttachments.createdAt));
+}
+
+/**
+ * Task Followers
+ */
+export async function followTask(taskId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(taskFollowers).values({ taskId, userId });
+}
+
+export async function unfollowTask(taskId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db
+    .delete(taskFollowers)
+    .where(and(eq(taskFollowers.taskId, taskId), eq(taskFollowers.userId, userId)));
+}
+
+export async function getTaskFollowers(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskFollowers)
+    .where(eq(taskFollowers.taskId, taskId));
+}
+
+/**
+ * Notifications
+ */
+export async function createNotification(data: {
+  userId: number;
+  type: "task_assigned" | "inspection_requested" | "inspection_completed" | "defect_assigned" | "defect_resolved" | "comment_mention" | "task_updated" | "deadline_reminder";
+  title: string;
+  content?: string;
+  relatedTaskId?: number;
+  relatedProjectId?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(notifications).values({
+    userId: data.userId,
+    type: data.type,
+    title: data.title,
+    content: data.content,
+    relatedTaskId: data.relatedTaskId,
+    relatedProjectId: data.relatedProjectId,
+    isRead: false,
+  });
+}
+
+export async function getUserNotifications(userId: number, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId))
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit);
+}
+
+export async function markNotificationAsRead(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+}
+
+/**
+ * Activity Log
+ */
+export async function logActivity(data: {
+  userId: number;
+  projectId?: number;
+  taskId?: number;
+  action: string;
+  details?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(activityLog).values(data);
+}
+
+export async function getTaskActivityLog(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(activityLog)
+    .where(eq(activityLog.taskId, taskId))
+    .orderBy(desc(activityLog.createdAt));
+}
