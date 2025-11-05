@@ -600,6 +600,26 @@ export async function getTaskAttachments(taskId: number) {
     .orderBy(desc(taskAttachments.createdAt));
 }
 
+export async function getAttachmentById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(taskAttachments)
+    .where(eq(taskAttachments.id, id))
+    .limit(1);
+
+  return results.length > 0 ? results[0] : null;
+}
+
+export async function deleteTaskAttachment(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.delete(taskAttachments).where(eq(taskAttachments.id, id));
+}
+
 /**
  * Task Followers
  */

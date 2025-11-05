@@ -104,3 +104,20 @@
 - [x] Add status change dropdown/form in Task Detail page
 - [x] Add Plan vs Actual progress comparison (based on dates and actual progress)
 - [x] Show progress status indicator (on track, ahead, behind schedule)
+
+## File Attachment Feature
+- [x] Add attachments table to database schema (taskId, fileUrl, fileKey, fileName, fileType, fileSize, uploadedBy, uploadedAt)
+- [x] Create backend API for file upload to S3
+- [x] Create backend API to list attachments for a task
+- [x] Create backend API to delete attachments
+- [x] Add file upload UI in Task Detail page (support images and documents)
+- [x] Display attached files with preview for images
+- [x] Add delete button for attachments (only uploader, Admin, and PM can delete)
+
+## Progress Card Redesign
+- [x] Combine timeline and progress information into single card
+- [x] Remove Plan Progress calculation and display
+- [x] Show: ระยะเวลา (total days), วันเริ่ม, วันสิ้นสุด, เหลือเวลา (remaining days)
+- [x] Show only Actual Progress with update button
+- [x] Improve card layout for better readability
+- [x] Reorder cards in Task Detail: Progress card first, then Status card
