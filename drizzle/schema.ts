@@ -81,6 +81,7 @@ export const tasks = mysqlTable("tasks", {
     "delayed"
   ]).default("todo").notNull(),
   assigneeId: int("assigneeId"),
+  category: varchar("category", { length: 50 }), // e.g., "structure", "architecture", "mep", "finishing"
   order: int("order").default(0).notNull(), // For sorting
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

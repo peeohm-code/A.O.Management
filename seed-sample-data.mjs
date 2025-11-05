@@ -198,6 +198,17 @@ async function main() {
   // 3. Create Tasks
   console.log("\n📝 Creating tasks...");
   
+  // Map old categories to new standard categories
+  const categoryMap = {
+    foundation: "structure",
+    structure: "structure",
+    wall: "architecture",
+    roof: "architecture",
+    finishing: "finishing",
+    electrical: "mep",
+    plumbing: "mep",
+  };
+
   const taskData = [
     {
       name: "งานฐานราก",
@@ -205,7 +216,7 @@ async function main() {
       startDate: new Date("2025-10-01"),
       endDate: new Date("2025-10-15"),
       progress: 100,
-      category: "foundation",
+      category: "structure", // foundation -> structure
       order: 1,
     },
     {
@@ -250,7 +261,7 @@ async function main() {
       startDate: new Date("2025-12-01"),
       endDate: new Date("2025-12-20"),
       progress: 50,
-      category: "wall",
+      category: "architecture", // wall -> architecture
       order: 6,
     },
     {
@@ -259,7 +270,7 @@ async function main() {
       startDate: new Date("2025-12-26"),
       endDate: new Date("2026-01-15"),
       progress: 20,
-      category: "wall",
+      category: "architecture", // wall -> architecture
       order: 7,
     },
     {
@@ -268,7 +279,7 @@ async function main() {
       startDate: new Date("2026-01-16"),
       endDate: new Date("2026-02-05"),
       progress: 0,
-      category: "roof",
+      category: "architecture", // roof -> architecture
       order: 8,
     },
     {
@@ -295,7 +306,7 @@ async function main() {
       startDate: new Date("2026-02-15"),
       endDate: new Date("2026-03-15"),
       progress: 0,
-      category: "electrical",
+      category: "mep", // electrical -> mep
       order: 11,
     },
     {
@@ -304,7 +315,7 @@ async function main() {
       startDate: new Date("2026-02-15"),
       endDate: new Date("2026-03-15"),
       progress: 0,
-      category: "plumbing",
+      category: "mep", // plumbing -> mep
       order: 12,
     },
     {
@@ -338,6 +349,7 @@ async function main() {
       startDate: task.startDate,
       endDate: task.endDate,
       assigneeId: ownerId,
+      category: task.category, // Add category field
       createdBy: ownerId,
       order: task.order,
     });

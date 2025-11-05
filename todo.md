@@ -273,3 +273,13 @@
 - [x] Update ProjectDetail to pass displayStatus fields to GanttChart
 - [x] Update Legend to Thai language
 - [x] Test Gantt Chart with sample project data
+
+## Task Grouping in Gantt Chart
+- [x] Check if tasks table has category field
+- [x] Add category field to tasks schema (VARCHAR(50))
+- [x] Push schema changes to database
+- [x] Update Gantt Chart component to support grouping
+- [x] Add expand/collapse functionality for groups
+- [x] Add group summary bars showing overall progress
+- [x] Update sample data to include task categories (structure, architecture, mep, finishing)
+- [x] Test Gantt Chart with grouped tasks

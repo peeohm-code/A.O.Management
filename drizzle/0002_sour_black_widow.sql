@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `category` varchar(50);

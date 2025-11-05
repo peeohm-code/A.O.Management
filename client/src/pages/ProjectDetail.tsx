@@ -195,6 +195,7 @@ export default function ProjectDetail() {
                 displayStatus: t.displayStatus,
                 displayStatusLabel: t.displayStatusLabel,
                 displayStatusColor: t.displayStatusColor,
+                category: t.category,
               }))}
             />
           )}
