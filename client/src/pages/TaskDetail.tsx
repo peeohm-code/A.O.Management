@@ -6,17 +6,31 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Calendar, User, MessageSquare, FileText } from "lucide-react";
+import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation, Link } from "wouter";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
   const taskId = parseInt(id || "0");
   const [commentText, setCommentText] = useState("");
+  const [, setLocation] = useLocation();
 
   const taskQuery = trpc.task.get.useQuery({ id: taskId }, { enabled: !!taskId });
   const commentsQuery = trpc.comment.list.useQuery({ taskId }, { enabled: !!taskId });
   const addCommentMutation = trpc.comment.add.useMutation();
+  const deleteTaskMutation = trpc.task.delete.useMutation();
 
   if (taskQuery.isLoading) {
     return (
@@ -78,12 +92,54 @@ export default function TaskDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">{task.name}</h1>
-          {task.description && <p className="text-gray-600 mt-2">{task.description}</p>}
+      <div>
+        <Link href="/tasks">
+          <Button variant="ghost" className="gap-2 mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            กลับ
+          </Button>
+        </Link>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold">{task.name}</h1>
+            {task.description && <p className="text-gray-600 mt-2">{task.description}</p>}
+          </div>
+          <div className="flex gap-2 items-center">
+            <Badge className={`${getStatusColor(task.status)}`}>{task.status.replace(/_/g, " ")}</Badge>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="gap-2">
+                  <Trash2 className="w-4 h-4" />
+                  ลบงาน
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>ยืนยันการลบงาน</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    คุณแน่ใจหรือไม่ที่จะลบงาน "{task.name}" การดำเนินการนี้ไม่สามารถยกเลิกได้
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      try {
+                        await deleteTaskMutation.mutateAsync({ id: taskId });
+                        toast.success("ลบงานสำเร็จ");
+                        setLocation("/tasks");
+                      } catch (error) {
+                        toast.error("เกิดข้อผิดพลาดในการลบงาน");
+                      }
+                    }}
+                  >
+                    ลบงาน
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
-        <Badge className={`${getStatusColor(task.status)}`}>{task.status.replace(/_/g, " ")}</Badge>
       </div>
 
       {/* Task Info */}

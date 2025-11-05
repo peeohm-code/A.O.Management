@@ -15,12 +15,28 @@ import TaskDetail from "./pages/TaskDetail";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
 import Home from "./pages/Home";
+import NewProject from "./pages/NewProject";
+import NewTask from "./pages/NewTask";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/tasks/new"}>
+        {() => (
+          <DashboardLayout>
+            <NewTask />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects/new"}>
+        {() => (
+          <DashboardLayout>
+            <NewProject />
+          </DashboardLayout>
+        )}
+      </Route>
       <Route path={"/dashboard"}>
         {() => (
           <DashboardLayout>

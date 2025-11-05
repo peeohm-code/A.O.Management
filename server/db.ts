@@ -699,3 +699,10 @@ export async function getTaskActivityLog(taskId: number) {
     .where(eq(activityLog.taskId, taskId))
     .orderBy(desc(activityLog.createdAt));
 }
+
+export async function deleteTask(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(tasks).where(eq(tasks.id, id));
+}

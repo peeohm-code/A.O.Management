@@ -204,6 +204,25 @@ const taskRouter = router({
     .mutation(async ({ input }) => {
       return await db.addTaskDependency(input);
     }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const task = await db.getTaskById(input.id);
+      if (!task) throw new Error("Task not found");
+
+      await db.deleteTask(input.id);
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        projectId: task.projectId,
+        taskId: input.id,
+        action: "task_deleted",
+        details: JSON.stringify({ name: task.name }),
+      });
+
+      return { success: true };
+    }),
 });
 
 /**

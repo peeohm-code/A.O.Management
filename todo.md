@@ -83,3 +83,10 @@
 - [x] Fixed Home page to redirect to Dashboard
 - [x] Created sample data for testing
 - [x] Verified all features working correctly
+
+## Bug Fixes
+- [x] Fix "New Project" button - clicking does not show create project form
+- [x] Remove budget field from project creation form
+- [x] Fix Page 2 in sidebar - shows nothing when clicked
+- [x] Add "Create Task" button and form in Tasks page
+- [x] Add "Delete Task" functionality in Tasks page
