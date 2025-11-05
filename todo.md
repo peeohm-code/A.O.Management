@@ -121,3 +121,10 @@
 - [x] Show only Actual Progress with update button
 - [x] Improve card layout for better readability
 - [x] Reorder cards in Task Detail: Progress card first, then Status card
+
+## Card Layout Improvement
+- [x] Combine Status and Assignee cards into single card in Task Detail page
+
+## QC Inspection Page Fix
+- [x] Investigate why QC Inspection page cannot be opened
+- [x] Fix the issue and ensure page loads properly

@@ -398,95 +398,95 @@ export default function TaskDetail() {
           </CardContent>
         </Card>
 
-        {/* Status Card - Second */}
+        {/* Status & Assignee Card - Second */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">สถานะ</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">สถานะและผู้รับผิดชอบ</CardTitle>
           </CardHeader>
           <CardContent>
-            <Badge className={`${getStatusColor(task.status)} mb-2`}>
-              {getStatusLabel(task.status)}
-            </Badge>
-            {!showStatusForm ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full mt-2"
-                onClick={() => {
-                  setNewStatus(task.status);
-                  setShowStatusForm(true);
-                }}
-              >
-                เปลี่ยนสถานะ
-              </Button>
-            ) : (
-              <div className="mt-2 space-y-2">
-                <Select value={newStatus} onValueChange={setNewStatus}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">ยังไม่เริ่ม</SelectItem>
-                    <SelectItem value="in_progress">กำลังทำ</SelectItem>
-                    <SelectItem value="pending_pre_inspection">รอตรวจก่อนเริ่ม</SelectItem>
-                    <SelectItem value="ready_to_start">พร้อมเริ่มงาน</SelectItem>
-                    <SelectItem value="pending_in_progress_inspection">รอตรวจระหว่างทำ</SelectItem>
-                    <SelectItem value="pending_final_inspection">รอตรวจหลังเสร็จ</SelectItem>
-                    <SelectItem value="rectification_needed">ต้องแก้ไข</SelectItem>
-                    <SelectItem value="completed">เสร็จสมบูรณ์</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="flex gap-2">
+            <div className="space-y-4">
+              {/* Status Section */}
+              <div>
+                <p className="text-xs text-gray-500 mb-2">สถานะ</p>
+                <Badge className={`${getStatusColor(task.status)} mb-2`}>
+                  {getStatusLabel(task.status)}
+                </Badge>
+                {!showStatusForm ? (
                   <Button
+                    variant="outline"
                     size="sm"
-                    className="flex-1"
-                    onClick={async () => {
-                      try {
-                        await updateTaskMutation.mutateAsync({
-                          id: taskId,
-                          status: newStatus as any,
-                        });
-                        toast.success("เปลี่ยนสถานะสำเร็จ");
-                        setShowStatusForm(false);
-                        taskQuery.refetch();
-                        activityQuery.refetch();
-                      } catch (error) {
-                        toast.error("เกิดข้อผิดพลาด");
-                      }
+                    className="w-full mt-2"
+                    onClick={() => {
+                      setNewStatus(task.status);
+                      setShowStatusForm(true);
                     }}
                   >
-                    บันทึก
+                    เปลี่ยนสถานะ
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowStatusForm(false)}
-                  >
-                    ยกเลิก
-                  </Button>
-                </div>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    <Select value={newStatus} onValueChange={setNewStatus}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todo">ยังไม่เริ่ม</SelectItem>
+                        <SelectItem value="in_progress">กำลังทำ</SelectItem>
+                        <SelectItem value="pending_pre_inspection">รอตรวจก่อนเริ่ม</SelectItem>
+                        <SelectItem value="ready_to_start">พร้อมเริ่มงาน</SelectItem>
+                        <SelectItem value="pending_in_progress_inspection">รอตรวจระหว่างทำ</SelectItem>
+                        <SelectItem value="pending_final_inspection">รอตรวจหลังเสร็จ</SelectItem>
+                        <SelectItem value="rectification_needed">ต้องแก้ไข</SelectItem>
+                        <SelectItem value="completed">เสร็จสมบูรณ์</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={async () => {
+                          try {
+                            await updateTaskMutation.mutateAsync({
+                              id: taskId,
+                              status: newStatus as any,
+                            });
+                            toast.success("เปลี่ยนสถานะสำเร็จ");
+                            setShowStatusForm(false);
+                            taskQuery.refetch();
+                            activityQuery.refetch();
+                          } catch (error) {
+                            toast.error("เกิดข้อผิดพลาด");
+                          }
+                        }}
+                      >
+                        บันทึก
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setShowStatusForm(false)}
+                      >
+                        ยกเลิก
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Assignee Section */}
+              {task.assigneeId && (
+                <div className="pt-4 border-t">
+                  <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    ผู้รับผิดชอบ
+                  </p>
+                  <p className="text-sm font-semibold">User #{task.assigneeId}</p>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Second Row - Assignee */}
-      {task.assigneeId && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <User className="w-4 h-4" />
-                ผู้รับผิดชอบ
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-semibold">User #{task.assigneeId}</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       {/* Tabs */}
       <Tabs defaultValue="comments" className="w-full">
