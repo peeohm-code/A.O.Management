@@ -372,3 +372,7 @@
 - [ ] Show projects at risk count
 - [ ] Show critical path tasks count across all projects
 - [ ] Test dashboard with updated metrics
+
+## Move Interior Tasks to Architecture Category
+- [x] Update category of interior tasks from 'interior' to 'architecture' in database
+- [x] Test Gantt Chart to verify tasks are grouped correctly
