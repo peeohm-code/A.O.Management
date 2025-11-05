@@ -287,6 +287,56 @@ const checklistRouter = router({
       return { success: true, id: templateId };
     }),
 
+  updateTemplate: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        category: z.string().optional(),
+        stage: z.enum(["pre_execution", "in_progress", "post_execution"]).optional(),
+        description: z.string().optional(),
+        items: z
+          .array(
+            z.object({
+              itemText: z.string(),
+              requirePhoto: z.boolean().optional(),
+              acceptanceCriteria: z.string().optional(),
+              order: z.number(),
+            })
+          )
+          .optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, items, ...templateData } = input;
+
+      // Update template basic info
+      if (Object.keys(templateData).length > 0) {
+        await db.updateChecklistTemplate(id, templateData);
+      }
+
+      // Update items if provided
+      if (items) {
+        // Delete existing items
+        await db.deleteChecklistTemplateItems(id);
+        // Add new items
+        for (const item of items) {
+          await db.addChecklistTemplateItem({
+            templateId: id,
+            ...item,
+          });
+        }
+      }
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        action: "checklist_template_updated",
+        details: JSON.stringify({ templateId: id }),
+      });
+
+      return { success: true };
+    }),
+
   listTemplates: protectedProcedure.query(async () => {
     return await db.getAllChecklistTemplates();
   }),

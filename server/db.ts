@@ -314,6 +314,28 @@ export async function createChecklistTemplate(data: {
   });
 }
 
+export async function updateChecklistTemplate(
+  id: number,
+  data: {
+    name?: string;
+    category?: string;
+    stage?: "pre_execution" | "in_progress" | "post_execution";
+    description?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.update(checklistTemplates).set(data).where(eq(checklistTemplates.id, id));
+}
+
+export async function deleteChecklistTemplateItems(templateId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.delete(checklistTemplateItems).where(eq(checklistTemplateItems.templateId, templateId));
+}
+
 export async function getChecklistTemplateById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
@@ -337,10 +359,24 @@ export async function getChecklistTemplatesByStage(stage: "pre_execution" | "in_
   const db = await getDb();
   if (!db) return [];
 
-  return await db
+  const templates = await db
     .select()
     .from(checklistTemplates)
     .where(eq(checklistTemplates.stage, stage));
+
+  // Fetch items for each template
+  const templatesWithItems = await Promise.all(
+    templates.map(async (template) => {
+      const items = await db
+        .select()
+        .from(checklistTemplateItems)
+        .where(eq(checklistTemplateItems.templateId, template.id))
+        .orderBy(checklistTemplateItems.order);
+      return { ...template, items };
+    })
+  );
+
+  return templatesWithItems;
 }
 
 export async function addChecklistTemplateItem(data: {

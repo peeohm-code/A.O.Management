@@ -171,3 +171,12 @@
 - [x] Implement backend API for assigning checklist to task
 - [x] Implement backend API for removing checklist from task
 - [x] Test add/remove checklist workflow
+
+## Add Edit Functionality to Checklist Templates
+- [x] Investigate current Checklist Templates page UI
+- [x] Add Edit button onClick handler for each template
+- [x] Create Edit Template dialog (similar to Create Template)
+- [x] Implement backend API for updating template (updateTemplate procedure)
+- [x] Add database functions (updateChecklistTemplate, deleteChecklistTemplateItems)
+- [x] Fix getChecklistTemplatesByStage to include items
+- [x] Test edit functionality end-to-end
