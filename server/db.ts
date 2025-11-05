@@ -163,6 +163,70 @@ export async function getProjectsByUser(userId: number) {
     .where(eq(projectMembers.userId, userId));
 }
 
+export async function getProjectStats(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Get all tasks for this project
+  const projectTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  const totalTasks = projectTasks.length;
+  if (totalTasks === 0) {
+    return {
+      totalTasks: 0,
+      completedTasks: 0,
+      inProgressTasks: 0,
+      notStartedTasks: 0,
+      overdueTasks: 0,
+      progress: 0,
+      status: 'on_track' as const,
+    };
+  }
+
+  const now = new Date();
+  const completedTasks = projectTasks.filter(t => t.status === 'completed').length;
+  const inProgressTasks = projectTasks.filter(t => t.status === 'in_progress').length;
+  const notStartedTasks = projectTasks.filter(t => t.status === 'not_started').length;
+  const overdueTasks = projectTasks.filter(t => 
+    t.endDate && new Date(t.endDate) < now && t.status !== 'completed'
+  ).length;
+
+  // Calculate overall progress (average of all task progress)
+  const totalProgress = projectTasks.reduce((sum, t) => sum + (t.progress || 0), 0);
+  const progress = Math.round(totalProgress / totalTasks);
+
+  // Determine project status
+  let status: 'on_track' | 'at_risk' | 'delayed' | 'completed';
+  if (completedTasks === totalTasks) {
+    status = 'completed';
+  } else if (overdueTasks > 0) {
+    status = 'delayed';
+  } else if (overdueTasks === 0 && inProgressTasks > 0) {
+    status = 'on_track';
+  } else {
+    // Check if any tasks are approaching deadline (within 3 days)
+    const approachingDeadline = projectTasks.some(t => {
+      if (!t.endDate || t.status === 'completed') return false;
+      const daysUntilDue = Math.ceil((new Date(t.endDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return daysUntilDue <= 3 && daysUntilDue >= 0;
+    });
+    status = approachingDeadline ? 'at_risk' : 'on_track';
+  }
+
+  return {
+    totalTasks,
+    completedTasks,
+    inProgressTasks,
+    notStartedTasks,
+    overdueTasks,
+    progress,
+    status,
+  };
+}
+
 export async function updateProject(
   id: number,
   data: Partial<{

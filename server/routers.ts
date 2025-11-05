@@ -104,6 +104,26 @@ const projectRouter = router({
 
       return { success: true };
     }),
+
+  stats: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getProjectStats(input.id);
+    }),
+
+  listWithStats: protectedProcedure.query(async ({ ctx }) => {
+    const projects = await db.getProjectsByUser(ctx.user.id);
+    const projectsWithStats = await Promise.all(
+      projects.map(async (p) => {
+        const stats = await db.getProjectStats(p.projects.id);
+        return {
+          ...p.projects,
+          stats,
+        };
+      })
+    );
+    return projectsWithStats;
+  }),
 });
 
 /**

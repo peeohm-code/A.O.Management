@@ -27,7 +27,7 @@ export default function Projects() {
     budget: "",
   });
 
-  const projectsQuery = trpc.project.list.useQuery();
+  const projectsQuery = trpc.project.listWithStats.useQuery();
   const createProjectMutation = trpc.project.create.useMutation();
 
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -77,6 +77,43 @@ export default function Projects() {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const getProjectStatusColor = (status: string) => {
+    switch (status) {
+      case "on_track":
+        return "bg-green-100 text-green-800";
+      case "at_risk":
+        return "bg-yellow-100 text-yellow-800";
+      case "delayed":
+        return "bg-red-100 text-red-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getProjectStatusLabel = (status: string) => {
+    switch (status) {
+      case "on_track":
+        return "On Track";
+      case "at_risk":
+        return "At Risk";
+      case "delayed":
+        return "Delayed";
+      case "completed":
+        return "Completed";
+      default:
+        return "Unknown";
+    }
+  };
+
+  const getProgressColor = (progress: number) => {
+    if (progress >= 75) return "bg-green-500";
+    if (progress >= 50) return "bg-blue-500";
+    if (progress >= 25) return "bg-yellow-500";
+    return "bg-gray-400";
   };
 
   if (projectsQuery.isLoading) {
@@ -195,6 +232,34 @@ export default function Projects() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {/* Project Status Badge */}
+                  {project.stats && (
+                    <div className="flex items-center justify-between">
+                      <Badge className={`${getProjectStatusColor(project.stats.status)} text-xs`}>
+                        {getProjectStatusLabel(project.stats.status)}
+                      </Badge>
+                      <span className="text-xs text-gray-500">
+                        {project.stats.completedTasks}/{project.stats.totalTasks} tasks
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Progress Bar */}
+                  {project.stats && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>Progress</span>
+                        <span className="font-semibold">{project.stats.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`${getProgressColor(project.stats.progress)} h-2 rounded-full transition-all`}
+                          style={{ width: `${project.stats.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {project.location && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4" />
