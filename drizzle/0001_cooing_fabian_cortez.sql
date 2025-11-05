@@ -1,0 +1,1 @@
+ALTER TABLE `notifications` MODIFY COLUMN `type` enum('task_assigned','inspection_requested','inspection_completed','inspection_passed','inspection_failed','defect_assigned','defect_resolved','comment_mention','task_updated','deadline_reminder') NOT NULL;

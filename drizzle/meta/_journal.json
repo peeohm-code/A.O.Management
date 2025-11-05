@@ -8,6 +8,13 @@
       "when": 1762348910308,
       "tag": "0000_dry_annihilus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1762354357946,
+      "tag": "0001_cooing_fabian_cortez",
+      "breakpoints": true
     }
   ]
 }

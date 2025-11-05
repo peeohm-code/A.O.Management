@@ -258,3 +258,10 @@
 - [x] Implement click-to-filter functionality (clicking a card filters the task list)
 - [x] Add "Clear Filter" button when filter is active
 - [x] Test filtering and ensure it works correctly
+
+## Fix Notification Type Enum Error
+- [x] Check current notification type enum in database
+- [x] Check notification type values used in code
+- [x] Update schema.ts to match actual usage (added inspection_passed and inspection_failed)
+- [x] Push schema changes to database
+- [x] Test notification creation in QC Inspection workflow
