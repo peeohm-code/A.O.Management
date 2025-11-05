@@ -290,3 +290,12 @@
 - [x] Use category color for progress bar
 - [x] Show both numeric percentage and visual bar
 - [x] Test progress bar with sample data
+
+## Drag & Drop for Task Groups in Gantt Chart
+- [x] Install @dnd-kit/core and @dnd-kit/sortable libraries
+- [x] Add drag & drop functionality to group headers
+- [x] Implement visual feedback during drag (opacity, shadow, cursor)
+- [x] Save reordered group sequence to localStorage
+- [x] Update Gantt Chart to respect custom group order
+- [x] Add keyboard support for accessibility
+- [x] Test drag & drop with multiple groups

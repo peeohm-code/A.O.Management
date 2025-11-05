@@ -1,6 +1,23 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface GanttTask {
   id: number;
@@ -27,8 +44,120 @@ interface TaskGroup {
   avgProgress: number;
 }
 
+// Sortable Group Row Component
+function SortableGroupRow({
+  group,
+  groupColor,
+  isCollapsed,
+  onToggle,
+  dateRange,
+  minDate,
+  children,
+}: {
+  group: TaskGroup;
+  groupColor: string;
+  isCollapsed: boolean;
+  onToggle: () => void;
+  dateRange: Date[];
+  minDate: Date;
+  children?: React.ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: group.category });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <>
+      <tr
+        ref={setNodeRef}
+        style={style}
+        className={`border-b border-gray-300 cursor-pointer hover:bg-gray-50 ${
+          isDragging ? "shadow-lg z-50" : ""
+        }`}
+      >
+        <td className="p-2 bg-gray-100 hover:bg-gray-200">
+          <div className="flex items-center gap-2">
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-300 rounded"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GripVertical className="w-4 h-4 text-gray-500" />
+            </button>
+            <button onClick={onToggle} className="flex items-center gap-2">
+              {isCollapsed ? (
+                <ChevronRight className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+              <span className="font-bold">{group.categoryLabel}</span>
+              <span className="text-xs text-gray-500">({group.tasks.length})</span>
+            </button>
+          </div>
+        </td>
+        <td className="p-2 bg-gray-100 hover:bg-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${group.avgProgress}%`,
+                  backgroundColor: groupColor,
+                }}
+              ></div>
+            </div>
+            <span className="font-semibold text-sm whitespace-nowrap" style={{ color: groupColor }}>
+              {group.avgProgress}%
+            </span>
+          </div>
+        </td>
+        <td className="p-2 bg-gray-100 hover:bg-gray-200">
+          {/* Empty for group header */}
+        </td>
+        <td className="p-2 bg-gray-100 hover:bg-gray-200">
+          {/* Empty for group header */}
+        </td>
+        <td className="p-2 bg-gray-100 hover:bg-gray-200" colSpan={dateRange.length}>
+          {/* Group summary timeline bar */}
+          <div className="relative h-6">
+            <div
+              className="absolute h-full rounded opacity-30"
+              style={{
+                left: `${(group.minStartIndex / dateRange.length) * 100}%`,
+                width: `${((group.maxEndIndex - group.minStartIndex + 1) / dateRange.length) * 100}%`,
+                backgroundColor: groupColor,
+              }}
+            ></div>
+          </div>
+        </td>
+      </tr>
+      {!isCollapsed && children}
+    </>
+  );
+}
+
 export default function GanttChart({ tasks }: GanttChartProps) {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [groupOrder, setGroupOrder] = useState<string[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const chartData = useMemo(() => {
     if (!tasks || tasks.length === 0) return { groups: [], minDate: new Date(), maxDate: new Date(), dateRange: [] };
@@ -87,14 +216,6 @@ export default function GanttChart({ tasks }: GanttChartProps) {
       };
     });
 
-    // Sort groups by category order
-    const categoryOrder = ["structure", "architecture", "mep", "finishing", "other"];
-    groups.sort((a, b) => {
-      const aIndex = categoryOrder.indexOf(a.category);
-      const bIndex = categoryOrder.indexOf(b.category);
-      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    });
-
     return {
       groups,
       minDate,
@@ -103,26 +224,55 @@ export default function GanttChart({ tasks }: GanttChartProps) {
     };
   }, [tasks]);
 
-  const getCategoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      structure: "งานโครงสร้าง",
-      architecture: "งานสถาปัตย์",
-      mep: "งานระบบ",
-      finishing: "งานตกแต่ง",
-      other: "อื่นๆ",
-    };
-    return labels[category] || category;
-  };
+  // Initialize group order from localStorage or default order
+  useEffect(() => {
+    const savedOrder = localStorage.getItem("gantt-group-order");
+    if (savedOrder) {
+      try {
+        const parsed = JSON.parse(savedOrder);
+        setGroupOrder(parsed);
+      } catch (e) {
+        // If parsing fails, use default order
+        const defaultOrder = chartData.groups.map(g => g.category);
+        setGroupOrder(defaultOrder);
+      }
+    } else {
+      const defaultOrder = chartData.groups.map(g => g.category);
+      setGroupOrder(defaultOrder);
+    }
+  }, [chartData.groups]);
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      structure: "#8b5cf6", // purple
-      architecture: "#f59e0b", // amber
-      mep: "#10b981", // emerald
-      finishing: "#3b82f6", // blue
-      other: "#6b7280", // gray
-    };
-    return colors[category] || "#6b7280";
+  // Sort groups by custom order
+  const sortedGroups = useMemo(() => {
+    if (groupOrder.length === 0) return chartData.groups;
+    
+    const orderedGroups = [...chartData.groups].sort((a, b) => {
+      const aIndex = groupOrder.indexOf(a.category);
+      const bIndex = groupOrder.indexOf(b.category);
+      
+      // If category not in order, put at end
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      
+      return aIndex - bIndex;
+    });
+    
+    return orderedGroups;
+  }, [chartData.groups, groupOrder]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = groupOrder.indexOf(active.id as string);
+      const newIndex = groupOrder.indexOf(over.id as string);
+
+      const newOrder = arrayMove(groupOrder, oldIndex, newIndex);
+      setGroupOrder(newOrder);
+      
+      // Save to localStorage
+      localStorage.setItem("gantt-group-order", JSON.stringify(newOrder));
+    }
   };
 
   const toggleGroup = (category: string) => {
@@ -137,241 +287,172 @@ export default function GanttChart({ tasks }: GanttChartProps) {
     });
   };
 
-  if (!chartData.dateRange || chartData.groups.length === 0) {
+  if (!tasks || tasks.length === 0) {
     return (
-      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg border border-gray-200">
-        <p className="text-gray-500">ไม่มีงานที่จะแสดง</p>
+      <div className="p-8 text-center text-gray-500">
+        ไม่มีข้อมูลงานสำหรับแสดงใน Gantt Chart
       </div>
     );
   }
 
-  const cellWidth = Math.max(20, 500 / chartData.dateRange.length);
-
   return (
-    <div className="w-full bg-white rounded-lg border border-gray-200 p-4">
-      <h3 className="text-lg font-semibold mb-4">Project Timeline (Gantt Chart)</h3>
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b-2 border-gray-300">
-              <th className="text-left p-2 bg-gray-50 sticky left-0 z-10 w-64 min-w-64">
-                ชื่องาน
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-gray-200 border-b-2 border-gray-400">
+            <th className="p-2 text-left sticky left-0 bg-gray-200 z-10 min-w-[200px]">งาน</th>
+            <th className="p-2 text-left min-w-[120px]">ความคืบหน้า</th>
+            <th className="p-2 text-left min-w-[100px]">วันเริ่ม</th>
+            <th className="p-2 text-left min-w-[100px]">วันสิ้นสุด</th>
+            {chartData.dateRange.map((date, i) => (
+              <th key={i} className="p-1 text-center text-xs min-w-[30px]">
+                {date.getDate()}
+                <br />
+                <span className="text-[10px] text-gray-500">
+                  {date.toLocaleDateString("th-TH", { month: "short" })}
+                </span>
               </th>
-              <th className="text-left p-2 bg-gray-50 w-20">ความคืบหน้า</th>
-              <th className="text-left p-2 bg-gray-50 w-24">สถานะ</th>
-              <th className="p-2">
-                <div className="flex gap-0">
-                  {chartData.dateRange && chartData.dateRange.map((date, idx) => (
-                    <div
-                      key={idx}
-                      className="text-center text-xs border-r border-gray-200"
-                      style={{ width: `${cellWidth}px`, minWidth: `${cellWidth}px` }}
-                    >
-                      {idx % 7 === 0 ? (
-                        <div className="font-semibold">
-                          {date.toLocaleDateString("th-TH", {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </div>
-                      ) : (
-                        <div className="text-gray-400">{date.getDate()}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {chartData.groups.map((group) => {
-              const isCollapsed = collapsedGroups.has(group.category);
-              const groupColor = getCategoryColor(group.category);
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={groupOrder}
+              strategy={verticalListSortingStrategy}
+            >
+              {sortedGroups.map((group) => {
+                const groupColor = getCategoryColor(group.category);
+                const isCollapsed = collapsedGroups.has(group.category);
 
-              return (
-                <>
-                  {/* Group Header Row */}
-                  <tr
-                    key={`group-${group.category}`}
-                    className="border-b border-gray-300 bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                    onClick={() => toggleGroup(group.category)}
+                return (
+                  <SortableGroupRow
+                    key={group.category}
+                    group={group}
+                    groupColor={groupColor}
+                    isCollapsed={isCollapsed}
+                    onToggle={() => toggleGroup(group.category)}
+                    dateRange={chartData.dateRange}
+                    minDate={chartData.minDate}
                   >
-                    <td className="p-2 sticky left-0 z-10 bg-gray-100 hover:bg-gray-200 w-64 min-w-64">
-                      <div className="flex items-center gap-2">
-                        {isCollapsed ? (
-                          <ChevronRight className="w-4 h-4" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4" />
-                        )}
-                        <div
-                          className="w-3 h-3 rounded"
-                          style={{ backgroundColor: groupColor }}
-                        ></div>
-                        <span className="font-bold">{group.categoryLabel}</span>
-                        <span className="text-xs text-gray-500">({group.tasks.length})</span>
-                      </div>
-                    </td>
-                    <td className="p-2 bg-gray-100 hover:bg-gray-200">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-300"
-                            style={{
-                              width: `${group.avgProgress}%`,
-                              backgroundColor: groupColor,
-                            }}
-                          ></div>
-                        </div>
-                        <span className="font-semibold text-sm whitespace-nowrap" style={{ color: groupColor }}>
-                          {group.avgProgress}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-2 bg-gray-100 hover:bg-gray-200">
-                      {/* Empty for group header */}
-                    </td>
-                    <td className="p-2 bg-gray-100 hover:bg-gray-200">
-                      <div className="flex gap-0 relative h-8">
-                        {chartData.dateRange && chartData.dateRange.map((date, idx) => {
-                          const isInRange = idx >= group.minStartIndex && idx <= group.maxEndIndex;
-                          const isStart = idx === group.minStartIndex;
-                          const isEnd = idx === group.maxEndIndex;
-
-                          return (
-                            <div
-                              key={idx}
-                              className="border-r border-gray-200 relative"
-                              style={{ width: `${cellWidth}px`, minWidth: `${cellWidth}px` }}
+                    {group.tasks.map((task: any) => (
+                      <tr key={task.id} className="border-b hover:bg-gray-50">
+                        <td className="p-2 sticky left-0 bg-white">
+                          <div className="pl-8">
+                            <div className="font-medium">{task.name}</div>
+                            <Badge
+                              variant="outline"
+                              style={{
+                                borderColor: task.displayStatusColor,
+                                color: task.displayStatusColor,
+                              }}
                             >
-                              {isInRange && (
-                                <div
-                                  className={`absolute top-1 bottom-1 opacity-40 rounded ${
-                                    isStart ? "rounded-l" : ""
-                                  } ${isEnd ? "rounded-r" : ""}`}
-                                  style={{
-                                    left: isStart ? "2px" : "0",
-                                    right: isEnd ? "2px" : "0",
-                                    backgroundColor: groupColor,
-                                  }}
-                                ></div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </td>
-                  </tr>
-
-                  {/* Task Rows (only if not collapsed) */}
-                  {!isCollapsed &&
-                    group.tasks.map((task: any) => (
-                      <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="p-2 pl-10 bg-white sticky left-0 z-10 w-64 min-w-64">
-                          <p className="font-medium truncate">{task.name}</p>
+                              {task.displayStatusLabel}
+                            </Badge>
+                          </div>
                         </td>
-                        <td className="p-2 bg-white">
-                          <span className="font-semibold text-blue-600">{task.progress}%</span>
-                        </td>
-                        <td className="p-2 bg-white">
-                          <Badge
-                            className="text-white text-xs"
-                            style={{ backgroundColor: task.displayStatusColor }}
-                          >
-                            {task.displayStatusLabel}
-                          </Badge>
+                        <td className="p-2">{task.progress}%</td>
+                        <td className="p-2">
+                          {new Date(task.startDate).toLocaleDateString("th-TH")}
                         </td>
                         <td className="p-2">
-                          <div className="flex gap-0 relative h-8">
-                            {chartData.dateRange && chartData.dateRange.map((date, idx) => {
-                              const isInRange = idx >= task.startIndex && idx <= task.endIndex;
-                              const isStart = idx === task.startIndex;
-                              const isEnd = idx === task.endIndex;
-
-                              return (
-                                <div
-                                  key={idx}
-                                  className="border-r border-gray-200 relative"
-                                  style={{ width: `${cellWidth}px`, minWidth: `${cellWidth}px` }}
-                                >
-                                  {isInRange && (
-                                    <div
-                                      className={`absolute top-1 bottom-1 opacity-80 rounded flex items-center justify-center text-white text-xs font-bold ${
-                                        isStart ? "rounded-l" : ""
-                                      } ${isEnd ? "rounded-r" : ""}`}
-                                      style={{
-                                        left: isStart ? "2px" : "0",
-                                        right: isEnd ? "2px" : "0",
-                                        backgroundColor: task.displayStatusColor,
-                                      }}
-                                    >
-                                      {isStart && task.duration <= 3 && task.progress}%
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
+                          {new Date(task.endDate).toLocaleDateString("th-TH")}
+                        </td>
+                        <td className="p-0" colSpan={chartData.dateRange.length}>
+                          <div className="relative h-8">
+                            <div
+                              className="absolute top-1 h-6 rounded flex items-center justify-center text-xs text-white font-semibold"
+                              style={{
+                                left: `${(task.startIndex / chartData.dateRange.length) * 100}%`,
+                                width: `${(task.duration / chartData.dateRange.length) * 100}%`,
+                                backgroundColor: task.displayStatusColor,
+                              }}
+                            >
+                              {task.progress}%
+                            </div>
                           </div>
                         </td>
                       </tr>
                     ))}
-                </>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  </SortableGroupRow>
+                );
+              })}
+            </SortableContext>
+          </DndContext>
+        </tbody>
+      </table>
 
       {/* Legend */}
-      <div className="mt-6 space-y-4">
-        <div>
-          <h4 className="text-sm font-semibold mb-2">หมวดหมู่งาน</h4>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#8b5cf6" }}></div>
-              <span className="text-sm text-gray-600">งานโครงสร้าง</span>
+      <div className="mt-4 p-4 bg-gray-50 rounded">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h4 className="font-semibold mb-2 text-sm">หมวดหมู่งาน</h4>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { category: "structure", label: "งานโครงสร้าง" },
+                { category: "architecture", label: "งานสถาปัตย์" },
+                { category: "mep", label: "งานระบบ (MEP)" },
+                { category: "finishing", label: "งานตกแต่ง" },
+                { category: "other", label: "อื่นๆ" },
+              ].map(({ category, label }) => (
+                <div key={category} className="flex items-center gap-1">
+                  <div
+                    className="w-4 h-4 rounded"
+                    style={{ backgroundColor: getCategoryColor(category) }}
+                  ></div>
+                  <span className="text-xs">{label}</span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#f59e0b" }}></div>
-              <span className="text-sm text-gray-600">งานสถาปัตย์</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#10b981" }}></div>
-              <span className="text-sm text-gray-600">งานระบบ</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#3b82f6" }}></div>
-              <span className="text-sm text-gray-600">งานตกแต่ง</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#6b7280" }}></div>
-              <span className="text-sm text-gray-600">อื่นๆ</span>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-sm">สถานะงาน</h4>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { status: "completed", label: "เสร็จสมบูรณ์", color: "#10b981" },
+                { status: "in_progress", label: "กำลังทำ", color: "#3b82f6" },
+                { status: "delayed", label: "ล่าช้า", color: "#ef4444" },
+                { status: "not_started", label: "ยังไม่เริ่ม", color: "#6b7280" },
+              ].map(({ status, label, color }) => (
+                <div key={status} className="flex items-center gap-1">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: color }}></div>
+                  <span className="text-xs">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-
-        <div>
-          <h4 className="text-sm font-semibold mb-2">สถานะงาน</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#22c55e" }}></div>
-              <span className="text-sm text-gray-600">เสร็จสมบูรณ์</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#3b82f6" }}></div>
-              <span className="text-sm text-gray-600">กำลังทำ</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#ef4444" }}></div>
-              <span className="text-sm text-gray-600">ล่าช้า</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: "#6b7280" }}></div>
-              <span className="text-sm text-gray-600">ยังไม่เริ่ม</span>
-            </div>
-          </div>
+        <div className="mt-2 text-xs text-gray-500">
+          <GripVertical className="w-3 h-3 inline mr-1" />
+          ลากและวางเพื่อจัดเรียงหมวดหมู่ใหม่
         </div>
       </div>
     </div>
   );
+}
+
+function getCategoryLabel(category: string): string {
+  const labels: Record<string, string> = {
+    structure: "งานโครงสร้าง",
+    architecture: "งานสถาปัตย์",
+    mep: "งานระบบ (MEP)",
+    finishing: "งานตกแต่ง",
+    other: "อื่นๆ",
+  };
+  return labels[category] || category;
+}
+
+function getCategoryColor(category: string): string {
+  const colors: Record<string, string> = {
+    structure: "#9333ea", // purple
+    architecture: "#eab308", // yellow
+    mep: "#22c55e", // green
+    finishing: "#3b82f6", // blue
+    other: "#6b7280", // gray
+  };
+  return colors[category] || "#6b7280";
 }
