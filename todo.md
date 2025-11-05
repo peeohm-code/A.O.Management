@@ -136,7 +136,7 @@
 - [x] Create backend APIs for assigning checklists to tasks
 - [x] Create backend APIs for inspection submission and results
 - [x] Build Checklist Templates management page (list, create, edit, delete)
-- [x] Add checklist assignment UI in Task Detail page
-- [x] Enhance QC Inspection page to show checklist items and accept inspection results
+- [ ] Add checklist assignment UI in Task Detail page
+- [ ] Enhance QC Inspection page to show checklist items and accept inspection results
 - [ ] Add inspection results viewing in Task Detail page
 - [ ] Test complete workflow: create template → assign to task → perform inspection → view results
