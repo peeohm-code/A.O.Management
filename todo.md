@@ -250,3 +250,11 @@
 - [x] Create tasks for main construction activities (14 tasks)
 - [x] Assign checklists to appropriate tasks
 - [x] Run seed script and verify data
+
+## Task Overview in Tasks Page
+- [x] Add Task Overview section at the top of Tasks page (similar to Dashboard)
+- [x] Display statistics cards for each status (Total, Not Started, In Progress, Delayed, Completed)
+- [x] Add progress bars showing percentage for each status
+- [x] Implement click-to-filter functionality (clicking a card filters the task list)
+- [x] Add "Clear Filter" button when filter is active
+- [x] Test filtering and ensure it works correctly

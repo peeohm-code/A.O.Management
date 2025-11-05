@@ -18,6 +18,7 @@ import {
 export default function Tasks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [displayStatusFilter, setDisplayStatusFilter] = useState<string>("all");
 
   const myTasksQuery = trpc.task.myTasks.useQuery();
 
@@ -27,9 +28,23 @@ export default function Tasks() {
     t.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Filter by displayStatus if set
+  if (displayStatusFilter !== "all") {
+    filteredTasks = filteredTasks.filter((t) => t.displayStatus === displayStatusFilter);
+  }
+
   if (statusFilter !== "all") {
     filteredTasks = filteredTasks.filter((t) => t.status === statusFilter);
   }
+
+  // Calculate statistics based on displayStatus
+  const stats = {
+    total: tasks.length,
+    not_started: tasks.filter((t) => t.displayStatus === "not_started").length,
+    in_progress: tasks.filter((t) => t.displayStatus === "in_progress").length,
+    delayed: tasks.filter((t) => t.displayStatus === "delayed").length,
+    completed: tasks.filter((t) => t.displayStatus === "completed").length,
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -105,47 +120,119 @@ export default function Tasks() {
         </Select>
       </div>
 
-      {/* Task Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tasks.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">To Do</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-600">
-              {tasks.filter((t) => t.status === "todo").length}
+      {/* Task Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <span>Task Overview</span>
+            {displayStatusFilter !== "all" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDisplayStatusFilter("all")}
+              >
+                Clear Filter
+              </Button>
+            )}
+          </CardTitle>
+          <CardDescription>สถิติงานทั้งหมดแบ่งตามสถานะ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Total */}
+            <div
+              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
+              onClick={() => setDisplayStatusFilter("all")}
+            >
+              <div className="text-sm text-gray-600 mb-1">งานทั้งหมด</div>
+              <div className="text-3xl font-bold mb-2">{stats.total}</div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-gray-400" style={{ width: "100%" }} />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {tasks.filter((t) => t.status === "in_progress").length}
+
+            {/* Not Started */}
+            <div
+              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
+              onClick={() => setDisplayStatusFilter("not_started")}
+            >
+              <div className="text-sm text-gray-600 mb-1">ยังไม่เริ่ม</div>
+              <div className="text-3xl font-bold text-gray-600 mb-2">{stats.not_started}</div>
+              <div className="text-xs text-gray-500 mb-1">
+                {stats.total > 0 ? Math.round((stats.not_started / stats.total) * 100) : 0}%
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gray-400"
+                  style={{
+                    width: stats.total > 0 ? `${(stats.not_started / stats.total) * 100}%` : "0%",
+                  }}
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {tasks.filter((t) => t.status === "completed").length}
+
+            {/* In Progress */}
+            <div
+              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
+              onClick={() => setDisplayStatusFilter("in_progress")}
+            >
+              <div className="text-sm text-gray-600 mb-1">กำลังทำ</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">{stats.in_progress}</div>
+              <div className="text-xs text-gray-500 mb-1">
+                {stats.total > 0 ? Math.round((stats.in_progress / stats.total) * 100) : 0}%
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500"
+                  style={{
+                    width: stats.total > 0 ? `${(stats.in_progress / stats.total) * 100}%` : "0%",
+                  }}
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            {/* Delayed */}
+            <div
+              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
+              onClick={() => setDisplayStatusFilter("delayed")}
+            >
+              <div className="text-sm text-gray-600 mb-1">ล่าช้า</div>
+              <div className="text-3xl font-bold text-red-600 mb-2">{stats.delayed}</div>
+              <div className="text-xs text-gray-500 mb-1">
+                {stats.total > 0 ? Math.round((stats.delayed / stats.total) * 100) : 0}%
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-red-500"
+                  style={{
+                    width: stats.total > 0 ? `${(stats.delayed / stats.total) * 100}%` : "0%",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Completed */}
+            <div
+              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
+              onClick={() => setDisplayStatusFilter("completed")}
+            >
+              <div className="text-sm text-gray-600 mb-1">เสร็จสมบูรณ์</div>
+              <div className="text-3xl font-bold text-green-600 mb-2">{stats.completed}</div>
+              <div className="text-xs text-gray-500 mb-1">
+                {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-green-500"
+                  style={{
+                    width: stats.total > 0 ? `${(stats.completed / stats.total) * 100}%` : "0%",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Tasks List */}
       <div className="space-y-3">
@@ -191,8 +278,13 @@ export default function Tasks() {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <Badge className={`${getStatusColor(task.status)}`}>
-                          {getStatusLabel(task.status)}
+                        <Badge
+                          style={{
+                            backgroundColor: task.displayStatusColor,
+                            color: "white",
+                          }}
+                        >
+                          {task.displayStatusLabel}
                         </Badge>
                         <div className="mt-2 text-xs text-gray-600">
                           Progress: {task.progress}%
