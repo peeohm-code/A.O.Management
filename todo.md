@@ -145,3 +145,14 @@
 - [x] Fix task.list query to make projectId optional or provide default value
 - [x] Add activity.getByTask procedure to router
 - [x] Update QC Inspection page to handle task queries correctly
+
+## QC Inspection Page Redesign
+- [x] Redesign UI with step-by-step workflow instead of 3-column layout
+- [x] Add clear instructions and help text for each step
+- [x] Show status indicators (which tasks have checklists assigned)
+- [x] Create sample checklist templates for testing
+- [x] Assign sample checklists to existing tasks
+- [x] Add Checklists tab to Task Detail page
+- [x] Fix API getTaskChecklistsByTask to include template name and items
+- [ ] Fix task card click handler in QC Inspection page
+- [ ] Test complete inspection workflow from start to finish

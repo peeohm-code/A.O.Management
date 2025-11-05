@@ -490,7 +490,7 @@ export default function TaskDetail() {
 
       {/* Tabs */}
       <Tabs defaultValue="comments" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="comments">
             <MessageSquare className="w-4 h-4 mr-2" />
             ความเห็น ({comments.length})
@@ -498,6 +498,10 @@ export default function TaskDetail() {
           <TabsTrigger value="attachments">
             <FileText className="w-4 h-4 mr-2" />
             ไฟล์แนบ
+          </TabsTrigger>
+          <TabsTrigger value="checklists">
+            <FileText className="w-4 h-4 mr-2" />
+            Checklists
           </TabsTrigger>
           <TabsTrigger value="activity">
             <FileText className="w-4 h-4 mr-2" />
@@ -684,6 +688,38 @@ export default function TaskDetail() {
               })}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="checklists" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Checklists</CardTitle>
+              <CardDescription>
+                กำหนด Checklist สำหรับงานนี้
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">
+                ฟีเจอร์นี้อยู่ระหว่างการพัฒนา กรุณาใช้หน้า QC Inspection เพื่อดู Checklist ที่กำหนดไว้
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="checklists" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Checklists</CardTitle>
+              <CardDescription>
+                กำหนด Checklist สำหรับงานนี้
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">
+                ฟีเจอร์นี้อยู่ระหว่างการพัฒนา กรุณาใช้หน้า QC Inspection เพื่อดู Checklist ที่กำหนดไว้
+              </p>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">

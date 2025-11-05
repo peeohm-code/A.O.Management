@@ -389,10 +389,30 @@ export async function getTaskChecklistsByTask(taskId: number) {
   const db = await getDb();
   if (!db) return [];
 
-  return await db
-    .select()
+  const checklists = await db
+    .select({
+      id: taskChecklists.id,
+      taskId: taskChecklists.taskId,
+      templateId: taskChecklists.templateId,
+      stage: taskChecklists.stage,
+      status: taskChecklists.status,
+      templateName: checklistTemplates.name,
+    })
     .from(taskChecklists)
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
     .where(eq(taskChecklists.taskId, taskId));
+
+  // Get items for each checklist
+  const result = [];
+  for (const checklist of checklists) {
+    const items = await db
+      .select()
+      .from(checklistTemplateItems)
+      .where(eq(checklistTemplateItems.templateId, checklist.templateId));
+    result.push({ ...checklist, items });
+  }
+
+  return result;
 }
 
 export async function getTaskChecklistById(id: number) {
