@@ -106,7 +106,19 @@ export default function ProjectDetail() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">{project.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold">{project.name}</h1>
+            {(project.startDate || project.endDate) && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span>
+                  {project.startDate && new Date(project.startDate).toLocaleDateString()}
+                  {project.startDate && project.endDate && " - "}
+                  {project.endDate && new Date(project.endDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
           {project.code && <p className="text-gray-600 mt-1">Code: {project.code}</p>}
         </div>
         <div className="flex items-center gap-2">
@@ -145,68 +157,7 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      {/* Project Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {project.location && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Location
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-semibold">{project.location}</p>
-            </CardContent>
-          </Card>
-        )}
 
-        {project.startDate && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Start Date
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-semibold">
-                {new Date(project.startDate).toLocaleDateString()}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {project.endDate && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                End Date
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-semibold">
-                {new Date(project.endDate).toLocaleDateString()}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {project.budget && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Budget
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-semibold">฿{project.budget.toLocaleString()}</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
 
       {/* Tasks Summary */}
       <div className="grid grid-cols-3 gap-4">
@@ -263,45 +214,12 @@ export default function ProjectDetail() {
               projectId={projectId}
             />
           )}
-          {tasks.length === 0 ? (
+          {tasks.length === 0 && (
             <Card>
               <CardContent className="pt-6">
                 <p className="text-center text-gray-500">No tasks in this project</p>
               </CardContent>
             </Card>
-          ) : (
-            tasks.map((task: any) => (
-              <Link key={task.id} href={`/tasks/${task.id}`}>
-                <Card className="hover:shadow-md transition cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{task.name}</h3>
-                        {task.description && (
-                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                            {task.description}
-                          </p>
-                        )}
-                        <div className="flex gap-2 mt-2">
-                          <Badge className={`${getTaskStatusColor(task.status)}`}>
-                            {task.status.replace(/_/g, " ")}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold">{task.progress}%</div>
-                        <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full"
-                            style={{ width: `${task.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))
           )}
         </TabsContent>
 

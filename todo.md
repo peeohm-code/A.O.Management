@@ -345,3 +345,12 @@
 - [x] Add color-coded status badges
 - [x] Improve card layout for better readability
 - [x] Test UI improvements end-to-end
+
+## Project Detail Page Improvements
+- [x] Remove Location, Budget, Start Date, End Date cards
+- [x] Move Start Date and End Date to project header (next to project name)
+- [x] Add category management feature in Gantt Chart (add/remove categories)
+- [x] Show progress bar in each task row on Gantt Chart
+- [x] Add view mode toggle (Daily, Weekly, Monthly) to Gantt Chart
+- [x] Remove task cards section below Gantt Chart
+- [x] Test all changes end-to-end

@@ -150,6 +150,8 @@ function SortableGroupRow({
   );
 }
 
+type ViewMode = 'daily' | 'weekly' | 'monthly';
+
 export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   // Fetch dependencies if projectId is provided
   const dependenciesQuery = trpc.task.getProjectDependencies.useQuery(
@@ -159,6 +161,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   const dependencies = dependenciesQuery.data || [];
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [groupOrder, setGroupOrder] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>('daily');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -176,12 +179,29 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
     const minDate = new Date(Math.min(...startDates));
     const maxDate = new Date(Math.max(...endDates));
 
-    // Generate array of dates for header
+    // Generate array of dates for header based on view mode
     const dateRange = [];
     const currentDate = new Date(minDate);
-    while (currentDate <= maxDate) {
-      dateRange.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
+    
+    if (viewMode === 'daily') {
+      while (currentDate <= maxDate) {
+        dateRange.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    } else if (viewMode === 'weekly') {
+      // Start from beginning of week
+      currentDate.setDate(currentDate.getDate() - currentDate.getDay());
+      while (currentDate <= maxDate) {
+        dateRange.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 7);
+      }
+    } else if (viewMode === 'monthly') {
+      // Start from beginning of month
+      currentDate.setDate(1);
+      while (currentDate <= maxDate) {
+        dateRange.push(new Date(currentDate));
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
     }
 
     // Group tasks by category
@@ -230,7 +250,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
       maxDate,
       dateRange,
     };
-  }, [tasks]);
+  }, [tasks, viewMode]);
 
   // Initialize group order from localStorage or default order
   useEffect(() => {
@@ -304,7 +324,48 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-4">
+      {/* View Mode Toggle */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-gray-700">มุมมอง:</span>
+        <div className="inline-flex rounded-md shadow-sm" role="group">
+          <button
+            type="button"
+            onClick={() => setViewMode('daily')}
+            className={`px-4 py-2 text-sm font-medium border ${
+              viewMode === 'daily'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            } rounded-l-lg`}
+          >
+            รายวัน
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('weekly')}
+            className={`px-4 py-2 text-sm font-medium border-t border-b ${
+              viewMode === 'weekly'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            รายสัปดาห์
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('monthly')}
+            className={`px-4 py-2 text-sm font-medium border ${
+              viewMode === 'monthly'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            } rounded-r-lg`}
+          >
+            รายเดือน
+          </button>
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -393,6 +454,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
           </tbody>
         </table>
       </DndContext>
+      </div>
 
       {/* Dependencies Summary */}
       {dependencies.length > 0 && (
