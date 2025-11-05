@@ -191,3 +191,21 @@
 - [x] Move comments and photo upload to end of inspection form (template level)
 - [ ] Fix error 500 when creating new templates
 - [ ] Test complete workflow with new structure
+
+## Post-Inspection Features and QC Form Fixes
+- [x] Fix QC Inspection form to show general comments field (when allowGeneralComments is true)
+- [x] Fix QC Inspection form to show photo upload field (when allowPhotos is true)
+- [x] Create inspectionResults table to store inspection records (used existing tables)
+- [x] Create inspectionResultItems table to store individual item results (used existing tables)
+- [x] Implement submitInspection API to save inspection results
+- [x] Automatically create Defects for failed inspection items
+- [x] Update checklist status to "completed" after submission
+- [x] Implement automatic task status update based on QC results (all pass → completed, any fail → needs rectification)
+- [x] Send notification to task assignee when QC inspection is completed
+- [x] Send notification to project manager when inspection has failed items
+- [x] Update seed data to include assigneeId and projectId for tasks
+- [x] Fix projectMembers reference issue in submitInspection function
+- [ ] Display inspection history in Task Detail Checklists tab
+- [ ] Show inspection results with pass/fail/N/A for each item
+- [ ] Add "View Report" button to generate and download PDF inspection report
+- [ ] Test complete workflow from inspection to notification to defect creation

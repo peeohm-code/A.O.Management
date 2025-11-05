@@ -430,93 +430,30 @@ const checklistRouter = router({
     .input(
       z.object({
         taskChecklistId: z.number(),
+        taskId: z.number(),
         items: z.array(
           z.object({
             templateItemId: z.number(),
+            itemText: z.string(),
             result: z.enum(["pass", "fail", "na"]),
-            comment: z.string().optional(),
-            photoUrls: z.string().optional(),
           })
         ),
-        signature: z.string().optional(),
+        generalComments: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const taskChecklist = await db.getTaskChecklistById(input.taskChecklistId);
-      if (!taskChecklist) throw new Error("Checklist not found");
-
-      // Add item results
-      let allPassed = true;
-      for (const item of input.items) {
-        await db.addChecklistItemResult({
-          taskChecklistId: input.taskChecklistId,
-          templateItemId: item.templateItemId,
-          result: item.result,
-          comment: item.comment,
-          photoUrls: item.photoUrls,
-        });
-
-        if (item.result === "fail") {
-          allPassed = false;
-        }
-      }
-
-      // Update checklist status
-      const checklistStatus = allPassed ? "passed" : "failed";
-      await db.updateTaskChecklist(input.taskChecklistId, {
-        status: checklistStatus,
+      // Use the new submitInspection function from db.ts
+      const result = await db.submitInspection({
+        taskChecklistId: input.taskChecklistId,
+        taskId: input.taskId,
         inspectedBy: ctx.user.id,
-        inspectedAt: new Date(),
-        signature: input.signature,
+        itemResults: input.items,
+        generalComments: input.generalComments,
+        photoUrls: input.photoUrls,
       });
 
-      const task = await db.getTaskById(taskChecklist.taskId);
-      if (!task) throw new Error("Task not found");
-
-      // Update task status based on checklist result
-      if (allPassed) {
-        if (taskChecklist.stage === "pre_execution") {
-          await db.updateTask(taskChecklist.taskId, {
-            status: "ready_to_start",
-          });
-        } else if (taskChecklist.stage === "post_execution") {
-          await db.updateTask(taskChecklist.taskId, {
-            status: "completed",
-          });
-        }
-      } else {
-        // Create defects for failed items
-        const failedItems = input.items.filter((i) => i.result === "fail");
-        for (const item of failedItems) {
-          const itemResult = await db.getChecklistItemResults(input.taskChecklistId);
-          const result = itemResult.find((r) => r.templateItemId === item.templateItemId);
-
-          if (result) {
-            await db.createDefect({
-              taskId: taskChecklist.taskId,
-              checklistItemResultId: result.id,
-              title: `Inspection Failed - Item ${item.templateItemId}`,
-              description: item.comment,
-              photoUrls: item.photoUrls,
-              severity: "medium",
-              reportedBy: ctx.user.id,
-            });
-          }
-        }
-
-        await db.updateTask(taskChecklist.taskId, {
-          status: "rectification_needed",
-        });
-      }
-
-      await db.logActivity({
-        userId: ctx.user.id,
-        taskId: taskChecklist.taskId,
-        action: "inspection_completed",
-        details: JSON.stringify({ stage: taskChecklist.stage, result: checklistStatus }),
-      });
-
-      return { success: true, status: checklistStatus };
+      return result;
     }),
 });
 

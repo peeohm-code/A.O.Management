@@ -71,28 +71,58 @@ export default function QCInspection() {
     }
   };
 
-  const handleSubmit = () => {
+  const submitInspectionMutation = trpc.checklist.submitInspection.useMutation({
+    onSuccess: (data) => {
+      toast.success(
+        `บันทึกผลการตรวจสอบเรียบร้อย\nผ่าน: ${data.passedCount} | ไม่ผ่าน: ${data.failedCount}${data.defectsCreated > 0 ? `\nสร้าง Defect: ${data.defectsCreated} รายการ` : ''}`
+      );
+
+      // Reset
+      setStep(1);
+      setSelectedTaskId(null);
+      setSelectedChecklistId(null);
+      setItemResults({});
+      setGeneralComments("");
+      setPhotoFiles([]);
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  const handleSubmit = async () => {
     const allFilled = Object.values(itemResults).every((r) => r.result !== null);
     if (!allFilled) {
       toast.error("กรุณากรอกผลการตรวจสอบให้ครบทุกรายการ");
       return;
     }
 
-    const passCount = Object.values(itemResults).filter((r) => r.result === "pass").length;
-    const failCount = Object.values(itemResults).filter((r) => r.result === "fail").length;
-    const naCount = Object.values(itemResults).filter((r) => r.result === "na").length;
+    if (!selectedChecklistId || !selectedTaskId || !selectedChecklist) {
+      toast.error("ไม่พบข้อมูล checklist");
+      return;
+    }
 
-    toast.success(
-      `บันทึกผลการตรวจสอบเรียบร้อย\nผ่าน: ${passCount} | ไม่ผ่าน: ${failCount} | N/A: ${naCount}`
-    );
+    // TODO: Upload photos to S3 if there are any
+    const photoUrls: string[] = [];
+    // For now, we'll skip photo upload and just send empty array
 
-    // Reset
-    setStep(1);
-    setSelectedTaskId(null);
-    setSelectedChecklistId(null);
-    setItemResults({});
-    setGeneralComments("");
-    setPhotoFiles([]);
+    // Prepare items with text from checklist
+    const items = Object.values(itemResults).map((r) => {
+      const item = selectedChecklist.items?.find((i: any) => i.id === r.itemId);
+      return {
+        templateItemId: r.itemId,
+        itemText: item?.itemText || "",
+        result: r.result!,
+      };
+    });
+
+    submitInspectionMutation.mutate({
+      taskChecklistId: selectedChecklistId,
+      taskId: selectedTaskId,
+      items,
+      generalComments: generalComments || undefined,
+      photoUrls: photoUrls.length > 0 ? photoUrls : undefined,
+    });
   };
 
   const getStageLabel = (stage: string) => {

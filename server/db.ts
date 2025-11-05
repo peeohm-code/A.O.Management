@@ -388,8 +388,6 @@ export async function getChecklistTemplatesByStage(stage: "pre_execution" | "in_
 export async function addChecklistTemplateItem(data: {
   templateId: number;
   itemText: string;
-  requirePhoto?: boolean;
-  acceptanceCriteria?: string;
   order: number;
 }) {
   const db = await getDb();
@@ -398,8 +396,6 @@ export async function addChecklistTemplateItem(data: {
   return await db.insert(checklistTemplateItems).values({
     templateId: data.templateId,
     itemText: data.itemText,
-    requirePhoto: data.requirePhoto || false,
-    acceptanceCriteria: data.acceptanceCriteria,
     order: data.order,
   });
 }
@@ -446,6 +442,8 @@ export async function getTaskChecklistsByTask(taskId: number) {
       stage: taskChecklists.stage,
       status: taskChecklists.status,
       templateName: checklistTemplates.name,
+      allowGeneralComments: checklistTemplates.allowGeneralComments,
+      allowPhotos: checklistTemplates.allowPhotos,
     })
     .from(taskChecklists)
     .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
@@ -805,4 +803,159 @@ export async function deleteTask(id: number) {
   if (!db) throw new Error("Database not available");
   
   return await db.delete(tasks).where(eq(tasks.id, id));
+}
+
+/**
+ * Submit Inspection - Complete workflow for QC inspection submission
+ * This function:
+ * 1. Saves all checklist item results
+ * 2. Updates task checklist status
+ * 3. Creates defects for failed items
+ * 4. Updates task status if needed
+ * 5. Sends notifications
+ */
+export async function submitInspection(data: {
+  taskChecklistId: number;
+  taskId: number;
+  inspectedBy: number;
+  itemResults: Array<{
+    templateItemId: number;
+    itemText: string;
+    result: "pass" | "fail" | "na";
+  }>;
+  generalComments?: string;
+  photoUrls?: string[]; // Array of photo URLs
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    // 1. Save all checklist item results
+    const itemResultPromises = data.itemResults.map((item) =>
+      db.insert(checklistItemResults).values({
+        taskChecklistId: data.taskChecklistId,
+        templateItemId: item.templateItemId,
+        result: item.result,
+      })
+    );
+    const insertedResults = await Promise.all(itemResultPromises);
+
+    // 2. Calculate overall status
+    const failedCount = data.itemResults.filter((r) => r.result === "fail").length;
+    const passedCount = data.itemResults.filter((r) => r.result === "pass").length;
+    const overallStatus = failedCount > 0 ? "failed" : "passed";
+
+    // 3. Update task checklist
+    await db.update(taskChecklists).set({
+      status: overallStatus,
+      inspectedBy: data.inspectedBy,
+      inspectedAt: new Date(),
+      generalComments: data.generalComments || null,
+      photoUrls: data.photoUrls && data.photoUrls.length > 0 ? JSON.stringify(data.photoUrls) : null,
+    }).where(eq(taskChecklists.id, data.taskChecklistId));
+
+    // 4. Create defects for failed items
+    const failedItems = data.itemResults.filter((r) => r.result === "fail");
+    if (failedItems.length > 0) {
+      // Get the corresponding result IDs
+      const defectPromises = failedItems.map(async (item, index) => {
+        // Find the result ID for this item
+        const resultId = insertedResults[data.itemResults.indexOf(item)][0]?.insertId;
+        
+        return db.insert(defects).values({
+          taskId: data.taskId,
+          checklistItemResultId: resultId,
+          title: `ไม่ผ่าน QC: ${item.itemText}`,
+          description: `รายการตรวจสอบไม่ผ่าน: ${item.itemText}${data.generalComments ? `\n\nความเห็นเพิ่มเติม: ${data.generalComments}` : ''}`,
+          photoUrls: data.photoUrls && data.photoUrls.length > 0 ? JSON.stringify(data.photoUrls) : null,
+          severity: "medium",
+          reportedBy: data.inspectedBy,
+          status: "open",
+        });
+      });
+      await Promise.all(defectPromises);
+
+      // 5. Update task status to rectification_needed if there are failed items
+      await db.update(tasks).set({
+        status: "rectification_needed",
+      }).where(eq(tasks.id, data.taskId));
+    } else {
+      // All passed - update task status to completed
+      await db.update(tasks).set({
+        status: "completed",
+        progress: 100,
+      }).where(eq(tasks.id, data.taskId));
+    }
+
+    // 6. Get task details for notifications
+    const task = await db.select().from(tasks).where(eq(tasks.id, data.taskId)).limit(1);
+    if (task.length === 0) throw new Error("Task not found");
+
+    // 7. Create notifications
+    const notificationPromises = [];
+
+    // Notify task assignee
+    if (task[0].assigneeId) {
+      notificationPromises.push(
+        db.insert(notifications).values({
+          userId: task[0].assigneeId,
+          type: failedCount > 0 ? "inspection_failed" : "inspection_passed",
+          title: failedCount > 0 ? "การตรวจสอบไม่ผ่าน" : "การตรวจสอบผ่าน",
+          message: failedCount > 0
+            ? `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ กรุณาแก้ไข`
+            : `งาน "${task[0].name}" ผ่านการตรวจสอบคุณภาพแล้ว`,
+          relatedTaskId: data.taskId,
+          isRead: false,
+        })
+      );
+    }
+
+    // Notify project manager if there are failed items
+    if (failedCount > 0 && task[0].projectId) {
+      // Get project members with PM role
+      const pmMembersTable = projectMembers;
+      const pmMembers = await db
+        .select()
+        .from(pmMembersTable)
+        .where(and(
+          eq(pmMembersTable.projectId, task[0].projectId),
+          eq(pmMembersTable.role, "pm")
+        ));
+
+      for (const pm of pmMembers) {
+        notificationPromises.push(
+          db.insert(notifications).values({
+            userId: pm.userId,
+            type: "inspection_failed",
+            title: "การตรวจสอบไม่ผ่าน",
+            message: `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ`,
+            relatedTaskId: data.taskId,
+            isRead: false,
+          })
+        );
+      }
+    }
+
+    await Promise.all(notificationPromises);
+
+    // 8. Log activity
+    await logActivity({
+      userId: data.inspectedBy,
+      projectId: task[0].projectId,
+      taskId: data.taskId,
+      action: "inspection_completed",
+      details: `ผลการตรวจสอบ: ผ่าน ${passedCount} รายการ, ไม่ผ่าน ${failedCount} รายการ`,
+    });
+
+    return {
+      success: true,
+      overallStatus,
+      passedCount,
+      failedCount,
+      defectsCreated: failedItems.length,
+    };
+  } catch (error) {
+    console.error("[Database] Failed to submit inspection:", error);
+    throw error;
+  }
 }
