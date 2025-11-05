@@ -96,3 +96,11 @@
 - [x] Add progress update form in Task Detail page
 - [x] Implement role-based delete permission (only Admin and PM can delete tasks)
 - [x] Show Activity Log in Task Detail page
+
+## Enhanced UX Improvements
+- [x] Implement automatic Activity Log recording (create, update, status change, progress update)
+- [x] Add project name display in task list and task detail pages
+- [x] Combine Start Date and End Date into single Timeline/Duration card
+- [x] Add status change dropdown/form in Task Detail page
+- [x] Add Plan vs Actual progress comparison (based on dates and actual progress)
+- [x] Show progress status indicator (on track, ahead, behind schedule)

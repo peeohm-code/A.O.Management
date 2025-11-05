@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Calendar, User, Plus } from "lucide-react";
 import { Link } from "wouter";
+import { Building2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -166,6 +167,12 @@ export default function Tasks() {
                       <h3 className="font-semibold text-lg">{task.name}</h3>
                       {task.description && (
                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">{task.description}</p>
+                      )}
+                      {task.projectId && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                          <Building2 className="w-3 h-3" />
+                          <span>Project ID: {task.projectId}</span>
+                        </div>
                       )}
                       <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-600">
                         {task.startDate && (
