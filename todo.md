@@ -126,5 +126,6 @@
 - [x] Combine Status and Assignee cards into single card in Task Detail page
 
 ## QC Inspection Page Fix
-- [x] Investigate why QC Inspection page cannot be opened
-- [x] Fix the issue and ensure page loads properly
+- [x] Investigate actual error when opening QC Inspection page (404 - route mismatch)
+- [x] Fix the issue and ensure page loads properly (changed /qc-inspection to /qc)
+- [x] Test QC Inspection page thoroughly

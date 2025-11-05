@@ -31,7 +31,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: FolderKanban, label: "Projects", path: "/projects" },
   { icon: ListTodo, label: "Tasks", path: "/tasks" },
-  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc-inspection" },
+  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: FileText, label: "Reports", path: "/reports" },
