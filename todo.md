@@ -299,3 +299,12 @@
 - [x] Update Gantt Chart to respect custom group order
 - [x] Add keyboard support for accessibility
 - [x] Test drag & drop with multiple groups
+
+## Task Dependencies in Gantt Chart
+- [x] Check if taskDependencies table exists in schema (already exists)
+- [x] Create backend API for managing task dependencies (add, remove, get, getProjectDependencies)
+- [x] Add DependenciesTab component in Task Detail page
+- [x] Support all dependency types (Finish-to-Start, Start-to-Start, Finish-to-Finish)
+- [x] Display dependencies summary in Gantt Chart (simple text-based list)
+- [x] Add visual indicators showing dependency relationships
+- [x] Test dependencies workflow end-to-end

@@ -1,4 +1,4 @@
-import { eq, and, or, desc, asc, isNull, isNotNull } from "drizzle-orm";
+import { eq, and, or, desc, asc, isNull, isNotNull, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -290,15 +290,30 @@ export async function updateTask(
 export async function addTaskDependency(data: {
   taskId: number;
   dependsOnTaskId: number;
-  type: "finish_to_start" | "start_to_start" | "finish_to_finish";
+  type?: "finish_to_start" | "start_to_start" | "finish_to_finish";
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Check if dependency already exists
+  const existing = await db
+    .select()
+    .from(taskDependencies)
+    .where(
+      and(
+        eq(taskDependencies.taskId, data.taskId),
+        eq(taskDependencies.dependsOnTaskId, data.dependsOnTaskId)
+      )
+    );
+
+  if (existing.length > 0) {
+    throw new Error("Dependency already exists");
+  }
+
   return await db.insert(taskDependencies).values({
     taskId: data.taskId,
     dependsOnTaskId: data.dependsOnTaskId,
-    type: data.type,
+    type: data.type || "finish_to_start",
   });
 }
 
@@ -988,4 +1003,73 @@ export async function submitInspection(data: {
     console.error("[Database] Failed to submit inspection:", error);
     throw error;
   }
+}
+
+
+
+/**
+ * Task Dependencies Management (Additional Functions)
+ */
+export async function getTaskDependencies(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const deps = await db
+    .select()
+    .from(taskDependencies)
+    .where(eq(taskDependencies.taskId, taskId));
+
+  return deps;
+}
+
+export async function getTaskDependents(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get tasks that depend on this task
+  const deps = await db
+    .select()
+    .from(taskDependencies)
+    .where(eq(taskDependencies.dependsOnTaskId, taskId));
+
+  return deps;
+}
+
+export async function removeTaskDependency(taskId: number, dependsOnTaskId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .delete(taskDependencies)
+    .where(
+      and(
+        eq(taskDependencies.taskId, taskId),
+        eq(taskDependencies.dependsOnTaskId, dependsOnTaskId)
+      )
+    );
+
+  return { success: true };
+}
+
+export async function getAllTaskDependenciesForProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all tasks in project
+  const projectTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  const taskIds = projectTasks.map(t => t.id);
+
+  if (taskIds.length === 0) return [];
+
+  // Get all dependencies for these tasks
+  const deps = await db
+    .select()
+    .from(taskDependencies)
+    .where(inArray(taskDependencies.taskId, taskIds));
+
+  return deps;
 }

@@ -197,6 +197,7 @@ export default function ProjectDetail() {
                 displayStatusColor: t.displayStatusColor,
                 category: t.category,
               }))}
+              projectId={projectId}
             />
           )}
           {tasks.length === 0 ? (

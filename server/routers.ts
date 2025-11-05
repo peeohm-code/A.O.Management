@@ -228,11 +228,34 @@ const taskRouter = router({
       z.object({
         taskId: z.number(),
         dependsOnTaskId: z.number(),
-        type: z.enum(["finish_to_start", "start_to_start", "finish_to_finish"]),
+        type: z.enum(["finish_to_start", "start_to_start", "finish_to_finish"]).optional(),
       })
     )
     .mutation(async ({ input }) => {
       return await db.addTaskDependency(input);
+    }),
+
+  getDependencies: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getTaskDependencies(input.taskId);
+    }),
+
+  removeDependency: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        dependsOnTaskId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await db.removeTaskDependency(input.taskId, input.dependsOnTaskId);
+    }),
+
+  getProjectDependencies: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getAllTaskDependenciesForProject(input.projectId);
     }),
 
   delete: protectedProcedure

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
+import { DependenciesTab } from "@/components/DependenciesTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -408,10 +409,14 @@ export default function TaskDetail() {
 
       {/* Tabs - Reordered: Checklists → Attachments → Comments → Activity Log */}
       <Tabs defaultValue="checklists" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="checklists">
             <CheckSquare className="w-4 h-4 mr-2" />
             Checklists
+          </TabsTrigger>
+          <TabsTrigger value="dependencies">
+            <FileText className="w-4 h-4 mr-2" />
+            Dependencies
           </TabsTrigger>
           <TabsTrigger value="attachments">
             <FileText className="w-4 h-4 mr-2" />
@@ -430,6 +435,11 @@ export default function TaskDetail() {
         {/* Checklists Tab */}
         <TabsContent value="checklists" className="space-y-4">
           <ChecklistsTab taskId={taskId} />
+        </TabsContent>
+
+        {/* Dependencies Tab */}
+        <TabsContent value="dependencies" className="space-y-4">
+          <DependenciesTab taskId={taskId} projectId={task.projectId} />
         </TabsContent>
 
         {/* Attachments Tab */}
