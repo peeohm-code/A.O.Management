@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X } from "lucide-react";
+import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X, Plus, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -23,6 +23,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +42,9 @@ export default function TaskDetail() {
   const [newStatus, setNewStatus] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showChecklistDialog, setShowChecklistDialog] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [selectedStage, setSelectedStage] = useState<"pre_execution" | "in_progress" | "post_execution">("pre_execution");
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
@@ -45,16 +56,25 @@ export default function TaskDetail() {
   const commentsQuery = trpc.comment.list.useQuery({ taskId }, { enabled: !!taskId });
   const attachmentsQuery = trpc.attachment.list.useQuery({ taskId }, { enabled: !!taskId });
   const activityQuery = trpc.activity.getByTask.useQuery({ taskId }, { enabled: !!taskId });
+  const checklistsQuery = trpc.checklist.getTaskChecklists.useQuery({ taskId }, { enabled: !!taskId });
+  const templatesQuery = trpc.checklist.templates.useQuery();
   const addCommentMutation = trpc.comment.add.useMutation();
   const uploadAttachmentMutation = trpc.attachment.upload.useMutation();
   const deleteAttachmentMutation = trpc.attachment.delete.useMutation();
   const deleteTaskMutation = trpc.task.delete.useMutation();
+  const attachChecklistMutation = trpc.checklist.attachToTask.useMutation();
   const updateTaskMutation = trpc.task.update.useMutation();
 
   const task = taskQuery.data;
   const project = projectQuery.data;
   const comments = commentsQuery.data || [];
   const attachments = attachmentsQuery.data || [];
+  const checklists = checklistsQuery.data || [];
+  const allTemplates = [
+    ...(templatesQuery.data?.preExecution || []),
+    ...(templatesQuery.data?.inProgress || []),
+    ...(templatesQuery.data?.postExecution || []),
+  ];
   const activities = activityQuery.data || [];
 
   // Calculate planned progress based on dates
@@ -490,7 +510,7 @@ export default function TaskDetail() {
 
       {/* Tabs */}
       <Tabs defaultValue="comments" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="comments">
             <MessageSquare className="w-4 h-4 mr-2" />
             ความเห็น ({comments.length})
@@ -498,6 +518,10 @@ export default function TaskDetail() {
           <TabsTrigger value="attachments">
             <FileText className="w-4 h-4 mr-2" />
             ไฟล์แนบ
+          </TabsTrigger>
+          <TabsTrigger value="checklists">
+            <ClipboardCheck className="w-4 h-4 mr-2" />
+            Checklists ({checklists.length})
           </TabsTrigger>
           <TabsTrigger value="activity">
             <FileText className="w-4 h-4 mr-2" />
@@ -682,6 +706,156 @@ export default function TaskDetail() {
                   </Card>
                 );
               })}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="checklists" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Checklists</CardTitle>
+                <Dialog open={showChecklistDialog} onOpenChange={setShowChecklistDialog}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      เพิ่ม Checklist
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>เพิ่ม Checklist ให้งาน</DialogTitle>
+                      <DialogDescription>
+                        เลือก Checklist Template และระยะการตรวจสอบ
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium">Template</label>
+                        <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="เลือก Template" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allTemplates.map((template) => (
+                              <SelectItem key={template.id} value={template.id.toString()}>
+                                {template.name} {template.category && `(${template.category})`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">ระยะการตรวจสอบ</label>
+                        <Select value={selectedStage} onValueChange={(value: any) => setSelectedStage(value)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pre_execution">ก่อนเริ่มงาน</SelectItem>
+                            <SelectItem value="in_progress">ระหว่างทำงาน</SelectItem>
+                            <SelectItem value="post_execution">หลังเสร็จงาน</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          className="flex-1"
+                          onClick={async () => {
+                            if (!selectedTemplate) {
+                              toast.error("กรุณาเลือก Template");
+                              return;
+                            }
+                            try {
+                              await attachChecklistMutation.mutateAsync({
+                                taskId,
+                                templateId: parseInt(selectedTemplate),
+                                stage: selectedStage,
+                              });
+                              toast.success("เพิ่ม Checklist สำเร็จ");
+                              setShowChecklistDialog(false);
+                              setSelectedTemplate("");
+                              checklistsQuery.refetch();
+                            } catch (error) {
+                              toast.error("เกิดข้อผิดพลาด");
+                            }
+                          }}
+                        >
+                          เพิ่ม
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowChecklistDialog(false)}>
+                          ยกเลิก
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {checklists.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-gray-500">
+                ยังไม่มี Checklist
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {checklists.map((checklist: any) => (
+                <Card key={checklist.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-base">{checklist.templateName}</CardTitle>
+                        {checklist.templateCategory && (
+                          <CardDescription>{checklist.templateCategory}</CardDescription>
+                        )}
+                      </div>
+                      <Badge
+                        className={
+                          checklist.status === "passed"
+                            ? "bg-green-100 text-green-800"
+                            : checklist.status === "failed"
+                            ? "bg-red-100 text-red-800"
+                            : checklist.status === "in_progress"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                        }
+                      >
+                        {checklist.status === "passed" && "ผ่าน"}
+                        {checklist.status === "failed" && "ไม่ผ่าน"}
+                        {checklist.status === "in_progress" && "กำลังตรวจ"}
+                        {checklist.status === "pending" && "รอตรวจ"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500">ระยะ:</span>
+                        <span>
+                          {checklist.stage === "pre_execution" && "ก่อนเริ่มงาน"}
+                          {checklist.stage === "in_progress" && "ระหว่างทำงาน"}
+                          {checklist.stage === "post_execution" && "หลังเสร็จงาน"}
+                        </span>
+                      </div>
+                      {checklist.inspectedBy && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500">ตรวจโดย:</span>
+                          <span>User #{checklist.inspectedBy}</span>
+                        </div>
+                      )}
+                      {checklist.inspectedAt && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500">วันที่ตรวจ:</span>
+                          <span>{new Date(checklist.inspectedAt).toLocaleDateString("th-TH")}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </TabsContent>
