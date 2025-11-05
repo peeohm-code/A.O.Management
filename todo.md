@@ -397,3 +397,8 @@
 - [x] Update category legend to show custom colors
 - [x] Update NewTaskDialog to show correct category options
 - [x] Test color customization end-to-end
+
+## Delete Test Task
+- [x] Delete "งานเตรียมงาน" task from database
+- [x] Verify 5-category system is working (preparation, structure, architecture, mep, other)
+- [x] Test Gantt Chart displays all categories correctly
