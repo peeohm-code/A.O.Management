@@ -86,9 +86,13 @@ const projectRouter = router({
  */
 const taskRouter = router({
   list: protectedProcedure
-    .input(z.object({ projectId: z.number() }))
-    .query(async ({ input }) => {
-      return await db.getTasksByProject(input.projectId);
+    .input(z.object({ projectId: z.number().optional() }))
+    .query(async ({ input, ctx }) => {
+      if (input.projectId) {
+        return await db.getTasksByProject(input.projectId);
+      }
+      // Return all tasks for user if no projectId specified
+      return await db.getTasksByAssignee(ctx.user.id);
     }),
 
   get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
@@ -639,6 +643,11 @@ const notificationRouter = router({
  */
 const activityRouter = router({
   taskActivity: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getTaskActivityLog(input.taskId);
+    }),
+  getByTask: protectedProcedure
     .input(z.object({ taskId: z.number() }))
     .query(async ({ input }) => {
       return await db.getTaskActivityLog(input.taskId);

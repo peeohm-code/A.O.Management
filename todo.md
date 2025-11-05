@@ -140,3 +140,8 @@
 - [ ] Enhance QC Inspection page to show checklist items and accept inspection results
 - [ ] Add inspection results viewing in Task Detail page
 - [ ] Test complete workflow: create template → assign to task → perform inspection → view results
+
+## tRPC Error Fixes
+- [x] Fix task.list query to make projectId optional or provide default value
+- [x] Add activity.getByTask procedure to router
+- [x] Update QC Inspection page to handle task queries correctly
