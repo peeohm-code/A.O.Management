@@ -835,6 +835,30 @@ const activityRouter = router({
  */
 const dashboardRouter = router({
   getStats: protectedProcedure.query(async ({ ctx }) => {
+    // Get user's projects with stats
+    const userProjectsData = await db.getProjectsByUser(ctx.user.id);
+    const allProjects = userProjectsData.map(p => p.projects);
+    const projectsWithStats = await Promise.all(
+      allProjects.map(async (project) => {
+        const stats = await db.getProjectStats(project.id);
+        return { ...project, stats };
+      })
+    );
+
+    // Count projects by status
+    const projectStats = {
+      active: projectsWithStats.filter(p => p.status === 'active').length,
+      completed: projectsWithStats.filter(p => p.status === 'completed').length,
+      on_hold: projectsWithStats.filter(p => p.status === 'on_hold').length,
+      delayed: projectsWithStats.filter(p => p.stats.projectStatus === 'delayed').length,
+      at_risk: projectsWithStats.filter(p => p.stats.projectStatus === 'at_risk').length,
+      total: projectsWithStats.length,
+    };
+
+    // Calculate average progress across all projects
+    const totalProgress = projectsWithStats.reduce((sum, p) => sum + p.stats.progressPercentage, 0);
+    const averageProgress = projectsWithStats.length > 0 ? Math.round(totalProgress / projectsWithStats.length) : 0;
+
     // Get all tasks with computed display status
     const allTasks = await db.getAllTasks();
     const tasksWithStatus = allTasks.map(task => ({
@@ -873,6 +897,8 @@ const dashboardRouter = router({
     const myTasksCount = myTasks.length;
 
     return {
+      projectStats,
+      averageProgress,
       taskStats,
       checklistStats,
       projectCount,

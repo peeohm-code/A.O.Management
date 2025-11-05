@@ -363,3 +363,12 @@
 - [x] Show Total Float/Slack time for each task
 - [x] Add Critical Path legend to Gantt Chart
 - [x] Test critical path calculation with dependencies
+
+## Dashboard Top Cards Improvements
+- [ ] Create Backend API to get project summary statistics
+- [ ] Update top cards to show project-level metrics instead of personal metrics
+- [ ] Show Active/Completed/Delayed projects count
+- [ ] Show average project progress
+- [ ] Show projects at risk count
+- [ ] Show critical path tasks count across all projects
+- [ ] Test dashboard with updated metrics

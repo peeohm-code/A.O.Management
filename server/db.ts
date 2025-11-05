@@ -181,8 +181,8 @@ export async function getProjectStats(projectId: number) {
       inProgressTasks: 0,
       notStartedTasks: 0,
       overdueTasks: 0,
-      progress: 0,
-      status: 'on_track' as const,
+      progressPercentage: 0,
+      projectStatus: 'on_track' as const,
     };
   }
 
@@ -222,8 +222,8 @@ export async function getProjectStats(projectId: number) {
     inProgressTasks,
     notStartedTasks,
     overdueTasks,
-    progress,
-    status,
+    progressPercentage: progress,
+    projectStatus: status,
   };
 }
 
