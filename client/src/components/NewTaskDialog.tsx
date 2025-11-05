@@ -29,7 +29,7 @@ interface NewTaskDialogProps {
 export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("structure");
+  const [category, setCategory] = useState("preparation");
   const [status, setStatus] = useState("not_started");
   const [priority, setPriority] = useState("medium");
   const [startDate, setStartDate] = useState("");
@@ -50,7 +50,7 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
 
   const resetForm = () => {
     setName("");
-    setCategory("structure");
+    setCategory("preparation");
     setStatus("not_started");
     setPriority("medium");
     setStartDate("");
@@ -111,10 +111,11 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="preparation">งานเตรียมงาน</SelectItem>
                   <SelectItem value="structure">งานโครงสร้าง</SelectItem>
                   <SelectItem value="architecture">งานสถาปัตย์</SelectItem>
-                  <SelectItem value="mep">งานระบบ (MEP)</SelectItem>
-                  <SelectItem value="other">อื่นๆ</SelectItem>
+                  <SelectItem value="mep">งานระบบ</SelectItem>
+                  <SelectItem value="other">งานอื่นๆ</SelectItem>
                 </SelectContent>
               </Select>
             </div>

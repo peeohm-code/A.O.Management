@@ -326,3 +326,20 @@ export const activityLog = mysqlTable("activityLog", {
 
 export type ActivityLog = typeof activityLog.$inferSelect;
 export type InsertActivityLog = typeof activityLog.$inferInsert;
+
+/**
+ * Category colors - stores custom colors for task categories per project
+ */
+export const categoryColors = mysqlTable("categoryColors", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  category: mysqlEnum("category", ["preparation", "structure", "architecture", "mep", "other"]).notNull(),
+  color: varchar("color", { length: 7 }).notNull(), // Hex color code (e.g., "#3B82F6")
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectCategoryIdx: index("projectCategoryIdx").on(table.projectId, table.category),
+}));
+
+export type CategoryColor = typeof categoryColors.$inferSelect;
+export type InsertCategoryColor = typeof categoryColors.$inferInsert;

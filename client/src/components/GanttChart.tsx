@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -153,6 +153,25 @@ function SortableGroupRow({
 type ViewMode = 'daily' | 'weekly' | 'monthly';
 
 export default function GanttChart({ tasks, projectId }: GanttChartProps) {
+  // Fetch category colors from database
+  const { data: categoryColors = [] } = trpc.categoryColor.getByProject.useQuery(
+    { projectId: projectId || 0 },
+    { enabled: !!projectId }
+  );
+
+  // Create color map from fetched data
+  const categoryColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    categoryColors.forEach((cc) => {
+      map[cc.category] = cc.color;
+    });
+    return map;
+  }, [categoryColors]);
+
+  // Get category color with fallback
+  const getCategoryColorDynamic = (category: string): string => {
+    return categoryColorMap[category] || getCategoryColor(category);
+  };
   // Fetch dependencies if projectId is provided
   const dependenciesQuery = trpc.task.getProjectDependencies.useQuery(
     { projectId: projectId! },
@@ -404,7 +423,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
               strategy={verticalListSortingStrategy}
             >
               {sortedGroups.map((group) => {
-                const groupColor = getCategoryColor(group.category);
+                const groupColor = getCategoryColorDynamic(group.category);
                 const isCollapsed = collapsedGroups.has(group.category);
 
                 return (
@@ -525,15 +544,16 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
             <h4 className="font-semibold mb-2 text-sm">หมวดหมู่งาน</h4>
             <div className="flex flex-wrap gap-2">
               {[
+                { category: "preparation", label: "งานเตรียมงาน" },
                 { category: "structure", label: "งานโครงสร้าง" },
                 { category: "architecture", label: "งานสถาปัตย์" },
-                { category: "mep", label: "งานระบบ (MEP)" },
-                { category: "other", label: "อื่นๆ" },
+                { category: "mep", label: "งานระบบ" },
+                { category: "other", label: "งานอื่นๆ" },
               ].map(({ category, label }) => (
                 <div key={category} className="flex items-center gap-1">
                   <div
                     className="w-4 h-4 rounded"
-                    style={{ backgroundColor: getCategoryColor(category) }}
+                    style={{ backgroundColor: getCategoryColorDynamic(category) }}
                   ></div>
                   <span className="text-xs">{label}</span>
                 </div>
@@ -573,21 +593,22 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
 function getCategoryLabel(category: string): string {
   const categoryLabels: Record<string, string> = {
+    preparation: "งานเตรียมงาน",
     structure: "งานโครงสร้าง",
     architecture: "งานสถาปัตย์",
-    mep: "งานระบบ (MEP)",
-    other: "อื่นๆ",
+    mep: "งานระบบ",
+    other: "งานอื่นๆ",
   };
   return categoryLabels[category] || category;
 }
 
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
-    structure: "#9333ea", // purple
-    architecture: "#eab308", // yellow
-    mep: "#22c55e", // green
-    finishing: "#3b82f6", // blue
-    other: "#6b7280", // gray
+    preparation: "#10B981", // green
+    structure: "#3B82F6", // blue
+    architecture: "#8B5CF6", // purple
+    mep: "#F59E0B", // amber
+    other: "#6B7280", // gray
   };
   return colors[category] || "#6b7280";
 }

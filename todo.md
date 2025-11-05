@@ -386,3 +386,14 @@
 - [x] Create NewTaskDialog component with form fields (name, category, status, priority, start/end dates, assignee)
 - [x] Integrate with task.create tRPC mutation
 - [x] Test creating new task from Project Detail page
+
+## Category Color Customization Feature
+- [x] Create categoryColors table with 5 predefined categories (preparation, structure, architecture, mep, other)
+- [x] Set default colors for each category
+- [x] Create backend API to get category colors by projectId
+- [x] Create backend API to update category color
+- [x] Add color picker UI in Project Detail page (near category legend)
+- [x] Update Gantt Chart to use custom colors from database
+- [x] Update category legend to show custom colors
+- [x] Update NewTaskDialog to show correct category options
+- [x] Test color customization end-to-end

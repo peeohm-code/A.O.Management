@@ -907,6 +907,38 @@ const dashboardRouter = router({
   }),
 });
 
+/**
+ * Category Color Router - Manage category colors
+ */
+const categoryColorRouter = router({  
+  getByProject: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getCategoryColorsByProject(input.projectId);
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        category: z.enum(["preparation", "structure", "architecture", "mep", "other"]),
+        color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await db.updateCategoryColor(input.projectId, input.category, input.color);
+      
+      await db.logActivity({
+        userId: ctx.user.id,
+        projectId: input.projectId,
+        action: "category_color_updated",
+        details: JSON.stringify({ category: input.category, color: input.color }),
+      });
+
+      return { success: true };
+    }),
+});
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -929,6 +961,7 @@ export const appRouter = router({
   attachment: attachmentRouter,
   notification: notificationRouter,
   activity: activityRouter,
+  categoryColor: categoryColorRouter,
 });
 
 export type AppRouter = typeof appRouter;

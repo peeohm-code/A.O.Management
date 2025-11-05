@@ -17,6 +17,7 @@ import {
   taskFollowers,
   notifications,
   activityLog,
+  categoryColors,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -1187,4 +1188,53 @@ export async function getAllTaskDependenciesForProject(projectId: number) {
     .where(inArray(taskDependencies.taskId, taskIds));
 
   return deps;
+}
+
+/**
+ * Category Colors Management
+ */
+export async function getCategoryColorsByProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const colors = await db
+    .select()
+    .from(categoryColors)
+    .where(eq(categoryColors.projectId, projectId));
+
+  return colors;
+}
+
+export async function updateCategoryColor(
+  projectId: number,
+  category: "preparation" | "structure" | "architecture" | "mep" | "other",
+  color: string
+) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(categoryColors)
+    .set({ color, updatedAt: new Date() })
+    .where(
+      and(
+        eq(categoryColors.projectId, projectId),
+        eq(categoryColors.category, category)
+      )
+    );
+}
+
+export async function initializeCategoryColors(projectId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  const defaultColors = [
+    { projectId, category: "preparation" as const, color: "#10B981" },
+    { projectId, category: "structure" as const, color: "#3B82F6" },
+    { projectId, category: "architecture" as const, color: "#8B5CF6" },
+    { projectId, category: "mep" as const, color: "#F59E0B" },
+    { projectId, category: "other" as const, color: "#6B7280" },
+  ];
+
+  await db.insert(categoryColors).values(defaultColors);
 }
