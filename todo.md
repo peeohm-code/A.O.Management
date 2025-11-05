@@ -129,3 +129,14 @@
 - [x] Investigate actual error when opening QC Inspection page (404 - route mismatch)
 - [x] Fix the issue and ensure page loads properly (changed /qc-inspection to /qc)
 - [x] Test QC Inspection page thoroughly
+
+## Checklist Management System
+- [x] Review and verify database schema for checklist tables
+- [x] Create backend APIs for checklist template CRUD operations
+- [x] Create backend APIs for assigning checklists to tasks
+- [x] Create backend APIs for inspection submission and results
+- [x] Build Checklist Templates management page (list, create, edit, delete)
+- [ ] Add checklist assignment UI in Task Detail page
+- [ ] Enhance QC Inspection page to show checklist items and accept inspection results
+- [ ] Add inspection results viewing in Task Detail page
+- [ ] Test complete workflow: create template → assign to task → perform inspection → view results

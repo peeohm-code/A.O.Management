@@ -17,6 +17,7 @@ import Reports from "./pages/Reports";
 import Home from "./pages/Home";
 import NewProject from "./pages/NewProject";
 import NewTask from "./pages/NewTask";
+import ChecklistTemplates from "./pages/ChecklistTemplates";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -62,6 +63,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <QCInspection />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/checklist-templates"}>
+        {() => (
+          <DashboardLayout>
+            <ChecklistTemplates />
           </DashboardLayout>
         )}
       </Route>

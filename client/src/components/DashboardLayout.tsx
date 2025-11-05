@@ -32,6 +32,7 @@ const menuItems = [
   { icon: FolderKanban, label: "Projects", path: "/projects" },
   { icon: ListTodo, label: "Tasks", path: "/tasks" },
   { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
+  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: FileText, label: "Reports", path: "/reports" },
