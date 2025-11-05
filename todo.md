@@ -242,3 +242,11 @@
 - [x] Add visual indicators (progress bars, charts) for statistics
 - [x] Add quick links to filtered views from Dashboard cards
 - [x] Test Dashboard with sample data
+
+## Sample Data for Testing
+- [x] Create seed script for 2-story residential house project
+- [x] Add project with timeline (Oct 1, 2025 - Oct 1, 2026)
+- [x] Create checklist templates for construction phases (9 templates)
+- [x] Create tasks for main construction activities (14 tasks)
+- [x] Assign checklists to appropriate tasks
+- [x] Run seed script and verify data
