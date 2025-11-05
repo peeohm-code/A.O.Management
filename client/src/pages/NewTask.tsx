@@ -26,7 +26,6 @@ export default function NewTask() {
     parentTaskId: "",
     startDate: "",
     endDate: "",
-    progress: "0",
   });
 
   const projectsQuery = trpc.project.list.useQuery();
@@ -150,19 +149,6 @@ export default function NewTask() {
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="progress">ความคืบหน้า (%)</Label>
-              <Input
-                id="progress"
-                type="number"
-                value={formData.progress}
-                onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
-                placeholder="0"
-                min="0"
-                max="100"
-              />
             </div>
 
             <div className="flex gap-3 pt-4">

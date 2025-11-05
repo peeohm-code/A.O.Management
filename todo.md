@@ -90,3 +90,9 @@
 - [x] Fix Page 2 in sidebar - shows nothing when clicked
 - [x] Add "Create Task" button and form in Tasks page
 - [x] Add "Delete Task" functionality in Tasks page
+
+## UX Improvements & Role-based Permissions
+- [x] Remove progress field from New Task form (should only be updated in Task Detail)
+- [x] Add progress update form in Task Detail page
+- [x] Implement role-based delete permission (only Admin and PM can delete tasks)
+- [x] Show Activity Log in Task Detail page

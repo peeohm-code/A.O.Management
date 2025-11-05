@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,12 +26,17 @@ export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
   const taskId = parseInt(id || "0");
   const [commentText, setCommentText] = useState("");
+  const [newProgress, setNewProgress] = useState("");
+  const [showProgressForm, setShowProgressForm] = useState(false);
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
 
   const taskQuery = trpc.task.get.useQuery({ id: taskId }, { enabled: !!taskId });
   const commentsQuery = trpc.comment.list.useQuery({ taskId }, { enabled: !!taskId });
+  const activityQuery = trpc.activity.getByTask.useQuery({ taskId }, { enabled: !!taskId });
   const addCommentMutation = trpc.comment.add.useMutation();
   const deleteTaskMutation = trpc.task.delete.useMutation();
+  const updateTaskMutation = trpc.task.update.useMutation();
 
   if (taskQuery.isLoading) {
     return (
@@ -106,38 +112,40 @@ export default function TaskDetail() {
           </div>
           <div className="flex gap-2 items-center">
             <Badge className={`${getStatusColor(task.status)}`}>{task.status.replace(/_/g, " ")}</Badge>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="gap-2">
-                  <Trash2 className="w-4 h-4" />
-                  ลบงาน
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>ยืนยันการลบงาน</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    คุณแน่ใจหรือไม่ที่จะลบงาน "{task.name}" การดำเนินการนี้ไม่สามารถยกเลิกได้
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={async () => {
-                      try {
-                        await deleteTaskMutation.mutateAsync({ id: taskId });
-                        toast.success("ลบงานสำเร็จ");
-                        setLocation("/tasks");
-                      } catch (error) {
-                        toast.error("เกิดข้อผิดพลาดในการลบงาน");
-                      }
-                    }}
-                  >
+            {user && (user.role === "admin" || user.role === "pm") && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="gap-2">
+                    <Trash2 className="w-4 h-4" />
                     ลบงาน
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>ยืนยันการลบงาน</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      คุณแน่ใจหรือไม่ที่จะลบงาน "{task.name}" การดำเนินการนี้ไม่สามารถยกเลิกได้
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        try {
+                          await deleteTaskMutation.mutateAsync({ id: taskId });
+                          toast.success("ลบงานสำเร็จ");
+                          setLocation("/tasks");
+                        } catch (error) {
+                          toast.error("เกิดข้อผิดพลาดในการลบงาน");
+                        }
+                      }}
+                    >
+                      ลบงาน
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
       </div>
@@ -156,6 +164,58 @@ export default function TaskDetail() {
                 style={{ width: `${task.progress}%` }}
               />
             </div>
+            {!showProgressForm ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-2"
+                onClick={() => {
+                  setNewProgress(task.progress.toString());
+                  setShowProgressForm(true);
+                }}
+              >
+                อัปเดต
+              </Button>
+            ) : (
+              <div className="mt-2 space-y-2">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={newProgress}
+                  onChange={(e) => setNewProgress(e.target.value)}
+                  placeholder="0-100"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={async () => {
+                      try {
+                        await updateTaskMutation.mutateAsync({
+                          id: taskId,
+                          progress: parseInt(newProgress),
+                        });
+                        toast.success("อัปเดตความคืบหน้าสำเร็จ");
+                        setShowProgressForm(false);
+                        taskQuery.refetch();
+                      } catch (error) {
+                        toast.error("เกิดข้อผิดพลาด");
+                      }
+                    }}
+                  >
+                    บันทึก
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowProgressForm(false)}
+                  >
+                    ยกเลิก
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -293,10 +353,32 @@ export default function TaskDetail() {
           <Card>
             <CardHeader>
               <CardTitle>Activity Log</CardTitle>
-              <CardDescription>Recent changes to this task</CardDescription>
+              <CardDescription>ประวัติการเปลี่ยนแปลงของงานนี้</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500">Activity log coming soon</p>
+              {activityQuery.isLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+              ) : activityQuery.data && activityQuery.data.length > 0 ? (
+                <div className="space-y-3">
+                  {activityQuery.data.map((activity: any) => (
+                    <div key={activity.id} className="flex gap-3 border-b pb-3 last:border-0">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{activity.action.replace(/_/g, " ")}</p>
+                        {activity.details && (
+                          <p className="text-xs text-gray-500 mt-1">{activity.details}</p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1">
+                          {new Date(activity.createdAt).toLocaleString("th-TH")}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">ยังไม่มีประวัติการเปลี่ยนแปลง</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
