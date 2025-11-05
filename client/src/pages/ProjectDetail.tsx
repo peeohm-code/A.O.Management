@@ -192,7 +192,9 @@ export default function ProjectDetail() {
                 startDate: t.startDate,
                 endDate: t.endDate,
                 progress: t.progress,
-                status: t.status,
+                displayStatus: t.displayStatus,
+                displayStatusLabel: t.displayStatusLabel,
+                displayStatusColor: t.displayStatusColor,
               }))}
             />
           )}

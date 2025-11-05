@@ -265,3 +265,11 @@
 - [x] Update schema.ts to match actual usage (added inspection_passed and inspection_failed)
 - [x] Push schema changes to database
 - [x] Test notification creation in QC Inspection workflow
+
+## Restore Gantt Chart in Project Detail Page
+- [x] Check current Project Detail page structure
+- [x] GanttChart component already exists (custom implementation)
+- [x] Update GanttChart to use displayStatus instead of database status
+- [x] Update ProjectDetail to pass displayStatus fields to GanttChart
+- [x] Update Legend to Thai language
+- [x] Test Gantt Chart with sample project data

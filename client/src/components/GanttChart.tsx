@@ -7,7 +7,9 @@ interface GanttTask {
   startDate: Date;
   endDate: Date;
   progress: number;
-  status: string;
+  displayStatus: string;
+  displayStatusLabel: string;
+  displayStatusColor: string;
 }
 
 interface GanttChartProps {
@@ -52,37 +54,10 @@ export default function GanttChart({ tasks }: GanttChartProps) {
     };
   }, [tasks]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-500";
-      case "in_progress":
-        return "bg-blue-500";
-      case "pending_pre_inspection":
-      case "pending_final_inspection":
-        return "bg-yellow-500";
-      case "rectification_needed":
-        return "bg-red-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "in_progress":
-        return "In Progress";
-      case "pending_pre_inspection":
-        return "Pending Pre-Inspection";
-      case "pending_final_inspection":
-        return "Pending Final Inspection";
-      case "rectification_needed":
-        return "Rectification Needed";
-      default:
-        return status;
-    }
+  const getStatusBgClass = (color: string) => {
+    // Convert hex color to Tailwind-like class
+    // This is a simple mapping, you might need to adjust based on actual colors
+    return color;
   };
 
   if (!chartData.dateRange || chartData.tasks.length === 0) {
@@ -143,8 +118,11 @@ export default function GanttChart({ tasks }: GanttChartProps) {
                   <span className="font-semibold text-blue-600">{task.progress}%</span>
                 </td>
                 <td className="p-2 bg-white">
-                  <Badge className={`${getStatusColor(task.status)} text-white text-xs`}>
-                    {getStatusLabel(task.status).split(" ")[0]}
+                  <Badge
+                    className="text-white text-xs"
+                    style={{ backgroundColor: task.displayStatusColor }}
+                  >
+                    {task.displayStatusLabel}
                   </Badge>
                 </td>
                 <td className="p-2">
@@ -162,12 +140,13 @@ export default function GanttChart({ tasks }: GanttChartProps) {
                         >
                           {isInRange && (
                             <div
-                              className={`absolute top-1 bottom-1 ${getStatusColor(task.status)} opacity-80 rounded flex items-center justify-center text-white text-xs font-bold ${
+                              className={`absolute top-1 bottom-1 opacity-80 rounded flex items-center justify-center text-white text-xs font-bold ${
                                 isStart ? "rounded-l" : ""
                               } ${isEnd ? "rounded-r" : ""}`}
                               style={{
                                 left: isStart ? "2px" : "0",
                                 right: isEnd ? "2px" : "0",
+                                backgroundColor: task.displayStatusColor,
                               }}
                             >
                               {isStart && task.duration <= 3 && task.progress}%
@@ -187,20 +166,20 @@ export default function GanttChart({ tasks }: GanttChartProps) {
       {/* Legend */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-500 rounded"></div>
-          <span className="text-sm text-gray-600">Completed</span>
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: "#22c55e" }}></div>
+          <span className="text-sm text-gray-600">เสร็จสมบูรณ์</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
-          <span className="text-sm text-gray-600">In Progress</span>
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: "#3b82f6" }}></div>
+          <span className="text-sm text-gray-600">กำลังทำ</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-          <span className="text-sm text-gray-600">Pending</span>
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: "#ef4444" }}></div>
+          <span className="text-sm text-gray-600">ล่าช้า</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-500 rounded"></div>
-          <span className="text-sm text-gray-600">Rectification</span>
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: "#6b7280" }}></div>
+          <span className="text-sm text-gray-600">ยังไม่เริ่ม</span>
         </div>
       </div>
     </div>
