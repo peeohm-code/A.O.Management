@@ -351,6 +351,15 @@
 - [x] Move Start Date and End Date to project header (next to project name)
 - [x] Add category management feature in Gantt Chart (add/remove categories)
 - [x] Show progress bar in each task row on Gantt Chart
+- [x] Add visual progress bar inside task bars (not just percentage text)
 - [x] Add view mode toggle (Daily, Weekly, Monthly) to Gantt Chart
 - [x] Remove task cards section below Gantt Chart
 - [x] Test all changes end-to-end
+
+## Critical Path Analysis Feature
+- [x] Implement Critical Path Method (CPM) algorithm in backend
+- [x] Create API to calculate and return critical path for a project
+- [x] Add visual indicators for critical path tasks in Gantt Chart (red highlight/border)
+- [x] Show Total Float/Slack time for each task
+- [x] Add Critical Path legend to Gantt Chart
+- [x] Test critical path calculation with dependencies

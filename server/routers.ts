@@ -302,6 +302,24 @@ const taskRouter = router({
       return await db.getAllTaskDependenciesForProject(input.projectId);
     }),
 
+  getCriticalPath: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const { calculateCriticalPath } = await import("./criticalPath");
+      const tasks = await db.getTasksByProject(input.projectId);
+      const dependencies = await db.getAllTaskDependenciesForProject(input.projectId);
+      
+      // Transform tasks to include dependencies
+      const tasksWithDeps = tasks.map(task => ({
+        id: task.id,
+        startDate: task.startDate,
+        endDate: task.endDate,
+        dependencies: dependencies.filter(d => d.taskId === task.id),
+      }));
+      
+      return calculateCriticalPath(tasksWithDeps);
+    }),
+
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {

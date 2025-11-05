@@ -159,6 +159,15 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
     { enabled: !!projectId }
   );
   const dependencies = dependenciesQuery.data || [];
+  
+  // Fetch critical path
+  const criticalPathQuery = trpc.task.getCriticalPath.useQuery(
+    { projectId: projectId! },
+    { enabled: !!projectId }
+  );
+  const criticalPath = criticalPathQuery.data?.criticalPath || [];
+  const taskMetrics = criticalPathQuery.data?.taskMetrics || new Map();
+  
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [groupOrder, setGroupOrder] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('daily');
@@ -434,14 +443,28 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                         <td className="p-0" colSpan={chartData.dateRange.length}>
                           <div className="relative h-8">
                             <div
-                              className="absolute top-1 h-6 rounded flex items-center justify-center text-xs text-white font-semibold"
+                              className={`absolute top-1 h-6 rounded overflow-hidden ${
+                                criticalPath.includes(task.id) ? 'ring-2 ring-red-500 ring-offset-1' : ''
+                              }`}
                               style={{
                                 left: `${(task.startIndex / chartData.dateRange.length) * 100}%`,
                                 width: `${(task.duration / chartData.dateRange.length) * 100}%`,
-                                backgroundColor: task.displayStatusColor,
+                                backgroundColor: criticalPath.includes(task.id) ? '#dc2626' : task.displayStatusColor,
                               }}
                             >
-                              {task.progress}%
+                              {/* Progress bar overlay */}
+                              <div
+                                className="absolute inset-0 bg-white/30"
+                                style={{
+                                  width: `${100 - task.progress}%`,
+                                  right: 0,
+                                  left: 'auto',
+                                }}
+                              ></div>
+                              {/* Progress text */}
+                              <div className="relative flex items-center justify-center h-full text-xs text-white font-semibold">
+                                {task.progress}%
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -532,6 +555,11 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                   <span className="text-xs">{label}</span>
                 </div>
               ))}
+              {/* Critical Path indicator */}
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded bg-red-600 ring-2 ring-red-500 ring-offset-1"></div>
+                <span className="text-xs font-semibold">Critical Path</span>
+              </div>
             </div>
           </div>
         </div>
