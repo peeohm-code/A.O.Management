@@ -380,3 +380,9 @@
 ## Remove Interior Category from Legend
 - [x] Remove "งานตกแต่ง" from category legend in GanttChart component
 - [x] Test Gantt Chart to verify legend is updated
+
+## New Task Button in Project Detail
+- [x] Add "New Task" button next to view mode toggle in Project Detail page
+- [x] Create NewTaskDialog component with form fields (name, category, status, priority, start/end dates, assignee)
+- [x] Integrate with task.create tRPC mutation
+- [x] Test creating new task from Project Detail page

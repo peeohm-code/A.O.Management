@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import GanttChart from "@/components/GanttChart";
+import NewTaskDialog from "@/components/NewTaskDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -198,6 +199,9 @@ export default function ProjectDetail() {
         </TabsList>
 
         <TabsContent value="tasks" className="space-y-4">
+          <div className="flex justify-end mb-4">
+            <NewTaskDialog projectId={projectId} />
+          </div>
           {tasks.length > 0 && (
             <GanttChart
               tasks={tasks.map((t: any) => ({
