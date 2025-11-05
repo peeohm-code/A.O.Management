@@ -224,7 +224,7 @@ export async function deleteProject(id: number) {
   }
   
   // 3. Delete notifications
-  await db.delete(notifications).where(eq(notifications.projectId, id));
+  await db.delete(notifications).where(eq(notifications.relatedProjectId, id));
   
   // 4. Delete project members
   await db.delete(projectMembers).where(eq(projectMembers.projectId, id));

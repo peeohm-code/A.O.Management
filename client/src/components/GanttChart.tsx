@@ -305,30 +305,30 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="bg-gray-200 border-b-2 border-gray-400">
-            <th className="p-2 text-left sticky left-0 bg-gray-200 z-10 min-w-[200px]">งาน</th>
-            <th className="p-2 text-left min-w-[120px]">ความคืบหน้า</th>
-            <th className="p-2 text-left min-w-[100px]">วันเริ่ม</th>
-            <th className="p-2 text-left min-w-[100px]">วันสิ้นสุด</th>
-            {chartData.dateRange.map((date, i) => (
-              <th key={i} className="p-1 text-center text-xs min-w-[30px]">
-                {date.getDate()}
-                <br />
-                <span className="text-[10px] text-gray-500">
-                  {date.toLocaleDateString("th-TH", { month: "short" })}
-                </span>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-gray-200 border-b-2 border-gray-400">
+              <th className="p-2 text-left sticky left-0 bg-gray-200 z-10 min-w-[200px]">งาน</th>
+              <th className="p-2 text-left min-w-[120px]">ความคืบหน้า</th>
+              <th className="p-2 text-left min-w-[100px]">วันเริ่ม</th>
+              <th className="p-2 text-left min-w-[100px]">วันสิ้นสุด</th>
+              {chartData.dateRange.map((date, i) => (
+                <th key={i} className="p-1 text-center text-xs min-w-[30px]">
+                  {date.getDate()}
+                  <br />
+                  <span className="text-[10px] text-gray-500">
+                    {date.toLocaleDateString("th-TH", { month: "short" })}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
             <SortableContext
               items={groupOrder}
               strategy={verticalListSortingStrategy}
@@ -390,9 +390,9 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                 );
               })}
             </SortableContext>
-          </DndContext>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </DndContext>
 
       {/* Dependencies Summary */}
       {dependencies.length > 0 && (

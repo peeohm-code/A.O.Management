@@ -317,3 +317,13 @@
 - [x] Implement confirmation dialog before deletion
 - [x] Redirect to Projects page after successful deletion
 - [x] Test delete functionality end-to-end
+
+## Bug Fixes
+- [ ] Fix SQL query error in deleteProject - missing column name in notifications WHERE clause
+- [ ] Fix React DOM nesting error in GanttChart - <div> cannot be child of <tbody>
+- [ ] Test both fixes end-to-end
+
+## Bug Fixes
+- [x] Fix SQL query error in deleteProject - missing column name in notifications WHERE clause
+- [x] Fix React DOM nesting error in GanttChart - <div> cannot be child of <tbody>
+- [x] Test delete project functionality after fixes
