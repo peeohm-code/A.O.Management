@@ -283,3 +283,10 @@
 - [x] Add group summary bars showing overall progress
 - [x] Update sample data to include task categories (structure, architecture, mep, finishing)
 - [x] Test Gantt Chart with grouped tasks
+
+## Progress Bar in Gantt Chart Group Headers
+- [x] Add progress bar component to group header rows
+- [x] Display average progress percentage for each category
+- [x] Use category color for progress bar
+- [x] Show both numeric percentage and visual bar
+- [x] Test progress bar with sample data

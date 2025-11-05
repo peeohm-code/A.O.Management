@@ -213,7 +213,20 @@ export default function GanttChart({ tasks }: GanttChartProps) {
                       </div>
                     </td>
                     <td className="p-2 bg-gray-100 hover:bg-gray-200">
-                      <span className="font-semibold text-blue-600">{group.avgProgress}%</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{
+                              width: `${group.avgProgress}%`,
+                              backgroundColor: groupColor,
+                            }}
+                          ></div>
+                        </div>
+                        <span className="font-semibold text-sm whitespace-nowrap" style={{ color: groupColor }}>
+                          {group.avgProgress}%
+                        </span>
+                      </div>
                     </td>
                     <td className="p-2 bg-gray-100 hover:bg-gray-200">
                       {/* Empty for group header */}
