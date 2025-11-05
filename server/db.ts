@@ -495,6 +495,16 @@ export async function updateTaskChecklist(
   return await db.update(taskChecklists).set(updateData).where(eq(taskChecklists.id, id));
 }
 
+export async function updateTaskChecklistStatus(
+  id: number,
+  status: "not_started" | "pending_inspection" | "in_progress" | "completed" | "failed"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.update(taskChecklists).set({ status }).where(eq(taskChecklists.id, id));
+}
+
 export async function deleteTaskChecklist(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

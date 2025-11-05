@@ -159,8 +159,50 @@ export default function QCInspection() {
       in_progress: "กำลังตรวจสอบ",
       passed: "ผ่าน",
       failed: "ไม่ผ่าน",
+      not_started: "ยังไม่เริ่ม",
+      pending_inspection: "รอการตรวจสอบ",
+      completed: "ผ่าน",
+      todo: "ยังไม่เริ่ม",
+      delayed: "ล่าช้า",
     };
     return labels[status] || status;
+  };
+
+  // Badge 1: Checklist Status (User-controlled: not_started / pending_inspection)
+  const getChecklistStatusLabel = (status: string) => {
+    if (status === "not_started") return "ยังไม่เริ่ม";
+    if (status === "pending_inspection") return "รอการตรวจสอบ";
+    // For other statuses, show empty or hide
+    return "";
+  };
+
+  const getChecklistStatusColor = (status: string) => {
+    if (status === "not_started") return "bg-gray-100 text-gray-700 border-gray-300";
+    if (status === "pending_inspection") return "bg-yellow-100 text-yellow-700 border-yellow-300";
+    return "bg-gray-100 text-gray-700";
+  };
+
+  // Badge 2: Inspection Status (Result-based: in_progress / completed / failed)
+  const getInspectionStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      not_started: "รอการตรวจสอบ",
+      pending_inspection: "รอการตรวจสอบ",
+      in_progress: "กำลังตรวจสอบ",
+      completed: "ผ่าน",
+      failed: "ไม่ผ่าน ต้องแก้ไข",
+    };
+    return labels[status] || "รอการตรวจสอบ";
+  };
+
+  const getInspectionStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      not_started: "text-gray-500 border-gray-300",
+      pending_inspection: "text-gray-500 border-gray-300",
+      in_progress: "text-blue-600 border-blue-300",
+      completed: "text-green-600 border-green-300",
+      failed: "text-red-600 border-red-300",
+    };
+    return colors[status] || "text-gray-500 border-gray-300";
   };
 
   if (tasksLoading) {
@@ -234,8 +276,8 @@ export default function QCInspection() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <Badge className={getStatusColor(task.status)}>
-                      {getStatusLabel(task.status)}
+                    <Badge className={task.displayStatusColor}>
+                      {task.displayStatusLabel}
                     </Badge>
                     <span className="text-sm text-muted-foreground">
                       {task.progress || 0}%
@@ -289,9 +331,16 @@ export default function QCInspection() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Badge className={getStatusColor(checklist.status)}>
-                      {getStatusLabel(checklist.status)}
-                    </Badge>
+                    <div className="flex flex-wrap gap-2">
+                      {/* Badge 1: Checklist Status (User-controlled) */}
+                      <Badge className={getChecklistStatusColor(checklist.status)}>
+                        {getChecklistStatusLabel(checklist.status)}
+                      </Badge>
+                      {/* Badge 2: Inspection Status (Result-based) */}
+                      <Badge variant="outline" className={getInspectionStatusColor(checklist.status)}>
+                        {getInspectionStatusLabel(checklist.status)}
+                      </Badge>
+                    </div>
                   </CardContent>
                 </Card>
               ))}

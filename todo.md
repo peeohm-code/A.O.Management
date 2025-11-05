@@ -209,3 +209,26 @@
 - [ ] Show inspection results with pass/fail/N/A for each item
 - [ ] Add "View Report" button to generate and download PDF inspection report
 - [ ] Test complete workflow from inspection to notification to defect creation
+
+## Task Detail Page Improvements
+- [x] Update task status enum to: not_started, in_progress, delayed, completed
+- [x] Merge Progress, Status, and Assignee cards into single card
+- [x] Implement automatic status calculation based on dates and progress
+  - [x] ยังไม่เริ่ม (not_started) - before start date
+  - [x] กำลังทำ (in_progress) - after start date and progress < 100%
+  - [x] ล่าช้า (delayed) - after end date and progress < 100%
+  - [x] เสร็จสมบูรณ์ (completed) - progress = 100%
+- [x] Keep database status as-is, use computed displayStatus for UI
+- [x] Reorder tabs: Checklists → ไฟล์แนบ → ความคิดเห็น → Activity Log
+- [x] Update backend to calculate and return automatic status
+- [ ] Test all status transitions with different date and progress combinations
+
+## Checklist Status Management
+- [x] Update checklist status enum to: not_started, pending_inspection, in_progress, completed, failed
+- [x] Add dropdown in Task Detail Checklists tab to change checklist status
+- [x] Allow status change between: not_started ↔ pending_inspection
+- [x] Update backend API to support checklist status change (updateChecklistStatus mutation)
+- [x] Update QC Inspection page to show dual status badges:
+  - [x] Badge 1: User-controlled status (not_started / pending_inspection)
+  - [x] Badge 2: Inspection result status (รอการตรวจสอบ / กำลังตรวจสอบ / ผ่าน / ไม่ผ่านต้องแก้ไข)
+- [ ] Test complete status workflow end-to-end

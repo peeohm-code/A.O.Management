@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, CheckCircle2, Clock, FileText } from "lucide-react";
+import { Plus, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 interface ChecklistsTabProps {
@@ -40,6 +40,8 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [checklistToDelete, setChecklistToDelete] = useState<number | null>(null);
+  const [editingStatusId, setEditingStatusId] = useState<number | null>(null);
+  const [newStatus, setNewStatus] = useState<string>("");
 
   const utils = trpc.useUtils();
 
@@ -75,6 +77,17 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
     },
   });
 
+  const updateStatusMutation = trpc.checklist.updateChecklistStatus.useMutation({
+    onSuccess: () => {
+      toast.success("อัปเดตสถานะสำเร็จ");
+      utils.checklist.getTaskChecklists.invalidate({ taskId });
+      setEditingStatusId(null);
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
   const handleAddChecklist = () => {
     if (!selectedTemplateId) {
       toast.error("กรุณาเลือก Checklist Template");
@@ -96,8 +109,33 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
       before: "ก่อนเริ่มงาน",
       during: "ระหว่างทำงาน",
       after: "หลังเสร็จงาน",
+      pre_execution: "ก่อนเริ่มงาน",
+      in_progress: "ระหว่างทำงาน",
+      post_execution: "หลังเสร็จงาน",
     };
     return labels[stage] || stage;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      not_started: "ยังไม่เริ่ม",
+      pending_inspection: "รอการตรวจสอบ",
+      in_progress: "กำลังตรวจสอบ",
+      completed: "ผ่าน",
+      failed: "ไม่ผ่าน",
+    };
+    return labels[status] || status;
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      not_started: "bg-gray-100 text-gray-700 border-gray-300",
+      pending_inspection: "bg-yellow-100 text-yellow-700 border-yellow-300",
+      in_progress: "bg-blue-100 text-blue-700 border-blue-300",
+      completed: "bg-green-100 text-green-700 border-green-300",
+      failed: "bg-red-100 text-red-700 border-red-300",
+    };
+    return colors[status] || "bg-gray-100 text-gray-700";
   };
 
   if (checklistsLoading) {
@@ -180,24 +218,64 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                           <Badge variant="outline">
                             {getStageLabel(checklist.stage)}
                           </Badge>
+                          <Badge className={getStatusColor(checklist.status)}>
+                            {getStatusLabel(checklist.status)}
+                          </Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                           <span className="flex items-center gap-1">
                             <FileText className="w-4 h-4" />
                             {checklist.items?.length || 0} รายการ
                           </span>
-                          {checklist.completedAt ? (
-                            <span className="flex items-center gap-1 text-green-600">
-                              <CheckCircle2 className="w-4 h-4" />
-                              ตรวจสอบแล้ว
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-yellow-600">
-                              <Clock className="w-4 h-4" />
-                              รอการตรวจสอบ
-                            </span>
-                          )}
                         </div>
+                        {/* Status Dropdown - Only show for not_started and pending_inspection */}
+                        {(checklist.status === "not_started" || checklist.status === "pending_inspection") && (
+                          <div className="mt-2">
+                            {editingStatusId === checklist.id ? (
+                              <div className="flex gap-2">
+                                <Select value={newStatus} onValueChange={setNewStatus}>
+                                  <SelectTrigger className="h-8 text-sm">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+                                    <SelectItem value="pending_inspection">รอการตรวจสอบ</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    updateStatusMutation.mutate({
+                                      id: checklist.id,
+                                      status: newStatus as any,
+                                    });
+                                  }}
+                                  disabled={updateStatusMutation.isPending}
+                                >
+                                  บันทึก
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setEditingStatusId(null)}
+                                >
+                                  ยกเลิก
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingStatusId(checklist.id);
+                                  setNewStatus(checklist.status);
+                                }}
+                              >
+                                เปลี่ยนสถานะ
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <Button
                         variant="ghost"

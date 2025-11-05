@@ -13,9 +13,7 @@ CREATE TABLE `checklistItemResults` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`taskChecklistId` int NOT NULL,
 	`templateItemId` int NOT NULL,
-	`result` enum('pass','fail','na'),
-	`comment` text,
-	`photoUrls` text,
+	`result` enum('pass','fail','na') NOT NULL,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `checklistItemResults_id` PRIMARY KEY(`id`)
@@ -25,8 +23,6 @@ CREATE TABLE `checklistTemplateItems` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`templateId` int NOT NULL,
 	`itemText` text NOT NULL,
-	`requirePhoto` boolean NOT NULL DEFAULT false,
-	`acceptanceCriteria` text,
 	`order` int NOT NULL DEFAULT 0,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	CONSTRAINT `checklistTemplateItems_id` PRIMARY KEY(`id`)
@@ -38,6 +34,8 @@ CREATE TABLE `checklistTemplates` (
 	`category` varchar(100),
 	`stage` enum('pre_execution','in_progress','post_execution') NOT NULL,
 	`description` text,
+	`allowGeneralComments` boolean NOT NULL DEFAULT true,
+	`allowPhotos` boolean NOT NULL DEFAULT true,
 	`createdBy` int NOT NULL,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -119,9 +117,11 @@ CREATE TABLE `taskChecklists` (
 	`taskId` int NOT NULL,
 	`templateId` int NOT NULL,
 	`stage` enum('pre_execution','in_progress','post_execution') NOT NULL,
-	`status` enum('pending','in_progress','passed','failed') NOT NULL DEFAULT 'pending',
+	`status` enum('not_started','pending_inspection','in_progress','completed','failed') NOT NULL DEFAULT 'not_started',
 	`inspectedBy` int,
 	`inspectedAt` timestamp,
+	`generalComments` text,
+	`photoUrls` text,
 	`signature` text,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
@@ -166,7 +166,7 @@ CREATE TABLE `tasks` (
 	`startDate` timestamp,
 	`endDate` timestamp,
 	`progress` int NOT NULL DEFAULT 0,
-	`status` enum('todo','pending_pre_inspection','ready_to_start','in_progress','pending_final_inspection','rectification_needed','completed') NOT NULL DEFAULT 'todo',
+	`status` enum('todo','pending_pre_inspection','ready_to_start','in_progress','pending_final_inspection','rectification_needed','completed','not_started','delayed') NOT NULL DEFAULT 'todo',
 	`assigneeId` int,
 	`order` int NOT NULL DEFAULT 0,
 	`createdBy` int NOT NULL,
@@ -175,7 +175,20 @@ CREATE TABLE `tasks` (
 	CONSTRAINT `tasks_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-ALTER TABLE `users` MODIFY COLUMN `role` enum('user','admin','pm','engineer','qc') NOT NULL DEFAULT 'user';--> statement-breakpoint
+CREATE TABLE `users` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`openId` varchar(64) NOT NULL,
+	`name` text,
+	`email` varchar(320),
+	`loginMethod` varchar(64),
+	`role` enum('user','admin','pm','engineer','qc') NOT NULL DEFAULT 'user',
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`lastSignedIn` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `users_id` PRIMARY KEY(`id`),
+	CONSTRAINT `users_openId_unique` UNIQUE(`openId`)
+);
+--> statement-breakpoint
 CREATE INDEX `userIdx` ON `activityLog` (`userId`);--> statement-breakpoint
 CREATE INDEX `projectIdx` ON `activityLog` (`projectId`);--> statement-breakpoint
 CREATE INDEX `taskIdx` ON `activityLog` (`taskId`);--> statement-breakpoint

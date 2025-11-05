@@ -76,7 +76,9 @@ export const tasks = mysqlTable("tasks", {
     "in_progress",
     "pending_final_inspection",
     "rectification_needed",
-    "completed"
+    "completed",
+    "not_started",
+    "delayed"
   ]).default("todo").notNull(),
   assigneeId: int("assigneeId"),
   order: int("order").default(0).notNull(), // For sorting
@@ -155,7 +157,7 @@ export const taskChecklists = mysqlTable("taskChecklists", {
   taskId: int("taskId").notNull(),
   templateId: int("templateId").notNull(),
   stage: mysqlEnum("stage", ["pre_execution", "in_progress", "post_execution"]).notNull(),
-  status: mysqlEnum("status", ["pending", "in_progress", "passed", "failed"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["not_started", "pending_inspection", "in_progress", "completed", "failed"]).default("not_started").notNull(),
   inspectedBy: int("inspectedBy"),
   inspectedAt: timestamp("inspectedAt"),
   generalComments: text("generalComments"),

@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { storagePut } from "./storage";
+import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
 
 /**
  * Project Router - Project Management
@@ -88,15 +89,38 @@ const taskRouter = router({
   list: protectedProcedure
     .input(z.object({ projectId: z.number().optional() }))
     .query(async ({ input, ctx }) => {
+      let tasks;
       if (input.projectId) {
-        return await db.getTasksByProject(input.projectId);
+        tasks = await db.getTasksByProject(input.projectId);
+      } else {
+        // Return all tasks for user if no projectId specified
+        tasks = await db.getTasksByAssignee(ctx.user.id);
       }
-      // Return all tasks for user if no projectId specified
-      return await db.getTasksByAssignee(ctx.user.id);
+      
+      // Add computed display status to each task
+      return tasks.map(task => {
+        const displayStatus = getTaskDisplayStatus(task);
+        return {
+          ...task,
+          displayStatus,
+          displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
+          displayStatusColor: getTaskDisplayStatusColor(displayStatus),
+        };
+      });
     }),
 
   get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-    return await db.getTaskById(input.id);
+    const task = await db.getTaskById(input.id);
+    if (!task) return null;
+    
+    // Add computed display status
+    const displayStatus = getTaskDisplayStatus(task);
+    return {
+      ...task,
+      displayStatus,
+      displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
+      displayStatusColor: getTaskDisplayStatusColor(displayStatus),
+    };
   }),
 
   myTasks: protectedProcedure.query(async ({ ctx }) => {
@@ -392,6 +416,29 @@ const checklistRouter = router({
         taskId: checklist.taskId,
         action: "checklist_removed",
         details: JSON.stringify({ checklistId: input.id }),
+      });
+
+      return { success: true };
+    }),
+
+  updateChecklistStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        status: z.enum(["not_started", "pending_inspection"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const checklist = await db.getTaskChecklistById(input.id);
+      if (!checklist) throw new Error("Checklist not found");
+
+      await db.updateTaskChecklistStatus(input.id, input.status);
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        taskId: checklist.taskId,
+        action: "checklist_status_updated",
+        details: JSON.stringify({ checklistId: input.id, status: input.status }),
       });
 
       return { success: true };
