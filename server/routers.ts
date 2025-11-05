@@ -745,6 +745,57 @@ const activityRouter = router({
 /**
  * Main App Router
  */
+/**
+ * Dashboard Router - Statistics and Overview
+ */
+const dashboardRouter = router({
+  getStats: protectedProcedure.query(async ({ ctx }) => {
+    // Get all tasks with computed display status
+    const allTasks = await db.getAllTasks();
+    const tasksWithStatus = allTasks.map(task => ({
+      ...task,
+      displayStatus: getTaskDisplayStatus(task),
+    }));
+
+    // Count tasks by display status
+    const taskStats = {
+      not_started: tasksWithStatus.filter(t => t.displayStatus === 'not_started').length,
+      in_progress: tasksWithStatus.filter(t => t.displayStatus === 'in_progress').length,
+      delayed: tasksWithStatus.filter(t => t.displayStatus === 'delayed').length,
+      completed: tasksWithStatus.filter(t => t.displayStatus === 'completed').length,
+      total: tasksWithStatus.length,
+    };
+
+    // Get all checklists
+    const allChecklists = await db.getAllTaskChecklists();
+    
+    // Count checklists by status
+    const checklistStats = {
+      not_started: allChecklists.filter(c => c.status === 'not_started').length,
+      pending_inspection: allChecklists.filter(c => c.status === 'pending_inspection').length,
+      in_progress: allChecklists.filter(c => c.status === 'in_progress').length,
+      completed: allChecklists.filter(c => c.status === 'completed').length,
+      failed: allChecklists.filter(c => c.status === 'failed').length,
+      total: allChecklists.length,
+    };
+
+    // Get project count
+    const projects = await db.getProjectsByUser(ctx.user.id);
+    const projectCount = projects.length;
+
+    // Get user's assigned tasks
+    const myTasks = tasksWithStatus.filter(t => t.assigneeId === ctx.user.id);
+    const myTasksCount = myTasks.length;
+
+    return {
+      taskStats,
+      checklistStats,
+      projectCount,
+      myTasksCount,
+    };
+  }),
+});
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -758,6 +809,7 @@ export const appRouter = router({
     }),
   }),
 
+  dashboard: dashboardRouter,
   project: projectRouter,
   task: taskRouter,
   checklist: checklistRouter,

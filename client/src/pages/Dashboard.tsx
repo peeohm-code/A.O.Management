@@ -3,16 +3,17 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { Loader2, Plus, CheckCircle2, AlertCircle, Clock, ListTodo, ClipboardCheck, TrendingUp, AlertTriangle } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const statsQuery = trpc.dashboard.getStats.useQuery();
   const projectsQuery = trpc.project.list.useQuery();
   const myTasksQuery = trpc.task.myTasks.useQuery();
   const notificationsQuery = trpc.notification.list.useQuery();
 
-  if (projectsQuery.isLoading || myTasksQuery.isLoading) {
+  if (statsQuery.isLoading || projectsQuery.isLoading || myTasksQuery.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin w-8 h-8" />
@@ -20,14 +21,10 @@ export default function Dashboard() {
     );
   }
 
+  const stats = statsQuery.data;
   const projects = projectsQuery.data || [];
   const myTasks = myTasksQuery.data || [];
   const notifications = notificationsQuery.data || [];
-
-  // Count tasks by status
-  const completedTasks = myTasks.filter((t) => t.status === "completed").length;
-  const inProgressTasks = myTasks.filter((t) => t.status === "in_progress").length;
-  const pendingTasks = myTasks.filter((t) => t.status === "todo").length;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -82,7 +79,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-gray-600">Total Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projects.length}</div>
+            <div className="text-2xl font-bold">{stats?.projectCount || 0}</div>
           </CardContent>
         </Card>
 
@@ -91,7 +88,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-gray-600">My Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{myTasks.length}</div>
+            <div className="text-2xl font-bold">{stats?.myTasksCount || 0}</div>
           </CardContent>
         </Card>
 
@@ -100,7 +97,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{inProgressTasks}</div>
+            <div className="text-2xl font-bold text-blue-600">{stats?.taskStats.in_progress || 0}</div>
           </CardContent>
         </Card>
 
@@ -109,10 +106,239 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{completedTasks}</div>
+            <div className="text-2xl font-bold text-green-600">{stats?.taskStats.completed || 0}</div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Task Statistics */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ListTodo className="w-5 h-5 text-blue-600" />
+            <CardTitle>Task Overview</CardTitle>
+          </div>
+          <CardDescription>สรุปสถานะงานทั้งหมดในระบบ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {/* Total Tasks */}
+            <div className="text-center p-4 border rounded-lg bg-gray-50">
+              <div className="text-3xl font-bold text-gray-900">{stats?.taskStats.total || 0}</div>
+              <div className="text-sm text-gray-600 mt-1">งานทั้งหมด</div>
+            </div>
+
+            {/* Not Started */}
+            <Link href="/tasks">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <div className="text-3xl font-bold text-gray-700">{stats?.taskStats.not_started || 0}</div>
+                <div className="text-sm text-gray-600 mt-1">ยังไม่เริ่ม</div>
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-gray-500 h-2 rounded-full"
+                      style={{
+                        width: stats?.taskStats.total
+                          ? `${((stats.taskStats.not_started / stats.taskStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* In Progress */}
+            <Link href="/tasks">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-blue-50 hover:bg-blue-100">
+                <div className="text-3xl font-bold text-blue-700">{stats?.taskStats.in_progress || 0}</div>
+                <div className="text-sm text-blue-600 mt-1 flex items-center justify-center gap-1">
+                  <TrendingUp className="w-4 h-4" />
+                  กำลังทำ
+                </div>
+                <div className="mt-2">
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.taskStats.total
+                          ? `${((stats.taskStats.in_progress / stats.taskStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Delayed */}
+            <Link href="/tasks">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
+                <div className="text-3xl font-bold text-red-700">{stats?.taskStats.delayed || 0}</div>
+                <div className="text-sm text-red-600 mt-1 flex items-center justify-center gap-1">
+                  <AlertTriangle className="w-4 h-4" />
+                  ล่าช้า
+                </div>
+                <div className="mt-2">
+                  <div className="w-full bg-red-200 rounded-full h-2">
+                    <div
+                      className="bg-red-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.taskStats.total
+                          ? `${((stats.taskStats.delayed / stats.taskStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Completed */}
+            <Link href="/tasks">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
+                <div className="text-3xl font-bold text-green-700">{stats?.taskStats.completed || 0}</div>
+                <div className="text-sm text-green-600 mt-1 flex items-center justify-center gap-1">
+                  <CheckCircle2 className="w-4 h-4" />
+                  เสร็จสมบูรณ์
+                </div>
+                <div className="mt-2">
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.taskStats.total
+                          ? `${((stats.taskStats.completed / stats.taskStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Checklist Statistics */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ClipboardCheck className="w-5 h-5 text-green-600" />
+            <CardTitle>Checklist Overview</CardTitle>
+          </div>
+          <CardDescription>สรุปสถานะ Checklist ทั้งหมดในระบบ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            {/* Total Checklists */}
+            <div className="text-center p-4 border rounded-lg bg-gray-50">
+              <div className="text-3xl font-bold text-gray-900">{stats?.checklistStats.total || 0}</div>
+              <div className="text-sm text-gray-600 mt-1">Checklist ทั้งหมด</div>
+            </div>
+
+            {/* Not Started */}
+            <Link href="/qc">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <div className="text-3xl font-bold text-gray-700">{stats?.checklistStats.not_started || 0}</div>
+                <div className="text-sm text-gray-600 mt-1">ยังไม่เริ่ม</div>
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-gray-500 h-2 rounded-full"
+                      style={{
+                        width: stats?.checklistStats.total
+                          ? `${((stats.checklistStats.not_started / stats.checklistStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Pending Inspection */}
+            <Link href="/qc">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-yellow-50 hover:bg-yellow-100">
+                <div className="text-3xl font-bold text-yellow-700">{stats?.checklistStats.pending_inspection || 0}</div>
+                <div className="text-sm text-yellow-600 mt-1">รอการตรวจสอบ</div>
+                <div className="mt-2">
+                  <div className="w-full bg-yellow-200 rounded-full h-2">
+                    <div
+                      className="bg-yellow-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.checklistStats.total
+                          ? `${((stats.checklistStats.pending_inspection / stats.checklistStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* In Progress */}
+            <Link href="/qc">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-blue-50 hover:bg-blue-100">
+                <div className="text-3xl font-bold text-blue-700">{stats?.checklistStats.in_progress || 0}</div>
+                <div className="text-sm text-blue-600 mt-1">กำลังตรวจสอบ</div>
+                <div className="mt-2">
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.checklistStats.total
+                          ? `${((stats.checklistStats.in_progress / stats.checklistStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Completed */}
+            <Link href="/qc">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
+                <div className="text-3xl font-bold text-green-700">{stats?.checklistStats.completed || 0}</div>
+                <div className="text-sm text-green-600 mt-1">ผ่าน</div>
+                <div className="mt-2">
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.checklistStats.total
+                          ? `${((stats.checklistStats.completed / stats.checklistStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Failed */}
+            <Link href="/defects">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
+                <div className="text-3xl font-bold text-red-700">{stats?.checklistStats.failed || 0}</div>
+                <div className="text-sm text-red-600 mt-1">ไม่ผ่าน</div>
+                <div className="mt-2">
+                  <div className="w-full bg-red-200 rounded-full h-2">
+                    <div
+                      className="bg-red-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.checklistStats.total
+                          ? `${((stats.checklistStats.failed / stats.checklistStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Tasks */}
@@ -137,9 +363,8 @@ export default function Dashboard() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          {getStatusIcon(task.status)}
-                          <Badge className={`text-xs ${getStatusColor(task.status)}`}>
-                            {task.status.replace(/_/g, " ")}
+                          <Badge className={task.displayStatusColor}>
+                            {task.displayStatusLabel}
                           </Badge>
                         </div>
                       </div>

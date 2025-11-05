@@ -250,6 +250,16 @@ export async function getTasksByAssignee(userId: number) {
     .orderBy(desc(tasks.updatedAt));
 }
 
+export async function getAllTasks() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(tasks)
+    .orderBy(desc(tasks.updatedAt));
+}
+
 export async function updateTask(
   id: number,
   data: Partial<{
@@ -472,6 +482,16 @@ export async function getTaskChecklistById(id: number) {
     .where(eq(taskChecklists.id, id))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllTaskChecklists() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskChecklists)
+    .orderBy(desc(taskChecklists.createdAt));
 }
 
 export async function updateTaskChecklist(

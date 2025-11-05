@@ -232,3 +232,13 @@
   - [x] Badge 1: User-controlled status (not_started / pending_inspection)
   - [x] Badge 2: Inspection result status (รอการตรวจสอบ / กำลังตรวจสอบ / ผ่าน / ไม่ผ่านต้องแก้ไข)
 - [ ] Test complete status workflow end-to-end
+
+## Dashboard Statistics Feature
+- [x] Create backend API to get task statistics by display status
+- [x] Create backend API to get checklist statistics by status
+- [x] Create backend API to get project statistics
+- [x] Update Dashboard page UI to show task status cards
+- [x] Add checklist status statistics to Dashboard
+- [x] Add visual indicators (progress bars, charts) for statistics
+- [x] Add quick links to filtered views from Dashboard cards
+- [x] Test Dashboard with sample data
