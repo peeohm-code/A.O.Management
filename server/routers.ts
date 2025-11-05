@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
@@ -79,6 +80,29 @@ const projectRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       return await db.addProjectMember(input);
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      // Only Admin can delete projects
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only administrators can delete projects",
+        });
+      }
+
+      await db.deleteProject(input.id);
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        projectId: input.id,
+        action: "project_deleted",
+        details: JSON.stringify({ projectId: input.id }),
+      });
+
+      return { success: true };
     }),
 });
 

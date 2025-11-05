@@ -4,16 +4,46 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, MapPin, Calendar, DollarSign, Users } from "lucide-react";
-import { Link } from "wouter";
+import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2 } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import GanttChart from "@/components/GanttChart";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const projectId = parseInt(id || "0");
+  const [, setLocation] = useLocation();
+  const { user } = useAuth();
 
   const projectQuery = trpc.project.get.useQuery({ id: projectId }, { enabled: !!projectId });
   const projectTasksQuery = trpc.task.list.useQuery({ projectId }, { enabled: !!projectId });
+  const deleteProjectMutation = trpc.project.delete.useMutation();
+
+  const handleDeleteProject = async () => {
+    try {
+      await deleteProjectMutation.mutateAsync({ id: projectId });
+      toast.success("โครงการถูกลบเรียบร้อยแล้ว");
+      setLocation("/projects");
+    } catch (error: any) {
+      if (error.message?.includes("Only administrators")) {
+        toast.error("เฉพาะ Admin เท่านั้นที่สามารถลบโครงการได้");
+      } else {
+        toast.error("ไม่สามารถลบโครงการได้");
+      }
+    }
+  };
 
   if (projectQuery.isLoading || projectTasksQuery.isLoading) {
     return (
@@ -79,7 +109,40 @@ export default function ProjectDetail() {
           <h1 className="text-3xl font-bold">{project.name}</h1>
           {project.code && <p className="text-gray-600 mt-1">Code: {project.code}</p>}
         </div>
-        <Badge className={`${getStatusColor(project.status)}`}>{project.status}</Badge>
+        <div className="flex items-center gap-2">
+          <Badge className={`${getStatusColor(project.status)}`}>{project.status}</Badge>
+          {user?.role === "admin" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
+                  <Trash2 className="w-4 h-4" />
+                  ลบโครงการ
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>ยืนยันการลบโครงการ</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    คุณแน่ใจหรือไม่ว่าต้องการลบโครงการ "{project.name}"?
+                    <br />
+                    <span className="text-red-600 font-semibold">
+                      การดำเนินการนี้จะลบข้อมูลทั้งหมดที่เกี่ยวข้อง (งาน, checklist, defects, ความคิดเห็น) และไม่สามารถกู้คืนได้
+                    </span>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteProject}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    ลบโครงการ
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
       </div>
 
       {/* Project Info Cards */}

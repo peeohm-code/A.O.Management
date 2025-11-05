@@ -308,3 +308,12 @@
 - [x] Display dependencies summary in Gantt Chart (simple text-based list)
 - [x] Add visual indicators showing dependency relationships
 - [x] Test dependencies workflow end-to-end
+
+## Delete Project Feature
+- [x] Create backend API for deleting projects (deleteProject procedure)
+- [x] Implement role-based permission (only Admin can delete projects)
+- [x] Add database function to delete project and cascade delete related data
+- [x] Add delete button in Project Detail page header
+- [x] Implement confirmation dialog before deletion
+- [x] Redirect to Projects page after successful deletion
+- [x] Test delete functionality end-to-end

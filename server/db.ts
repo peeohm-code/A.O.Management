@@ -182,6 +182,57 @@ export async function updateProject(
   return await db.update(projects).set(updateData).where(eq(projects.id, id));
 }
 
+export async function deleteProject(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Delete in order to respect foreign key constraints
+  // 1. Delete activity logs
+  await db.delete(activityLog).where(eq(activityLog.projectId, id));
+  
+  // 2. Delete task-related data
+  const projectTasks = await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.projectId, id));
+  const taskIds = projectTasks.map(t => t.id);
+  
+  if (taskIds.length > 0) {
+    // Delete task dependencies
+    await db.delete(taskDependencies).where(inArray(taskDependencies.taskId, taskIds));
+    await db.delete(taskDependencies).where(inArray(taskDependencies.dependsOnTaskId, taskIds));
+    
+    // Delete task followers
+    await db.delete(taskFollowers).where(inArray(taskFollowers.taskId, taskIds));
+    
+    // Delete task attachments
+    await db.delete(taskAttachments).where(inArray(taskAttachments.taskId, taskIds));
+    
+    // Delete task comments
+    await db.delete(taskComments).where(inArray(taskComments.taskId, taskIds));
+    
+    // Delete checklist item results
+    await db.delete(checklistItemResults).where(inArray(checklistItemResults.taskChecklistId, 
+      (await db.select({ id: taskChecklists.id }).from(taskChecklists).where(inArray(taskChecklists.taskId, taskIds))).map(tc => tc.id)
+    ));
+    
+    // Delete task checklists
+    await db.delete(taskChecklists).where(inArray(taskChecklists.taskId, taskIds));
+    
+    // Delete defects
+    await db.delete(defects).where(inArray(defects.taskId, taskIds));
+    
+    // Delete tasks
+    await db.delete(tasks).where(eq(tasks.projectId, id));
+  }
+  
+  // 3. Delete notifications
+  await db.delete(notifications).where(eq(notifications.projectId, id));
+  
+  // 4. Delete project members
+  await db.delete(projectMembers).where(eq(projectMembers.projectId, id));
+  
+  // 5. Finally delete the project
+  await db.delete(projects).where(eq(projects.id, id));
+}
+
 export async function addProjectMember(data: {
   projectId: number;
   userId: number;
