@@ -528,7 +528,6 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                 { category: "structure", label: "งานโครงสร้าง" },
                 { category: "architecture", label: "งานสถาปัตย์" },
                 { category: "mep", label: "งานระบบ (MEP)" },
-                { category: "finishing", label: "งานตกแต่ง" },
                 { category: "other", label: "อื่นๆ" },
               ].map(({ category, label }) => (
                 <div key={category} className="flex items-center gap-1">
@@ -573,14 +572,13 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 }
 
 function getCategoryLabel(category: string): string {
-  const labels: Record<string, string> = {
+  const categoryLabels: Record<string, string> = {
     structure: "งานโครงสร้าง",
     architecture: "งานสถาปัตย์",
     mep: "งานระบบ (MEP)",
-    finishing: "งานตกแต่ง",
     other: "อื่นๆ",
   };
-  return labels[category] || category;
+  return categoryLabels[category] || category;
 }
 
 function getCategoryColor(category: string): string {

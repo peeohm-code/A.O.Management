@@ -376,3 +376,7 @@
 ## Move Interior Tasks to Architecture Category
 - [x] Update category of interior tasks from 'interior' to 'architecture' in database
 - [x] Test Gantt Chart to verify tasks are grouped correctly
+
+## Remove Interior Category from Legend
+- [x] Remove "งานตกแต่ง" from category legend in GanttChart component
+- [x] Test Gantt Chart to verify legend is updated
