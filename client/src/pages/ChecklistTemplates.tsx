@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Trash2, Edit } from "lucide-react";
 
@@ -33,8 +34,10 @@ export default function ChecklistTemplates() {
   const [templateCategory, setTemplateCategory] = useState("");
   const [templateStage, setTemplateStage] = useState<"pre_execution" | "in_progress" | "post_execution">("pre_execution");
   const [templateDescription, setTemplateDescription] = useState("");
-  const [items, setItems] = useState<Array<{ itemText: string; requirePhoto: boolean; acceptanceCriteria: string; order: number }>>([
-    { itemText: "", requirePhoto: false, acceptanceCriteria: "", order: 0 }
+  const [allowGeneralComments, setAllowGeneralComments] = useState(true);
+  const [allowPhotos, setAllowPhotos] = useState(true);
+  const [items, setItems] = useState<Array<{ itemText: string; order: number }>>([
+    { itemText: "", order: 0 }
   ]);
 
   const templatesQuery = trpc.checklist.templates.useQuery();
@@ -66,16 +69,16 @@ export default function ChecklistTemplates() {
   };
 
   const handleAddItem = () => {
-    setItems([...items, { itemText: "", requirePhoto: false, acceptanceCriteria: "", order: items.length }]);
+    setItems([...items, { itemText: "", order: items.length }]);
   };
 
   const handleRemoveItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const handleItemChange = (index: number, field: string, value: any) => {
+  const handleItemChange = (index: number, value: string) => {
     const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value };
+    newItems[index] = { ...newItems[index], itemText: value };
     setItems(newItems);
   };
 
@@ -84,7 +87,9 @@ export default function ChecklistTemplates() {
     setTemplateCategory("");
     setTemplateStage("pre_execution");
     setTemplateDescription("");
-    setItems([{ itemText: "", requirePhoto: false, acceptanceCriteria: "", order: 0 }]);
+    setAllowGeneralComments(true);
+    setAllowPhotos(true);
+    setItems([{ itemText: "", order: 0 }]);
     setEditingTemplate(null);
   };
 
@@ -106,37 +111,40 @@ export default function ChecklistTemplates() {
         category: templateCategory || undefined,
         stage: templateStage,
         description: templateDescription || undefined,
-        items: validItems,
+        allowGeneralComments,
+        allowPhotos,
+        items: validItems.map((item, index) => ({
+          itemText: item.itemText,
+          order: index,
+        })),
       });
 
-      toast.success("สร้าง Checklist Template สำเร็จ");
+      toast.success("สร้าง Template สำเร็จ");
       setIsCreateDialogOpen(false);
       resetForm();
       templatesQuery.refetch();
     } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
+      toast.error("เกิดข้อผิดพลาดในการสร้าง Template");
+      console.error(error);
     }
   };
 
-  const handleEditClick = async (template: any) => {
+  const handleEditClick = (template: any) => {
     setEditingTemplate(template);
     setTemplateName(template.name);
     setTemplateCategory(template.category || "");
     setTemplateStage(template.stage);
     setTemplateDescription(template.description || "");
-    
-    // Fetch template items
-    if (template.items && template.items.length > 0) {
-      setItems(template.items.map((item: any, index: number) => ({
-        itemText: item.itemText,
-        requirePhoto: item.requirePhoto || false,
-        acceptanceCriteria: item.acceptanceCriteria || "",
-        order: index,
-      })));
-    } else {
-      setItems([{ itemText: "", requirePhoto: false, acceptanceCriteria: "", order: 0 }]);
-    }
-    
+    setAllowGeneralComments(template.allowGeneralComments ?? true);
+    setAllowPhotos(template.allowPhotos ?? true);
+    setItems(
+      template.items && template.items.length > 0
+        ? template.items.map((item: any) => ({
+            itemText: item.itemText,
+            order: item.order,
+          }))
+        : [{ itemText: "", order: 0 }]
+    );
     setIsEditDialogOpen(true);
   };
 
@@ -159,38 +167,48 @@ export default function ChecklistTemplates() {
         category: templateCategory || undefined,
         stage: templateStage,
         description: templateDescription || undefined,
-        items: validItems,
+        allowGeneralComments,
+        allowPhotos,
+        items: validItems.map((item, index) => ({
+          itemText: item.itemText,
+          order: index,
+        })),
       });
 
-      toast.success("แก้ไข Checklist Template สำเร็จ");
+      toast.success("แก้ไข Template สำเร็จ");
       setIsEditDialogOpen(false);
       resetForm();
       templatesQuery.refetch();
     } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
+      toast.error("เกิดข้อผิดพลาดในการแก้ไข Template");
+      console.error(error);
     }
   };
 
   const renderTemplateForm = () => (
-    <div className="space-y-4">
-      <div>
-        <Label>ชื่อ Template *</Label>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="name">ชื่อ Template *</Label>
         <Input
+          id="name"
+          placeholder="เช่น การตรวจสอบงานคอนกรีต"
           value={templateName}
           onChange={(e) => setTemplateName(e.target.value)}
-          placeholder="เช่น การตรวจสอบงานฐานราก"
         />
       </div>
-      <div>
-        <Label>หมวดหมู่</Label>
+
+      <div className="space-y-2">
+        <Label htmlFor="category">หมวดหมู่</Label>
         <Input
+          id="category"
+          placeholder="เช่น โครงสร้าง, สถาปัตย์, ระบบ"
           value={templateCategory}
           onChange={(e) => setTemplateCategory(e.target.value)}
-          placeholder="เช่น โครงสร้าง, สถาปัตยกรรม, MEP"
         />
       </div>
-      <div>
-        <Label>ระยะการตรวจสอบ *</Label>
+
+      <div className="space-y-2">
+        <Label htmlFor="stage">ระยะการตรวจสอบ *</Label>
         <Select value={templateStage} onValueChange={(value: any) => setTemplateStage(value)}>
           <SelectTrigger>
             <SelectValue />
@@ -202,191 +220,270 @@ export default function ChecklistTemplates() {
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label>คำอธิบาย</Label>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">คำอธิบาย</Label>
         <Textarea
+          id="description"
+          placeholder="รายละเอียดเพิ่มเติม..."
           value={templateDescription}
           onChange={(e) => setTemplateDescription(e.target.value)}
-          placeholder="รายละเอียดเพิ่มเติม..."
           rows={3}
         />
       </div>
 
-      <div className="border-t pt-4">
-        <div className="flex items-center justify-between mb-3">
-          <Label className="text-base">รายการตรวจสอบ *</Label>
-          <Button size="sm" variant="outline" onClick={handleAddItem}>
-            <Plus className="w-4 h-4 mr-1" />
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="allowComments"
+              checked={allowGeneralComments}
+              onCheckedChange={(checked) => setAllowGeneralComments(checked as boolean)}
+            />
+            <Label htmlFor="allowComments" className="font-normal cursor-pointer">
+              อนุญาตให้เพิ่มความเห็นทั่วไป
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="allowPhotos"
+              checked={allowPhotos}
+              onCheckedChange={(checked) => setAllowPhotos(checked as boolean)}
+            />
+            <Label htmlFor="allowPhotos" className="font-normal cursor-pointer">
+              อนุญาตให้แนบรูปภาพ
+            </Label>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label>รายการตรวจสอบ *</Label>
+          <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>
+            <Plus className="h-4 w-4 mr-1" />
             เพิ่มรายการ
           </Button>
         </div>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+
+        <div className="space-y-3">
           {items.map((item, index) => (
-            <Card key={index}>
-              <CardContent className="pt-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1">
-                      <Label className="text-xs">รายการที่ {index + 1}</Label>
-                      <Input
-                        value={item.itemText}
-                        onChange={(e) => handleItemChange(index, "itemText", e.target.value)}
-                        placeholder="รายละเอียดการตรวจสอบ..."
-                      />
-                    </div>
-                    {items.length > 1 && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleRemoveItem(index)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    )}
-                  </div>
-                  <div>
-                    <Label className="text-xs">เกณฑ์การยอมรับ</Label>
-                    <Textarea
-                      value={item.acceptanceCriteria}
-                      onChange={(e) => handleItemChange(index, "acceptanceCriteria", e.target.value)}
-                      placeholder="เกณฑ์ที่ต้องผ่าน..."
-                      rows={2}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={item.requirePhoto}
-                      onChange={(e) => handleItemChange(index, "requirePhoto", e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label className="text-xs">ต้องแนบรูปภาพ</Label>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={index} className="flex gap-2 items-start p-4 border rounded-lg">
+              <div className="flex-1 space-y-2">
+                <Label>รายการที่ {index + 1}</Label>
+                <Input
+                  placeholder="รายละเอียดการตรวจสอบ..."
+                  value={item.itemText}
+                  onChange={(e) => handleItemChange(index, e.target.value)}
+                />
+              </div>
+              {items.length > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveItem(index)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           ))}
         </div>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (editingTemplate) {
+              setIsEditDialogOpen(false);
+            } else {
+              setIsCreateDialogOpen(false);
+            }
+            resetForm();
+          }}
+        >
+          ยกเลิก
+        </Button>
+        <Button
+          onClick={editingTemplate ? handleUpdateTemplate : handleCreateTemplate}
+          disabled={createTemplateMutation.isPending || updateTemplateMutation.isPending}
+        >
+          {editingTemplate ? "บันทึกการแก้ไข" : "สร้าง Template"}
+        </Button>
       </div>
     </div>
   );
 
+  if (templatesQuery.isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">กำลังโหลด...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="container py-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Checklist Templates</h1>
-          <p className="text-gray-600 mt-1">จัดการแม่แบบ Checklist สำหรับการตรวจสอบคุณภาพ</p>
+          <p className="text-muted-foreground mt-1">
+            จัดการแม่แบบ Checklist สำหรับการตรวจสอบคุณภาพ
+          </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-          setIsCreateDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
+            <Button onClick={() => resetForm()}>
+              <Plus className="h-4 w-4 mr-2" />
               สร้าง Template
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>สร้าง Checklist Template ใหม่</DialogTitle>
               <DialogDescription>
-                กำหนดรายการตรวจสอบที่ใช้ซ้ำได้สำหรับงานต่างๆ
+                กรอกข้อมูลและเพิ่มรายการตรวจสอบ
               </DialogDescription>
             </DialogHeader>
             {renderTemplateForm()}
-            <div className="flex gap-2 pt-4">
-              <Button onClick={handleCreateTemplate} className="flex-1">
-                สร้าง Template
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setIsCreateDialogOpen(false);
-                resetForm();
-              }}>
-                ยกเลิก
-              </Button>
-            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>แก้ไข Checklist Template</DialogTitle>
+              <DialogDescription>
+                แก้ไขรายการตรวจสอบและข้อมูล Template
+              </DialogDescription>
+            </DialogHeader>
+            {renderTemplateForm()}
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
-        setIsEditDialogOpen(open);
-        if (!open) resetForm();
-      }}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>แก้ไข Checklist Template</DialogTitle>
-            <DialogDescription>
-              แก้ไขรายการตรวจสอบและข้อมูล Template
-            </DialogDescription>
-          </DialogHeader>
-          {renderTemplateForm()}
-          <div className="flex gap-2 pt-4">
-            <Button onClick={handleUpdateTemplate} className="flex-1">
-              บันทึกการแก้ไข
-            </Button>
-            <Button variant="outline" onClick={() => {
-              setIsEditDialogOpen(false);
-              resetForm();
-            }}>
-              ยกเลิก
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Templates List */}
-      {templatesQuery.isLoading ? (
-        <div className="text-center py-12">กำลังโหลด...</div>
-      ) : allTemplates.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-gray-500 mb-4">ยังไม่มี Checklist Template</p>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              สร้าง Template แรก
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allTemplates.map((template) => (
-            <Card key={template.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{template.name}</CardTitle>
-                    {template.category && (
-                      <CardDescription className="mt-1">{template.category}</CardDescription>
-                    )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Pre-execution Templates */}
+        {templatesQuery.data?.preExecution && templatesQuery.data.preExecution.length > 0 && (
+          <>
+            {templatesQuery.data.preExecution.map((template: any) => (
+              <Card key={template.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{template.name}</CardTitle>
+                      <CardDescription className="mt-1">{template.category || "ไม่มีหมวดหมู่"}</CardDescription>
+                    </div>
+                    <Badge className={getStageColor(template.stage)}>
+                      {getStageLabel(template.stage)}
+                    </Badge>
                   </div>
-                  <Badge className={getStageColor(template.stage)}>
-                    {getStageLabel(template.stage)}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {template.description && (
-                  <p className="text-sm text-gray-600 mb-3">{template.description}</p>
-                )}
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => handleEditClick(template)}
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    แก้ไข
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  {template.description && (
+                    <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{template.items?.length || 0} รายการ</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(template)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      แก้ไข
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        )}
+
+        {/* In-progress Templates */}
+        {templatesQuery.data?.inProgress && templatesQuery.data.inProgress.length > 0 && (
+          <>
+            {templatesQuery.data.inProgress.map((template: any) => (
+              <Card key={template.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{template.name}</CardTitle>
+                      <CardDescription className="mt-1">{template.category || "ไม่มีหมวดหมู่"}</CardDescription>
+                    </div>
+                    <Badge className={getStageColor(template.stage)}>
+                      {getStageLabel(template.stage)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {template.description && (
+                    <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{template.items?.length || 0} รายการ</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(template)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      แก้ไข
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        )}
+
+        {/* Post-execution Templates */}
+        {templatesQuery.data?.postExecution && templatesQuery.data.postExecution.length > 0 && (
+          <>
+            {templatesQuery.data.postExecution.map((template: any) => (
+              <Card key={template.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{template.name}</CardTitle>
+                      <CardDescription className="mt-1">{template.category || "ไม่มีหมวดหมู่"}</CardDescription>
+                    </div>
+                    <Badge className={getStageColor(template.stage)}>
+                      {getStageLabel(template.stage)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {template.description && (
+                    <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{template.items?.length || 0} รายการ</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(template)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      แก้ไข
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        )}
+      </div>
+
+      {allTemplates.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">ยังไม่มี Template</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            คลิกปุ่ม "สร้าง Template" เพื่อเริ่มต้น
+          </p>
         </div>
       )}
     </div>

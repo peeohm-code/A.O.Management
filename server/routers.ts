@@ -251,12 +251,12 @@ const checklistRouter = router({
         category: z.string().optional(),
         stage: z.enum(["pre_execution", "in_progress", "post_execution"]),
         description: z.string().optional(),
+        allowGeneralComments: z.boolean().optional(),
+        allowPhotos: z.boolean().optional(),
         items: z
           .array(
             z.object({
               itemText: z.string(),
-              requirePhoto: z.boolean().optional(),
-              acceptanceCriteria: z.string().optional(),
               order: z.number(),
             })
           )
@@ -269,6 +269,8 @@ const checklistRouter = router({
         category: input.category,
         stage: input.stage,
         description: input.description,
+        allowGeneralComments: input.allowGeneralComments,
+        allowPhotos: input.allowPhotos,
         createdBy: ctx.user.id,
       });
 
@@ -279,7 +281,8 @@ const checklistRouter = router({
         for (const item of input.items) {
           await db.addChecklistTemplateItem({
             templateId,
-            ...item,
+            itemText: item.itemText,
+            order: item.order,
           });
         }
       }
@@ -295,12 +298,12 @@ const checklistRouter = router({
         category: z.string().optional(),
         stage: z.enum(["pre_execution", "in_progress", "post_execution"]).optional(),
         description: z.string().optional(),
+        allowGeneralComments: z.boolean().optional(),
+        allowPhotos: z.boolean().optional(),
         items: z
           .array(
             z.object({
               itemText: z.string(),
-              requirePhoto: z.boolean().optional(),
-              acceptanceCriteria: z.string().optional(),
               order: z.number(),
             })
           )
@@ -323,7 +326,8 @@ const checklistRouter = router({
         for (const item of items) {
           await db.addChecklistTemplateItem({
             templateId: id,
-            ...item,
+            itemText: item.itemText,
+            order: item.order,
           });
         }
       }

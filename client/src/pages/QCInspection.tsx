@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { CheckCircle2, XCircle, MinusCircle, Upload, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,8 +15,6 @@ type InspectionResult = "pass" | "fail" | "na";
 interface ItemResult {
   itemId: number;
   result: InspectionResult | null;
-  comment: string;
-  photoUrl?: string;
 }
 
 export default function QCInspection() {
@@ -23,6 +22,8 @@ export default function QCInspection() {
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [selectedChecklistId, setSelectedChecklistId] = useState<number | null>(null);
   const [itemResults, setItemResults] = useState<Record<number, ItemResult>>({});
+  const [generalComments, setGeneralComments] = useState("");
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   // Queries
   const { data: tasks, isLoading: tasksLoading } = trpc.task.list.useQuery({});
@@ -48,11 +49,12 @@ export default function QCInspection() {
         initialResults[item.id] = {
           itemId: item.id,
           result: null,
-          comment: "",
         };
       });
       setItemResults(initialResults);
     }
+    setGeneralComments("");
+    setPhotoFiles([]);
     setStep(3);
   };
 
@@ -63,11 +65,10 @@ export default function QCInspection() {
     }));
   };
 
-  const handleCommentChange = (itemId: number, comment: string) => {
-    setItemResults((prev) => ({
-      ...prev,
-      [itemId]: { ...prev[itemId], comment },
-    }));
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setPhotoFiles(Array.from(e.target.files));
+    }
   };
 
   const handleSubmit = () => {
@@ -90,6 +91,8 @@ export default function QCInspection() {
     setSelectedTaskId(null);
     setSelectedChecklistId(null);
     setItemResults({});
+    setGeneralComments("");
+    setPhotoFiles([]);
   };
 
   const getStageLabel = (stage: string) => {
@@ -101,149 +104,175 @@ export default function QCInspection() {
     return labels[stage] || stage;
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, any> = {
-      pending: { label: "รอตรวจ", className: "bg-yellow-100 text-yellow-800" },
-      in_progress: { label: "กำลังตรวจ", className: "bg-blue-100 text-blue-800" },
-      passed: { label: "ผ่าน", className: "bg-green-100 text-green-800" },
-      failed: { label: "ไม่ผ่าน", className: "bg-red-100 text-red-800" },
+  const getStageColor = (stage: string) => {
+    const colors: Record<string, string> = {
+      pre_execution: "bg-blue-100 text-blue-800",
+      in_progress: "bg-yellow-100 text-yellow-800",
+      post_execution: "bg-green-100 text-green-800",
     };
-    const variant = variants[status] || variants.pending;
-    return <Badge className={variant.className}>{variant.label}</Badge>;
+    return colors[stage] || "bg-gray-100 text-gray-800";
   };
 
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      pending: "bg-gray-100 text-gray-800",
+      in_progress: "bg-blue-100 text-blue-800",
+      passed: "bg-green-100 text-green-800",
+      failed: "bg-red-100 text-red-800",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      pending: "รอการตรวจสอบ",
+      in_progress: "กำลังตรวจสอบ",
+      passed: "ผ่าน",
+      failed: "ไม่ผ่าน",
+    };
+    return labels[status] || status;
+  };
+
+  if (tasksLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">กำลังโหลด...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
+    <div className="container py-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold">QC Inspection</h1>
-        <p className="text-muted-foreground mt-2">ตรวจสอบคุณภาพงานตาม Checklist</p>
+        <p className="text-muted-foreground mt-1">
+          ระบบตรวจสอบคุณภาพงานก่อสร้าง
+        </p>
       </div>
 
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-8 gap-4">
-        <div className={`flex items-center gap-2 ${step >= 1 ? "text-primary" : "text-muted-foreground"}`}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? "bg-primary text-white" : "bg-muted"}`}>
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}>
             1
           </div>
-          <span className="font-medium">เลือกงาน</span>
+          <span className={step >= 1 ? "font-medium" : "text-muted-foreground"}>เลือกงาน</span>
         </div>
-        <div className="w-12 h-0.5 bg-border" />
-        <div className={`flex items-center gap-2 ${step >= 2 ? "text-primary" : "text-muted-foreground"}`}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? "bg-primary text-white" : "bg-muted"}`}>
+        <ArrowRight className="text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}>
             2
           </div>
-          <span className="font-medium">เลือก Checklist</span>
+          <span className={step >= 2 ? "font-medium" : "text-muted-foreground"}>เลือก Checklist</span>
         </div>
-        <div className="w-12 h-0.5 bg-border" />
-        <div className={`flex items-center gap-2 ${step >= 3 ? "text-primary" : "text-muted-foreground"}`}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? "bg-primary text-white" : "bg-muted"}`}>
+        <ArrowRight className="text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step >= 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}>
             3
           </div>
-          <span className="font-medium">ทำการตรวจสอบ</span>
+          <span className={step >= 3 ? "font-medium" : "text-muted-foreground"}>ทำการตรวจสอบ</span>
         </div>
       </div>
 
       {/* Step 1: Select Task */}
       {step === 1 && (
-        <div>
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>ขั้นตอนที่ 1: เลือกงานที่ต้องการตรวจสอบ</CardTitle>
-              <CardDescription>
-                คลิกที่การ์ดงานเพื่อดู Checklist ที่กำหนดไว้
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {tasksLoading ? (
-            <div className="text-center py-8">กำลังโหลด...</div>
-          ) : tasks && tasks.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {tasks.map((task: any) => (
-                <Card
-                  key={task.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => handleSelectTask(task.id)}
-                >
-                  <CardHeader>
-                    <CardTitle className="text-lg">{task.name}</CardTitle>
-                    <CardDescription>
-                      ความคืบหน้า: {task.progress || 0}%
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <Badge>{task.status}</Badge>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertCircle className="h-5 w-5 text-blue-600" />
+            <p className="text-sm text-muted-foreground">
+              เลือกงานที่ต้องการทำการตรวจสอบคุณภาพ
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tasks?.map((task) => (
+              <Card
+                key={task.id}
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleSelectTask(task.id)}
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg">{task.name}</CardTitle>
+                  <CardDescription>
+                    {task.projectName || "ไม่ระบุโครงการ"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <Badge className={getStatusColor(task.status)}>
+                      {getStatusLabel(task.status)}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {task.progress || 0}%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          {(!tasks || tasks.length === 0) && (
+            <div className="text-center py-12 text-muted-foreground">
+              ไม่พบงานในระบบ
             </div>
-          ) : (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>ไม่พบงานในระบบ</p>
-              </CardContent>
-            </Card>
           )}
         </div>
       )}
 
       {/* Step 2: Select Checklist */}
       {step === 2 && (
-        <div>
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>ขั้นตอนที่ 2: เลือก Checklist</CardTitle>
-              <CardDescription>
-                งาน: <strong>{selectedTask?.name}</strong>
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <div className="mb-4">
-            <Button variant="outline" onClick={() => setStep(1)}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              กลับไปเลือกงาน
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" onClick={() => setStep(1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              ย้อนกลับ
             </Button>
+            <div>
+              <h2 className="text-xl font-semibold">{selectedTask?.name}</h2>
+              <p className="text-sm text-muted-foreground">เลือก Checklist ที่ต้องการตรวจสอบ</p>
+            </div>
           </div>
 
           {checklists && checklists.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {checklists.map((checklist: any) => (
                 <Card
                   key={checklist.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  className="cursor-pointer hover:border-primary transition-colors"
                   onClick={() => handleSelectChecklist(checklist.id)}
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{checklist.templateName || "Checklist"}</CardTitle>
+                        <CardTitle className="text-lg">{checklist.templateName || "ไม่มีชื่อ"}</CardTitle>
                         <CardDescription className="mt-1">
-                          ระยะ: {getStageLabel(checklist.stage)}
+                          {checklist.items?.length || 0} รายการตรวจสอบ
                         </CardDescription>
                       </div>
-                      {getStatusBadge(checklist.status)}
+                      <Badge className={getStageColor(checklist.stage)}>
+                        {getStageLabel(checklist.stage)}
+                      </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{checklist.items?.length || 0} รายการ</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </div>
+                    <Badge className={getStatusColor(checklist.status)}>
+                      {getStatusLabel(checklist.status)}
+                    </Badge>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
             <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>งานนี้ยังไม่มี Checklist กำหนดไว้</p>
-                <p className="text-sm mt-2">กรุณาไปที่หน้า Task Detail เพื่อเพิ่ม Checklist</p>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">งานนี้ยังไม่มี Checklist กำหนดไว้</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  กรุณาเพิ่ม Checklist ให้กับงานนี้ก่อนทำการตรวจสอบ
+                </p>
               </CardContent>
             </Card>
           )}
@@ -252,107 +281,118 @@ export default function QCInspection() {
 
       {/* Step 3: Perform Inspection */}
       {step === 3 && selectedChecklist && (
-        <div>
-          <Card className="mb-4">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" onClick={() => setStep(2)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              ย้อนกลับ
+            </Button>
+            <div>
+              <h2 className="text-xl font-semibold">{selectedChecklist.templateName}</h2>
+              <p className="text-sm text-muted-foreground">
+                {selectedTask?.name} • {getStageLabel(selectedChecklist.stage)}
+              </p>
+            </div>
+          </div>
+
+          <Card>
             <CardHeader>
-              <CardTitle>ขั้นตอนที่ 3: ทำการตรวจสอบ</CardTitle>
+              <CardTitle>รายการตรวจสอบ</CardTitle>
               <CardDescription>
-                งาน: <strong>{selectedTask?.name}</strong> | Checklist: <strong>{selectedChecklist.templateName}</strong>
+                กรุณาเลือกผลการตรวจสอบสำหรับแต่ละรายการ (ผ่าน / ไม่ผ่าน / N/A)
               </CardDescription>
             </CardHeader>
-          </Card>
-
-          <div className="mb-4">
-            <Button variant="outline" onClick={() => setStep(2)}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              กลับไปเลือก Checklist
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {selectedChecklist.items?.map((item: any, index: number) => {
-              const result = itemResults[item.id];
-              const isIncomplete = result?.result === null;
-
-              return (
-                <Card key={item.id} className={isIncomplete ? "border-yellow-300 bg-yellow-50/30" : ""}>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-start gap-2">
-                      <span className="text-muted-foreground">#{index + 1}</span>
-                      <span className="flex-1">{item.itemText}</span>
-                      {item.requirePhoto && (
-                        <Badge variant="outline" className="text-xs">
-                          ต้องมีรูปภาพ
-                        </Badge>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label className="mb-3 block font-medium">ผลการตรวจสอบ *</Label>
-                      <RadioGroup
-                        value={result?.result || ""}
-                        onValueChange={(value) => handleResultChange(item.id, value as InspectionResult)}
-                      >
-                        <div className="flex gap-4">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="pass" id={`pass-${item.id}`} />
-                            <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-2 cursor-pointer">
-                              <CheckCircle2 className="w-4 h-4 text-green-600" />
-                              <span>ผ่าน</span>
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="fail" id={`fail-${item.id}`} />
-                            <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-2 cursor-pointer">
-                              <XCircle className="w-4 h-4 text-red-600" />
-                              <span>ไม่ผ่าน</span>
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="na" id={`na-${item.id}`} />
-                            <Label htmlFor={`na-${item.id}`} className="flex items-center gap-2 cursor-pointer">
-                              <MinusCircle className="w-4 h-4 text-gray-600" />
-                              <span>N/A</span>
-                            </Label>
-                          </div>
-                        </div>
-                      </RadioGroup>
+            <CardContent className="space-y-6">
+              {selectedChecklist.items?.map((item: any, index: number) => (
+                <div key={item.id} className="p-4 border rounded-lg space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="font-medium text-sm text-muted-foreground min-w-[2rem]">
+                      {index + 1}.
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-medium">{item.itemText}</p>
                     </div>
+                  </div>
 
-                    <div>
-                      <Label htmlFor={`comment-${item.id}`} className="mb-2 block">
-                        ความเห็น
-                      </Label>
-                      <Textarea
-                        id={`comment-${item.id}`}
-                        placeholder="กรอกความเห็นเพิ่มเติม (ถ้ามี)"
-                        value={result?.comment || ""}
-                        onChange={(e) => handleCommentChange(item.id, e.target.value)}
-                        rows={2}
-                      />
-                    </div>
-
-                    {item.requirePhoto && (
-                      <div>
-                        <Label className="mb-2 block">อัพโหลดรูปภาพ *</Label>
-                        <Button variant="outline" size="sm">
-                          <Upload className="w-4 h-4 mr-2" />
-                          เลือกไฟล์
-                        </Button>
+                  <RadioGroup
+                    value={itemResults[item.id]?.result || ""}
+                    onValueChange={(value) => handleResultChange(item.id, value as InspectionResult)}
+                  >
+                    <div className="flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="pass" id={`pass-${item.id}`} />
+                        <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          ผ่าน
+                        </Label>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="fail" id={`fail-${item.id}`} />
+                        <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <XCircle className="h-4 w-4 text-red-600" />
+                          ไม่ผ่าน
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="na" id={`na-${item.id}`} />
+                        <Label htmlFor={`na-${item.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <MinusCircle className="h-4 w-4 text-gray-600" />
+                          N/A
+                        </Label>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+              ))}
 
-          <div className="mt-8 flex justify-end">
-            <Button onClick={handleSubmit} size="lg">
-              ส่งผลการตรวจสอบ
-            </Button>
-          </div>
+              {/* General Comments Section */}
+              {selectedChecklist.allowGeneralComments && (
+                <div className="pt-6 border-t space-y-3">
+                  <Label htmlFor="generalComments" className="text-base font-semibold">
+                    ความเห็นทั่วไป
+                  </Label>
+                  <Textarea
+                    id="generalComments"
+                    placeholder="เพิ่มความเห็นหรือข้อสังเกตเพิ่มเติม..."
+                    value={generalComments}
+                    onChange={(e) => setGeneralComments(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              )}
+
+              {/* Photo Upload Section */}
+              {selectedChecklist.allowPhotos && (
+                <div className="pt-6 border-t space-y-3">
+                  <Label htmlFor="photos" className="text-base font-semibold">
+                    แนบรูปภาพ
+                  </Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="photos"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoChange}
+                      className="flex-1"
+                    />
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  {photoFiles.length > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      เลือกไฟล์แล้ว {photoFiles.length} ไฟล์
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end pt-6">
+                <Button onClick={handleSubmit} size="lg">
+                  ส่งผลการตรวจสอบ
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

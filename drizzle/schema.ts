@@ -118,6 +118,8 @@ export const checklistTemplates = mysqlTable("checklistTemplates", {
   category: varchar("category", { length: 100 }), // e.g., "structure", "architecture", "mep"
   stage: mysqlEnum("stage", ["pre_execution", "in_progress", "post_execution"]).notNull(),
   description: text("description"),
+  allowGeneralComments: boolean("allowGeneralComments").default(true).notNull(),
+  allowPhotos: boolean("allowPhotos").default(true).notNull(),
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -136,8 +138,6 @@ export const checklistTemplateItems = mysqlTable("checklistTemplateItems", {
   id: int("id").autoincrement().primaryKey(),
   templateId: int("templateId").notNull(),
   itemText: text("itemText").notNull(),
-  requirePhoto: boolean("requirePhoto").default(false).notNull(),
-  acceptanceCriteria: text("acceptanceCriteria"),
   order: int("order").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
@@ -158,6 +158,8 @@ export const taskChecklists = mysqlTable("taskChecklists", {
   status: mysqlEnum("status", ["pending", "in_progress", "passed", "failed"]).default("pending").notNull(),
   inspectedBy: int("inspectedBy"),
   inspectedAt: timestamp("inspectedAt"),
+  generalComments: text("generalComments"),
+  photoUrls: text("photoUrls"), // JSON array of photo URLs
   signature: text("signature"), // Base64 encoded signature image
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -176,9 +178,7 @@ export const checklistItemResults = mysqlTable("checklistItemResults", {
   id: int("id").autoincrement().primaryKey(),
   taskChecklistId: int("taskChecklistId").notNull(),
   templateItemId: int("templateItemId").notNull(),
-  result: mysqlEnum("result", ["pass", "fail", "na"]),
-  comment: text("comment"),
-  photoUrls: text("photoUrls"), // JSON array of photo URLs
+  result: mysqlEnum("result", ["pass", "fail", "na"]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

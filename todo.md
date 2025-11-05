@@ -180,3 +180,14 @@
 - [x] Add database functions (updateChecklistTemplate, deleteChecklistTemplateItems)
 - [x] Fix getChecklistTemplatesByStage to include items
 - [x] Test edit functionality end-to-end
+
+## Simplify Checklist Template Structure
+- [x] Remove acceptanceCriteria and requirePhoto fields from checklistTemplateItems table
+- [x] Add allowGeneralComments and allowPhotos fields to checklistTemplates table
+- [x] Update database migration (db:push)
+- [x] Update backend APIs to use new schema (createTemplate, updateTemplate)
+- [x] Update Checklist Template creation/edit UI (simplified form)
+- [x] Update QC Inspection UI to show only Pass/Fail/N/A options
+- [x] Move comments and photo upload to end of inspection form (template level)
+- [ ] Fix error 500 when creating new templates
+- [ ] Test complete workflow with new structure

@@ -300,6 +300,8 @@ export async function createChecklistTemplate(data: {
   category?: string;
   stage: "pre_execution" | "in_progress" | "post_execution";
   description?: string;
+  allowGeneralComments?: boolean;
+  allowPhotos?: boolean;
   createdBy: number;
 }) {
   const db = await getDb();
@@ -310,6 +312,8 @@ export async function createChecklistTemplate(data: {
     category: data.category,
     stage: data.stage,
     description: data.description,
+    allowGeneralComments: data.allowGeneralComments,
+    allowPhotos: data.allowPhotos,
     createdBy: data.createdBy,
   });
 }
@@ -321,6 +325,8 @@ export async function updateChecklistTemplate(
     category?: string;
     stage?: "pre_execution" | "in_progress" | "post_execution";
     description?: string;
+    allowGeneralComments?: boolean;
+    allowPhotos?: boolean;
   }
 ) {
   const db = await getDb();

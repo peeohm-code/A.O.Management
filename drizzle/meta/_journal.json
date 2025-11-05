@@ -15,6 +15,13 @@
       "when": 1762277367525,
       "tag": "0001_familiar_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762335168295,
+      "tag": "0002_nifty_cannonball",
+      "breakpoints": true
     }
   ]
 }
