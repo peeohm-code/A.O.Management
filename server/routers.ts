@@ -287,10 +287,60 @@ const checklistRouter = router({
       return { success: true, id: templateId };
     }),
 
+  listTemplates: protectedProcedure.query(async () => {
+    return await db.getAllChecklistTemplates();
+  }),
+
   getTaskChecklists: protectedProcedure
     .input(z.object({ taskId: z.number() }))
     .query(async ({ input }) => {
       return await db.getTaskChecklistsByTask(input.taskId);
+    }),
+
+  assignToTask: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        templateId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Get template to determine stage
+      const template = await db.getChecklistTemplateById(input.templateId);
+      if (!template) throw new Error("Template not found");
+
+      const result = await db.createTaskChecklist({
+        taskId: input.taskId,
+        templateId: input.templateId,
+        stage: template.stage,
+      });
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        taskId: input.taskId,
+        action: "checklist_assigned",
+        details: JSON.stringify({ templateName: template.name }),
+      });
+
+      return { success: true, id: (result as any).insertId };
+    }),
+
+  removeFromTask: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const checklist = await db.getTaskChecklistById(input.id);
+      if (!checklist) throw new Error("Checklist not found");
+
+      await db.deleteTaskChecklist(input.id);
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        taskId: checklist.taskId,
+        action: "checklist_removed",
+        details: JSON.stringify({ checklistId: input.id }),
+      });
+
+      return { success: true };
     }),
 
   attachToTask: protectedProcedure

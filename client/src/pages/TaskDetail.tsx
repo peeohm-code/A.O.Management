@@ -12,6 +12,7 @@ import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Bu
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { ChecklistsTab } from "@/components/ChecklistsTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -691,35 +692,7 @@ export default function TaskDetail() {
         </TabsContent>
 
         <TabsContent value="checklists" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Checklists</CardTitle>
-              <CardDescription>
-                กำหนด Checklist สำหรับงานนี้
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                ฟีเจอร์นี้อยู่ระหว่างการพัฒนา กรุณาใช้หน้า QC Inspection เพื่อดู Checklist ที่กำหนดไว้
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="checklists" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Checklists</CardTitle>
-              <CardDescription>
-                กำหนด Checklist สำหรับงานนี้
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                ฟีเจอร์นี้อยู่ระหว่างการพัฒนา กรุณาใช้หน้า QC Inspection เพื่อดู Checklist ที่กำหนดไว้
-              </p>
-            </CardContent>
-          </Card>
+          <ChecklistsTab taskId={taskId} />
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">

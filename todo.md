@@ -162,3 +162,12 @@
 - [x] Verify all 3 steps work correctly (Select Task → Select Checklist → Perform Inspection)
 - [x] Test complete inspection workflow with sample data
 - [x] Ensure inspection results are saved properly
+
+## Implement Checklist Management in Task Detail Page
+- [x] Create UI to display assigned checklists in Task Detail Checklists tab
+- [x] Add button to assign new checklist to task (with template selection dialog)
+- [x] Add button to remove assigned checklist from task
+- [x] Show checklist status (completed/pending) if inspection has been done
+- [x] Implement backend API for assigning checklist to task
+- [x] Implement backend API for removing checklist from task
+- [x] Test add/remove checklist workflow

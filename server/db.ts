@@ -326,6 +326,13 @@ export async function getChecklistTemplateById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getAllChecklistTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(checklistTemplates).orderBy(checklistTemplates.name);
+}
+
 export async function getChecklistTemplatesByStage(stage: "pre_execution" | "in_progress" | "post_execution") {
   const db = await getDb();
   if (!db) return [];
@@ -446,6 +453,17 @@ export async function updateTaskChecklist(
   if (data.signature !== undefined) updateData.signature = data.signature;
 
   return await db.update(taskChecklists).set(updateData).where(eq(taskChecklists.id, id));
+}
+
+export async function deleteTaskChecklist(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // First delete related checklist item results
+  await db.delete(checklistItemResults).where(eq(checklistItemResults.taskChecklistId, id));
+  
+  // Then delete the task checklist
+  return await db.delete(taskChecklists).where(eq(taskChecklists.id, id));
 }
 
 export async function addChecklistItemResult(data: {
