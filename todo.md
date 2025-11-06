@@ -802,9 +802,15 @@
 - [x] Update Defects page with permission hooks
 - [x] Save checkpoint Phase 4
 
-### Phase 5: User Management
-- [ ] Create User Management page
-- [ ] Add role change functionality
-- [ ] Add user list with role badges
-- [ ] Test user management
+### Phase 5: UI Updates & User Management ✅
+- [x] Update Projects page with permission controls (hide New Project button)
+- [x] Update Tasks page with permission controls (hide New Task button)
+- [x] Update QC Inspection page with permission controls (hide Create CAR/NCR button)
+- [x] Add role badge display in DashboardLayout footer
+- [x] Create User Management page
+- [x] Add role change functionality (updateRole mutation)
+- [x] Add user list with role badges
+- [x] Add User Management menu item to sidebar
+- [x] Add /users route to App.tsx
+- [ ] Test complete RBAC system
 - [ ] Save checkpoint Phase 5

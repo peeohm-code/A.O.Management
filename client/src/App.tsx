@@ -19,6 +19,7 @@ import LoginDemo from "./pages/LoginDemo";
 import NewProject from "./pages/NewProject";
 import NewTask from "./pages/NewTask";
 import ChecklistTemplates from "./pages/ChecklistTemplates";
+import UserManagement from "./pages/UserManagement";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -107,6 +108,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Settings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/users"}>
+        {() => (
+          <DashboardLayout>
+            <UserManagement />
           </DashboardLayout>
         )}
       </Route>

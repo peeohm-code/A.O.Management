@@ -1205,6 +1205,25 @@ export const appRouter = router({
     list: protectedProcedure.query(async () => {
       return await db.getAllUsers();
     }),
+
+    updateRole: roleBasedProcedure('users', 'edit')
+      .input(
+        z.object({
+          userId: z.number(),
+          role: z.enum(["admin", "project_manager", "qc_inspector", "field_engineer", "user"]),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await db.updateUserRole(input.userId, input.role);
+
+        await db.logActivity({
+          userId: ctx.user.id,
+          action: "user_role_updated",
+          details: JSON.stringify({ targetUserId: input.userId, newRole: input.role }),
+        });
+
+        return { success: true };
+      }),
   }),
 
   dashboard: dashboardRouter,

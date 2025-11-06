@@ -21,11 +21,24 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon, BarChart3 } from "lucide-react";
+import { useRoleLabel } from "@/hooks/usePermissions";
+import { Badge } from "@/components/ui/badge";
+import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon, BarChart3, Users } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+
+function RoleBadge() {
+  const roleLabel = useRoleLabel();
+  if (!roleLabel) return null;
+  
+  return (
+    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
+      {roleLabel}
+    </Badge>
+  );
+}
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -36,6 +49,7 @@ const menuItems = [
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: FileText, label: "Reports", path: "/reports" },
+  { icon: Users, label: "User Management", path: "/users" },
   { icon: SettingsIcon, label: "Settings", path: "/settings" },
 ];
 
@@ -258,9 +272,12 @@ function DashboardLayoutContent({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      {user?.name || "-"}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium truncate leading-none">
+                        {user?.name || "-"}
+                      </p>
+                      <RoleBadge />
+                    </div>
                     <p className="text-xs text-muted-foreground truncate mt-1.5">
                       {user?.email || "-"}
                     </p>

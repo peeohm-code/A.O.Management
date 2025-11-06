@@ -132,6 +132,15 @@ export async function getAllUsers() {
   return result;
 }
 
+export async function updateUserRole(userId: number, role: string) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(users).set({ role: role as any }).where(eq(users.id, userId));
+}
+
 /**
  * Project Management
  */

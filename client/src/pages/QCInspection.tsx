@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as React from "react";
 import { trpc } from "@/lib/trpc";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ interface CreateDefectFormData {
 }
 
 export default function QCInspection() {
+  const { canCreate } = usePermissions('defects');
   const [selectedChecklistId, setSelectedChecklistId] = useState<number | null>(null);
   const [itemResults, setItemResults] = useState<Record<number, ItemResult>>({});
   const [generalComments, setGeneralComments] = useState("");
@@ -392,7 +394,7 @@ export default function QCInspection() {
                     >
                       {checklist.status === 'completed' ? 'ตรวจสอบแล้ว' : 'เริ่มตรวจสอบ'}
                     </Button>
-                    {checklist.status === 'failed' && (
+                    {checklist.status === 'failed' && canCreate && (
                       <Button 
                         className="w-full" 
                         variant="destructive"
