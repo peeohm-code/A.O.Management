@@ -654,3 +654,24 @@
 - [x] Found mismatch: frontend uses 'attachmentType', backend uses 'type'
 - [x] Change backend parameter from "type" to "attachmentType" in routers.ts line 759
 - [x] Test that Before/After photos load correctly in Verification form
+
+## Verification Notification System
+- [x] Import notifyOwner in routers.ts
+- [x] Send notification when defect status changes to "verification"
+- [x] Notify owner/admin when verification is requested
+- [x] Test notification delivery
+
+## Defect Tracking Dashboard
+- [x] Create backend API for defect statistics (by status, by type, by priority)
+- [x] Create backend functions in db.ts (getDefectStatsByStatus, getDefectStatsByType, getDefectStatsByPriority, getDefectMetrics, getRecentDefects)
+- [x] Create tRPC procedures (getStatsByStatus, getStatsByType, getStatsByPriority, getMetrics, getRecent)
+- [x] Create DefectDashboard page component
+- [x] Add status distribution display
+- [x] Add type distribution display (CAR/NCR/PAR)
+- [x] Add priority distribution display
+- [x] Add pending verification count with alert (yellow card)
+- [x] Add key metrics cards (total, open, closed, overdue, pending verification)
+- [x] Add recent defects list (last 10)
+- [x] Add route for /defect-dashboard in App.tsx
+- [x] Add menu item "Defect Dashboard" in DashboardLayout
+- [x] Import BarChart3 icon for menu

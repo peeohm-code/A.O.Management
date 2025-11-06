@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon, BarChart3 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -34,6 +34,7 @@ const menuItems = [
   { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
+  { icon: BarChart3, label: "Defect Dashboard", path: "/defect-dashboard" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: FileText, label: "Reports", path: "/reports" },
   { icon: SettingsIcon, label: "Settings", path: "/settings" },

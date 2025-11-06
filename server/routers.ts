@@ -6,6 +6,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
+import { notifyOwner } from "./_core/notification";
 
 /**
  * Project Router - Project Management
@@ -743,6 +744,14 @@ const defectRouter = router({
         });
       }
 
+      // Notify owner/admin when verification is requested
+      if (updateData.status === "verification") {
+        await notifyOwner({
+          title: `${defect.type} รอการตรวจสอบ`,
+          content: `${defect.title} - ขอตรวจสอบผลการแก้ไข`,
+        });
+      }
+
       return result;
     }),
 
@@ -785,6 +794,33 @@ const defectRouter = router({
     .mutation(async ({ input }) => {
       await db.deleteDefectAttachment(input.id);
       return { success: true };
+    }),
+
+  // Dashboard Statistics
+  getStatsByStatus: protectedProcedure
+    .query(async () => {
+      return await db.getDefectStatsByStatus();
+    }),
+
+  getStatsByType: protectedProcedure
+    .query(async () => {
+      return await db.getDefectStatsByType();
+    }),
+
+  getStatsByPriority: protectedProcedure
+    .query(async () => {
+      return await db.getDefectStatsByPriority();
+    }),
+
+  getMetrics: protectedProcedure
+    .query(async () => {
+      return await db.getDefectMetrics();
+    }),
+
+  getRecent: protectedProcedure
+    .input(z.object({ limit: z.number().optional() }))
+    .query(async ({ input }) => {
+      return await db.getRecentDefects(input.limit);
     }),
 });
 
