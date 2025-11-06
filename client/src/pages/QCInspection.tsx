@@ -4,11 +4,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User } from "lucide-react";
+import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 
@@ -19,11 +21,28 @@ interface ItemResult {
   result: InspectionResult | null;
 }
 
+interface CreateDefectFormData {
+  type: "CAR" | "PAR" | "NCR";
+  title: string;
+  description: string;
+  severity: "low" | "medium" | "high" | "critical";
+  ncrLevel?: "major" | "minor";
+  assignedTo?: number;
+}
+
 export default function QCInspection() {
   const [selectedChecklistId, setSelectedChecklistId] = useState<number | null>(null);
   const [itemResults, setItemResults] = useState<Record<number, ItemResult>>({});
   const [generalComments, setGeneralComments] = useState("");
   const [isInspecting, setIsInspecting] = useState(false);
+  const [isCreatingDefect, setIsCreatingDefect] = useState(false);
+  const [defectChecklistId, setDefectChecklistId] = useState<number | null>(null);
+  const [defectForm, setDefectForm] = useState<CreateDefectFormData>({
+    type: "CAR",
+    title: "",
+    description: "",
+    severity: "medium",
+  });
   
   // Read status from URL parameter
   const [statusFilter, setStatusFilter] = useState<string | null>(() => {
@@ -37,6 +56,7 @@ export default function QCInspection() {
   // Queries - get all tasks and checklists
   const { data: tasks } = trpc.task.list.useQuery({});
   const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
+  const { data: users } = trpc.user.list.useQuery();
   
   // Map checklists with task names
   const allChecklists = React.useMemo(() => {
@@ -86,11 +106,61 @@ export default function QCInspection() {
     },
   });
 
+  const createDefectMutation = trpc.defect.create.useMutation({
+    onSuccess: () => {
+      toast.success("สร้าง CAR/PAR/NCR สำเร็จ");
+      setIsCreatingDefect(false);
+      setDefectChecklistId(null);
+      setDefectForm({
+        type: "CAR",
+        title: "",
+        description: "",
+        severity: "medium",
+      });
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
   const handleStartInspection = (checklistId: number) => {
     setSelectedChecklistId(checklistId);
     setIsInspecting(true);
     setItemResults({});
     setGeneralComments("");
+  };
+
+  const handleCreateDefect = (checklistId: number) => {
+    const checklist = allChecklists.find(c => c.id === checklistId);
+    if (!checklist) return;
+    
+    setDefectChecklistId(checklistId);
+    setDefectForm({
+      type: "CAR",
+      title: `${checklist.name} - ไม่ผ่านการตรวจสอบ`,
+      description: `Checklist: ${checklist.name}\nงาน: ${checklist.taskName}`,
+      severity: "medium",
+    });
+    setIsCreatingDefect(true);
+  };
+
+  const handleSubmitDefect = () => {
+    const checklist = allChecklists.find(c => c.id === defectChecklistId);
+    if (!checklist || !defectForm.title) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    createDefectMutation.mutate({
+      taskId: checklist.taskId,
+      checklistId: checklist.id,
+      type: defectForm.type,
+      title: defectForm.title,
+      description: defectForm.description,
+      severity: defectForm.severity,
+      ncrLevel: defectForm.ncrLevel,
+      assignedTo: defectForm.assignedTo,
+    });
   };
 
   const handleItemResult = (itemId: number, result: InspectionResult) => {
@@ -267,13 +337,31 @@ export default function QCInspection() {
                       <span>ตรวจโดย: User #{checklist.inspectedBy}</span>
                     </div>
                   )}
-                  <Button 
-                    className="w-full mt-4" 
-                    onClick={() => handleStartInspection(checklist.id)}
-                    disabled={checklist.status === 'completed'}
-                  >
-                    {checklist.status === 'completed' ? 'ตรวจสอบแล้ว' : 'เริ่มตรวจสอบ'}
-                  </Button>
+                  <div className="space-y-2 mt-4">
+                    <Button 
+                      className="w-full" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartInspection(checklist.id);
+                      }}
+                      disabled={checklist.status === 'completed'}
+                    >
+                      {checklist.status === 'completed' ? 'ตรวจสอบแล้ว' : 'เริ่มตรวจสอบ'}
+                    </Button>
+                    {checklist.status === 'failed' && (
+                      <Button 
+                        className="w-full" 
+                        variant="destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCreateDefect(checklist.id);
+                        }}
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Create CAR/NCR
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -356,6 +444,278 @@ export default function QCInspection() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create CAR/PAR/NCR Dialog - Improved UX/UI */}
+      <Dialog open={isCreatingDefect} onOpenChange={setIsCreatingDefect}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <AlertTriangle className="h-6 w-6 text-orange-500" />
+              สร้างรายงาน CAR/PAR/NCR
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              บันทึกข้อบกพร่องที่พบจากการตรวจสอบเพื่อดำเนินการแก้ไขและป้องกัน
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 mt-6">
+            {/* Traceability Info - Improved with icons */}
+            <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <ClipboardCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <div className="flex-1 space-y-2">
+                    <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-100">ข้อมูลการตรวจสอบ</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <div>
+                          <span className="text-muted-foreground">Checklist:</span>
+                          <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.name}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <div>
+                          <span className="text-muted-foreground">งาน:</span>
+                          <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.taskName}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Type Selection - Color coded with icons */}
+            <div className="space-y-3">
+              <Label htmlFor="defect-type" className="text-base font-semibold">ประเภทรายงาน *</Label>
+              <Select 
+                value={defectForm.type} 
+                onValueChange={(value: "CAR" | "PAR" | "NCR") => setDefectForm(prev => ({ ...prev, type: value }))}
+              >
+                <SelectTrigger id="defect-type" className="h-12 text-base">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CAR" className="text-base py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div>
+                        <div className="font-semibold">CAR - Corrective Action Request</div>
+                        <div className="text-xs text-muted-foreground">คำขอดำเนินการแก้ไข</div>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="PAR" className="text-base py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <div>
+                        <div className="font-semibold">PAR - Preventive Action Request</div>
+                        <div className="text-xs text-muted-foreground">คำขอดำเนินการป้องกัน</div>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="NCR" className="text-base py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div>
+                        <div className="font-semibold">NCR - Non-Conformance Report</div>
+                        <div className="text-xs text-muted-foreground">รายงานความไม่สอดคล้อง</div>
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <div className={`p-3 rounded-lg text-sm ${
+                defectForm.type === "CAR" ? "bg-yellow-50 dark:bg-yellow-950/20 text-yellow-900 dark:text-yellow-100 border border-yellow-200 dark:border-yellow-800" :
+                defectForm.type === "PAR" ? "bg-blue-50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800" :
+                "bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-100 border border-red-200 dark:border-red-800"
+              }`}>
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    {defectForm.type === "CAR" && "ใช้สำหรับแก้ไขปัญหาที่เกิดขึ้นแล้ว เพื่อป้องกันไม่ให้เกิดซ้ำ"}
+                    {defectForm.type === "PAR" && "ใช้สำหรับป้องกันปัญหาที่อาจเกิดขึ้นในอนาคต โดยวิเคราะห์จากความเสี่ยง"}
+                    {defectForm.type === "NCR" && "ใช้สำหรับรายงานความไม่สอดคล้องตามมาตรฐาน ข้อกำหนด หรือคุณภาพที่กำหนด"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Information Section */}
+            <div className="space-y-4 p-5 rounded-lg border bg-card">
+              <h3 className="font-semibold text-base flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                ข้อมูลปัญหา
+              </h3>
+              
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="defect-title" className="text-sm font-medium">
+                  หัวข้อปัญหา <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="defect-title"
+                  value={defectForm.title}
+                  onChange={(e) => setDefectForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="เช่น: พบรอยแตกที่คานคอนกรีต"
+                  className="h-11"
+                />
+                <p className="text-xs text-muted-foreground">ระบุสรุปปัญหาที่พบให้ชัดเจนและกระชับ</p>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="defect-description" className="text-sm font-medium">
+                  รายละเอียดปัญหา
+                </Label>
+                <Textarea
+                  id="defect-description"
+                  value={defectForm.description}
+                  onChange={(e) => setDefectForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="อธิบายรายละเอียดปัญหา ตำแหน่งที่พบ และผลกระทบที่อาจเกิดขึ้น"
+                  rows={4}
+                  className="resize-none"
+                />
+                <p className="text-xs text-muted-foreground">ระบุรายละเอียดให้ครบถ้วนเพื่อการวิเคราะห์และแก้ไขที่ถูกต้อง</p>
+              </div>
+            </div>
+
+            {/* Priority & Assignment Section */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Severity */}
+              <div className="space-y-2">
+                <Label htmlFor="defect-severity" className="text-sm font-medium">
+                  ระดับความรุนแรง <span className="text-destructive">*</span>
+                </Label>
+                <Select 
+                  value={defectForm.severity} 
+                  onValueChange={(value: "low" | "medium" | "high" | "critical") => setDefectForm(prev => ({ ...prev, severity: value }))}
+                >
+                  <SelectTrigger id="defect-severity" className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low" className="py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>ต่ำ - Low</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="medium" className="py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span>ปานกลาง - Medium</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="high" className="py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                        <span>สูง - High</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="critical" className="py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span>วิกฤต - Critical</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">ประเมินผลกระทบและความเร่งด่วนในการแก้ไข</p>
+              </div>
+
+              {/* NCR Level (only for NCR) */}
+              {defectForm.type === "NCR" && (
+                <div className="space-y-2">
+                  <Label htmlFor="ncr-level" className="text-sm font-medium">
+                    ระดับ NCR
+                  </Label>
+                  <Select 
+                    value={defectForm.ncrLevel || ""} 
+                    onValueChange={(value: "major" | "minor") => setDefectForm(prev => ({ ...prev, ncrLevel: value }))}
+                  >
+                    <SelectTrigger id="ncr-level" className="h-11">
+                      <SelectValue placeholder="เลือกระดับ NCR" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="major" className="py-2">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="h-4 w-4 text-red-500" />
+                          <span>Major - รุนแรง</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="minor" className="py-2">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <span>Minor - เล็กน้อย</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Major: ส่งผลกระทบต่อคุณภาพหลัก, Minor: ส่งผลกระทบเล็กน้อย</p>
+                </div>
+              )}
+
+              {/* Assign To */}
+              <div className="space-y-2">
+                <Label htmlFor="defect-assignee" className="text-sm font-medium flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  มอบหมายให้
+                </Label>
+                <Select 
+                  value={defectForm.assignedTo?.toString() || ""} 
+                  onValueChange={(value) => setDefectForm(prev => ({ ...prev, assignedTo: value ? parseInt(value) : undefined }))}
+                >
+                  <SelectTrigger id="defect-assignee" className="h-11">
+                    <SelectValue placeholder="เลือกผู้รับผิดชอบ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(users || []).map((user: any) => (
+                      <SelectItem key={user.id} value={user.id.toString()} className="py-2">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          {user.name || user.email || `User #${user.id}`}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">ระบุผู้รับผิดชอบในการดำเนินการแก้ไข (ถ้ามี)</p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-8 gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsCreatingDefect(false)}
+              className="h-11 px-6"
+            >
+              ยกเลิก
+            </Button>
+            <Button 
+              onClick={handleSubmitDefect} 
+              disabled={createDefectMutation.isPending || !defectForm.title}
+              className={`h-11 px-6 ${
+                defectForm.type === "CAR" ? "bg-yellow-600 hover:bg-yellow-700" :
+                defectForm.type === "PAR" ? "bg-blue-600 hover:bg-blue-700" :
+                "bg-red-600 hover:bg-red-700"
+              }`}
+            >
+              {createDefectMutation.isPending ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  กำลังสร้าง...
+                </>
+              ) : (
+                `สร้าง ${defectForm.type}`
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

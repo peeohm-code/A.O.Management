@@ -587,6 +587,26 @@ const checklistRouter = router({
 
       return result;
     }),
+
+  // Get all task checklists with template and task info
+  getAllTaskChecklists: protectedProcedure.query(async () => {
+    const checklists = await db.getAllTaskChecklists();
+    const tasks = await db.getAllTasks();
+    const templates = await db.getAllChecklistTemplates();
+    
+    // Map checklists with task and template info
+    return checklists.map(checklist => {
+      const task = tasks.find(t => t.id === checklist.taskId);
+      const template = templates.find(t => t.id === checklist.templateId);
+      
+      return {
+        ...checklist,
+        name: template?.name || "Unknown Template",
+        taskName: task?.name || "Unknown Task",
+        items: [], // Will be populated from checklistItemResults if needed
+      };
+    });
+  }),
 });
 
 /**

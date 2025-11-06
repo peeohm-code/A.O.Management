@@ -462,3 +462,22 @@
   - [ ] สร้างรายงาน CAR/PAR/NCR สรุป
   - [ ] แสดงสถิติตามประเภทและสถานะ
   - [ ] Export รายงานเป็น PDF
+
+## เพิ่มปุ่มสร้าง CAR/PAR/NCR จาก Checklist ที่ไม่ผ่าน
+- [x] วิเคราะห์และออกแบบ UI สำหรับปุ่มสร้าง CAR/PAR/NCR
+- [x] เพิ่มปุ่ม "Create CAR/NCR" ในการ์ด Checklist ที่มีสถานะ 'ไม่ผ่าน'
+- [x] สร้าง dialog ฟอร์มสำหรับสร้าง CAR/PAR/NCR
+- [x] เพิ่มฟิลด์: type (CAR/PAR/NCR), title, description, severity, assignee
+- [x] เพิ่มฟิลด์ขั้นสูง: ncrLevel (สำหรับ NCR)
+- [x] เชื่อมต่อกับ defect.create API
+- [x] Auto-fill ข้อมูลจาก checklist (taskId, checklistId)
+- [x] แสดง traceability: Checklist → Task
+- [x] เพิ่ม getAllTaskChecklists procedure ใน checklist router
+- [x] ปรับปรุง UX/UI ให้ใช้งานง่ายและเป็นมิตร
+  - [x] ปรับ Layout และ Spacing
+  - [x] เพิ่ม Color Coding สำหรับแต่ละประเภท (CAR/PAR/NCR)
+  - [x] เพิ่ม Icons และ Helper Text
+  - [x] ปรับ Typography ให้อ่านง่าย
+  - [x] เพิ่ม Form Validation และ Error Messages
+- [ ] ทดสอบการสร้าง CAR/PAR/NCR จาก checklist ที่ไม่ผ่าน
+- [ ] ทดสอบการบันทึกและแสดงผลใน Defects page
