@@ -286,19 +286,33 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
   // Initialize group order from localStorage or default order
   useEffect(() => {
+    const currentCategories = chartData.groups.map(g => g.category);
     const savedOrder = localStorage.getItem("gantt-group-order");
+    
     if (savedOrder) {
       try {
         const parsed = JSON.parse(savedOrder);
-        setGroupOrder(parsed);
+        // Validate: check if saved order contains all current categories
+        const hasAllCategories = currentCategories.every(cat => parsed.includes(cat));
+        const hasOnlyValidCategories = parsed.every((cat: string) => currentCategories.includes(cat));
+        
+        if (hasAllCategories && hasOnlyValidCategories) {
+          setGroupOrder(parsed);
+        } else {
+          // If mismatch, use default order and update localStorage
+          const defaultOrder = getDefaultCategoryOrder(currentCategories);
+          setGroupOrder(defaultOrder);
+          localStorage.setItem("gantt-group-order", JSON.stringify(defaultOrder));
+        }
       } catch (e) {
-        // If parsing fails, use default order
-        const defaultOrder = getDefaultCategoryOrder(chartData.groups.map(g => g.category));
+        const defaultOrder = getDefaultCategoryOrder(currentCategories);
         setGroupOrder(defaultOrder);
+        localStorage.setItem("gantt-group-order", JSON.stringify(defaultOrder));
       }
     } else {
-      const defaultOrder = getDefaultCategoryOrder(chartData.groups.map(g => g.category));
+      const defaultOrder = getDefaultCategoryOrder(currentCategories);
       setGroupOrder(defaultOrder);
+      localStorage.setItem("gantt-group-order", JSON.stringify(defaultOrder));
     }
   }, [chartData.groups]);
 
