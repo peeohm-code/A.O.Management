@@ -846,3 +846,10 @@
 - [x] Change all admin users to field_engineer role (admin count reduced to 4)
 - [x] Verify in User Management page
 - [x] Statistics show: เจ้าของระบบ: 2, ผู้ดูแลระบบ: 4, ผู้จัดการโครงการ: 1, QC Inspector: 1, วิศวกรสนาม: 2714
+
+## Update Checklist Template Category to Dropdown ✅
+- [x] Change category input from text field to dropdown/select
+- [x] Add predefined categories: งานเตรียมงาน, งานโครงสร้าง, งานสถาปัตย์, งานระบบ, งานอื่นๆ
+- [x] Update both create and edit forms
+- [x] Test category selection (works in both create and edit dialogs)
+- [ ] Save checkpoint

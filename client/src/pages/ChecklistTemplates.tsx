@@ -199,12 +199,18 @@ export default function ChecklistTemplates() {
 
       <div className="space-y-2">
         <Label htmlFor="category">หมวดหมู่</Label>
-        <Input
-          id="category"
-          placeholder="เช่น โครงสร้าง, สถาปัตย์, ระบบ"
-          value={templateCategory}
-          onChange={(e) => setTemplateCategory(e.target.value)}
-        />
+        <Select value={templateCategory} onValueChange={setTemplateCategory}>
+          <SelectTrigger>
+            <SelectValue placeholder="เลือกหมวดหมู่" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="งานเตรียมงาน">งานเตรียมงาน</SelectItem>
+            <SelectItem value="งานโครงสร้าง">งานโครงสร้าง</SelectItem>
+            <SelectItem value="งานสถาปัตย์">งานสถาปัตย์</SelectItem>
+            <SelectItem value="งานระบบ">งานระบบ</SelectItem>
+            <SelectItem value="งานอื่นๆ">งานอื่นๆ</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
