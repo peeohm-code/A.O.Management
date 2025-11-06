@@ -9,6 +9,16 @@ CREATE TABLE `activityLog` (
 	CONSTRAINT `activityLog_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `categoryColors` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`projectId` int NOT NULL,
+	`category` enum('preparation','structure','architecture','mep','other') NOT NULL,
+	`color` varchar(7) NOT NULL,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `categoryColors_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `checklistItemResults` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`taskChecklistId` int NOT NULL,
@@ -17,6 +27,18 @@ CREATE TABLE `checklistItemResults` (
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
 	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `checklistItemResults_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `checklistResults` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`checklistId` int NOT NULL,
+	`itemId` int NOT NULL,
+	`result` enum('pass','fail','na') NOT NULL,
+	`comment` text,
+	`photoUrls` text,
+	`inspectedBy` int NOT NULL,
+	`inspectedAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `checklistResults_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `checklistTemplateItems` (
@@ -65,7 +87,7 @@ CREATE TABLE `defects` (
 CREATE TABLE `notifications` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`userId` int NOT NULL,
-	`type` enum('task_assigned','inspection_requested','inspection_completed','defect_assigned','defect_resolved','comment_mention','task_updated','deadline_reminder') NOT NULL,
+	`type` enum('task_assigned','inspection_requested','inspection_completed','inspection_passed','inspection_failed','defect_assigned','defect_resolved','comment_mention','task_updated','deadline_reminder') NOT NULL,
 	`title` varchar(255) NOT NULL,
 	`content` text,
 	`relatedTaskId` int,
@@ -168,6 +190,7 @@ CREATE TABLE `tasks` (
 	`progress` int NOT NULL DEFAULT 0,
 	`status` enum('todo','pending_pre_inspection','ready_to_start','in_progress','pending_final_inspection','rectification_needed','completed','not_started','delayed') NOT NULL DEFAULT 'todo',
 	`assigneeId` int,
+	`category` varchar(50),
 	`order` int NOT NULL DEFAULT 0,
 	`createdBy` int NOT NULL,
 	`createdAt` timestamp NOT NULL DEFAULT (now()),
@@ -192,7 +215,10 @@ CREATE TABLE `users` (
 CREATE INDEX `userIdx` ON `activityLog` (`userId`);--> statement-breakpoint
 CREATE INDEX `projectIdx` ON `activityLog` (`projectId`);--> statement-breakpoint
 CREATE INDEX `taskIdx` ON `activityLog` (`taskId`);--> statement-breakpoint
+CREATE INDEX `projectCategoryIdx` ON `categoryColors` (`projectId`,`category`);--> statement-breakpoint
 CREATE INDEX `checklistIdx` ON `checklistItemResults` (`taskChecklistId`);--> statement-breakpoint
+CREATE INDEX `checklistIdx` ON `checklistResults` (`checklistId`);--> statement-breakpoint
+CREATE INDEX `itemIdx` ON `checklistResults` (`itemId`);--> statement-breakpoint
 CREATE INDEX `templateIdx` ON `checklistTemplateItems` (`templateId`);--> statement-breakpoint
 CREATE INDEX `categoryIdx` ON `checklistTemplates` (`category`);--> statement-breakpoint
 CREATE INDEX `stageIdx` ON `checklistTemplates` (`stage`);--> statement-breakpoint

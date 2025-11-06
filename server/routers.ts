@@ -6,7 +6,6 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
-import { notifyOwner } from "./_core/notification";
 
 /**
  * Project Router - Project Management
@@ -221,7 +220,6 @@ const taskRouter = router({
         id: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
-        category: z.string().optional(),
         status: z
           .enum([
             "todo",
@@ -233,10 +231,7 @@ const taskRouter = router({
             "completed",
           ])
           .optional(),
-        priority: z.enum(["low", "medium", "high", "critical"]).optional(),
         progress: z.number().min(0).max(100).optional(),
-        startDate: z.date().optional(),
-        endDate: z.date().optional(),
         assigneeId: z.number().optional(),
       })
     )
@@ -465,11 +460,6 @@ const checklistRouter = router({
       return await db.getTaskChecklistsByTask(input.taskId);
     }),
 
-  getAllTaskChecklists: protectedProcedure
-    .query(async () => {
-      return await db.getAllTaskChecklists();
-    }),
-
   assignToTask: protectedProcedure
     .input(
       z.object({
@@ -536,17 +526,6 @@ const checklistRouter = router({
         details: JSON.stringify({ checklistId: input.id, status: input.status }),
       });
 
-      // Send notification when requesting inspection
-      if (input.status === "pending_inspection") {
-        const task = await db.getTaskById(checklist.taskId);
-        if (task) {
-          await notifyOwner({
-            title: "มีงานรอการตรวจสอบ",
-            content: `งาน "${task.name}" ได้ขออนุมัติตรวจ Checklist "${checklist.templateName}" แล้ว`,
-          });
-        }
-      }
-
       return { success: true };
     }),
 
@@ -611,31 +590,108 @@ const checklistRouter = router({
 });
 
 /**
- * Defect Router - Defect Management
+ * Defect Router - Defect Management (CAR/PAR/NCR)
  */
 const defectRouter = router({
+  // Get defects by task
   list: protectedProcedure
     .input(z.object({ taskId: z.number() }))
     .query(async ({ input }) => {
       return await db.getDefectsByTask(input.taskId);
     }),
 
+  // Get defects by type (CAR/PAR/NCR)
+  listByType: protectedProcedure
+    .input(z.object({ type: z.enum(["CAR", "PAR", "NCR"]) }))
+    .query(async ({ input }) => {
+      return await db.getDefectsByType(input.type);
+    }),
+
+  // Get defects by status
+  listByStatus: protectedProcedure
+    .input(z.object({ 
+      status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected"]) 
+    }))
+    .query(async ({ input }) => {
+      return await db.getDefectsByStatus(input.status);
+    }),
+
+  // Get defects by checklist
+  listByChecklist: protectedProcedure
+    .input(z.object({ checklistId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getDefectsByChecklist(input.checklistId);
+    }),
+
+  // Get open/reported defects
   openDefects: protectedProcedure.query(async () => {
     return await db.getOpenDefects();
   }),
 
-  get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-    return await db.getDefectById(input.id);
-  }),
+  // Get single defect by ID
+  get: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getDefectById(input.id);
+    }),
 
+  // Create new CAR/PAR/NCR
+  create: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        checklistItemResultId: z.number().optional(),
+        title: z.string().min(1),
+        description: z.string().optional(),
+        photoUrls: z.string().optional(),
+        severity: z.enum(["low", "medium", "high", "critical"]),
+        assignedTo: z.number().optional(),
+        // CAR/PAR/NCR specific fields
+        type: z.enum(["CAR", "PAR", "NCR"]).default("CAR"),
+        checklistId: z.number().optional(),
+        rootCause: z.string().optional(),
+        correctiveAction: z.string().optional(),
+        preventiveAction: z.string().optional(),
+        dueDate: z.date().optional(),
+        ncrLevel: z.enum(["major", "minor"]).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const result = await db.createDefect({
+        ...input,
+        reportedBy: ctx.user.id,
+      });
+
+      // Notify assignee if assigned
+      if (input.assignedTo) {
+        await db.createNotification({
+          userId: input.assignedTo,
+          type: "defect_assigned",
+          title: `${input.type} Assigned`,
+          content: input.title,
+          relatedTaskId: input.taskId,
+        });
+      }
+
+      return result;
+    }),
+
+  // Update defect (workflow transitions)
   update: protectedProcedure
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["open", "in_progress", "resolved", "verified"]).optional(),
+        status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected"]).optional(),
         assignedTo: z.number().optional(),
         resolutionComment: z.string().optional(),
         resolutionPhotoUrls: z.string().optional(),
+        // CAR/PAR/NCR workflow fields
+        rootCause: z.string().optional(),
+        correctiveAction: z.string().optional(),
+        preventiveAction: z.string().optional(),
+        dueDate: z.date().optional(),
+        ncrLevel: z.enum(["major", "minor"]).optional(),
+        verificationComment: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -645,8 +701,10 @@ const defectRouter = router({
 
       const result = await db.updateDefect(id, {
         ...updateData,
-        resolvedBy: updateData.status === "resolved" ? ctx.user.id : undefined,
-        resolvedAt: updateData.status === "resolved" ? new Date() : undefined,
+        resolvedBy: updateData.status === "implemented" ? ctx.user.id : undefined,
+        resolvedAt: updateData.status === "implemented" ? new Date() : undefined,
+        verifiedBy: updateData.status === "closed" ? ctx.user.id : undefined,
+        verifiedAt: updateData.status === "closed" ? new Date() : undefined,
       });
 
       // Notify assignee if assigned
@@ -654,7 +712,7 @@ const defectRouter = router({
         await db.createNotification({
           userId: updateData.assignedTo,
           type: "defect_assigned",
-          title: "Defect Assigned",
+          title: `${defect.type} Assigned`,
           content: defect.title,
           relatedTaskId: defect.taskId,
         });

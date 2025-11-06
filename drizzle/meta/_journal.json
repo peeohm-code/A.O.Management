@@ -5,29 +5,15 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1762348910308,
-      "tag": "0000_dry_annihilus",
+      "when": 1762417612259,
+      "tag": "0000_reflective_gambit",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "5",
-      "when": 1762354357946,
-      "tag": "0001_cooing_fabian_cortez",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1762355780509,
-      "tag": "0002_sour_black_widow",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1762364522890,
-      "tag": "0003_watery_romulus",
+      "when": 1762418142794,
+      "tag": "0001_lean_thunderball",
       "breakpoints": true
     }
   ]

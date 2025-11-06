@@ -1,8 +1,0 @@
-{
-  "query": "SELECT id, taskId, templateId, status FROM task_checklists LIMIT 5",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, taskId, templateId, status FROM task_checklists LIMIT 5",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1146 (42S02) at line 1: Table 'xgufrkfw3wtjbzrcqsfjbu.task_checklists' doesn't exist"
-  ]
-}

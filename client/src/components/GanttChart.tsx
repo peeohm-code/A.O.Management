@@ -1,8 +1,7 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { EditTaskDialog } from "@/components/EditTaskDialog";
 import {
   DndContext,
   closestCenter,
@@ -154,9 +153,6 @@ function SortableGroupRow({
 type ViewMode = 'daily' | 'weekly' | 'monthly';
 
 export default function GanttChart({ tasks, projectId }: GanttChartProps) {
-  const [editingTask, setEditingTask] = useState<any>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
   // Fetch category colors from database
   const { data: categoryColors = [] } = trpc.categoryColor.getByProject.useQuery(
     { projectId: projectId || 0 },
@@ -286,33 +282,19 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
   // Initialize group order from localStorage or default order
   useEffect(() => {
-    const currentCategories = chartData.groups.map(g => g.category);
     const savedOrder = localStorage.getItem("gantt-group-order");
-    
     if (savedOrder) {
       try {
         const parsed = JSON.parse(savedOrder);
-        // Validate: check if saved order contains all current categories
-        const hasAllCategories = currentCategories.every(cat => parsed.includes(cat));
-        const hasOnlyValidCategories = parsed.every((cat: string) => currentCategories.includes(cat));
-        
-        if (hasAllCategories && hasOnlyValidCategories) {
-          setGroupOrder(parsed);
-        } else {
-          // If mismatch, use default order and update localStorage
-          const defaultOrder = getDefaultCategoryOrder(currentCategories);
-          setGroupOrder(defaultOrder);
-          localStorage.setItem("gantt-group-order", JSON.stringify(defaultOrder));
-        }
+        setGroupOrder(parsed);
       } catch (e) {
-        const defaultOrder = getDefaultCategoryOrder(currentCategories);
+        // If parsing fails, use default order
+        const defaultOrder = chartData.groups.map(g => g.category);
         setGroupOrder(defaultOrder);
-        localStorage.setItem("gantt-group-order", JSON.stringify(defaultOrder));
       }
     } else {
-      const defaultOrder = getDefaultCategoryOrder(currentCategories);
+      const defaultOrder = chartData.groups.map(g => g.category);
       setGroupOrder(defaultOrder);
-      localStorage.setItem("gantt-group-order", JSON.stringify(defaultOrder));
     }
   }, [chartData.groups]);
 
@@ -458,15 +440,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                       <tr key={task.id} className="border-b hover:bg-gray-50">
                         <td className="p-2 sticky left-0 bg-white">
                           <div className="pl-8">
-                            <div 
-                              className="font-medium cursor-pointer hover:text-blue-600" 
-                              onClick={() => {
-                                setEditingTask(task);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
-                              {task.name}
-                            </div>
+                            <div className="font-medium">{task.name}</div>
                             <Badge
                               variant="outline"
                               style={{
@@ -613,26 +587,8 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
           ลากและวางเพื่อจัดเรียงหมวดหมู่ใหม่
         </div>
       </div>
-
-      {/* Edit Task Dialog */}
-      {editingTask && projectId && (
-        <EditTaskDialog
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
-          task={editingTask}
-          projectId={projectId}
-        />
-      )}
     </div>
   );
-}
-
-function getDefaultCategoryOrder(existingCategories: string[]): string[] {
-  // Define the logical order of construction phases
-  const standardOrder = ['preparation', 'structure', 'architecture', 'mep', 'other'];
-  
-  // Filter to only include categories that actually exist
-  return standardOrder.filter(cat => existingCategories.includes(cat));
 }
 
 function getCategoryLabel(category: string): string {
@@ -645,13 +601,14 @@ function getCategoryLabel(category: string): string {
   };
   return categoryLabels[category] || category;
 }
+
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
     preparation: "#10B981", // green
     structure: "#3B82F6", // blue
-    architecture: "#EAB308", // yellow
-    mep: "#EF4444", // red
+    architecture: "#8B5CF6", // purple
+    mep: "#F59E0B", // amber
     other: "#6B7280", // gray
   };
-  return colors[category] || "#9CA3AF";
+  return colors[category] || "#6b7280";
 }

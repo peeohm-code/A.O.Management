@@ -1,15 +1,13 @@
 import { useState } from "react";
-import * as React from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { Input } from "@/components/ui/input";
+import { CheckCircle2, XCircle, MinusCircle, Upload, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 type InspectionResult = "pass" | "fail" | "na";
@@ -20,344 +18,462 @@ interface ItemResult {
 }
 
 export default function QCInspection() {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [selectedChecklistId, setSelectedChecklistId] = useState<number | null>(null);
   const [itemResults, setItemResults] = useState<Record<number, ItemResult>>({});
   const [generalComments, setGeneralComments] = useState("");
-  const [isInspecting, setIsInspecting] = useState(false);
-  
-  // Read status from URL parameter
-  const [statusFilter, setStatusFilter] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('status');
-    }
-    return null;
-  });
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
-  // Queries - get all tasks and checklists
-  const { data: tasks } = trpc.task.list.useQuery({});
-  const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
-  
-  // Map checklists with task names
-  const allChecklists = React.useMemo(() => {
-    if (!checklistsData || !tasks) return [];
-    return checklistsData.map(checklist => {
-      const task = tasks.find(t => t.id === checklist.taskId);
-      return { ...checklist, taskName: task?.name || "Unknown Task" };
-    });
-  }, [checklistsData, tasks]);
+  // Queries
+  const { data: tasks, isLoading: tasksLoading } = trpc.task.list.useQuery({});
+  const { data: checklists } = trpc.checklist.getTaskChecklists.useQuery(
+    { taskId: selectedTaskId! },
+    { enabled: !!selectedTaskId }
+  );
 
-  // Calculate real stats from all checklists
-  const checklistStats = React.useMemo(() => {
-    return allChecklists.reduce((acc, checklist: any) => {
-      const status = checklist.status || 'not_started';
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-  }, [allChecklists]);
+  const selectedTask = tasks?.find((t) => t.id === selectedTaskId);
+  const selectedChecklist = checklists?.find((c) => c.id === selectedChecklistId);
 
-  const stats = {
-    not_started: checklistStats.not_started || 0,
-    pending_inspection: checklistStats.pending_inspection || 0,
-    completed: checklistStats.completed || 0,
-    failed: checklistStats.failed || 0,
+  const handleSelectTask = (taskId: number) => {
+    setSelectedTaskId(taskId);
+    setStep(2);
   };
 
-  // Filter checklists by status
-  const filteredChecklists = React.useMemo(() => {
-    if (!statusFilter) return allChecklists;
-    return allChecklists.filter(c => (c.status || 'not_started') === statusFilter);
-  }, [allChecklists, statusFilter]);
+  const handleSelectChecklist = (checklistId: number) => {
+    setSelectedChecklistId(checklistId);
+    const checklist = checklists?.find((c) => c.id === checklistId);
+    if (checklist?.items) {
+      const initialResults: Record<number, ItemResult> = {};
+      checklist.items.forEach((item: any) => {
+        initialResults[item.id] = {
+          itemId: item.id,
+          result: null,
+        };
+      });
+      setItemResults(initialResults);
+    }
+    setGeneralComments("");
+    setPhotoFiles([]);
+    setStep(3);
+  };
 
-  const selectedChecklist = allChecklists.find(c => c.id === selectedChecklistId);
+  const handleResultChange = (itemId: number, result: InspectionResult) => {
+    setItemResults((prev) => ({
+      ...prev,
+      [itemId]: { ...prev[itemId], result },
+    }));
+  };
 
-  const updateChecklistMutation = trpc.checklist.updateChecklistStatus.useMutation({
-    onSuccess: () => {
-      toast.success("บันทึกผลการตรวจสอบสำเร็จ");
-      setIsInspecting(false);
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setPhotoFiles(Array.from(e.target.files));
+    }
+  };
+
+  const submitInspectionMutation = trpc.checklist.submitInspection.useMutation({
+    onSuccess: (data) => {
+      toast.success(
+        `บันทึกผลการตรวจสอบเรียบร้อย\nผ่าน: ${data.passedCount} | ไม่ผ่าน: ${data.failedCount}${data.defectsCreated > 0 ? `\nสร้าง Defect: ${data.defectsCreated} รายการ` : ''}`
+      );
+
+      // Reset
+      setStep(1);
+      setSelectedTaskId(null);
       setSelectedChecklistId(null);
       setItemResults({});
       setGeneralComments("");
-      // Refetch checklists
-      refetchChecklists();
+      setPhotoFiles([]);
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });
 
-  const handleStartInspection = (checklistId: number) => {
-    setSelectedChecklistId(checklistId);
-    setIsInspecting(true);
-    setItemResults({});
-    setGeneralComments("");
-  };
-
-  const handleItemResult = (itemId: number, result: InspectionResult) => {
-    setItemResults(prev => ({
-      ...prev,
-      [itemId]: { itemId, result }
-    }));
-  };
-
-  const handleSubmitInspection = () => {
-    if (!selectedChecklist) return;
-
-    const items = selectedChecklist.items as any[];
-    const allItemsChecked = items.every(item => itemResults[item.id]?.result);
-
-    if (!allItemsChecked) {
-      toast.error("กรุณาตรวจสอบรายการให้ครบทุกข้อ");
+  const handleSubmit = async () => {
+    const allFilled = Object.values(itemResults).every((r) => r.result !== null);
+    if (!allFilled) {
+      toast.error("กรุณากรอกผลการตรวจสอบให้ครบทุกรายการ");
       return;
     }
 
-    const hasFailures = Object.values(itemResults).some(r => r.result === "fail");
-    const finalStatus = hasFailures ? "failed" : "completed";
+    if (!selectedChecklistId || !selectedTaskId || !selectedChecklist) {
+      toast.error("ไม่พบข้อมูล checklist");
+      return;
+    }
 
-    updateChecklistMutation.mutate({
-      id: selectedChecklist.id,
-      status: finalStatus,
+    // TODO: Upload photos to S3 if there are any
+    const photoUrls: string[] = [];
+    // For now, we'll skip photo upload and just send empty array
+
+    // Prepare items with text from checklist
+    const items = Object.values(itemResults).map((r) => {
+      const item = selectedChecklist.items?.find((i: any) => i.id === r.itemId);
+      return {
+        templateItemId: r.itemId,
+        itemText: item?.itemText || "",
+        result: r.result!,
+      };
+    });
+
+    submitInspectionMutation.mutate({
+      taskChecklistId: selectedChecklistId,
+      taskId: selectedTaskId,
+      items,
       generalComments: generalComments || undefined,
+      photoUrls: photoUrls.length > 0 ? photoUrls : undefined,
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const config: Record<string, { label: string; className: string }> = {
-      not_started: { label: "ยังไม่เริ่ม", className: "bg-gray-100 text-gray-700" },
-      pending_inspection: { label: "รอตรวจสอบ", className: "bg-yellow-100 text-yellow-700" },
-      completed: { label: "ผ่าน", className: "bg-green-100 text-green-700" },
-      failed: { label: "ไม่ผ่าน", className: "bg-red-100 text-red-700" },
+  const getStageLabel = (stage: string) => {
+    const labels: Record<string, string> = {
+      pre_execution: "ก่อนเริ่มงาน",
+      in_progress: "ระหว่างทำงาน",
+      post_execution: "หลังเสร็จงาน",
     };
-    const { label, className } = config[status] || config.not_started;
-    return <Badge className={className}>{label}</Badge>;
+    return labels[stage] || stage;
   };
+
+  const getStageColor = (stage: string) => {
+    const colors: Record<string, string> = {
+      pre_execution: "bg-blue-100 text-blue-800",
+      in_progress: "bg-yellow-100 text-yellow-800",
+      post_execution: "bg-green-100 text-green-800",
+    };
+    return colors[stage] || "bg-gray-100 text-gray-800";
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      pending: "bg-gray-100 text-gray-800",
+      in_progress: "bg-blue-100 text-blue-800",
+      passed: "bg-green-100 text-green-800",
+      failed: "bg-red-100 text-red-800",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      pending: "รอการตรวจสอบ",
+      in_progress: "กำลังตรวจสอบ",
+      passed: "ผ่าน",
+      failed: "ไม่ผ่าน",
+      not_started: "ยังไม่เริ่ม",
+      pending_inspection: "รอการตรวจสอบ",
+      completed: "ผ่าน",
+      todo: "ยังไม่เริ่ม",
+      delayed: "ล่าช้า",
+    };
+    return labels[status] || status;
+  };
+
+  // Badge 1: Checklist Status (User-controlled: not_started / pending_inspection)
+  const getChecklistStatusLabel = (status: string) => {
+    if (status === "not_started") return "ยังไม่เริ่ม";
+    if (status === "pending_inspection") return "รอการตรวจสอบ";
+    // For other statuses, show empty or hide
+    return "";
+  };
+
+  const getChecklistStatusColor = (status: string) => {
+    if (status === "not_started") return "bg-gray-100 text-gray-700 border-gray-300";
+    if (status === "pending_inspection") return "bg-yellow-100 text-yellow-700 border-yellow-300";
+    return "bg-gray-100 text-gray-700";
+  };
+
+  // Badge 2: Inspection Status (Result-based: in_progress / completed / failed)
+  const getInspectionStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      not_started: "รอการตรวจสอบ",
+      pending_inspection: "รอการตรวจสอบ",
+      in_progress: "กำลังตรวจสอบ",
+      completed: "ผ่าน",
+      failed: "ไม่ผ่าน ต้องแก้ไข",
+    };
+    return labels[status] || "รอการตรวจสอบ";
+  };
+
+  const getInspectionStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      not_started: "text-gray-500 border-gray-300",
+      pending_inspection: "text-gray-500 border-gray-300",
+      in_progress: "text-blue-600 border-blue-300",
+      completed: "text-green-600 border-green-300",
+      failed: "text-red-600 border-red-300",
+    };
+    return colors[status] || "text-gray-500 border-gray-300";
+  };
+
+  if (tasksLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">กำลังโหลด...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">QC Inspection Overview</h1>
+        <h1 className="text-3xl font-bold">QC Inspection</h1>
         <p className="text-muted-foreground mt-1">
           ระบบตรวจสอบคุณภาพงานก่อสร้าง
         </p>
       </div>
 
-      {/* Checklist Overview Stats */}
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <PieChartIcon className="h-5 w-5" />
-            <CardTitle>สรุปสถานะ Checklists ทั้งหมด</CardTitle>
+      {/* Progress Steps */}
+      <div className="flex items-center justify-center mb-8 gap-4">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}>
+            1
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="w-full md:w-1/2 h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: 'ยังไม่เริ่ม', value: stats.not_started, color: '#9CA3AF' },
-                      { name: 'รอตรวจสอบ', value: stats.pending_inspection, color: '#FBBF24' },
-                      { name: 'ผ่าน', value: stats.completed, color: '#10B981' },
-                      { name: 'ไม่ผ่าน', value: stats.failed, color: '#EF4444' },
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {[
-                      { name: 'ยังไม่เริ่ม', value: stats.not_started, color: '#9CA3AF' },
-                      { name: 'รอตรวจสอบ', value: stats.pending_inspection, color: '#FBBF24' },
-                      { name: 'ผ่าน', value: stats.completed, color: '#10B981' },
-                      { name: 'ไม่ผ่าน', value: stats.failed, color: '#EF4444' },
-                    ].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
-              <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setStatusFilter(statusFilter === 'not_started' ? null : 'not_started')}
-              >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-gray-600">{stats.not_started}</div>
-                  <div className="text-sm text-muted-foreground">ยังไม่เริ่ม</div>
-                </CardContent>
-              </Card>
-              <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setStatusFilter(statusFilter === 'pending_inspection' ? null : 'pending_inspection')}
-              >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-yellow-600">{stats.pending_inspection}</div>
-                  <div className="text-sm text-muted-foreground">รอตรวจสอบ</div>
-                </CardContent>
-              </Card>
-              <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setStatusFilter(statusFilter === 'completed' ? null : 'completed')}
-              >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
-                  <div className="text-sm text-muted-foreground">ผ่าน</div>
-                </CardContent>
-              </Card>
-              <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setStatusFilter(statusFilter === 'failed' ? null : 'failed')}
-              >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
-                  <div className="text-sm text-muted-foreground">ไม่ผ่าน</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Checklists Grid */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">
-            {statusFilter ? `Checklists - ${getStatusBadge(statusFilter).props.children}` : 'Checklists ทั้งหมด'}
-          </h2>
-          {statusFilter && (
-            <Button variant="outline" onClick={() => setStatusFilter(null)}>
-              แสดงทั้งหมด
-            </Button>
-          )}
+          <span className={step >= 1 ? "font-medium" : "text-muted-foreground"}>เลือกงาน</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredChecklists.map((checklist) => (
-            <Card 
-              key={checklist.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => setSelectedChecklistId(checklist.id)}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{checklist.name}</CardTitle>
-                    <CardDescription className="mt-1 flex items-center gap-1 text-sm">
-                      <Calendar className="h-3 w-3" />
-                      {checklist.taskName}
-                    </CardDescription>
-                  </div>
-                  {getStatusBadge(checklist.status || 'not_started')}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <ClipboardCheck className="h-4 w-4" />
-                    <span>{(checklist.items as any[])?.length || 0} รายการ</span>
-                  </div>
-                  {checklist.inspectedBy && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      <span>ตรวจโดย: User #{checklist.inspectedBy}</span>
-                    </div>
-                  )}
-                  <Button 
-                    className="w-full mt-4" 
-                    onClick={() => handleStartInspection(checklist.id)}
-                    disabled={checklist.status === 'completed'}
-                  >
-                    {checklist.status === 'completed' ? 'ตรวจสอบแล้ว' : 'เริ่มตรวจสอบ'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <ArrowRight className="text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}>
+            2
+          </div>
+          <span className={step >= 2 ? "font-medium" : "text-muted-foreground"}>เลือก Checklist</span>
+        </div>
+        <ArrowRight className="text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step >= 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}>
+            3
+          </div>
+          <span className={step >= 3 ? "font-medium" : "text-muted-foreground"}>ทำการตรวจสอบ</span>
         </div>
       </div>
 
-      {/* Inspection Dialog */}
-      <Dialog open={isInspecting} onOpenChange={setIsInspecting}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedChecklist?.name}</DialogTitle>
-            <DialogDescription>
-              งาน: {selectedChecklist?.taskName}
-            </DialogDescription>
-          </DialogHeader>
+      {/* Step 1: Select Task */}
+      {step === 1 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertCircle className="h-5 w-5 text-blue-600" />
+            <p className="text-sm text-muted-foreground">
+              เลือกงานที่ต้องการทำการตรวจสอบคุณภาพ
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tasks?.map((task) => (
+              <Card
+                key={task.id}
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleSelectTask(task.id)}
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg">{task.name}</CardTitle>
+                  <CardDescription>
+                    {task.projectName || "ไม่ระบุโครงการ"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <Badge className={task.displayStatusColor}>
+                      {task.displayStatusLabel}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {task.progress || 0}%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          {(!tasks || tasks.length === 0) && (
+            <div className="text-center py-12 text-muted-foreground">
+              ไม่พบงานในระบบ
+            </div>
+          )}
+        </div>
+      )}
 
-          <div className="space-y-6 mt-4">
-            {/* Inspection Items */}
-            <div className="space-y-4">
-              <h3 className="font-semibold">รายการตรวจสอบ</h3>
-              {(selectedChecklist?.items as any[] || []).map((item) => (
-                <Card key={item.id}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="font-medium">{item.description}</p>
-                        {item.acceptanceCriteria && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            เกณฑ์: {item.acceptanceCriteria}
-                          </p>
-                        )}
+      {/* Step 2: Select Checklist */}
+      {step === 2 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" onClick={() => setStep(1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              ย้อนกลับ
+            </Button>
+            <div>
+              <h2 className="text-xl font-semibold">{selectedTask?.name}</h2>
+              <p className="text-sm text-muted-foreground">เลือก Checklist ที่ต้องการตรวจสอบ</p>
+            </div>
+          </div>
+
+          {checklists && checklists.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {checklists.map((checklist: any) => (
+                <Card
+                  key={checklist.id}
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => handleSelectChecklist(checklist.id)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{checklist.templateName || "ไม่มีชื่อ"}</CardTitle>
+                        <CardDescription className="mt-1">
+                          {checklist.items?.length || 0} รายการตรวจสอบ
+                        </CardDescription>
                       </div>
-                      <RadioGroup
-                        value={itemResults[item.id]?.result || ""}
-                        onValueChange={(value) => handleItemResult(item.id, value as InspectionResult)}
-                      >
-                        <div className="flex gap-4">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="pass" id={`pass-${item.id}`} />
-                            <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                              <CheckCircle2 className="h-4 w-4 text-green-600" />
-                              ผ่าน
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="fail" id={`fail-${item.id}`} />
-                            <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                              <XCircle className="h-4 w-4 text-red-600" />
-                              ไม่ผ่าน
-                            </Label>
-                          </div>
-                        </div>
-                      </RadioGroup>
+                      <Badge className={getStageColor(checklist.stage)}>
+                        {getStageLabel(checklist.stage)}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {/* Badge 1: Checklist Status (User-controlled) */}
+                      <Badge className={getChecklistStatusColor(checklist.status)}>
+                        {getChecklistStatusLabel(checklist.status)}
+                      </Badge>
+                      {/* Badge 2: Inspection Status (Result-based) */}
+                      <Badge variant="outline" className={getInspectionStatusColor(checklist.status)}>
+                        {getInspectionStatusLabel(checklist.status)}
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">งานนี้ยังไม่มี Checklist กำหนดไว้</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  กรุณาเพิ่ม Checklist ให้กับงานนี้ก่อนทำการตรวจสอบ
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
-            {/* General Comments */}
-            <div className="space-y-2">
-              <Label htmlFor="comments">ความเห็นเพิ่มเติม</Label>
-              <Textarea
-                id="comments"
-                placeholder="ระบุความเห็นหรือข้อสังเกต (ถ้ามี)"
-                value={generalComments}
-                onChange={(e) => setGeneralComments(e.target.value)}
-                rows={4}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setIsInspecting(false)}>
-                ยกเลิก
-              </Button>
-              <Button onClick={handleSubmitInspection} disabled={updateChecklistMutation.isPending}>
-                {updateChecklistMutation.isPending ? "กำลังบันทึก..." : "บันทึกผลการตรวจสอบ"}
-              </Button>
+      {/* Step 3: Perform Inspection */}
+      {step === 3 && selectedChecklist && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" onClick={() => setStep(2)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              ย้อนกลับ
+            </Button>
+            <div>
+              <h2 className="text-xl font-semibold">{selectedChecklist.templateName}</h2>
+              <p className="text-sm text-muted-foreground">
+                {selectedTask?.name} • {getStageLabel(selectedChecklist.stage)}
+              </p>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>รายการตรวจสอบ</CardTitle>
+              <CardDescription>
+                กรุณาเลือกผลการตรวจสอบสำหรับแต่ละรายการ (ผ่าน / ไม่ผ่าน / N/A)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {selectedChecklist.items?.map((item: any, index: number) => (
+                <div key={item.id} className="p-4 border rounded-lg space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="font-medium text-sm text-muted-foreground min-w-[2rem]">
+                      {index + 1}.
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-medium">{item.itemText}</p>
+                    </div>
+                  </div>
+
+                  <RadioGroup
+                    value={itemResults[item.id]?.result || ""}
+                    onValueChange={(value) => handleResultChange(item.id, value as InspectionResult)}
+                  >
+                    <div className="flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="pass" id={`pass-${item.id}`} />
+                        <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          ผ่าน
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="fail" id={`fail-${item.id}`} />
+                        <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <XCircle className="h-4 w-4 text-red-600" />
+                          ไม่ผ่าน
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="na" id={`na-${item.id}`} />
+                        <Label htmlFor={`na-${item.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <MinusCircle className="h-4 w-4 text-gray-600" />
+                          N/A
+                        </Label>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+              ))}
+
+              {/* General Comments Section */}
+              {selectedChecklist.allowGeneralComments && (
+                <div className="pt-6 border-t space-y-3">
+                  <Label htmlFor="generalComments" className="text-base font-semibold">
+                    ความเห็นทั่วไป
+                  </Label>
+                  <Textarea
+                    id="generalComments"
+                    placeholder="เพิ่มความเห็นหรือข้อสังเกตเพิ่มเติม..."
+                    value={generalComments}
+                    onChange={(e) => setGeneralComments(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              )}
+
+              {/* Photo Upload Section */}
+              {selectedChecklist.allowPhotos && (
+                <div className="pt-6 border-t space-y-3">
+                  <Label htmlFor="photos" className="text-base font-semibold">
+                    แนบรูปภาพ
+                  </Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="photos"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoChange}
+                      className="flex-1"
+                    />
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  {photoFiles.length > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      เลือกไฟล์แล้ว {photoFiles.length} ไฟล์
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end pt-6">
+                <Button onClick={handleSubmit} size="lg">
+                  ส่งผลการตรวจสอบ
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

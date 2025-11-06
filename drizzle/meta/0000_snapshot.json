@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "64575488-3f14-42ff-941a-2d1c81bffaaf",
+  "id": "d5f6c1bf-2d36-41ba-b85d-efc0758f219a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "activityLog": {
@@ -93,6 +93,77 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "categoryColors": {
+      "name": "categoryColors",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "projectId": {
+          "name": "projectId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "category": {
+          "name": "category",
+          "type": "enum('preparation','structure','architecture','mep','other')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "projectCategoryIdx": {
+          "name": "projectCategoryIdx",
+          "columns": [
+            "projectId",
+            "category"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "categoryColors_id": {
+          "name": "categoryColors_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "checklistItemResults": {
       "name": "checklistItemResults",
       "columns": {
@@ -155,6 +226,95 @@
       "compositePrimaryKeys": {
         "checklistItemResults_id": {
           "name": "checklistItemResults_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "checklistResults": {
+      "name": "checklistResults",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "checklistId": {
+          "name": "checklistId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "itemId": {
+          "name": "itemId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "result": {
+          "name": "result",
+          "type": "enum('pass','fail','na')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "comment": {
+          "name": "comment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "photoUrls": {
+          "name": "photoUrls",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "inspectedBy": {
+          "name": "inspectedBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "inspectedAt": {
+          "name": "inspectedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "checklistIdx": {
+          "name": "checklistIdx",
+          "columns": [
+            "checklistId"
+          ],
+          "isUnique": false
+        },
+        "itemIdx": {
+          "name": "itemIdx",
+          "columns": [
+            "itemId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "checklistResults_id": {
+          "name": "checklistResults_id",
           "columns": [
             "id"
           ]
@@ -507,7 +667,7 @@
         },
         "type": {
           "name": "type",
-          "type": "enum('task_assigned','inspection_requested','inspection_completed','defect_assigned','defect_resolved','comment_mention','task_updated','deadline_reminder')",
+          "type": "enum('task_assigned','inspection_requested','inspection_completed','inspection_passed','inspection_failed','defect_assigned','defect_resolved','comment_mention','task_updated','deadline_reminder')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1248,6 +1408,13 @@
         "assigneeId": {
           "name": "assigneeId",
           "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

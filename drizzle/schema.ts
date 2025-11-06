@@ -201,7 +201,11 @@ export const defects = mysqlTable("defects", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   photoUrls: text("photoUrls"), // JSON array of photo URLs
-  status: mysqlEnum("status", ["open", "in_progress", "resolved", "verified"]).default("open").notNull(),
+  status: mysqlEnum("status", [
+    "reported", "rca_pending", "action_plan", "assigned", 
+    "in_progress", "implemented", "verification", "effectiveness_check", 
+    "closed", "rejected"
+  ]).default("reported").notNull(),
   severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
   assignedTo: int("assignedTo"),
   reportedBy: int("reportedBy").notNull(),
@@ -209,19 +213,52 @@ export const defects = mysqlTable("defects", {
   resolvedAt: timestamp("resolvedAt"),
   resolutionPhotoUrls: text("resolutionPhotoUrls"), // JSON array of resolution photo URLs
   resolutionComment: text("resolutionComment"),
+  // CAR/PAR/NCR specific fields
+  type: mysqlEnum("type", ["CAR", "PAR", "NCR"]).default("CAR").notNull(),
+  checklistId: int("checklistId"), // Link to task checklist
+  rootCause: text("rootCause"), // Root Cause Analysis
+  correctiveAction: text("correctiveAction"), // Corrective action plan
+  preventiveAction: text("preventiveAction"), // Preventive action plan
+  dueDate: timestamp("dueDate"), // Due date for resolution
+  ncrLevel: mysqlEnum("ncrLevel", ["major", "minor"]), // NCR severity level
+  verifiedBy: int("verifiedBy"), // User who verified the fix
+  verifiedAt: timestamp("verifiedAt"), // Verification timestamp
+  verificationComment: text("verificationComment"), // Verification notes
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   taskIdx: index("taskIdx").on(table.taskId),
   statusIdx: index("statusIdx").on(table.status),
   assignedToIdx: index("assignedToIdx").on(table.assignedTo),
+  typeIdx: index("typeIdx").on(table.type),
+  checklistIdx: index("checklistIdx").on(table.checklistId),
 }));
 
 export type Defect = typeof defects.$inferSelect;
 export type InsertDefect = typeof defects.$inferInsert;
 
 /**
- * Task comments - discussion threads on tasks
+ * Checklist Results - stores individual item inspection results
+ */
+export const checklistResults = mysqlTable("checklistResults", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistId: int("checklistId").notNull(), // task checklist
+  itemId: int("itemId").notNull(), // checklist template item
+  result: mysqlEnum("result", ["pass", "fail", "na"]).notNull(),
+  comment: text("comment"),
+  photoUrls: text("photoUrls"), // JSON array of photo URLs
+  inspectedBy: int("inspectedBy").notNull(),
+  inspectedAt: timestamp("inspectedAt").defaultNow().notNull(),
+}, (table) => ({
+  checklistIdx: index("checklistIdx").on(table.checklistId),
+  itemIdx: index("itemIdx").on(table.itemId),
+}));
+
+export type ChecklistResult = typeof checklistResults.$inferSelect;
+export type InsertChecklistResult = typeof checklistResults.$inferInsert;
+
+/**
+ * Task comments - comments on tasks
  */
 export const taskComments = mysqlTable("taskComments", {
   id: int("id").autoincrement().primaryKey(),

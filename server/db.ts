@@ -571,18 +571,6 @@ export async function createTaskChecklist(data: {
   });
 }
 
-export async function getAllTaskChecklists() {
-  const db = await getDb();
-  if (!db) return [];
-  
-  const result = await db
-    .select()
-    .from(taskChecklists)
-    .orderBy(taskChecklists.createdAt);
-  
-  return result;
-}
-
 export async function getTaskChecklistsByTask(taskId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -627,10 +615,20 @@ export async function getTaskChecklistById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getAllTaskChecklists() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskChecklists)
+    .orderBy(desc(taskChecklists.createdAt));
+}
+
 export async function updateTaskChecklist(
   id: number,
   data: Partial<{
-    status: "not_started" | "pending_inspection" | "in_progress" | "completed" | "failed";
+    status: "pending" | "in_progress" | "passed" | "failed";
     inspectedBy: number;
     inspectedAt: Date;
     signature: string;
@@ -710,6 +708,14 @@ export async function createDefect(data: {
   severity: "low" | "medium" | "high" | "critical";
   reportedBy: number;
   assignedTo?: number;
+  // CAR/PAR/NCR specific fields
+  type?: "CAR" | "PAR" | "NCR";
+  checklistId?: number;
+  rootCause?: string;
+  correctiveAction?: string;
+  preventiveAction?: string;
+  dueDate?: Date;
+  ncrLevel?: "major" | "minor";
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -723,7 +729,15 @@ export async function createDefect(data: {
     severity: data.severity,
     reportedBy: data.reportedBy,
     assignedTo: data.assignedTo,
-    status: "open",
+    status: "reported",
+    // CAR/PAR/NCR fields
+    type: data.type || "CAR",
+    checklistId: data.checklistId,
+    rootCause: data.rootCause,
+    correctiveAction: data.correctiveAction,
+    preventiveAction: data.preventiveAction,
+    dueDate: data.dueDate,
+    ncrLevel: data.ncrLevel,
   });
 }
 
@@ -753,19 +767,28 @@ export async function getOpenDefects() {
   return await db
     .select()
     .from(defects)
-    .where(eq(defects.status, "open"))
+    .where(eq(defects.status, "reported"))
     .orderBy(desc(defects.severity));
 }
 
 export async function updateDefect(
   id: number,
   data: Partial<{
-    status: "open" | "in_progress" | "resolved" | "verified";
+    status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected";
     assignedTo: number;
     resolvedBy: number;
     resolvedAt: Date;
     resolutionPhotoUrls: string;
     resolutionComment: string;
+    // CAR/PAR/NCR workflow fields
+    rootCause: string;
+    correctiveAction: string;
+    preventiveAction: string;
+    dueDate: Date;
+    ncrLevel: "major" | "minor";
+    verifiedBy: number;
+    verifiedAt: Date;
+    verificationComment: string;
   }>
 ) {
   const db = await getDb();
@@ -778,6 +801,15 @@ export async function updateDefect(
   if (data.resolvedAt !== undefined) updateData.resolvedAt = data.resolvedAt;
   if (data.resolutionPhotoUrls !== undefined) updateData.resolutionPhotoUrls = data.resolutionPhotoUrls;
   if (data.resolutionComment !== undefined) updateData.resolutionComment = data.resolutionComment;
+  // CAR/PAR/NCR fields
+  if (data.rootCause !== undefined) updateData.rootCause = data.rootCause;
+  if (data.correctiveAction !== undefined) updateData.correctiveAction = data.correctiveAction;
+  if (data.preventiveAction !== undefined) updateData.preventiveAction = data.preventiveAction;
+  if (data.dueDate !== undefined) updateData.dueDate = data.dueDate;
+  if (data.ncrLevel !== undefined) updateData.ncrLevel = data.ncrLevel;
+  if (data.verifiedBy !== undefined) updateData.verifiedBy = data.verifiedBy;
+  if (data.verifiedAt !== undefined) updateData.verifiedAt = data.verifiedAt;
+  if (data.verificationComment !== undefined) updateData.verificationComment = data.verificationComment;
 
   return await db.update(defects).set(updateData).where(eq(defects.id, id));
 }
@@ -1006,7 +1038,7 @@ export async function submitInspection(data: {
     // 2. Calculate overall status
     const failedCount = data.itemResults.filter((r) => r.result === "fail").length;
     const passedCount = data.itemResults.filter((r) => r.result === "pass").length;
-    const overallStatus = failedCount > 0 ? "failed" : "completed";
+    const overallStatus = failedCount > 0 ? "failed" : "passed";
 
     // 3. Update task checklist
     await db.update(taskChecklists).set({
@@ -1239,4 +1271,86 @@ export async function initializeCategoryColors(projectId: number) {
   ];
 
   await db.insert(categoryColors).values(defaultColors);
+}
+
+/**
+ * Get defects by type (CAR/PAR/NCR)
+ */
+export async function getDefectsByType(type: "CAR" | "PAR" | "NCR") {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(defects)
+    .where(eq(defects.type, type))
+    .orderBy(desc(defects.createdAt));
+}
+
+/**
+ * Get defects by checklist
+ */
+export async function getDefectsByChecklist(checklistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(defects)
+    .where(eq(defects.checklistId, checklistId))
+    .orderBy(desc(defects.createdAt));
+}
+
+/**
+ * Get defects by status
+ */
+export async function getDefectsByStatus(
+  status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected"
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(defects)
+    .where(eq(defects.status, status))
+    .orderBy(desc(defects.createdAt));
+}
+
+/**
+ * Create checklist result (for individual inspection item)
+ */
+export async function createChecklistResult(data: {
+  checklistId: number;
+  itemId: number;
+  result: "pass" | "fail" | "na";
+  comment?: string;
+  photoUrls?: string;
+  inspectedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(checklistResults).values({
+    checklistId: data.checklistId,
+    itemId: data.itemId,
+    result: data.result,
+    comment: data.comment,
+    photoUrls: data.photoUrls,
+    inspectedBy: data.inspectedBy,
+  });
+}
+
+/**
+ * Get checklist results by checklist ID
+ */
+export async function getChecklistResults(checklistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(checklistResults)
+    .where(eq(checklistResults.checklistId, checklistId))
+    .orderBy(checklistResults.itemId);
 }

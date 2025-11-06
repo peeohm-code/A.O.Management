@@ -403,42 +403,58 @@
 - [x] Verify 5-category system is working (preparation, structure, architecture, mep, other)
 - [x] Test Gantt Chart displays all categories correctly
 
-## Update Default Category Colors
-- [x] Update database default colors (preparation=green, structure=blue, architecture=yellow, mep=red, other=gray)
-- [x] Update getCategoryColor fallback colors in GanttChart.tsx
-- [ ] Test all categories display correct colors
-- [ ] Verify progress bars use correct colors
+## Category Progress Bars in Gantt Chart
+- [ ] Add progress bar UI component for category headers
+- [ ] Calculate average progress for each category
+- [ ] Display progress bar with percentage in category row
+- [ ] Style progress bar to match category color
+- [ ] Test progress bar updates when task progress changes
+- [x] ลบการ์ดในหน้า Defects
+- [ ] Phase 3: อัปเดต db.ts - เพิ่ม query functions สำหรับ CAR/PAR/NCR
+- [ ] Phase 3: อัปเดต routers.ts - เพิ่ม mutations สำหรับ CAR/PAR/NCR
 
-## Edit Task Feature
-- [x] Create EditTaskDialog component
-- [x] Add click handler to task rows
-- [x] Populate dialog with existing task data
-- [x] Update task.update tRPC mutation to support all fields
-- [ ] Test editing task details
-
-## Delete Task Feature
-- [x] Add delete button to EditTaskDialog
-- [x] Add confirmation dialog before delete
-- [x] Integrate with task.delete tRPC mutation
-- [ ] Test deleting task
-
-## Bug: Category Display Issue
-- [x] แก้ไข bug: สร้างงานใหม่เลือกหมวดหมู่ "งานเตรียมงาน" แต่ใน Gantt Chart แสดงเป็น "งานอื่นๆ"
-- [x] แก้ไข: หมวด "งานเตรียมงาน" ควรอยู่ด้านบนสุดใน Gantt Chart และต้องสามารถลากเลื่อนได้
-- [x] แก้ไข: งานเตรียมงานยังไม่อยู่บนสุดและลากไม่ได้ (localStorage เก่าค้างอยู่)
-- [x] เพิ่มฟีเจอร์: ปุ่ม "ขออนุมัติตรวจ" ในหน้า Task Detail เพื่อเปลี่ยนสถานะ checklist จาก pending → รอตรวจสอบ
-- [x] แก้ไข: ปุ่ม "ขออนุมัติตรวจ" ไม่แสดงในหน้า Task Detail
-- [x] เพิ่ม: ส่งการแจ้งเตือนไปยังผู้ตรวจเมื่อกดปุ่ม "ขออนุมัติตรวจ"
-- [x] แก้ไข: ปุ่ม "ขออนุมัติตรวจ" ยังไม่แสดงในหน้า Task Detail (ตรวจสอบ status ของ checklist)
-- [x] แก้ไข: Database error - status "pending_inspection" ไม่อยู่ใน enum ของ taskChecklists
-- [x] แก้ไข: โค้ดยังใช้ค่า "passed" ซึ่งไม่มีใน enum แล้ว ต้องเปลี่ยนเป็น "completed"
-- [x] ลบ tabs "Dependencies" และ "ความเห็น" ออกจากหน้า Task Detail
-- [ ] เพิ่มฟีเจอร์: drag & drop + filter (รอตรวจสอบ/ไม่ผ่าน/ผ่าน) ใน ChecklistsTab
-- [x] เพิ่ม Filter dropdown สำหรับ Checklists (รอตรวจสอบ, ไม่ผ่าน, ผ่าน)
-- [x] แก้ไขหน้า QC Inspection: เปลี่ยนชื่อเป็น "QC Inspection Overview" และลบสถานะ "กำลังตรวจ"
-- [x] เพิ่มกราฟวงกลมสรุปสัดส่วน Checklists ตามสถานะในหน้า QC Inspection Overview
-- [x] เปลี่ยนหน้า QC Inspection เป็น Dashboard แบบง่าย: ลบขั้นตอน แสดงการ์ด checklists ทั้งหมด คลิกเพื่อตรวจได้เลย
-- [x] แก้ไข: React Hooks order error ในหน้า QC Inspection
-- [x] เพิ่มฟีเจอร์: คลิกการ์ดสถิติเพื่อดูรายการ checklists ตามสถานะ
-- [x] เพิ่มฟีเจอร์: คลิกการ์ด Checklist Overview ใน Dashboard เพื่อไปหน้า QC Inspection พร้อมกรองตามสถานะ
-- [x] แก้ไข: การ์ด checklist ในหน้า QC Inspection ไม่สามารถคลิกเพื่อเปิด dialog ตรวจสอบได้
+## CAR/PAR/NCR System Implementation
+- [x] ลบการ์ดในหน้า Defects
+- [x] Phase 2: Database Schema Updates
+  - [x] เพิ่มฟิลด์ type (CAR/PAR/NCR) ในตาราง defects
+  - [x] เพิ่มฟิลด์ checklistId สำหรับเชื่อมโยงกับ checklist
+  - [x] เพิ่มฟิลด์ rootCause สำหรับ Root Cause Analysis
+  - [x] เพิ่มฟิลด์ correctiveAction สำหรับแผนแก้ไข
+  - [x] เพิ่มฟิลด์ preventiveAction สำหรับแผนป้องกัน
+  - [x] เพิ่มฟิลด์ dueDate สำหรับกำหนดเวลาแก้ไข
+  - [x] เพิ่มฟิลด์ ncrLevel (major/minor) สำหรับระดับความรุนแรง NCR
+  - [x] เพิ่มฟิลด์ verifiedBy, verifiedAt, verificationComment สำหรับการตรวจสอบ
+  - [x] อัปเดต status enum รองรับ workflow: reported, rca_pending, action_plan, assigned, in_progress, implemented, verification, effectiveness_check, closed, rejected
+  - [x] สร้างตาราง checklistResults สำหรับเก็บผลการตรวจแต่ละรายการ
+- [x] Phase 3: Backend Updates
+  - [x] อัปเดต createDefect() รองรับฟิลด์ CAR/PAR/NCR
+  - [x] อัปเดต updateDefect() รองรับ workflow transitions
+  - [x] เพิ่ม getDefectsByType() สำหรับกรองตามประเภท
+  - [x] เพิ่ม getDefectsByChecklist() สำหรับกรองตาม checklist
+  - [x] เพิ่ม getDefectsByStatus() สำหรับกรองตามสถานะ
+  - [x] เพิ่ม createChecklistResult() สำหรับบันทึกผลการตรวจ
+  - [x] เพิ่ม getChecklistResults() สำหรับดึงผลการตรวจ
+  - [x] เพิ่ม defect.listByType API
+  - [x] เพิ่ม defect.listByStatus API
+  - [x] เพิ่ม defect.listByChecklist API
+  - [x] เพิ่ม defect.create API พร้อมฟิลด์ CAR/PAR/NCR
+  - [x] อัปเดต defect.update API รองรับ workflow ทั้งหมด
+- [ ] Phase 4: Frontend UI Updates
+  - [ ] เพิ่ม tabs แยกประเภท CAR/PAR/NCR ในหน้า Defects
+  - [ ] สร้างฟอร์มสร้าง CAR/PAR/NCR พร้อมฟิลด์ครบถ้วน
+  - [ ] เพิ่มปุ่ม "Create CAR/NCR" ในหน้า QC Inspection เมื่อมีรายการที่ไม่ผ่าน
+  - [ ] สร้างฟอร์ม RCA (Root Cause Analysis)
+  - [ ] สร้างฟอร์ม Action Plan (Corrective & Preventive)
+  - [ ] สร้างฟอร์ม Verification
+  - [ ] แสดงข้อมูล traceability (Project → Task → Checklist → Item)
+  - [ ] เพิ่มการแสดงรูปภาพ before/after
+  - [ ] แสดง timeline/history ของ workflow
+- [ ] Phase 5: Workflow Management
+  - [ ] ทดสอบ workflow transitions ทั้งหมด
+  - [ ] ทดสอบการสร้าง CAR/NCR จาก QC Inspection
+  - [ ] ทดสอบการสร้าง PAR แบบ manual
+  - [ ] ทดสอบ notifications ในแต่ละขั้นตอน
+- [ ] Phase 6: Reporting & Analytics
+  - [ ] สร้างรายงาน CAR/PAR/NCR สรุป
+  - [ ] แสดงสถิติตามประเภทและสถานะ
+  - [ ] Export รายงานเป็น PDF
