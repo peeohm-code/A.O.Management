@@ -571,6 +571,18 @@ export async function createTaskChecklist(data: {
   });
 }
 
+export async function getAllTaskChecklists() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(taskChecklists)
+    .orderBy(taskChecklists.createdAt);
+  
+  return result;
+}
+
 export async function getTaskChecklistsByTask(taskId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -613,16 +625,6 @@ export async function getTaskChecklistById(id: number) {
     .where(eq(taskChecklists.id, id))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
-}
-
-export async function getAllTaskChecklists() {
-  const db = await getDb();
-  if (!db) return [];
-
-  return await db
-    .select()
-    .from(taskChecklists)
-    .orderBy(desc(taskChecklists.createdAt));
 }
 
 export async function updateTaskChecklist(

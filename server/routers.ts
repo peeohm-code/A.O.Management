@@ -465,6 +465,11 @@ const checklistRouter = router({
       return await db.getTaskChecklistsByTask(input.taskId);
     }),
 
+  getAllTaskChecklists: protectedProcedure
+    .query(async () => {
+      return await db.getAllTaskChecklists();
+    }),
+
   assignToTask: protectedProcedure
     .input(
       z.object({

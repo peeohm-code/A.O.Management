@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as React from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,28 +25,27 @@ export default function QCInspection() {
   const [generalComments, setGeneralComments] = useState("");
   const [isInspecting, setIsInspecting] = useState(false);
 
-  // Queries - get all checklists across all tasks
+  // Queries - get all tasks and checklists
   const { data: tasks } = trpc.task.list.useQuery({});
+  const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
   
-  // Get all task checklists for overview
-  const allChecklistsQueries = tasks?.map(task => 
-    trpc.checklist.getTaskChecklists.useQuery({ taskId: task.id })
-  ) || [];
-  
-  const allChecklists = allChecklistsQueries
-    .filter(q => q.data)
-    .flatMap(q => q.data || [])
-    .map(checklist => {
-      const task = tasks?.find(t => t.id === checklist.taskId);
+  // Map checklists with task names
+  const allChecklists = React.useMemo(() => {
+    if (!checklistsData || !tasks) return [];
+    return checklistsData.map(checklist => {
+      const task = tasks.find(t => t.id === checklist.taskId);
       return { ...checklist, taskName: task?.name || "Unknown Task" };
     });
+  }, [checklistsData, tasks]);
 
   // Calculate real stats from all checklists
-  const checklistStats = allChecklists.reduce((acc, checklist) => {
-    const status = checklist.status || 'not_started';
-    acc[status] = (acc[status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const checklistStats = React.useMemo(() => {
+    return allChecklists.reduce((acc, checklist: any) => {
+      const status = checklist.status || 'not_started';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [allChecklists]);
 
   const stats = {
     not_started: checklistStats.not_started || 0,
@@ -63,8 +63,8 @@ export default function QCInspection() {
       setSelectedChecklistId(null);
       setItemResults({});
       setGeneralComments("");
-      // Invalidate to refresh data
-      allChecklistsQueries.forEach(q => q.refetch());
+      // Refetch checklists
+      refetchChecklists();
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
