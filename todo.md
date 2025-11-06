@@ -726,3 +726,10 @@
 - [x] Add null checks to Defects page component
 - [x] Test defects page functionality
 - [ ] Save checkpoint
+
+## Fix Overdue Defects Filter
+- [x] Check current filter implementation in Defects page
+- [x] Add overdue filter state and logic
+- [x] Update filter to show only overdue defects when clicked
+- [x] Test overdue filter functionality
+- [ ] Save checkpoint

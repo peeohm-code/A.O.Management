@@ -27,6 +27,7 @@ export default function Defects() {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [overdueFilter, setOverdueFilter] = useState<boolean>(false);
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [resolutionComment, setResolutionComment] = useState("");
   
@@ -73,6 +74,16 @@ export default function Defects() {
 
   if (statusFilter !== "all") {
     filteredDefects = filteredDefects.filter((d) => d.status === statusFilter);
+  }
+
+  // Filter overdue defects
+  if (overdueFilter) {
+    const now = new Date();
+    filteredDefects = filteredDefects.filter((d) => {
+      if (!d.dueDate || d.status === 'closed') return false;
+      const dueDate = new Date(d.dueDate);
+      return dueDate < now;
+    });
   }
 
   const getSeverityColor = (severity: string) => {
@@ -266,7 +277,10 @@ export default function Defects() {
             {/* Total */}
             <div
               className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
-              onClick={() => setStatusFilter("all")}
+              onClick={() => {
+                setStatusFilter("all");
+                setOverdueFilter(false);
+              }}
             >
               <div className="text-sm text-gray-600 mb-1">ทั้งหมด</div>
               <div className="text-3xl font-bold mb-2">{metrics.total}</div>
@@ -278,7 +292,10 @@ export default function Defects() {
             {/* Open */}
             <div
               className="p-4 rounded-lg border-2 border-orange-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => setStatusFilter("all")}
+              onClick={() => {
+                setStatusFilter("all");
+                setOverdueFilter(false);
+              }}
             >
               <div className="text-sm text-gray-600 mb-1">เปิดอยู่</div>
               <div className="text-3xl font-bold text-orange-600 mb-2">{metrics.open}</div>
@@ -293,7 +310,10 @@ export default function Defects() {
             {/* Closed */}
             <div
               className="p-4 rounded-lg border-2 border-green-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => setStatusFilter("closed")}
+              onClick={() => {
+                setStatusFilter("closed");
+                setOverdueFilter(false);
+              }}
             >
               <div className="text-sm text-gray-600 mb-1">ปิดแล้ว</div>
               <div className="text-3xl font-bold text-green-600 mb-2">{metrics.closed}</div>
@@ -308,7 +328,10 @@ export default function Defects() {
             {/* Pending Verification */}
             <div
               className="p-4 rounded-lg border-2 border-yellow-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => setStatusFilter("verification")}
+              onClick={() => {
+                setStatusFilter("verification");
+                setOverdueFilter(false);
+              }}
             >
               <div className="text-sm text-gray-600 mb-1">รอตรวจสอบ</div>
               <div className="text-3xl font-bold text-yellow-600 mb-2">{metrics.pendingVerification}</div>
@@ -324,7 +347,10 @@ export default function Defects() {
             <div
               className="p-4 rounded-lg border-2 border-red-200 cursor-pointer hover:shadow-md transition"
               onClick={() => {
-                toast.info("กรองแสดง Defect ที่เกินกำหนด");
+                setOverdueFilter(!overdueFilter);
+                setStatusFilter("all");
+                setSeverityFilter("all");
+                toast.info(overdueFilter ? "แสดง Defect ทั้งหมด" : "กรองแสดง Defect ที่เกินกำหนด");
               }}
             >
               <div className="text-sm text-gray-600 mb-1">เกินกำหนด</div>
