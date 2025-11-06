@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, taskId, status FROM taskChecklists WHERE taskId = 23",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, taskId, status FROM taskChecklists WHERE taskId = 23",
+  "rows": [
+    {
+      "id": "120013",
+      "taskId": "23",
+      "status": "pending"
+    },
+    {
+      "id": "120014",
+      "taskId": "23",
+      "status": "pending"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\tstatus\n120013\t23\tpending\n120014\t23\tpending\n",
+  "stderr": "",
+  "execution_time_ms": 1563
+}
