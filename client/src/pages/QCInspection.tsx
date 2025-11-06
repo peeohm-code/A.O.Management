@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle, Upload, X, Image as ImageIcon } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 
@@ -43,6 +43,8 @@ export default function QCInspection() {
     description: "",
     severity: "medium",
   });
+  const [beforePhotos, setBeforePhotos] = useState<File[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   
   // Read status from URL parameter
   const [statusFilter, setStatusFilter] = useState<string | null>(() => {
@@ -106,22 +108,9 @@ export default function QCInspection() {
     },
   });
 
-  const createDefectMutation = trpc.defect.create.useMutation({
-    onSuccess: () => {
-      toast.success("สร้าง CAR/PAR/NCR สำเร็จ");
-      setIsCreatingDefect(false);
-      setDefectChecklistId(null);
-      setDefectForm({
-        type: "CAR",
-        title: "",
-        description: "",
-        severity: "medium",
-      });
-    },
-    onError: (error) => {
-      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
-    },
-  });
+  const createDefectMutation = trpc.defect.create.useMutation();
+  
+  const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
 
   const handleStartInspection = (checklistId: number) => {
     setSelectedChecklistId(checklistId);
@@ -144,23 +133,78 @@ export default function QCInspection() {
     setIsCreatingDefect(true);
   };
 
-  const handleSubmitDefect = () => {
+  const handleSubmitDefect = async () => {
     const checklist = allChecklists.find(c => c.id === defectChecklistId);
     if (!checklist || !defectForm.title) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
-    createDefectMutation.mutate({
-      taskId: checklist.taskId,
-      checklistId: checklist.id,
-      type: defectForm.type,
-      title: defectForm.title,
-      description: defectForm.description,
-      severity: defectForm.severity,
-      ncrLevel: defectForm.ncrLevel,
-      assignedTo: defectForm.assignedTo,
-    });
+    try {
+      setUploadingPhotos(true);
+      
+      // Create defect first
+      const defect = await createDefectMutation.mutateAsync({
+        taskId: checklist.taskId,
+        checklistId: checklist.id,
+        type: defectForm.type,
+        title: defectForm.title,
+        description: defectForm.description,
+        severity: defectForm.severity,
+        ncrLevel: defectForm.ncrLevel,
+        assignedTo: defectForm.assignedTo,
+      });
+
+      // Upload before photos if any
+      if (beforePhotos.length > 0) {
+        for (const photo of beforePhotos) {
+          // Upload to S3
+          const formData = new FormData();
+          formData.append('file', photo);
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!uploadResponse.ok) {
+            throw new Error(`Failed to upload ${photo.name}`);
+          }
+          
+          const { url, key } = await uploadResponse.json();
+          
+          // Save attachment record
+          await uploadAttachmentMutation.mutateAsync({
+            defectId: defect.id,
+            fileUrl: url,
+            fileKey: key,
+            fileName: photo.name,
+            fileType: photo.type,
+            fileSize: photo.size,
+            attachmentType: 'before' as const,
+          });
+        }
+      }
+      
+      setUploadingPhotos(false);
+      toast.success("สร้าง " + defectForm.type + " สำเร็จ");
+      
+      // Reset form
+      setIsCreatingDefect(false);
+      setDefectChecklistId(null);
+      setDefectForm({
+        type: "CAR",
+        title: "",
+        description: "",
+        severity: "medium",
+      });
+      setBeforePhotos([]);
+      refetchChecklists();
+    } catch (error) {
+      setUploadingPhotos(false);
+      console.error('Error creating defect:', error);
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
   };
 
   const handleItemResult = (itemId: number, result: InspectionResult) => {
@@ -687,6 +731,76 @@ export default function QCInspection() {
                 <p className="text-xs text-muted-foreground">ระบุผู้รับผิดชอบในการดำเนินการแก้ไข (ถ้ามี)</p>
               </div>
             </div>
+
+            {/* Before Photos Upload Section */}
+            <div className="space-y-3 p-5 rounded-lg border bg-card">
+              <h3 className="font-semibold text-base flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                รูปภาพก่อนแก้ไข (Before Photos)
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                อัปโหลดรูปภาพแสดงสภาพปัญหาก่อนดำเนินการแก้ไข (รองรับ JPG, PNG, HEIC สูงสุด 10MB/ไฟล์)
+              </p>
+              
+              {/* File Input */}
+              <div className="space-y-3">
+                <label htmlFor="before-photos" className="cursor-pointer">
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 hover:border-primary/50 hover:bg-accent/50 transition-colors">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <Upload className="h-10 w-10 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">คลิกเพื่อเลือกรูปภาพ</p>
+                        <p className="text-sm text-muted-foreground mt-1">หรือลากไฟล์มาวางที่นี่</p>
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    id="before-photos"
+                    type="file"
+                    accept="image/*,.heic"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      // Validate file size (10MB max)
+                      const validFiles = files.filter(f => {
+                        if (f.size > 10 * 1024 * 1024) {
+                          toast.error(`ไฟล์ ${f.name} มีขนาดเกิน 10MB`);
+                          return false;
+                        }
+                        return true;
+                      });
+                      setBeforePhotos(prev => [...prev, ...validFiles]);
+                    }}
+                  />
+                </label>
+
+                {/* Preview uploaded files */}
+                {beforePhotos.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {beforePhotos.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square rounded-lg border bg-muted overflow-hidden">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Before ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setBeforePhotos(prev => prev.filter((_, i) => i !== index))}
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">{file.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <DialogFooter className="mt-8 gap-2">
@@ -699,17 +813,17 @@ export default function QCInspection() {
             </Button>
             <Button 
               onClick={handleSubmitDefect} 
-              disabled={createDefectMutation.isPending || !defectForm.title}
+              disabled={createDefectMutation.isPending || uploadingPhotos || !defectForm.title}
               className={`h-11 px-6 ${
                 defectForm.type === "CAR" ? "bg-yellow-600 hover:bg-yellow-700" :
                 defectForm.type === "PAR" ? "bg-blue-600 hover:bg-blue-700" :
                 "bg-red-600 hover:bg-red-700"
               }`}
             >
-              {createDefectMutation.isPending ? (
+              {(createDefectMutation.isPending || uploadingPhotos) ? (
                 <>
                   <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  กำลังสร้าง...
+                  {uploadingPhotos ? 'กำลังอัปโหลดรูป...' : 'กำลังสร้าง...'}
                 </>
               ) : (
                 `สร้าง ${defectForm.type}`

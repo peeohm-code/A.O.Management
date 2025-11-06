@@ -531,3 +531,48 @@
 - [ ] แสดง workflow timeline/progress bar
 - [ ] ทดสอบ workflow ทั้งหมด
 - [ ] บันทึก checkpoint
+
+## แก้ไขปัญหา Textarea Timeout ในฟอร์ม RCA
+- [ ] ตรวจสอบสาเหตุ textarea timeout เมื่อพิมพ์ภาษาไทย
+- [ ] แก้ไข Textarea component ในฟอร์ม RCA
+- [ ] แก้ไข Textarea component ในฟอร์ม Action Plan
+- [ ] ทดสอบการพิมพ์ภาษาไทยในทั้ง 2 ฟอร์ม
+- [ ] บันทึก checkpoint
+
+## ระบบแนบรูปภาพ/เอกสาร Before/After และขั้นตอนการจบงาน CAR/NCR/PAR
+- [ ] ออกแบบ Database Schema สำหรับไฟล์แนบ (defectAttachments table)
+- [ ] เพิ่มฟิลด์: defectId, fileUrl, fileKey, fileName, fileType, fileSize, attachmentType (before/after/supporting), uploadedBy, uploadedAt
+- [ ] สร้าง Backend API สำหรับอัปโหลดไฟล์ (uploadDefectAttachment)
+- [ ] สร้าง Backend API สำหรับดึงรายการไฟล์ (getDefectAttachments)
+- [ ] สร้าง Backend API สำหรับลบไฟล์ (deleteDefectAttachment)
+- [ ] เพิ่ม UI อัปโหลดรูป Before ในฟอร์ม Create CAR/NCR
+- [ ] เพิ่ม UI อัปโหลดรูป After ในฟอร์ม Action Plan (หลังดำเนินการแก้ไข)
+- [ ] เพิ่ม UI แสดงรูป Before/After ในหน้า Defect Detail
+- [ ] สร้างฟอร์ม Verification (สำหรับ QC ตรวจสอบการแก้ไข)
+  - [ ] แสดงรูป Before/After เปรียบเทียบ
+  - [ ] ฟิลด์ Verification Result (Approved/Rejected)
+  - [ ] ฟิลด์ Verification Comment
+  - [ ] ปุ่ม "Approve & Continue" → เปลี่ยนสถานะเป็น effectiveness_check
+  - [ ] ปุ่ม "Reject" → เปลี่ยนสถานะกลับเป็น in_progress
+- [ ] สร้างฟอร์ม Effectiveness Check (ตรวจสอบประสิทธิผล)
+  - [ ] ฟิลด์ Effectiveness Result (Effective/Not Effective)
+  - [ ] ฟิลด์ Effectiveness Comment
+  - [ ] ปุ่ม "Close CAR/NCR" → เปลี่ยนสถานะเป็น closed
+  - [ ] ปุ่ม "Re-open" → เปลี่ยนสถานะกลับเป็น action_plan
+- [ ] ทดสอบ workflow ครบทุกขั้นตอน (reported → closed)
+- [ ] ทดสอบการอัปโหลดและแสดงรูป Before/After
+- [ ] บันทึก checkpoint
+
+## Phase 4: CAR/NCR/PAR File Attachment System
+- [x] Design file attachment workflow for Before/After photos
+- [x] Create defectAttachments database table
+- [x] Implement backend functions (createDefectAttachments, getDefectAttachments, deleteDefectAttachment)
+- [x] Add tRPC procedures for file operations
+- [x] Create FileUpload component for Before photos in Create CAR/NCR form
+- [x] Install multer package for file upload handling
+- [x] Create /api/upload endpoint with S3 integration
+- [x] Integrate with S3 storage API
+- [x] Support multiple file types (images, PDFs, documents)
+- [ ] Add FileUpload component for After photos in Action Plan implementation
+- [ ] Display Before/After photos in Defect Detail page (side-by-side comparison)
+- [ ] Add delete functionality for attachments (role-based permission)

@@ -15,6 +15,13 @@
       "when": 1762418142794,
       "tag": "0001_lean_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762423048201,
+      "tag": "0002_nice_gamma_corps",
+      "breakpoints": true
     }
   ]
 }

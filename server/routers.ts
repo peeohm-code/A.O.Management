@@ -740,6 +740,47 @@ const defectRouter = router({
 
       return result;
     }),
+
+  // Defect Attachments
+  getAttachments: protectedProcedure
+    .input(z.object({ defectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getDefectAttachments(input.defectId);
+    }),
+
+  getAttachmentsByType: protectedProcedure
+    .input(z.object({ 
+      defectId: z.number(),
+      type: z.enum(["before", "after", "supporting"])
+    }))
+    .query(async ({ input }) => {
+      return await db.getDefectAttachmentsByType(input.defectId, input.type);
+    }),
+
+  uploadAttachment: protectedProcedure
+    .input(z.object({
+      defectId: z.number(),
+      fileUrl: z.string(),
+      fileKey: z.string(),
+      fileName: z.string(),
+      fileType: z.string(),
+      fileSize: z.number(),
+      attachmentType: z.enum(["before", "after", "supporting"])
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const attachmentId = await db.createDefectAttachment({
+        ...input,
+        uploadedBy: ctx.user.id,
+      });
+      return { id: attachmentId };
+    }),
+
+  deleteAttachment: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      await db.deleteDefectAttachment(input.id);
+      return { success: true };
+    }),
 });
 
 /**

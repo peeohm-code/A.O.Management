@@ -238,6 +238,28 @@ export type Defect = typeof defects.$inferSelect;
 export type InsertDefect = typeof defects.$inferInsert;
 
 /**
+ * Defect Attachments - stores file attachments for CAR/NCR/PAR
+ */
+export const defectAttachments = mysqlTable("defectAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  defectId: int("defectId").notNull(),
+  fileUrl: varchar("fileUrl", { length: 500 }).notNull(), // S3 URL
+  fileKey: varchar("fileKey", { length: 500 }).notNull(), // S3 key for management
+  fileName: varchar("fileName", { length: 255 }).notNull(), // Original filename
+  fileType: varchar("fileType", { length: 100 }).notNull(), // MIME type
+  fileSize: int("fileSize").notNull(), // Size in bytes
+  attachmentType: mysqlEnum("attachmentType", ["before", "after", "supporting"]).notNull(),
+  uploadedBy: int("uploadedBy").notNull(),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+}, (table) => ({
+  defectIdx: index("defectIdx").on(table.defectId),
+  typeIdx: index("typeIdx").on(table.attachmentType),
+}));
+
+export type DefectAttachment = typeof defectAttachments.$inferSelect;
+export type InsertDefectAttachment = typeof defectAttachments.$inferInsert;
+
+/**
  * Checklist Results - stores individual item inspection results
  */
 export const checklistResults = mysqlTable("checklistResults", {

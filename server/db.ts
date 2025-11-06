@@ -12,6 +12,8 @@ import {
   taskChecklists,
   checklistItemResults,
   defects,
+  defectAttachments,
+  InsertDefectAttachment,
   taskComments,
   taskAttachments,
   taskFollowers,
@@ -1361,4 +1363,49 @@ export async function getChecklistResults(checklistId: number) {
     .from(checklistResults)
     .where(eq(checklistResults.checklistId, checklistId))
     .orderBy(checklistResults.itemId);
+}
+
+
+// ===== Defect Attachments Functions =====
+
+export async function createDefectAttachment(attachment: InsertDefectAttachment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(defectAttachments).values(attachment);
+  return result.insertId;
+}
+
+export async function getDefectAttachments(defectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(defectAttachments)
+    .where(eq(defectAttachments.defectId, defectId))
+    .orderBy(defectAttachments.uploadedAt);
+}
+
+export async function getDefectAttachmentsByType(defectId: number, type: "before" | "after" | "supporting") {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(defectAttachments)
+    .where(
+      and(
+        eq(defectAttachments.defectId, defectId),
+        eq(defectAttachments.attachmentType, type)
+      )
+    )
+    .orderBy(defectAttachments.uploadedAt);
+}
+
+export async function deleteDefectAttachment(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(defectAttachments).where(eq(defectAttachments.id, id));
 }
