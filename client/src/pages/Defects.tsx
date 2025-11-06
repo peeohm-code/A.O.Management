@@ -26,7 +26,7 @@ import { toast } from "sonner";
 export default function Defects() {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("open");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [resolutionComment, setResolutionComment] = useState("");
 

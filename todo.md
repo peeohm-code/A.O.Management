@@ -487,3 +487,19 @@
 - [x] เพิ่ม getAllUsers() function ใน server/db.ts
 - [x] ทดสอบ dropdown "มอบหมายให้" ในฟอร์ม Create CAR/NCR
 - [x] บันทึก checkpoint
+
+## ทดสอบสร้าง CAR/NCR และตรวจสอบการบันทึกข้อมูล
+- [x] ทดสอบสร้าง CAR จาก checklist ที่ไม่ผ่าน
+- [x] กรอกฟอร์มให้ครบถ้วน (title, description, severity, assignee)
+- [x] คลิกปุ่ม "สร้าง CAR" และตรวจสอบ response
+- [x] ตรวจสอบข้อมูลในตาราง defects ว่าถูกบันทึกครบถ้วน
+- [x] ตรวจสอบฟิลด์ CAR/PAR/NCR (type, checklistId, taskId)
+- [x] ทดสอบแสดงผลในหน้า Defects
+- [x] สรุปผลการทดสอบและรายงาน
+- [ ] แก้ไข: checklistId เป็น NULL (ต้องบันทึก checklistId เพื่อ traceability)
+
+## ปรับปรุงหน้า Defects ให้แสดง reported เป็นค่าเริ่มต้น
+- [x] ตรวจสอบ status filter ปัจจุบันในหน้า Defects
+- [x] เปลี่ยน default status filter จาก "Open" เป็น "All Status"
+- [x] ทดสอบว่า CAR ที่สร้างใหม่แสดงทันทีโดยไม่ต้องเปลี่ยน filter
+- [x] บันทึก checkpoint
