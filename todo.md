@@ -764,3 +764,43 @@
 - [x] Remove "กำลังตรวจสอบ" (in_progress) card from Dashboard Checklist Overview
 - [x] Update grid layout from 6 columns to 5 columns
 - [ ] Save checkpoint
+
+## Implement Role-Based Access Control (RBAC)
+
+### Phase 1: Permission System Foundation ✅
+- [x] Update database schema with new roles (owner, admin, project_manager, qc_inspector, field_engineer)
+- [x] ProjectMembers table already exists
+- [x] Run database migrations (ALTER TABLE)
+- [x] Create shared/permissions.ts with ROLES and PERMISSIONS constants
+- [x] Create permission helper functions (hasPermission, canAccessProject, etc.)
+- [x] Add roleBasedProcedure to server/_core/trpc.ts
+- [x] Update adminProcedure to support owner/admin roles
+- [x] Save checkpoint Phase 1
+
+### Phase 2: Defects Permission (Next)
+- [ ] Add permission checks to defect router
+- [ ] Implement PM can delete defects
+- [ ] Implement Field Engineer can edit assigned defects only
+- [ ] Test defect permissions
+- [ ] Save checkpoint Phase 2
+
+### Phase 3: Projects & Tasks Permission
+- [ ] Add permission checks to project router
+- [ ] Add permission checks to task router
+- [ ] Implement project members management
+- [ ] Test project/task permissions
+- [ ] Save checkpoint Phase 3
+
+### Phase 4: Frontend Permission Hooks
+- [ ] Create usePermissions hook
+- [ ] Update Defects page UI with permissions
+- [ ] Update Projects page UI with permissions
+- [ ] Update Tasks page UI with permissions
+- [ ] Save checkpoint Phase 4
+
+### Phase 5: User Management
+- [ ] Create User Management page
+- [ ] Add role change functionality
+- [ ] Add user list with role badges
+- [ ] Test user management
+- [ ] Save checkpoint Phase 5
