@@ -238,7 +238,11 @@ export default function QCInspection() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredChecklists.map((checklist) => (
-            <Card key={checklist.id} className="hover:shadow-lg transition-shadow">
+            <Card 
+              key={checklist.id} 
+              className="hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => setSelectedChecklistId(checklist.id)}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

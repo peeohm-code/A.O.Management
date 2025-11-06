@@ -441,3 +441,4 @@
 - [x] แก้ไข: React Hooks order error ในหน้า QC Inspection
 - [x] เพิ่มฟีเจอร์: คลิกการ์ดสถิติเพื่อดูรายการ checklists ตามสถานะ
 - [x] เพิ่มฟีเจอร์: คลิกการ์ด Checklist Overview ใน Dashboard เพื่อไปหน้า QC Inspection พร้อมกรองตามสถานะ
+- [x] แก้ไข: การ์ด checklist ในหน้า QC Inspection ไม่สามารถคลิกเพื่อเปิด dialog ตรวจสอบได้
