@@ -648,3 +648,9 @@
 - [x] Verify "ตรวจสอบประสิทธิผล" button shows for status=effectiveness_check
 - [x] Translate "Effectiveness Check" button to Thai
 - [x] Confirm complete workflow: reported → action_plan → assigned → in_progress → implemented → verification → effectiveness_check → closed
+
+## Fix Attachment Type Validation Error
+- [x] Find where getAttachmentsByType is called with wrong parameter name
+- [x] Found mismatch: frontend uses 'attachmentType', backend uses 'type'
+- [x] Change backend parameter from "type" to "attachmentType" in routers.ts line 759
+- [x] Test that Before/After photos load correctly in Verification form

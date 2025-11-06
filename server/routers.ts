@@ -756,10 +756,10 @@ const defectRouter = router({
   getAttachmentsByType: protectedProcedure
     .input(z.object({ 
       defectId: z.number(),
-      type: z.enum(["before", "after", "supporting"])
+      attachmentType: z.enum(["before", "after", "supporting"])
     }))
     .query(async ({ input }) => {
-      return await db.getDefectAttachmentsByType(input.defectId, input.type);
+      return await db.getDefectAttachmentsByType(input.defectId, input.attachmentType);
     }),
 
   uploadAttachment: protectedProcedure
