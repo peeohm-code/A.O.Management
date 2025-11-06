@@ -889,3 +889,11 @@
 - [ ] Verify tasks show in My Tasks
 - [ ] Verify defects link to correct tasks
 - [ ] Save checkpoint
+
+## Fix project.get Query Error ✅
+- [x] Check project.get procedure in routers.ts
+- [x] Recreate missing project (ID 2723)
+- [x] Update all tasks to use new project ID
+- [x] Add project members
+- [x] Test QC Inspection page - error resolved
+- [ ] Save checkpoint
