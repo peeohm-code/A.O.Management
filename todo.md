@@ -879,3 +879,13 @@
 - [ ] Create sample defects (CAR/PAR/NCR) with different priorities
 - [ ] Verify all features work with sample data
 - [ ] Save checkpoint
+
+## Fix Data Relationships
+- [ ] Clear all tasks and defects
+- [ ] Get correct project ID
+- [ ] Recreate 20 tasks with correct projectId
+- [ ] Recreate defects with correct taskId
+- [ ] Verify project shows tasks correctly
+- [ ] Verify tasks show in My Tasks
+- [ ] Verify defects link to correct tasks
+- [ ] Save checkpoint
