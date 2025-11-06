@@ -413,6 +413,10 @@
 - [ ] Phase 3: อัปเดต db.ts - เพิ่ม query functions สำหรับ CAR/PAR/NCR
 - [ ] Phase 3: อัปเดต routers.ts - เพิ่ม mutations สำหรับ CAR/PAR/NCR
 
+## QC Inspection Overview Recovery
+- [x] กู้คืนหน้า QC Inspection Overview ที่มีกราฟวงกลมและ dashboard
+- [x] ตรวจสอบและทดสอบการทำงาน
+
 ## CAR/PAR/NCR System Implementation
 - [x] ลบการ์ดในหน้า Defects
 - [x] Phase 2: Database Schema Updates
