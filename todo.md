@@ -576,3 +576,22 @@
 - [ ] Add FileUpload component for After photos in Action Plan implementation
 - [ ] Display Before/After photos in Defect Detail page (side-by-side comparison)
 - [ ] Add delete functionality for attachments (role-based permission)
+
+## Phase 5: Action Plan Implementation with After Photos
+- [x] Add After Photos upload section in Action Plan dialog
+- [x] Implement file upload UI similar to Before Photos
+- [x] Update handleSubmitActionPlan to upload After photos to S3
+- [x] Save After photo attachments with attachmentType='after'
+- [x] Display uploaded After photos in Action Plan form
+- [x] Add validation and error handling for After photos upload
+
+## Phase 6: Verification and Effectiveness Check Forms
+- [ ] Create Verification Dialog component
+- [ ] Add Approve/Reject options in Verification form
+- [ ] Display Before/After photos side-by-side for comparison
+- [ ] Add verification comment field
+- [ ] Update defect status based on verification result (approved → effectiveness_check, rejected → action_plan)
+- [ ] Create Effectiveness Check Dialog component
+- [ ] Add Effective/Not Effective options
+- [ ] Implement final closure or re-opening logic
+- [ ] Add workflow transition buttons in Defects page

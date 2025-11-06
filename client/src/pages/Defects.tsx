@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -39,6 +39,8 @@ export default function Defects() {
   const [preventiveAction, setPreventiveAction] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
+  const [afterPhotos, setAfterPhotos] = useState<File[]>([]);
+  const [uploadingAfterPhotos, setUploadingAfterPhotos] = useState(false);
 
   const openDefectsQuery = trpc.defect.openDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
@@ -129,6 +131,8 @@ export default function Defects() {
     }
   };
 
+  const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
+
   const handleSaveActionPlan = async () => {
     if (!selectedDefect || !correctiveAction.trim()) {
       toast.error("Please fill in corrective action");
@@ -136,6 +140,7 @@ export default function Defects() {
     }
 
     try {
+      // Save action plan first
       await updateDefectMutation.mutateAsync({
         id: selectedDefect.id,
         correctiveAction,
@@ -144,6 +149,41 @@ export default function Defects() {
         assignedTo: assignedTo || undefined,
         status: "assigned" as any,
       });
+
+      // Upload after photos if any
+      if (afterPhotos.length > 0) {
+        setUploadingAfterPhotos(true);
+        
+        for (const photo of afterPhotos) {
+          // Upload to S3
+          const formData = new FormData();
+          formData.append('file', photo);
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!uploadResponse.ok) {
+            throw new Error(`Failed to upload ${photo.name}`);
+          }
+          
+          const { url, key } = await uploadResponse.json();
+          
+          // Save attachment record
+          await uploadAttachmentMutation.mutateAsync({
+            defectId: selectedDefect.id,
+            fileUrl: url,
+            fileKey: key,
+            fileName: photo.name,
+            fileType: photo.type,
+            fileSize: photo.size,
+            attachmentType: 'after' as const,
+          });
+        }
+        
+        setUploadingAfterPhotos(false);
+      }
 
       toast.success("Action Plan saved successfully");
       setShowActionPlanForm(false);
@@ -154,9 +194,12 @@ export default function Defects() {
       setPreventiveAction("");
       setDueDate("");
       setAssignedTo(null);
+      setAfterPhotos([]);
       openDefectsQuery.refetch();
     } catch (error) {
-      toast.error("Failed to save Action Plan");
+      setUploadingAfterPhotos(false);
+      console.error('Error saving Action Plan:', error);
+      toast.error("Failed to save Action Plan: " + (error as Error).message);
     }
   };
 
@@ -565,6 +608,76 @@ export default function Defects() {
               </div>
             </div>
 
+            {/* After Photos Upload Section */}
+            <div className="space-y-3 p-5 rounded-lg border bg-card">
+              <h3 className="font-semibold text-base flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                รูปภาพหลังแก้ไข (After Photos)
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                อัปโหลดรูปภาพแสดงสภาพหลังดำเนินการแก้ไขเสร็จสิ้น (รองรับ JPG, PNG, HEIC สูงสุด 10MB/ไฟล์)
+              </p>
+              
+              {/* File Input */}
+              <div className="space-y-3">
+                <label htmlFor="after-photos" className="cursor-pointer">
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 hover:border-primary/50 hover:bg-accent/50 transition-colors">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <Upload className="h-10 w-10 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">คลิกเพื่อเลือกรูปภาพ</p>
+                        <p className="text-sm text-muted-foreground mt-1">หรือลากไฟล์มาวางที่นี่</p>
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    id="after-photos"
+                    type="file"
+                    accept="image/*,.heic"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      // Validate file size (10MB max)
+                      const validFiles = files.filter(f => {
+                        if (f.size > 10 * 1024 * 1024) {
+                          toast.error(`ไฟล์ ${f.name} มีขนาดเกิน 10MB`);
+                          return false;
+                        }
+                        return true;
+                      });
+                      setAfterPhotos(prev => [...prev, ...validFiles]);
+                    }}
+                  />
+                </label>
+
+                {/* Preview uploaded files */}
+                {afterPhotos.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {afterPhotos.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square rounded-lg border bg-muted overflow-hidden">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`After ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAfterPhotos(prev => prev.filter((_, i) => i !== index))}
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">{file.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="flex gap-2 pt-4">
               <Button
                 variant="outline"
@@ -575,10 +688,17 @@ export default function Defects() {
               </Button>
               <Button
                 onClick={handleSaveActionPlan}
-                disabled={!correctiveAction.trim() || updateDefectMutation.isPending}
+                disabled={!correctiveAction.trim() || updateDefectMutation.isPending || uploadingAfterPhotos}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
-                {updateDefectMutation.isPending ? "Saving..." : "Save Action Plan"}
+                {(updateDefectMutation.isPending || uploadingAfterPhotos) ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {uploadingAfterPhotos ? 'กำลังอัปโหลดรูป...' : 'Saving...'}
+                  </>
+                ) : (
+                  "Save Action Plan"
+                )}
               </Button>
             </div>
           </div>
