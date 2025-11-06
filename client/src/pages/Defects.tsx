@@ -396,16 +396,16 @@ export default function Defects() {
               {/* Show Action Plan if exists */}
               {selectedDefect.correctiveAction && (
                 <div className="bg-green-50 p-3 rounded-md border border-green-200">
-                  <Label className="text-xs font-semibold text-green-900">Corrective Action</Label>
+                  <Label className="text-xs font-semibold text-green-900">การแก้ไข (Corrective Action)</Label>
                   <p className="text-sm text-green-800 mt-1">{selectedDefect.correctiveAction}</p>
                   {selectedDefect.preventiveAction && (
                     <>
-                      <Label className="text-xs font-semibold text-green-900 mt-2 block">Preventive Action</Label>
+                      <Label className="text-xs font-semibold text-green-900 mt-2 block">การป้องกัน (Preventive Action)</Label>
                       <p className="text-sm text-green-800 mt-1">{selectedDefect.preventiveAction}</p>
                     </>
                   )}
                   {selectedDefect.dueDate && (
-                    <p className="text-xs text-green-700 mt-2">Due: {new Date(selectedDefect.dueDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-green-700 mt-2">กำหนดเสร็จ: {new Date(selectedDefect.dueDate).toLocaleDateString('th-TH')}</p>
                   )}
                 </div>
               )}
@@ -417,7 +417,7 @@ export default function Defects() {
                     onClick={() => setShowRCAForm(true)}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
-                    Analyze Root Cause
+                    วิเคราะห์สาเหตุต้นตอ
                   </Button>
                 )}
                 {selectedDefect.status === "action_plan" && !selectedDefect.correctiveAction && (
@@ -425,34 +425,34 @@ export default function Defects() {
                     onClick={() => setShowActionPlanForm(true)}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                   >
-                    Create Action Plan
+                    สร้างแผนการแก้ไข
                   </Button>
                 )}
-                {selectedDefect.status === "assigned" && (
+                {(selectedDefect.status === "assigned" || (selectedDefect.status === "action_plan" && selectedDefect.correctiveAction)) && (
                   <Button
                     onClick={() => handleUpdateDefect("in_progress")}
                     disabled={updateDefectMutation.isPending}
-                    className="flex-1"
+                    className="flex-1 bg-orange-600 hover:bg-orange-700"
                   >
-                    Start Work
+                    เริ่มดำเนินการ
                   </Button>
                 )}
                 {selectedDefect.status === "in_progress" && (
                   <Button
                     onClick={() => handleUpdateDefect("implemented")}
                     disabled={updateDefectMutation.isPending}
-                    className="flex-1"
+                    className="flex-1 bg-green-600 hover:bg-green-700"
                   >
-                    Mark Implemented
+                    แก้ไขเสร็จแล้ว
                   </Button>
                 )}
                 {selectedDefect.status === "implemented" && (
                   <Button
                     onClick={() => handleUpdateDefect("verification")}
                     disabled={updateDefectMutation.isPending}
-                    className="flex-1"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
-                    Request Verification
+                    ขอตรวจสอบ
                   </Button>
                 )}
                 {selectedDefect.status === "verification" && (
@@ -461,7 +461,7 @@ export default function Defects() {
                     disabled={updateDefectMutation.isPending}
                     className="flex-1 bg-purple-600 hover:bg-purple-700"
                   >
-                    Verify Implementation
+                    ตรวจสอบผลการแก้ไข
                   </Button>
                 )}
                 {selectedDefect.status === "effectiveness_check" && (
@@ -553,24 +553,24 @@ export default function Defects() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-green-600" />
-              Create Action Plan
+              สร้างแผนการแก้ไข (Action Plan)
             </DialogTitle>
             <DialogDescription>
-              Define corrective and preventive actions for: {selectedDefect?.title}
+              กำหนดมาตรการแก้ไขและป้องกันสำหรับ: {selectedDefect?.title}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
               <Label htmlFor="correctiveAction" className="text-sm font-semibold">
-                Corrective Action <span className="text-red-500">*</span>
+                การแก้ไข (Corrective Action) <span className="text-red-500">*</span>
               </Label>
               <p className="text-xs text-gray-500 mt-1">
-                Actions to fix the current problem
+                มาตรการเพื่อแก้ไขปัญหาที่เกิดขึ้นในปัจจุบัน
               </p>
               <Textarea
                 id="correctiveAction"
-                placeholder="Example: Re-pour affected concrete sections, provide immediate training to workers on proper mixing procedures..."
+                placeholder="ตัวอย่าง: ทำการถลกคอนกรีตส่วนที่มีปัญหาแล้วเทใหม่ จัดอบรมพนักงานเรื่องวิธีผสมคอนกรีตที่ถูกต้องทันที..."
                 value={correctiveAction}
                 onChange={(e) => setCorrectiveAction(e.target.value)}
                 className="mt-2"
@@ -581,14 +581,14 @@ export default function Defects() {
             {(selectedDefect?.type === 'PAR' || selectedDefect?.type === 'NCR') && (
               <div>
                 <Label htmlFor="preventiveAction" className="text-sm font-semibold">
-                  Preventive Action
+                  การป้องกัน (Preventive Action)
                 </Label>
                 <p className="text-xs text-gray-500 mt-1">
-                  Actions to prevent recurrence in the future
+                  มาตรการเพื่อป้องกันไม่ให้เกิดปัญหาซ้ำในอนาคต
                 </p>
                 <Textarea
                   id="preventiveAction"
-                  placeholder="Example: Implement mandatory concrete mixing training for all workers, install visual guides at mixing stations, conduct weekly spot checks..."
+                  placeholder="ตัวอย่าง: จัดการอบรมบังคับเรื่องการผสมคอนกรีตสำหรับพนักงานทุกคน ติดตั้งคู่มือแสดงภาพประกอบจุดผสม ตรวจสอบแบบสุ่มทุกสัปดาห์..."
                   value={preventiveAction}
                   onChange={(e) => setPreventiveAction(e.target.value)}
                   className="mt-2"
@@ -600,7 +600,7 @@ export default function Defects() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="dueDate" className="text-sm font-semibold">
-                  Due Date
+                  กำหนดเสร็จ
                 </Label>
                 <Input
                   id="dueDate"
@@ -613,11 +613,11 @@ export default function Defects() {
 
               <div>
                 <Label htmlFor="assignedTo" className="text-sm font-semibold">
-                  Assign To
+                  มอบหมายให้
                 </Label>
                 <Select value={assignedTo?.toString() || ""} onValueChange={(v) => setAssignedTo(parseInt(v))}>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select user" />
+                    <SelectValue placeholder="เลือกผู้รับผิดชอบ" />
                   </SelectTrigger>
                   <SelectContent>
                     {usersQuery.data?.map((user: any) => (
@@ -706,7 +706,7 @@ export default function Defects() {
                 onClick={() => setShowActionPlanForm(false)}
                 className="flex-1"
               >
-                Cancel
+                ยกเลิก
               </Button>
               <Button
                 onClick={handleSaveActionPlan}
@@ -716,10 +716,10 @@ export default function Defects() {
                 {(updateDefectMutation.isPending || uploadingAfterPhotos) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {uploadingAfterPhotos ? 'กำลังอัปโหลดรูป...' : 'Saving...'}
+                    {uploadingAfterPhotos ? 'กำลังอัปโหลดรูป...' : 'กำลังบันทึก...'}
                   </>
                 ) : (
-                  "Save Action Plan"
+                  "บันทึกแผนการแก้ไข"
                 )}
               </Button>
             </div>

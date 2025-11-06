@@ -609,3 +609,11 @@
 - [x] Translate all field labels and placeholders
 - [x] Translate button labels
 - [x] Ensure all Thai text is properly displayed
+
+## Action Plan Form Improvements
+- [x] Translate Action Plan dialog to Thai
+- [x] Translate all field labels (Corrective Action, Preventive Action, Due Date, Assigned To)
+- [x] Translate placeholders and helper text
+- [x] Translate button labels
+- [x] Fix workflow: Add "Start Work" button after Action Plan is saved
+- [x] Translate all workflow action buttons to Thai
