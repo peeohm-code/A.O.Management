@@ -633,3 +633,8 @@
 - [x] Added allDefects procedure in routers.ts
 - [x] Changed Defects page to use allDefects instead of openDefects
 - [x] Verified that all status values are now returned from database
+
+## Fix openDefectsQuery Error
+- [x] Find all remaining references to openDefectsQuery in Defects.tsx (8 occurrences)
+- [x] Replace with allDefectsQuery
+- [x] Test that the page loads without errors
