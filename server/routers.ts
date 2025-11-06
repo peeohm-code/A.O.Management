@@ -6,6 +6,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
+import { notifyOwner } from "./_core/notification";
 
 /**
  * Project Router - Project Management
@@ -529,6 +530,17 @@ const checklistRouter = router({
         action: "checklist_status_updated",
         details: JSON.stringify({ checklistId: input.id, status: input.status }),
       });
+
+      // Send notification when requesting inspection
+      if (input.status === "pending_inspection") {
+        const task = await db.getTaskById(checklist.taskId);
+        if (task) {
+          await notifyOwner({
+            title: "มีงานรอการตรวจสอบ",
+            content: `งาน "${task.name}" ได้ขออนุมัติตรวจ Checklist "${checklist.templateName}" แล้ว`,
+          });
+        }
+      }
 
       return { success: true };
     }),
