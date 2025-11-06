@@ -431,3 +431,4 @@
 - [x] เพิ่ม: ส่งการแจ้งเตือนไปยังผู้ตรวจเมื่อกดปุ่ม "ขออนุมัติตรวจ"
 - [x] แก้ไข: ปุ่ม "ขออนุมัติตรวจ" ยังไม่แสดงในหน้า Task Detail (ตรวจสอบ status ของ checklist)
 - [x] แก้ไข: Database error - status "pending_inspection" ไม่อยู่ใน enum ของ taskChecklists
+- [x] แก้ไข: โค้ดยังใช้ค่า "passed" ซึ่งไม่มีใน enum แล้ว ต้องเปลี่ยนเป็น "completed"

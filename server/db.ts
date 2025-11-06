@@ -628,7 +628,7 @@ export async function getAllTaskChecklists() {
 export async function updateTaskChecklist(
   id: number,
   data: Partial<{
-    status: "pending" | "in_progress" | "passed" | "failed";
+    status: "not_started" | "pending_inspection" | "in_progress" | "completed" | "failed";
     inspectedBy: number;
     inspectedAt: Date;
     signature: string;
@@ -1004,7 +1004,7 @@ export async function submitInspection(data: {
     // 2. Calculate overall status
     const failedCount = data.itemResults.filter((r) => r.result === "fail").length;
     const passedCount = data.itemResults.filter((r) => r.result === "pass").length;
-    const overallStatus = failedCount > 0 ? "failed" : "passed";
+    const overallStatus = failedCount > 0 ? "failed" : "completed";
 
     // 3. Update task checklist
     await db.update(taskChecklists).set({
