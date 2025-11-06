@@ -202,7 +202,6 @@ export default function UserManagement() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleChangeRole(user)}
-                      disabled={user.role === "owner"}
                     >
                       เปลี่ยน Role
                     </Button>
@@ -243,6 +242,7 @@ export default function UserManagement() {
                   <SelectValue placeholder="เลือก Role" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="owner">เจ้าของระบบ (Owner)</SelectItem>
                   <SelectItem value="admin">ผู้ดูแลระบบ (Admin)</SelectItem>
                   <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
                   <SelectItem value="qc_inspector">QC Inspector</SelectItem>

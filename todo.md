@@ -824,3 +824,17 @@
 - [x] Add "My Profile" link to user dropdown menu in DashboardLayout
 - [ ] Test profile view and edit functionality
 - [ ] Save checkpoint
+
+## Add Owner Role to User Management ✅
+- [x] Update User Management page to include "owner" role option in dropdown
+- [x] Update backend updateRole mutation to accept "owner" role
+- [x] Remove restriction preventing owner role changes
+- [x] Test changing user to owner role
+- [ ] Save checkpoint
+
+## Change User Role to Owner ✅
+- [x] Update user role to owner in database via SQL
+- [x] Verify role change in User Management page (shows "เจ้าของระบบ" badge)
+- [x] Verify role change in Profile page (shows "เจ้าของระบบ" badge)
+- [x] Statistics updated (เจ้าของระบบ: 2 users)
+- [ ] Save checkpoint
