@@ -388,7 +388,7 @@ export default function Defects() {
               {/* Show RCA if exists */}
               {selectedDefect.rootCause && (
                 <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
-                  <Label className="text-xs font-semibold text-blue-900">Root Cause Analysis</Label>
+                  <Label className="text-xs font-semibold text-blue-900">การวิเคราะห์สาเหตุต้นตอ (RCA)</Label>
                   <p className="text-sm text-blue-800 mt-1">{selectedDefect.rootCause}</p>
                 </div>
               )}
@@ -485,41 +485,41 @@ export default function Defects() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Search className="w-5 h-5 text-blue-600" />
-              Root Cause Analysis
+              การวิเคราะห์สาเหตุต้นตอ (Root Cause Analysis)
             </DialogTitle>
             <DialogDescription>
-              Analyze the root cause of: {selectedDefect?.title}
+              วิเคราะห์หาสาเหตุต้นตอของ: {selectedDefect?.title}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
               <Label htmlFor="analysisMethod" className="text-sm font-semibold">
-                Analysis Method
+                วิธีการวิเคราะห์
               </Label>
               <Select value={analysisMethod} onValueChange={setAnalysisMethod}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="5_whys">5 Whys</SelectItem>
-                  <SelectItem value="fishbone">Fishbone Diagram</SelectItem>
-                  <SelectItem value="pareto">Pareto Analysis</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="5_whys">5 Whys (ถามทำไม 5 ครั้ง)</SelectItem>
+                  <SelectItem value="fishbone">Fishbone Diagram (แผนภาพกระดูกปลา)</SelectItem>
+                  <SelectItem value="pareto">Pareto Analysis (การวิเคราะห์พาเรโต)</SelectItem>
+                  <SelectItem value="other">อื่นๆ</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label htmlFor="rootCause" className="text-sm font-semibold">
-                Root Cause <span className="text-red-500">*</span>
+                สาเหตแท้จริง (Root Cause) <span className="text-red-500">*</span>
               </Label>
               <p className="text-xs text-gray-500 mt-1">
-                Identify the fundamental reason why the problem occurred
+                ระบุสาเหตุที่แท้จริงของปัญหาที่เกิดขึ้น
               </p>
               <Textarea
                 id="rootCause"
-                placeholder="Example: Inadequate training on proper concrete mixing ratios led to incorrect water-cement ratio..."
+                placeholder="ตัวอย่าง: พนักงานขาดการอบรมเรื่องอัตราส่วนผสมคอนกรีตที่ถูกต้อง ทำให้ผสมไม่ได้คุณภาพตามมาตรฐาน..."
                 value={rootCause}
                 onChange={(e) => setRootCause(e.target.value)}
                 className="mt-2"
@@ -533,14 +533,14 @@ export default function Defects() {
                 onClick={() => setShowRCAForm(false)}
                 className="flex-1"
               >
-                Cancel
+                ยกเลิก
               </Button>
               <Button
                 onClick={handleSaveRCA}
                 disabled={!rootCause.trim() || updateDefectMutation.isPending}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
               >
-                {updateDefectMutation.isPending ? "Saving..." : "Save RCA & Continue"}
+                {updateDefectMutation.isPending ? "กำลังบันทึก..." : "บันทึก RCA และดำเนินการต่อ"}
               </Button>
             </div>
           </div>

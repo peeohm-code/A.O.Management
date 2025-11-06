@@ -602,3 +602,10 @@
 - [x] Add clear instruction that reason must be provided for both Approve and Reject
 - [x] Add validation to prevent submission without comment
 - [x] Update UI to emphasize the importance of the comment field
+
+## RCA Form Thai Translation
+- [x] Translate RCA dialog title and description
+- [x] Translate analysis method dropdown options (5 Whys, Fishbone, etc.)
+- [x] Translate all field labels and placeholders
+- [x] Translate button labels
+- [x] Ensure all Thai text is properly displayed
