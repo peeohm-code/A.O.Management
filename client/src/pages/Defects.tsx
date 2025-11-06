@@ -256,85 +256,89 @@ export default function Defects() {
       </div>
 
       {/* Dashboard Metrics */}
-      <div>
-        <h2 className="text-lg font-semibold mb-3">Defect Tracking Overview</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setStatusFilter("all")}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-xs font-medium">ทั้งหมด</CardTitle>
-              <FileWarning className="h-3 w-3 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="text-xl font-bold">{metrics.total}</div>
-              <p className="text-[10px] text-muted-foreground">Total</p>
-            </CardContent>
-          </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Defect Tracking Overview</CardTitle>
+          <CardDescription>สถิติ Defect ทั้งหมดแบ่งตามสถานะ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Total */}
+            <div
+              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
+              onClick={() => setStatusFilter("all")}
+            >
+              <div className="text-sm text-gray-600 mb-1">ทั้งหมด</div>
+              <div className="text-3xl font-bold mb-2">{metrics.total}</div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-gray-400" style={{ width: "100%" }} />
+              </div>
+            </div>
 
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setStatusFilter("all")}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-xs font-medium">เปิดอยู่</CardTitle>
-              <AlertTriangle className="h-3 w-3 text-orange-600" />
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="text-xl font-bold text-orange-600">{metrics.open}</div>
-              <p className="text-[10px] text-muted-foreground">Open</p>
-            </CardContent>
-          </Card>
+            {/* Open */}
+            <div
+              className="p-4 rounded-lg border-2 border-orange-200 cursor-pointer hover:shadow-md transition"
+              onClick={() => setStatusFilter("all")}
+            >
+              <div className="text-sm text-gray-600 mb-1">เปิดอยู่</div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">{metrics.open}</div>
+              <div className="h-2 bg-orange-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-orange-500" 
+                  style={{ width: metrics.total > 0 ? `${(metrics.open / metrics.total) * 100}%` : "0%" }} 
+                />
+              </div>
+            </div>
 
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setStatusFilter("closed")}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-xs font-medium">ปิดแล้ว</CardTitle>
-              <CheckCircle2 className="h-3 w-3 text-green-600" />
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="text-xl font-bold text-green-600">{metrics.closed}</div>
-              <p className="text-[10px] text-muted-foreground">Closed</p>
-            </CardContent>
-          </Card>
+            {/* Closed */}
+            <div
+              className="p-4 rounded-lg border-2 border-green-200 cursor-pointer hover:shadow-md transition"
+              onClick={() => setStatusFilter("closed")}
+            >
+              <div className="text-sm text-gray-600 mb-1">ปิดแล้ว</div>
+              <div className="text-3xl font-bold text-green-600 mb-2">{metrics.closed}</div>
+              <div className="h-2 bg-green-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-green-500" 
+                  style={{ width: metrics.total > 0 ? `${(metrics.closed / metrics.total) * 100}%` : "0%" }} 
+                />
+              </div>
+            </div>
 
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow border-yellow-200 bg-yellow-50"
-            onClick={() => setStatusFilter("verification")}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-xs font-medium">รอตรวจสอบ</CardTitle>
-              <Clock className="h-3 w-3 text-yellow-600" />
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="text-xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
-              <p className="text-[10px] text-yellow-700">Verification</p>
-            </CardContent>
-          </Card>
+            {/* Pending Verification */}
+            <div
+              className="p-4 rounded-lg border-2 border-yellow-200 cursor-pointer hover:shadow-md transition"
+              onClick={() => setStatusFilter("verification")}
+            >
+              <div className="text-sm text-gray-600 mb-1">รอตรวจสอบ</div>
+              <div className="text-3xl font-bold text-yellow-600 mb-2">{metrics.pendingVerification}</div>
+              <div className="h-2 bg-yellow-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-yellow-500" 
+                  style={{ width: metrics.total > 0 ? `${(metrics.pendingVerification / metrics.total) * 100}%` : "0%" }} 
+                />
+              </div>
+            </div>
 
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow border-red-200 bg-red-50"
-            onClick={() => {
-              // Filter overdue defects - will need custom filter logic
-              toast.info("กรองแสดง Defect ที่เกินกำหนด");
-            }}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-xs font-medium">เกินกำหนด</CardTitle>
-              <TrendingUp className="h-3 w-3 text-red-600" />
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="text-xl font-bold text-red-600">{metrics.overdue}</div>
-              <p className="text-[10px] text-red-700">Overdue</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Filters */}
+            {/* Overdue */}
+            <div
+              className="p-4 rounded-lg border-2 border-red-200 cursor-pointer hover:shadow-md transition"
+              onClick={() => {
+                toast.info("กรองแสดง Defect ที่เกินกำหนด");
+              }}
+            >
+              <div className="text-sm text-gray-600 mb-1">เกินกำหนด</div>
+              <div className="text-3xl font-bold text-red-600 mb-2">{metrics.overdue}</div>
+              <div className="h-2 bg-red-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-red-500" 
+                  style={{ width: metrics.total > 0 ? `${(metrics.overdue / metrics.total) * 100}%` : "0%" }} 
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>{/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
