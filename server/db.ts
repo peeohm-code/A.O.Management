@@ -141,6 +141,20 @@ export async function updateUserRole(userId: number, role: string) {
   await db.update(users).set({ role: role as any }).where(eq(users.id, userId));
 }
 
+export async function updateUserProfile(userId: number, data: { name: string; email?: string }) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const updateData: any = { name: data.name };
+  if (data.email !== undefined) {
+    updateData.email = data.email || null;
+  }
+
+  await db.update(users).set(updateData).where(eq(users.id, userId));
+}
+
 /**
  * Project Management
  */

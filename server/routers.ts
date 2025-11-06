@@ -1224,6 +1224,25 @@ export const appRouter = router({
 
         return { success: true };
       }),
+
+    updateProfile: protectedProcedure
+      .input(
+        z.object({
+          name: z.string().min(1),
+          email: z.string().email().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await db.updateUserProfile(ctx.user.id, input);
+
+        await db.logActivity({
+          userId: ctx.user.id,
+          action: "profile_updated",
+          details: JSON.stringify({ name: input.name, email: input.email }),
+        });
+
+        return { success: true };
+      }),
   }),
 
   dashboard: dashboardRouter,

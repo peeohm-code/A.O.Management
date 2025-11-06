@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon, BarChart3, Users } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon, BarChart3, Users, UserCircle } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -285,6 +285,13 @@ function DashboardLayoutContent({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => setLocation('/profile')}
+                  className="cursor-pointer"
+                >
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  <span>โปรไฟล์ของฉัน</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"

@@ -814,3 +814,13 @@
 - [x] Add /users route to App.tsx
 - [ ] Test complete RBAC system
 - [ ] Save checkpoint Phase 5
+
+## User Profile Feature ✅
+- [x] Create User Profile page UI with view mode
+- [x] Add edit mode for profile information (name, email)
+- [x] Create backend API for updating user profile (updateProfile mutation)
+- [x] Add updateUserProfile function to db.ts
+- [x] Add profile route to App.tsx
+- [x] Add "My Profile" link to user dropdown menu in DashboardLayout
+- [ ] Test profile view and edit functionality
+- [ ] Save checkpoint
