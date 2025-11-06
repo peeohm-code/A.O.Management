@@ -686,3 +686,12 @@
 - [x] Remove separate DefectDashboard.tsx page
 - [x] Remove Defect Dashboard menu item from DashboardLayout
 - [x] Remove /defect-dashboard route from App.tsx
+
+## Make Metrics Cards Smaller
+- [x] Add "Defect Tracking Overview" section title
+- [x] Reduce card padding (pt-3, pb-3, px-3)
+- [x] Reduce font sizes (text-xs for title, text-xl for number, text-[10px] for label)
+- [x] Reduce icon sizes (h-3 w-3)
+- [x] Make cards more compact with smaller gaps (gap-3)
+- [x] Update grid to 2 cols on mobile, 3 on tablet, 5 on desktop
+- [x] Test responsive layout

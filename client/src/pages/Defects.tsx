@@ -256,79 +256,82 @@ export default function Defects() {
       </div>
 
       {/* Dashboard Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => setStatusFilter("all")}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ทั้งหมด</CardTitle>
-            <FileWarning className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.total}</div>
-            <p className="text-xs text-muted-foreground">Total Defects</p>
-          </CardContent>
-        </Card>
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Defect Tracking Overview</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setStatusFilter("all")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+              <CardTitle className="text-xs font-medium">ทั้งหมด</CardTitle>
+              <FileWarning className="h-3 w-3 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-xl font-bold">{metrics.total}</div>
+              <p className="text-[10px] text-muted-foreground">Total</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => setStatusFilter("all")}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">เปิดอยู่</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{metrics.open}</div>
-            <p className="text-xs text-muted-foreground">Open Defects</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setStatusFilter("all")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+              <CardTitle className="text-xs font-medium">เปิดอยู่</CardTitle>
+              <AlertTriangle className="h-3 w-3 text-orange-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-xl font-bold text-orange-600">{metrics.open}</div>
+              <p className="text-[10px] text-muted-foreground">Open</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => setStatusFilter("closed")}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ปิดแล้ว</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{metrics.closed}</div>
-            <p className="text-xs text-muted-foreground">Closed Defects</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setStatusFilter("closed")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+              <CardTitle className="text-xs font-medium">ปิดแล้ว</CardTitle>
+              <CheckCircle2 className="h-3 w-3 text-green-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-xl font-bold text-green-600">{metrics.closed}</div>
+              <p className="text-[10px] text-muted-foreground">Closed</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow border-yellow-200 bg-yellow-50"
-          onClick={() => setStatusFilter("verification")}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">รอตรวจสอบ</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
-            <p className="text-xs text-yellow-700">Pending Verification</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow border-yellow-200 bg-yellow-50"
+            onClick={() => setStatusFilter("verification")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+              <CardTitle className="text-xs font-medium">รอตรวจสอบ</CardTitle>
+              <Clock className="h-3 w-3 text-yellow-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
+              <p className="text-[10px] text-yellow-700">Verification</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow border-red-200 bg-red-50"
-          onClick={() => {
-            // Filter overdue defects - will need custom filter logic
-            toast.info("กรองแสดง Defect ที่เกินกำหนด");
-          }}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">เกินกำหนด</CardTitle>
-            <TrendingUp className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{metrics.overdue}</div>
-            <p className="text-xs text-red-700">Overdue</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow border-red-200 bg-red-50"
+            onClick={() => {
+              // Filter overdue defects - will need custom filter logic
+              toast.info("กรองแสดง Defect ที่เกินกำหนด");
+            }}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+              <CardTitle className="text-xs font-medium">เกินกำหนด</CardTitle>
+              <TrendingUp className="h-3 w-3 text-red-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-xl font-bold text-red-600">{metrics.overdue}</div>
+              <p className="text-[10px] text-red-700">Overdue</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Filters */}
