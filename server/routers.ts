@@ -162,7 +162,18 @@ const taskRouter = router({
   }),
 
   myTasks: protectedProcedure.query(async ({ ctx }) => {
-    return await db.getTasksByAssignee(ctx.user.id);
+    const tasks = await db.getTasksByAssignee(ctx.user.id);
+    
+    // Add computed display status to each task
+    return tasks.map(task => {
+      const displayStatus = getTaskDisplayStatus(task);
+      return {
+        ...task,
+        displayStatus,
+        displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
+        displayStatusColor: getTaskDisplayStatusColor(displayStatus),
+      };
+    });
   }),
 
   create: roleBasedProcedure('tasks', 'create')

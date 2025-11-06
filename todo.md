@@ -853,3 +853,10 @@
 - [x] Update both create and edit forms
 - [x] Test category selection (works in both create and edit dialogs)
 - [ ] Save checkpoint
+
+## Fix My Tasks Status Card Counts ✅
+- [x] Investigate why status card counts show 0 for all statuses except total
+- [x] Fix counting logic by adding displayStatus computation to myTasks procedure
+- [x] Verify counts match actual task statuses displayed
+- [x] Tested: งานทั้งหมด: 14, ยังไม่เริ่ม: 9, กำลังทำ: 1, ล่าช้า: 0, เสร็จสมบูรณ์: 4
+- [ ] Save checkpoint
