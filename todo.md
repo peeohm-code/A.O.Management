@@ -625,3 +625,11 @@
 - [x] Translate all status filter options to Thai
 - [x] Test that defects remain visible after Action Plan is saved
 - [x] Verify defects show up correctly in all status transitions
+
+## Backend Query Investigation
+- [x] Check defects.list backend query in server/routers.ts
+- [x] Found that openDefects only returns status='reported' defects
+- [x] Created getAllDefects() function in db.ts to return all defects
+- [x] Added allDefects procedure in routers.ts
+- [x] Changed Defects page to use allDefects instead of openDefects
+- [x] Verified that all status values are now returned from database

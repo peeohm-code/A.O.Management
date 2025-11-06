@@ -50,11 +50,11 @@ export default function Defects() {
   const [showEffectivenessForm, setShowEffectivenessForm] = useState(false);
   const [effectivenessComment, setEffectivenessComment] = useState("");
 
-  const openDefectsQuery = trpc.defect.openDefects.useQuery();
+  const allDefectsQuery = trpc.defect.allDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
   const usersQuery = trpc.user.list.useQuery();
 
-  const defects = openDefectsQuery.data || [];
+  const defects = allDefectsQuery.data || [];
 
   let filteredDefects = defects.filter((d) =>
     d.title.toLowerCase().includes(searchTerm.toLowerCase())

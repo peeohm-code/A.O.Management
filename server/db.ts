@@ -781,6 +781,16 @@ export async function getOpenDefects() {
     .orderBy(desc(defects.severity));
 }
 
+export async function getAllDefects() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(defects)
+    .orderBy(desc(defects.createdAt));
+}
+
 export async function updateDefect(
   id: number,
   data: Partial<{

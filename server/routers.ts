@@ -648,6 +648,11 @@ const defectRouter = router({
     return await db.getOpenDefects();
   }),
 
+  // Get all defects
+  allDefects: protectedProcedure.query(async () => {
+    return await db.getAllDefects();
+  }),
+
   // Get single defect by ID
   get: protectedProcedure
     .input(z.object({ id: z.number() }))
