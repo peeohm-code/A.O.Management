@@ -29,7 +29,7 @@ export default function Projects() {
     budget: "",
   });
 
-  const projectsQuery = trpc.project.listWithStats.useQuery();
+  const projectsQuery = trpc.project.list.useQuery();
   const createProjectMutation = trpc.project.create.useMutation();
 
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -254,7 +254,7 @@ export default function Projects() {
 
                 {/* Task Stats */}
                 <div className="flex justify-between text-sm text-gray-600 pt-2 border-t">
-                  <span>{project.completedTasks}/{project.totalTasks} tasks</span>
+                  <span>{project.completedTasks || 0}/{project.taskCount || 0} tasks</span>
                   <Badge className={getProjectStatusColor(project.projectStatus)} variant="outline">
                     {getProjectStatusLabel(project.projectStatus)}
                   </Badge>

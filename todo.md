@@ -897,3 +897,11 @@
 - [x] Add project members
 - [x] Test QC Inspection page - error resolved
 - [ ] Save checkpoint
+
+## Comprehensive System Audit & Fix
+- [ ] Check task counts: Dashboard shows 16 ยังไม่เริ่ม but Tasks page shows 0
+- [ ] Verify task assignments match user ID
+- [ ] Check all task statuses are correct
+- [ ] Verify defects link to correct tasks
+- [ ] Test all pages for data consistency
+- [ ] Save checkpoint

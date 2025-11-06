@@ -15,7 +15,18 @@ import { notifyOwner } from "./_core/notification";
 const projectRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const projects = await db.getProjectsByUser(ctx.user.id);
-    return projects.map((p) => p.projects);
+    const projectsWithStats = await Promise.all(
+      projects.map(async (p) => {
+        const stats = await db.getProjectStats(p.projects.id);
+        return {
+          ...p.projects,
+          taskCount: stats?.totalTasks || 0,
+          completedTasks: stats?.completedTasks || 0,
+          progressPercentage: stats?.progressPercentage || 0,
+        };
+      })
+    );
+    return projectsWithStats;
   }),
 
   get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
