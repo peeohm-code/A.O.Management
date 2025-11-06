@@ -860,3 +860,22 @@
 - [x] Verify counts match actual task statuses displayed
 - [x] Tested: งานทั้งหมด: 14, ยังไม่เริ่ม: 9, กำลังทำ: 1, ล่าช้า: 0, เสร็จสมบูรณ์: 4
 - [ ] Save checkpoint
+
+## Add Status Filter to My Tasks Page
+- [ ] Add status filter dropdown/buttons in My Tasks page
+- [ ] Implement filtering logic to filter tasks by displayStatus
+- [ ] Add filter options: ทั้งหมด, ยังไม่เริ่ม, กำลังทำ, ล่าช้า, เสร็จสมบูรณ์
+- [ ] Make status cards clickable to filter by that status
+- [ ] Test filtering with different statuses
+- [ ] Save checkpoint
+
+## Create Comprehensive Sample Project
+- [ ] Clear all existing data (projects, tasks, checklists, defects, inspections)
+- [ ] Keep only owner user and sample role users
+- [ ] Create sample project: บ้านพักอาศัย 2 ชั้น, จันทบุรี, 1/10/2568 - 1/10/2569
+- [ ] Create sample tasks with different statuses and assignments
+- [ ] Create sample checklist templates for different work types
+- [ ] Create sample QC inspections with different statuses
+- [ ] Create sample defects (CAR/PAR/NCR) with different priorities
+- [ ] Verify all features work with sample data
+- [ ] Save checkpoint
