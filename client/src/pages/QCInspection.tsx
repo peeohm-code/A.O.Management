@@ -24,6 +24,7 @@ export default function QCInspection() {
   const [itemResults, setItemResults] = useState<Record<number, ItemResult>>({});
   const [generalComments, setGeneralComments] = useState("");
   const [isInspecting, setIsInspecting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   // Queries - get all tasks and checklists
   const { data: tasks } = trpc.task.list.useQuery({});
@@ -53,6 +54,12 @@ export default function QCInspection() {
     completed: checklistStats.completed || 0,
     failed: checklistStats.failed || 0,
   };
+
+  // Filter checklists by status
+  const filteredChecklists = React.useMemo(() => {
+    if (!statusFilter) return allChecklists;
+    return allChecklists.filter(c => (c.status || 'not_started') === statusFilter);
+  }, [allChecklists, statusFilter]);
 
   const selectedChecklist = allChecklists.find(c => c.id === selectedChecklistId);
 
@@ -168,25 +175,37 @@ export default function QCInspection() {
               </ResponsiveContainer>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'not_started' ? null : 'not_started')}
+              >
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-gray-600">{stats.not_started}</div>
                   <div className="text-sm text-muted-foreground">ยังไม่เริ่ม</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'pending_inspection' ? null : 'pending_inspection')}
+              >
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-yellow-600">{stats.pending_inspection}</div>
                   <div className="text-sm text-muted-foreground">รอตรวจสอบ</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'completed' ? null : 'completed')}
+              >
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
                   <div className="text-sm text-muted-foreground">ผ่าน</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'failed' ? null : 'failed')}
+              >
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
                   <div className="text-sm text-muted-foreground">ไม่ผ่าน</div>
@@ -199,9 +218,18 @@ export default function QCInspection() {
 
       {/* Checklists Grid */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-4">Checklists ทั้งหมด</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">
+            {statusFilter ? `Checklists - ${getStatusBadge(statusFilter).props.children}` : 'Checklists ทั้งหมด'}
+          </h2>
+          {statusFilter && (
+            <Button variant="outline" onClick={() => setStatusFilter(null)}>
+              แสดงทั้งหมด
+            </Button>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allChecklists.map((checklist) => (
+          {filteredChecklists.map((checklist) => (
             <Card key={checklist.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">

@@ -439,3 +439,4 @@
 - [x] เพิ่มกราฟวงกลมสรุปสัดส่วน Checklists ตามสถานะในหน้า QC Inspection Overview
 - [x] เปลี่ยนหน้า QC Inspection เป็น Dashboard แบบง่าย: ลบขั้นตอน แสดงการ์ด checklists ทั้งหมด คลิกเพื่อตรวจได้เลย
 - [x] แก้ไข: React Hooks order error ในหน้า QC Inspection
+- [x] เพิ่มฟีเจอร์: คลิกการ์ดสถิติเพื่อดูรายการ checklists ตามสถานะ
