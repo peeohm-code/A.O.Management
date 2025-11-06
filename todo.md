@@ -596,3 +596,9 @@
 - [x] Implement final closure or re-opening logic
 - [x] Add workflow transition buttons in Defects page
 - [x] Test complete workflow from creation to closure
+
+## Verification Form Improvement
+- [x] Change Verifier's Comment from Optional to Required
+- [x] Add clear instruction that reason must be provided for both Approve and Reject
+- [x] Add validation to prevent submission without comment
+- [x] Update UI to emphasize the importance of the comment field

@@ -829,16 +829,20 @@ export default function Defects() {
             )}
 
             {/* Verification Comment */}
-            <div className="space-y-2">
+            <div className="space-y-2 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
               <Label htmlFor="verificationComment" className="text-sm font-semibold">
-                ความคิดเห็นจากการตรวจสอบ (Optional)
+                ความคิดเห็นของผู้ตรวจสอบ <span className="text-red-500">*</span>
               </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                กรุณาระบุเหตุผลและข้อสังเกตจากการตรวจสอบ (Required)
+              </p>
               <Textarea
                 id="verificationComment"
-                placeholder="บันทึกข้อสังเกตหรือความคิดเห็นเพิ่มเติม..."
+                placeholder="ตัวอย่าง: ตรวจสอบแล้วพบว่าการแก้ไขเป็นไปตามแผนที่วางไว้ คุณภาพงานดี ไม่พบข้อบกพร่อง..."
                 value={verificationComment}
                 onChange={(e) => setVerificationComment(e.target.value)}
-                rows={3}
+                rows={4}
+                className="resize-none"
               />
             </div>
 
@@ -857,11 +861,15 @@ export default function Defects() {
               <Button
                 onClick={async () => {
                   if (!selectedDefect) return;
+                  if (!verificationComment.trim()) {
+                    toast.error("กรุณาระบุความคิดเห็นของผู้ตรวจสอบ");
+                    return;
+                  }
                   try {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
                       status: "action_plan" as any,
-                      verificationComment: verificationComment || undefined,
+                      verificationComment: verificationComment,
                     });
                     toast.success("ไม่อนุมัติ - ส่งกลับไปแก้ไขใหม่");
                     setShowVerificationForm(false);
@@ -872,7 +880,7 @@ export default function Defects() {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}
-                disabled={updateDefectMutation.isPending}
+                disabled={updateDefectMutation.isPending || !verificationComment.trim()}
                 className="flex-1 bg-red-600 hover:bg-red-700"
               >
                 {updateDefectMutation.isPending ? (
@@ -887,11 +895,15 @@ export default function Defects() {
               <Button
                 onClick={async () => {
                   if (!selectedDefect) return;
+                  if (!verificationComment.trim()) {
+                    toast.error("กรุณาระบุความคิดเห็นของผู้ตรวจสอบ");
+                    return;
+                  }
                   try {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
                       status: "effectiveness_check" as any,
-                      verificationComment: verificationComment || undefined,
+                      verificationComment: verificationComment,
                     });
                     toast.success("อนุมัติสำเร็จ - ไปยังขั้นตอน Effectiveness Check");
                     setShowVerificationForm(false);
@@ -902,7 +914,7 @@ export default function Defects() {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}
-                disabled={updateDefectMutation.isPending}
+                disabled={updateDefectMutation.isPending || !verificationComment.trim()}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 {updateDefectMutation.isPending ? (
