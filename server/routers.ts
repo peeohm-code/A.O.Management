@@ -22,7 +22,7 @@ const projectRouter = router({
     return await db.getProjectById(input.id);
   }),
 
-  create: protectedProcedure
+  create: roleBasedProcedure('projects', 'create')
     .input(
       z.object({
         name: z.string().min(1),
@@ -50,7 +50,7 @@ const projectRouter = router({
       return { success: true, id: projectId };
     }),
 
-  update: protectedProcedure
+  update: roleBasedProcedure('projects', 'edit')
     .input(
       z.object({
         id: z.number(),
@@ -72,29 +72,21 @@ const projectRouter = router({
       return result;
     }),
 
-  addMember: protectedProcedure
+  addMember: roleBasedProcedure('projects', 'assignMembers')
     .input(
       z.object({
         projectId: z.number(),
         userId: z.number(),
-        role: z.enum(["owner", "pm", "engineer", "qc", "viewer"]),
+        role: z.enum(["project_manager", "qc_inspector", "field_engineer"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
       return await db.addProjectMember(input);
     }),
 
-  delete: protectedProcedure
+  delete: roleBasedProcedure('projects', 'delete')
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      // Only Admin can delete projects
-      if (ctx.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Only administrators can delete projects",
-        });
-      }
-
       await db.deleteProject(input.id);
 
       await db.logActivity({
@@ -173,7 +165,7 @@ const taskRouter = router({
     return await db.getTasksByAssignee(ctx.user.id);
   }),
 
-  create: protectedProcedure
+  create: roleBasedProcedure('tasks', 'create')
     .input(
       z.object({
         projectId: z.number(),
@@ -216,7 +208,7 @@ const taskRouter = router({
       return { success: true, id: taskId };
     }),
 
-  update: protectedProcedure
+  update: roleBasedProcedure('tasks', 'edit')
     .input(
       z.object({
         id: z.number(),

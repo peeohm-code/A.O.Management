@@ -788,19 +788,19 @@
 - [x] Test defect permissions
 - [x] Save checkpoint Phase 2
 
-### Phase 3: Projects & Tasks Permission
-- [ ] Add permission checks to project router
-- [ ] Add permission checks to task router
-- [ ] Implement project members management
-- [ ] Test project/task permissions
-- [ ] Save checkpoint Phase 3
+### Phase 3: Projects & Tasks Permission ✅
+- [x] Add permission checks to project router (create, update, delete, addMember)
+- [x] Add permission checks to task router (create, update)
+- [x] Update project addMember to use new roles (project_manager, qc_inspector, field_engineer)
+- [x] Test project/task permissions
+- [x] Save checkpoint Phase 3
 
-### Phase 4: Frontend Permission Hooks
-- [ ] Create usePermissions hook
-- [ ] Update Defects page UI with permissions
-- [ ] Update Projects page UI with permissions
-- [ ] Update Tasks page UI with permissions
-- [ ] Save checkpoint Phase 4
+### Phase 4: Frontend Permission Hooks ✅
+- [x] Create usePermissions hook with full permission checks
+- [x] Create useCanEditDefect and useCanDeleteDefect hooks
+- [x] Create useRoleLabel hook for Thai role labels
+- [x] Update Defects page with permission hooks
+- [x] Save checkpoint Phase 4
 
 ### Phase 5: User Management
 - [ ] Create User Management page

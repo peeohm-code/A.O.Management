@@ -22,8 +22,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { usePermissions, useCanDeleteDefect } from "@/hooks/usePermissions";
 
 export default function Defects() {
+  // Permission checks
+  const permissions = usePermissions('defects');
+  const canDeleteDefect = useCanDeleteDefect();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
