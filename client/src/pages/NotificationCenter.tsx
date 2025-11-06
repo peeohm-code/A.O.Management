@@ -2,7 +2,21 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Bell, Trash2 } from "lucide-react";
+import { 
+  Loader2, 
+  Bell, 
+  Trash2, 
+  ClipboardList,
+  Search,
+  CheckCircle2,
+  AlertTriangle,
+  Wrench,
+  MessageSquare,
+  RefreshCw,
+  Clock,
+  CheckCheck,
+  XCircle
+} from "lucide-react";
 import { toast } from "sonner";
 
 export default function NotificationCenter() {
@@ -15,25 +29,31 @@ export default function NotificationCenter() {
     : [];
 
   const getNotificationIcon = (type: string) => {
+    const iconProps = { className: "w-5 h-5" };
+    
     switch (type) {
       case "task_assigned":
-        return "📋";
+        return <ClipboardList {...iconProps} className="w-5 h-5 text-blue-600" />;
       case "inspection_requested":
-        return "🔍";
+        return <Search {...iconProps} className="w-5 h-5 text-yellow-600" />;
       case "inspection_completed":
-        return "✅";
+        return <CheckCircle2 {...iconProps} className="w-5 h-5 text-green-600" />;
+      case "inspection_passed":
+        return <CheckCheck {...iconProps} className="w-5 h-5 text-green-600" />;
+      case "inspection_failed":
+        return <XCircle {...iconProps} className="w-5 h-5 text-red-600" />;
       case "defect_assigned":
-        return "⚠️";
+        return <AlertTriangle {...iconProps} className="w-5 h-5 text-red-600" />;
       case "defect_resolved":
-        return "🔧";
+        return <Wrench {...iconProps} className="w-5 h-5 text-purple-600" />;
       case "comment_mention":
-        return "💬";
+        return <MessageSquare {...iconProps} className="w-5 h-5 text-pink-600" />;
       case "task_updated":
-        return "🔄";
+        return <RefreshCw {...iconProps} className="w-5 h-5 text-indigo-600" />;
       case "deadline_reminder":
-        return "⏰";
+        return <Clock {...iconProps} className="w-5 h-5 text-orange-600" />;
       default:
-        return "🔔";
+        return <Bell {...iconProps} className="w-5 h-5 text-gray-600" />;
     }
   };
 
@@ -44,7 +64,10 @@ export default function NotificationCenter() {
       case "inspection_requested":
         return "bg-yellow-50 border-l-4 border-yellow-500";
       case "inspection_completed":
+      case "inspection_passed":
         return "bg-green-50 border-l-4 border-green-500";
+      case "inspection_failed":
+        return "bg-red-50 border-l-4 border-red-500";
       case "defect_assigned":
         return "bg-red-50 border-l-4 border-red-500";
       case "defect_resolved":
@@ -105,7 +128,7 @@ export default function NotificationCenter() {
                 <CardContent className="pt-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
-                      <span className="text-2xl">{getNotificationIcon(notif.type)}</span>
+                      <div className="mt-0.5">{getNotificationIcon(notif.type)}</div>
                       <div className="flex-1">
                         <p className="font-semibold text-sm">{notif.title}</p>
                         {notif.content && (
@@ -142,7 +165,7 @@ export default function NotificationCenter() {
                 <CardContent className="pt-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
-                      <span className="text-xl">{getNotificationIcon(notif.type)}</span>
+                      <div className="mt-0.5 opacity-60">{getNotificationIcon(notif.type)}</div>
                       <div className="flex-1">
                         <p className="font-medium text-sm text-gray-700">{notif.title}</p>
                         {notif.content && (
