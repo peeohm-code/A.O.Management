@@ -293,11 +293,11 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
         setGroupOrder(parsed);
       } catch (e) {
         // If parsing fails, use default order
-        const defaultOrder = chartData.groups.map(g => g.category);
+        const defaultOrder = getDefaultCategoryOrder(chartData.groups.map(g => g.category));
         setGroupOrder(defaultOrder);
       }
     } else {
-      const defaultOrder = chartData.groups.map(g => g.category);
+      const defaultOrder = getDefaultCategoryOrder(chartData.groups.map(g => g.category));
       setGroupOrder(defaultOrder);
     }
   }, [chartData.groups]);
@@ -611,6 +611,14 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
       )}
     </div>
   );
+}
+
+function getDefaultCategoryOrder(existingCategories: string[]): string[] {
+  // Define the logical order of construction phases
+  const standardOrder = ['preparation', 'structure', 'architecture', 'mep', 'other'];
+  
+  // Filter to only include categories that actually exist
+  return standardOrder.filter(cat => existingCategories.includes(cat));
 }
 
 function getCategoryLabel(category: string): string {
