@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE taskChecklists MODIFY COLUMN status ENUM('not_started', 'pending_inspection', 'in_progress', 'completed', 'failed') NOT NULL DEFAULT 'not_started'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute ALTER TABLE taskChecklists MODIFY COLUMN status ENUM('not_started', 'pending_inspection', 'in_progress', 'completed', 'failed') NOT NULL DEFAULT 'not_started'",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 1: Data truncated for column 'status', value is 'passed'"
+  ]
+}

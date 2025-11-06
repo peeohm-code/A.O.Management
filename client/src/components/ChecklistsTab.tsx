@@ -228,9 +228,8 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                             {checklist.items?.length || 0} รายการ
                           </span>
                         </div>
-                        {/* Request Inspection Button - Show for not_started and pending (debug) */}
-                        {console.log('Checklist status:', checklist.status, 'ID:', checklist.id)}
-                        {(checklist.status === "not_started" || checklist.status === "pending") && (
+                        {/* Request Inspection Button - Only show for not_started */}
+                        {checklist.status === "not_started" && (
                           <div className="mt-2">
                             <Button
                               size="sm"

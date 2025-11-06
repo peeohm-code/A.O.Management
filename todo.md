@@ -430,3 +430,4 @@
 - [x] แก้ไข: ปุ่ม "ขออนุมัติตรวจ" ไม่แสดงในหน้า Task Detail
 - [x] เพิ่ม: ส่งการแจ้งเตือนไปยังผู้ตรวจเมื่อกดปุ่ม "ขออนุมัติตรวจ"
 - [x] แก้ไข: ปุ่ม "ขออนุมัติตรวจ" ยังไม่แสดงในหน้า Task Detail (ตรวจสอบ status ของ checklist)
+- [x] แก้ไข: Database error - status "pending_inspection" ไม่อยู่ใน enum ของ taskChecklists
