@@ -243,13 +243,15 @@ export default function Dashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {/* Total Checklists */}
-            <div className="text-center p-4 border rounded-lg bg-gray-50">
-              <div className="text-3xl font-bold text-gray-900">{stats?.checklistStats.total || 0}</div>
-              <div className="text-sm text-gray-600 mt-1">Checklist ทั้งหมด</div>
-            </div>
+            <Link href="/qc">
+              <div className="text-center p-4 border rounded-lg bg-gray-50 hover:shadow-md transition cursor-pointer hover:bg-gray-100">
+                <div className="text-3xl font-bold text-gray-900">{stats?.checklistStats.total || 0}</div>
+                <div className="text-sm text-gray-600 mt-1">Checklist ทั้งหมด</div>
+              </div>
+            </Link>
 
             {/* Not Started */}
-            <Link href="/qc">
+            <Link href="/qc?status=not_started">
               <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
                 <div className="text-3xl font-bold text-gray-700">{stats?.checklistStats.not_started || 0}</div>
                 <div className="text-sm text-gray-600 mt-1">ยังไม่เริ่ม</div>
@@ -269,7 +271,7 @@ export default function Dashboard() {
             </Link>
 
             {/* Pending Inspection */}
-            <Link href="/qc">
+            <Link href="/qc?status=pending_inspection">
               <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-yellow-50 hover:bg-yellow-100">
                 <div className="text-3xl font-bold text-yellow-700">{stats?.checklistStats.pending_inspection || 0}</div>
                 <div className="text-sm text-yellow-600 mt-1">รอการตรวจสอบ</div>
@@ -309,7 +311,7 @@ export default function Dashboard() {
             </Link>
 
             {/* Completed */}
-            <Link href="/qc">
+            <Link href="/qc?status=completed">
               <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
                 <div className="text-3xl font-bold text-green-700">{stats?.checklistStats.completed || 0}</div>
                 <div className="text-sm text-green-600 mt-1">ผ่าน</div>
@@ -329,7 +331,7 @@ export default function Dashboard() {
             </Link>
 
             {/* Failed */}
-            <Link href="/defects">
+            <Link href="/qc?status=failed">
               <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
                 <div className="text-3xl font-bold text-red-700">{stats?.checklistStats.failed || 0}</div>
                 <div className="text-sm text-red-600 mt-1">ไม่ผ่าน</div>

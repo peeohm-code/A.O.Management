@@ -24,7 +24,15 @@ export default function QCInspection() {
   const [itemResults, setItemResults] = useState<Record<number, ItemResult>>({});
   const [generalComments, setGeneralComments] = useState("");
   const [isInspecting, setIsInspecting] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  
+  // Read status from URL parameter
+  const [statusFilter, setStatusFilter] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('status');
+    }
+    return null;
+  });
 
   // Queries - get all tasks and checklists
   const { data: tasks } = trpc.task.list.useQuery({});
