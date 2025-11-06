@@ -838,3 +838,11 @@
 - [x] Verify role change in Profile page (shows "เจ้าของระบบ" badge)
 - [x] Statistics updated (เจ้าของระบบ: 2 users)
 - [ ] Save checkpoint
+
+## Create Sample Users for Each Role ✅
+- [x] Create sample Project Manager user (สมชาย ใจดี)
+- [x] Create sample Field Engineer user (สมหญิง วิศวกร)
+- [x] Create sample QC Inspector user (สมศรี ตรวจสอบ)
+- [x] Change all admin users to field_engineer role (admin count reduced to 4)
+- [x] Verify in User Management page
+- [x] Statistics show: เจ้าของระบบ: 2, ผู้ดูแลระบบ: 4, ผู้จัดการโครงการ: 1, QC Inspector: 1, วิศวกรสนาม: 2714
