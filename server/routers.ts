@@ -1093,11 +1093,15 @@ const dashboardRouter = router({
     const myTasks = tasksWithStatus.filter(t => t.assigneeId === ctx.user.id);
     const myTasksCount = myTasks.length;
 
+    // Get defect statistics
+    const defectStats = await db.getDefectMetrics();
+
     return {
       projectStats,
       averageProgress,
       taskStats,
       checklistStats,
+      defectStats,
       projectCount,
       myTasksCount,
     };

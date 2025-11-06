@@ -351,6 +351,113 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
+      {/* Defect Tracking Overview */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <CardTitle>Defect Tracking Overview</CardTitle>
+          </div>
+          <CardDescription>สถิติ Defect ทั้งหมดแบ่งตามสถานะ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Total */}
+            <Link href="/defects">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <div className="text-3xl font-bold text-gray-900">{stats?.defectStats?.total || 0}</div>
+                <div className="text-sm text-gray-600 mt-1">ทั้งหมด</div>
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-gray-400 h-2 rounded-full" style={{ width: "100%" }} />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Open */}
+            <Link href="/defects">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-orange-50 hover:bg-orange-100">
+                <div className="text-3xl font-bold text-orange-600">{stats?.defectStats?.open || 0}</div>
+                <div className="text-sm text-orange-600 mt-1">เปิดอยู่</div>
+                <div className="mt-2">
+                  <div className="w-full bg-orange-200 rounded-full h-2">
+                    <div
+                      className="bg-orange-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.defectStats?.total
+                          ? `${((stats.defectStats.open / stats.defectStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Closed */}
+            <Link href="/defects">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
+                <div className="text-3xl font-bold text-green-600">{stats?.defectStats?.closed || 0}</div>
+                <div className="text-sm text-green-600 mt-1">ปิดแล้ว</div>
+                <div className="mt-2">
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.defectStats?.total
+                          ? `${((stats.defectStats.closed / stats.defectStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Pending Verification */}
+            <Link href="/defects">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-yellow-50 hover:bg-yellow-100">
+                <div className="text-3xl font-bold text-yellow-600">{stats?.defectStats?.pendingVerification || 0}</div>
+                <div className="text-sm text-yellow-600 mt-1">รอตรวจสอบ</div>
+                <div className="mt-2">
+                  <div className="w-full bg-yellow-200 rounded-full h-2">
+                    <div
+                      className="bg-yellow-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.defectStats?.total
+                          ? `${((stats.defectStats.pendingVerification / stats.defectStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Overdue */}
+            <Link href="/defects">
+              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
+                <div className="text-3xl font-bold text-red-600">{stats?.defectStats?.overdue || 0}</div>
+                <div className="text-sm text-red-600 mt-1">เกินกำหนด</div>
+                <div className="mt-2">
+                  <div className="w-full bg-red-200 rounded-full h-2">
+                    <div
+                      className="bg-red-600 h-2 rounded-full"
+                      style={{
+                        width: stats?.defectStats?.total
+                          ? `${((stats.defectStats.overdue / stats.defectStats.total) * 100).toFixed(0)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Tasks */}
         <div className="lg:col-span-2">

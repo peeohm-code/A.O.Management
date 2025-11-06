@@ -710,3 +710,12 @@
 - [x] Adjust icon sizes and colors to match notification types
 - [x] Test all notification types display correctly
 - [ ] Save checkpoint
+
+## Add Defect Tracking Overview to Dashboard
+- [x] Check current Dashboard structure
+- [x] Review Defect Tracking Overview from Defects page
+- [x] Add defect metrics query to Dashboard
+- [x] Add Defect Tracking Overview section to Dashboard UI
+- [x] Ensure consistent styling with other overview sections
+- [x] Test defect metrics display correctly
+- [ ] Save checkpoint
