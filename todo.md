@@ -433,3 +433,5 @@
 - [x] แก้ไข: Database error - status "pending_inspection" ไม่อยู่ใน enum ของ taskChecklists
 - [x] แก้ไข: โค้ดยังใช้ค่า "passed" ซึ่งไม่มีใน enum แล้ว ต้องเปลี่ยนเป็น "completed"
 - [x] ลบ tabs "Dependencies" และ "ความเห็น" ออกจากหน้า Task Detail
+- [ ] เพิ่มฟีเจอร์: drag & drop + filter (รอตรวจสอบ/ไม่ผ่าน/ผ่าน) ใน ChecklistsTab
+- [x] เพิ่ม Filter dropdown สำหรับ Checklists (รอตรวจสอบ, ไม่ผ่าน, ผ่าน)

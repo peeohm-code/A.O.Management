@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, FileText } from "lucide-react";
+import { Plus, Trash2, FileText, Filter } from "lucide-react";
 import { toast } from "sonner";
 
 interface ChecklistsTabProps {
@@ -42,6 +42,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
   const [checklistToDelete, setChecklistToDelete] = useState<number | null>(null);
   const [editingStatusId, setEditingStatusId] = useState<number | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const utils = trpc.useUtils();
 
@@ -159,44 +160,60 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                 กำหนด Checklist สำหรับงานนี้
               </CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  เพิ่ม Checklist
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>เพิ่ม Checklist</DialogTitle>
-                  <DialogDescription>
-                    เลือก Checklist Template ที่ต้องการกำหนดให้กับงานนี้
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือก Checklist Template" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates?.map((template) => (
-                        <SelectItem key={template.id} value={template.id.toString()}>
-                          {template.name} ({getStageLabel(template.stage)})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                    ยกเลิก
+            <div className="flex items-center gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทั้งหมด</SelectItem>
+                  <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+                  <SelectItem value="pending_inspection">รอตรวจสอบ</SelectItem>
+                  <SelectItem value="in_progress">กำลังตรวจ</SelectItem>
+                  <SelectItem value="completed">ผ่าน</SelectItem>
+                  <SelectItem value="failed">ไม่ผ่าน</SelectItem>
+                </SelectContent>
+              </Select>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    เพิ่ม Checklist
                   </Button>
-                  <Button onClick={handleAddChecklist} disabled={assignChecklistMutation.isPending}>
-                    {assignChecklistMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่ม"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>เพิ่ม Checklist</DialogTitle>
+                    <DialogDescription>
+                      เลือก Checklist Template ที่ต้องการกำหนดให้กับงานนี้
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือก Checklist Template" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates?.map((template) => (
+                          <SelectItem key={template.id} value={template.id.toString()}>
+                            {template.name} ({getStageLabel(template.stage)})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                      ยกเลิก
+                    </Button>
+                    <Button onClick={handleAddChecklist} disabled={assignChecklistMutation.isPending}>
+                      {assignChecklistMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่ม"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -208,7 +225,9 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {taskChecklists.map((checklist: any) => (
+              {taskChecklists
+                .filter((c: any) => statusFilter === "all" || c.status === statusFilter)
+                .map((checklist: any) => (
                 <Card key={checklist.id} className="border-l-4 border-l-blue-500">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
