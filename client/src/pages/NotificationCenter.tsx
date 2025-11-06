@@ -9,7 +9,10 @@ export default function NotificationCenter() {
   const notificationsQuery = trpc.notification.list.useQuery();
   const markAsReadMutation = trpc.notification.markAsRead.useMutation();
 
-  const notifications = notificationsQuery.data || [];
+  // Ensure notifications is always an array with comprehensive checks
+  const notifications = Array.isArray(notificationsQuery.data) 
+    ? notificationsQuery.data 
+    : [];
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -66,9 +69,10 @@ export default function NotificationCenter() {
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
-  const readNotifications = notifications.filter((n) => n.isRead);
-  const unreadNotifications = notifications.filter((n) => !n.isRead);
+  // Safe filtering with null checks
+  const unreadCount = notifications.filter((n) => n && !n.isRead).length;
+  const readNotifications = notifications.filter((n) => n && n.isRead);
+  const unreadNotifications = notifications.filter((n) => n && !n.isRead);
 
   if (notificationsQuery.isLoading) {
     return (

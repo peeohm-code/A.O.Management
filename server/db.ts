@@ -971,19 +971,33 @@ export async function getUserNotifications(userId: number, limit = 50) {
   const db = await getDb();
   if (!db) return [];
 
-  return await db
-    .select()
-    .from(notifications)
-    .where(eq(notifications.userId, userId))
-    .orderBy(desc(notifications.createdAt))
-    .limit(limit);
+  try {
+    const result = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit);
+    
+    // Ensure we always return an array, even if result is null/undefined
+    return Array.isArray(result) ? result : [];
+  } catch (error) {
+    console.error('[getUserNotifications] Error fetching notifications:', error);
+    return [];
+  }
 }
 
 export async function markNotificationAsRead(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+  try {
+    const result = await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+    return result;
+  } catch (error) {
+    console.error('[markNotificationAsRead] Error updating notification:', error);
+    throw error;
+  }
 }
 
 /**

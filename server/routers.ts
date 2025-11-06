@@ -982,13 +982,29 @@ const attachmentRouter = router({
  */
 const notificationRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
-    return await db.getUserNotifications(ctx.user.id);
+    try {
+      const notifications = await db.getUserNotifications(ctx.user.id);
+      // Ensure we always return an array
+      return Array.isArray(notifications) ? notifications : [];
+    } catch (error) {
+      console.error('[notificationRouter.list] Error:', error);
+      // Return empty array instead of throwing to prevent frontend crashes
+      return [];
+    }
   }),
 
   markAsRead: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
-      return await db.markNotificationAsRead(input.id);
+      try {
+        return await db.markNotificationAsRead(input.id);
+      } catch (error) {
+        console.error('[notificationRouter.markAsRead] Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to mark notification as read',
+        });
+      }
     }),
 });
 
