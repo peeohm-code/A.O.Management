@@ -41,6 +41,14 @@ export default function Defects() {
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [afterPhotos, setAfterPhotos] = useState<File[]>([]);
   const [uploadingAfterPhotos, setUploadingAfterPhotos] = useState(false);
+  
+  // Verification states
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
+  const [verificationComment, setVerificationComment] = useState("");
+  
+  // Effectiveness Check states
+  const [showEffectivenessForm, setShowEffectivenessForm] = useState(false);
+  const [effectivenessComment, setEffectivenessComment] = useState("");
 
   const openDefectsQuery = trpc.defect.openDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
@@ -132,6 +140,20 @@ export default function Defects() {
   };
 
   const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
+  const getAttachmentsByTypeQuery = trpc.defect.getAttachmentsByType.useQuery(
+    { 
+      defectId: selectedDefect?.id || 0,
+      attachmentType: 'before'
+    },
+    { enabled: !!selectedDefect?.id && showVerificationForm }
+  );
+  const getAfterAttachmentsQuery = trpc.defect.getAttachmentsByType.useQuery(
+    { 
+      defectId: selectedDefect?.id || 0,
+      attachmentType: 'after'
+    },
+    { enabled: !!selectedDefect?.id && showVerificationForm }
+  );
 
   const handleSaveActionPlan = async () => {
     if (!selectedDefect || !correctiveAction.trim()) {
@@ -312,7 +334,7 @@ export default function Defects() {
       </div>
 
       {/* Defect Detail Dialog */}
-      <Dialog open={!!selectedDefect && !showRCAForm && !showActionPlanForm} onOpenChange={(open) => !open && setSelectedDefect(null)}>
+      <Dialog open={!!selectedDefect && !showRCAForm && !showActionPlanForm && !showVerificationForm && !showEffectivenessForm} onOpenChange={(open) => !open && setSelectedDefect(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -435,20 +457,20 @@ export default function Defects() {
                 )}
                 {selectedDefect.status === "verification" && (
                   <Button
-                    onClick={() => handleUpdateDefect("effectiveness_check")}
+                    onClick={() => setShowVerificationForm(true)}
                     disabled={updateDefectMutation.isPending}
-                    className="flex-1"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
                   >
-                    Verify & Check Effectiveness
+                    Verify Implementation
                   </Button>
                 )}
                 {selectedDefect.status === "effectiveness_check" && (
                   <Button
-                    onClick={() => handleUpdateDefect("closed")}
+                    onClick={() => setShowEffectivenessForm(true)}
                     disabled={updateDefectMutation.isPending}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                   >
-                    Close CAR/NCR
+                    Effectiveness Check
                   </Button>
                 )}
               </div>
@@ -698,6 +720,336 @@ export default function Defects() {
                   </>
                 ) : (
                   "Save Action Plan"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verification Form Dialog */}
+      <Dialog open={showVerificationForm} onOpenChange={setShowVerificationForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-purple-600" />
+              Verification - {selectedDefect?.type}
+            </DialogTitle>
+            <DialogDescription>
+              Review implementation and compare Before/After photos: {selectedDefect?.title}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Before/After Photos Comparison */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">เปรียบเทียบรูปภาพ Before/After</h3>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Before Photos */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <h4 className="font-semibold text-red-700">ก่อนแก้ไข (Before)</h4>
+                  </div>
+                  {getAttachmentsByTypeQuery.isLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
+                    </div>
+                  ) : getAttachmentsByTypeQuery.data && getAttachmentsByTypeQuery.data.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {getAttachmentsByTypeQuery.data.map((attachment: any) => (
+                        <div key={attachment.id} className="relative group">
+                          <div className="aspect-square rounded-lg border bg-muted overflow-hidden">
+                            <img
+                              src={attachment.fileUrl}
+                              alt={attachment.fileName}
+                              className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                              onClick={() => window.open(attachment.fileUrl, '_blank')}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 truncate">{attachment.fileName}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">ไม่มีรูปภาพ</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* After Photos */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <h4 className="font-semibold text-green-700">หลังแก้ไข (After)</h4>
+                  </div>
+                  {getAfterAttachmentsQuery.isLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
+                    </div>
+                  ) : getAfterAttachmentsQuery.data && getAfterAttachmentsQuery.data.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {getAfterAttachmentsQuery.data.map((attachment: any) => (
+                        <div key={attachment.id} className="relative group">
+                          <div className="aspect-square rounded-lg border bg-muted overflow-hidden">
+                            <img
+                              src={attachment.fileUrl}
+                              alt={attachment.fileName}
+                              className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                              onClick={() => window.open(attachment.fileUrl, '_blank')}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 truncate">{attachment.fileName}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">ไม่มีรูปภาพ</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Implementation Summary */}
+            {selectedDefect?.correctiveAction && (
+              <div className="space-y-2 p-4 rounded-lg border bg-muted/50">
+                <h4 className="font-semibold text-sm">การดำเนินการแก้ไข</h4>
+                <p className="text-sm text-muted-foreground">{selectedDefect.correctiveAction}</p>
+                {selectedDefect.preventiveAction && (
+                  <>
+                    <h4 className="font-semibold text-sm mt-3">การป้องกัน</h4>
+                    <p className="text-sm text-muted-foreground">{selectedDefect.preventiveAction}</p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Verification Comment */}
+            <div className="space-y-2">
+              <Label htmlFor="verificationComment" className="text-sm font-semibold">
+                ความคิดเห็นจากการตรวจสอบ (Optional)
+              </Label>
+              <Textarea
+                id="verificationComment"
+                placeholder="บันทึกข้อสังเกตหรือความคิดเห็นเพิ่มเติม..."
+                value={verificationComment}
+                onChange={(e) => setVerificationComment(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowVerificationForm(false);
+                  setVerificationComment("");
+                }}
+                className="flex-1"
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!selectedDefect) return;
+                  try {
+                    await updateDefectMutation.mutateAsync({
+                      id: selectedDefect.id,
+                      status: "action_plan" as any,
+                      verificationComment: verificationComment || undefined,
+                    });
+                    toast.success("ไม่อนุมัติ - ส่งกลับไปแก้ไขใหม่");
+                    setShowVerificationForm(false);
+                    setSelectedDefect(null);
+                    setVerificationComment("");
+                    openDefectsQuery.refetch();
+                  } catch (error) {
+                    toast.error("เกิดข้อผิดพลาด");
+                  }
+                }}
+                disabled={updateDefectMutation.isPending}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                {updateDefectMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  "ไม่อนุมัติ (Reject)"
+                )}
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!selectedDefect) return;
+                  try {
+                    await updateDefectMutation.mutateAsync({
+                      id: selectedDefect.id,
+                      status: "effectiveness_check" as any,
+                      verificationComment: verificationComment || undefined,
+                    });
+                    toast.success("อนุมัติสำเร็จ - ไปยังขั้นตอน Effectiveness Check");
+                    setShowVerificationForm(false);
+                    setSelectedDefect(null);
+                    setVerificationComment("");
+                    openDefectsQuery.refetch();
+                  } catch (error) {
+                    toast.error("เกิดข้อผิดพลาด");
+                  }
+                }}
+                disabled={updateDefectMutation.isPending}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {updateDefectMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  "อนุมัติ (Approve)"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Effectiveness Check Form Dialog */}
+      <Dialog open={showEffectivenessForm} onOpenChange={setShowEffectivenessForm}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              Effectiveness Check - {selectedDefect?.type}
+            </DialogTitle>
+            <DialogDescription>
+              ตรวจสอบประสิทธิผลของการแก้ไข: {selectedDefect?.title}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Summary */}
+            <div className="space-y-4 p-4 rounded-lg border bg-muted/50">
+              <div>
+                <h4 className="font-semibold text-sm mb-2">การดำเนินการแก้ไข</h4>
+                <p className="text-sm text-muted-foreground">{selectedDefect?.correctiveAction}</p>
+              </div>
+              {selectedDefect?.preventiveAction && (
+                <div>
+                  <h4 className="font-semibold text-sm mb-2">การป้องกัน</h4>
+                  <p className="text-sm text-muted-foreground">{selectedDefect.preventiveAction}</p>
+                </div>
+              )}
+              {selectedDefect?.verificationComment && (
+                <div>
+                  <h4 className="font-semibold text-sm mb-2">ผลการตรวจสอบ</h4>
+                  <p className="text-sm text-muted-foreground">{selectedDefect.verificationComment}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Effectiveness Question */}
+            <div className="space-y-3 p-5 rounded-lg border-2 border-primary/20 bg-primary/5">
+              <h3 className="font-semibold text-base">
+                คำถามสำคัญ: การแก้ไขมีประสิทธิผลหรือไม่?
+              </h3>
+              <ul className="space-y-2 text-sm text-muted-foreground ml-4">
+                <li>• ปัญหาได้รับการแก้ไขอย่างถาวรหรือไม่?</li>
+                <li>• มาตรการป้องกันสามารถป้องกันปัญหาซ้ำได้หรือไม่?</li>
+                <li>• มีความเสี่ยงที่ปัญหาจะเกิดขึ้นอีกหรือไม่?</li>
+                <li>• ผลลัพธ์ตรงตามเป้าหมายที่กำหนดไว้หรือไม่?</li>
+              </ul>
+            </div>
+
+            {/* Comment */}
+            <div className="space-y-2">
+              <Label htmlFor="effectivenessComment" className="text-sm font-semibold">
+                ความคิดเห็นและข้อสังเกต
+              </Label>
+              <Textarea
+                id="effectivenessComment"
+                placeholder="บันทึกผลการตรวจสอบประสิทธิผล ข้อสังเกต และคำแนะนำ..."
+                value={effectivenessComment}
+                onChange={(e) => setEffectivenessComment(e.target.value)}
+                rows={4}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEffectivenessForm(false);
+                  setEffectivenessComment("");
+                }}
+                className="flex-1"
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!selectedDefect) return;
+                  try {
+                    await updateDefectMutation.mutateAsync({
+                      id: selectedDefect.id,
+                      status: "action_plan" as any,
+                      effectivenessComment: effectivenessComment || undefined,
+                    });
+                    toast.success("ไม่มีประสิทธิผล - ส่งกลับไปแก้ไขใหม่");
+                    setShowEffectivenessForm(false);
+                    setSelectedDefect(null);
+                    setEffectivenessComment("");
+                    openDefectsQuery.refetch();
+                  } catch (error) {
+                    toast.error("เกิดข้อผิดพลาด");
+                  }
+                }}
+                disabled={updateDefectMutation.isPending}
+                className="flex-1 bg-orange-600 hover:bg-orange-700"
+              >
+                {updateDefectMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  "ไม่มีประสิทธิผล (Not Effective)"
+                )}
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!selectedDefect) return;
+                  try {
+                    await updateDefectMutation.mutateAsync({
+                      id: selectedDefect.id,
+                      status: "closed" as any,
+                      effectivenessComment: effectivenessComment || undefined,
+                    });
+                    toast.success("มีประสิทธิผล - ปิด CAR/NCR สำเร็จ");
+                    setShowEffectivenessForm(false);
+                    setSelectedDefect(null);
+                    setEffectivenessComment("");
+                    openDefectsQuery.refetch();
+                  } catch (error) {
+                    toast.error("เกิดข้อผิดพลาด");
+                  }
+                }}
+                disabled={updateDefectMutation.isPending}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {updateDefectMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  "มีประสิทธิผล - ปิด CAR/NCR (Effective)"
                 )}
               </Button>
             </div>

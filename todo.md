@@ -586,12 +586,13 @@
 - [x] Add validation and error handling for After photos upload
 
 ## Phase 6: Verification and Effectiveness Check Forms
-- [ ] Create Verification Dialog component
-- [ ] Add Approve/Reject options in Verification form
-- [ ] Display Before/After photos side-by-side for comparison
-- [ ] Add verification comment field
-- [ ] Update defect status based on verification result (approved → effectiveness_check, rejected → action_plan)
-- [ ] Create Effectiveness Check Dialog component
-- [ ] Add Effective/Not Effective options
-- [ ] Implement final closure or re-opening logic
-- [ ] Add workflow transition buttons in Defects page
+- [x] Create Verification Dialog component
+- [x] Add Approve/Reject options in Verification form
+- [x] Display Before/After photos side-by-side for comparison
+- [x] Add verification comment field
+- [x] Update defect status based on verification result (approved → effectiveness_check, rejected → action_plan)
+- [x] Create Effectiveness Check Dialog component
+- [x] Add Effective/Not Effective options
+- [x] Implement final closure or re-opening logic
+- [x] Add workflow transition buttons in Defects page
+- [x] Test complete workflow from creation to closure
