@@ -108,7 +108,7 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
               <Label htmlFor="category">หมวดหมู่ *</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="เลือกหมวดหมู่" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="preparation">งานเตรียมงาน</SelectItem>

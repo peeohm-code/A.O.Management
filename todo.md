@@ -421,3 +421,6 @@
 - [x] Add confirmation dialog before delete
 - [x] Integrate with task.delete tRPC mutation
 - [ ] Test deleting task
+
+## Bug: Category Display Issue
+- [x] แก้ไข bug: สร้างงานใหม่เลือกหมวดหมู่ "งานเตรียมงาน" แต่ใน Gantt Chart แสดงเป็น "งานอื่นๆ"
