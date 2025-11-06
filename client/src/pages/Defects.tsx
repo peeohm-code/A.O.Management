@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -29,9 +29,20 @@ export default function Defects() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [resolutionComment, setResolutionComment] = useState("");
+  
+  // RCA & Action Plan states
+  const [showRCAForm, setShowRCAForm] = useState(false);
+  const [showActionPlanForm, setShowActionPlanForm] = useState(false);
+  const [rootCause, setRootCause] = useState("");
+  const [analysisMethod, setAnalysisMethod] = useState("5_whys");
+  const [correctiveAction, setCorrectiveAction] = useState("");
+  const [preventiveAction, setPreventiveAction] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [assignedTo, setAssignedTo] = useState<number | null>(null);
 
   const openDefectsQuery = trpc.defect.openDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
+  const usersQuery = trpc.user.list.useQuery();
 
   const defects = openDefectsQuery.data || [];
 
@@ -93,6 +104,59 @@ export default function Defects() {
       openDefectsQuery.refetch();
     } catch (error) {
       toast.error("Failed to update defect");
+    }
+  };
+
+  const handleSaveRCA = async () => {
+    if (!selectedDefect || !rootCause.trim()) {
+      toast.error("Please fill in root cause");
+      return;
+    }
+
+    try {
+      await updateDefectMutation.mutateAsync({
+        id: selectedDefect.id,
+        rootCause,
+        status: "action_plan" as any,
+      });
+
+      toast.success("RCA saved successfully");
+      setShowRCAForm(false);
+      setShowActionPlanForm(true);
+      openDefectsQuery.refetch();
+    } catch (error) {
+      toast.error("Failed to save RCA");
+    }
+  };
+
+  const handleSaveActionPlan = async () => {
+    if (!selectedDefect || !correctiveAction.trim()) {
+      toast.error("Please fill in corrective action");
+      return;
+    }
+
+    try {
+      await updateDefectMutation.mutateAsync({
+        id: selectedDefect.id,
+        correctiveAction,
+        preventiveAction: preventiveAction || undefined,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
+        assignedTo: assignedTo || undefined,
+        status: "assigned" as any,
+      });
+
+      toast.success("Action Plan saved successfully");
+      setShowActionPlanForm(false);
+      setSelectedDefect(null);
+      // Reset form
+      setRootCause("");
+      setCorrectiveAction("");
+      setPreventiveAction("");
+      setDueDate("");
+      setAssignedTo(null);
+      openDefectsQuery.refetch();
+    } catch (error) {
+      toast.error("Failed to save Action Plan");
     }
   };
 
@@ -205,27 +269,48 @@ export default function Defects() {
       </div>
 
       {/* Defect Detail Dialog */}
-      <Dialog open={!!selectedDefect} onOpenChange={(open) => !open && setSelectedDefect(null)}>
-        <DialogContent className="max-w-md">
+      <Dialog open={!!selectedDefect && !showRCAForm && !showActionPlanForm} onOpenChange={(open) => !open && setSelectedDefect(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Defect Details</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-orange-600" />
+              {selectedDefect?.type || 'Defect'} Details
+            </DialogTitle>
             <DialogDescription>{selectedDefect?.title}</DialogDescription>
           </DialogHeader>
 
           {selectedDefect && (
             <div className="space-y-4">
-              <div>
-                <Label className="text-xs font-semibold">Severity</Label>
-                <Badge className={`${getSeverityColor(selectedDefect.severity)} mt-1`}>
-                  {selectedDefect.severity.toUpperCase()}
-                </Badge>
-              </div>
+              {/* Type Badge */}
+              {selectedDefect.type && (
+                <div>
+                  <Label className="text-xs font-semibold">Type</Label>
+                  <div className="mt-1">
+                    <Badge className={selectedDefect.type === 'CAR' ? 'bg-yellow-100 text-yellow-800' : selectedDefect.type === 'PAR' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}>
+                      {selectedDefect.type}
+                    </Badge>
+                  </div>
+                </div>
+              )}
 
-              <div>
-                <Label className="text-xs font-semibold">Status</Label>
-                <Badge className={`${getStatusColor(selectedDefect.status)} mt-1`}>
-                  {selectedDefect.status.replace(/_/g, " ").toUpperCase()}
-                </Badge>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs font-semibold">Severity</Label>
+                  <div className="mt-1">
+                    <Badge className={`${getSeverityColor(selectedDefect.severity)}`}>
+                      {selectedDefect.severity.toUpperCase()}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs font-semibold">Status</Label>
+                  <div className="mt-1">
+                    <Badge className={`${getStatusColor(selectedDefect.status)}`}>
+                      {selectedDefect.status.replace(/_/g, " ").toUpperCase()}
+                    </Badge>
+                  </div>
+                </div>
               </div>
 
               {selectedDefect.description && (
@@ -235,22 +320,50 @@ export default function Defects() {
                 </div>
               )}
 
-              <div>
-                <Label htmlFor="resolution" className="text-xs font-semibold">
-                  Resolution Comment
-                </Label>
-                <Textarea
-                  id="resolution"
-                  placeholder="Add resolution details..."
-                  value={resolutionComment}
-                  onChange={(e) => setResolutionComment(e.target.value)}
-                  className="text-sm mt-1"
-                  rows={3}
-                />
-              </div>
+              {/* Show RCA if exists */}
+              {selectedDefect.rootCause && (
+                <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                  <Label className="text-xs font-semibold text-blue-900">Root Cause Analysis</Label>
+                  <p className="text-sm text-blue-800 mt-1">{selectedDefect.rootCause}</p>
+                </div>
+              )}
 
+              {/* Show Action Plan if exists */}
+              {selectedDefect.correctiveAction && (
+                <div className="bg-green-50 p-3 rounded-md border border-green-200">
+                  <Label className="text-xs font-semibold text-green-900">Corrective Action</Label>
+                  <p className="text-sm text-green-800 mt-1">{selectedDefect.correctiveAction}</p>
+                  {selectedDefect.preventiveAction && (
+                    <>
+                      <Label className="text-xs font-semibold text-green-900 mt-2 block">Preventive Action</Label>
+                      <p className="text-sm text-green-800 mt-1">{selectedDefect.preventiveAction}</p>
+                    </>
+                  )}
+                  {selectedDefect.dueDate && (
+                    <p className="text-xs text-green-700 mt-2">Due: {new Date(selectedDefect.dueDate).toLocaleDateString()}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons based on status */}
               <div className="flex gap-2">
-                {selectedDefect.status === "open" && (
+                {selectedDefect.status === "reported" && (
+                  <Button
+                    onClick={() => setShowRCAForm(true)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    Analyze Root Cause
+                  </Button>
+                )}
+                {selectedDefect.status === "action_plan" && !selectedDefect.correctiveAction && (
+                  <Button
+                    onClick={() => setShowActionPlanForm(true)}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                  >
+                    Create Action Plan
+                  </Button>
+                )}
+                {selectedDefect.status === "assigned" && (
                   <Button
                     onClick={() => handleUpdateDefect("in_progress")}
                     disabled={updateDefectMutation.isPending}
@@ -261,25 +374,214 @@ export default function Defects() {
                 )}
                 {selectedDefect.status === "in_progress" && (
                   <Button
-                    onClick={() => handleUpdateDefect("resolved")}
+                    onClick={() => handleUpdateDefect("implemented")}
                     disabled={updateDefectMutation.isPending}
                     className="flex-1"
                   >
-                    Mark Resolved
+                    Mark Implemented
                   </Button>
                 )}
-                {selectedDefect.status === "resolved" && (
+                {selectedDefect.status === "implemented" && (
                   <Button
-                    onClick={() => handleUpdateDefect("verified")}
+                    onClick={() => handleUpdateDefect("verification")}
                     disabled={updateDefectMutation.isPending}
                     className="flex-1"
                   >
-                    Verify
+                    Request Verification
+                  </Button>
+                )}
+                {selectedDefect.status === "verification" && (
+                  <Button
+                    onClick={() => handleUpdateDefect("effectiveness_check")}
+                    disabled={updateDefectMutation.isPending}
+                    className="flex-1"
+                  >
+                    Verify & Check Effectiveness
+                  </Button>
+                )}
+                {selectedDefect.status === "effectiveness_check" && (
+                  <Button
+                    onClick={() => handleUpdateDefect("closed")}
+                    disabled={updateDefectMutation.isPending}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                  >
+                    Close CAR/NCR
                   </Button>
                 )}
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* RCA Form Dialog */}
+      <Dialog open={showRCAForm} onOpenChange={setShowRCAForm}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Search className="w-5 h-5 text-blue-600" />
+              Root Cause Analysis
+            </DialogTitle>
+            <DialogDescription>
+              Analyze the root cause of: {selectedDefect?.title}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="analysisMethod" className="text-sm font-semibold">
+                Analysis Method
+              </Label>
+              <Select value={analysisMethod} onValueChange={setAnalysisMethod}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5_whys">5 Whys</SelectItem>
+                  <SelectItem value="fishbone">Fishbone Diagram</SelectItem>
+                  <SelectItem value="pareto">Pareto Analysis</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="rootCause" className="text-sm font-semibold">
+                Root Cause <span className="text-red-500">*</span>
+              </Label>
+              <p className="text-xs text-gray-500 mt-1">
+                Identify the fundamental reason why the problem occurred
+              </p>
+              <Textarea
+                id="rootCause"
+                placeholder="Example: Inadequate training on proper concrete mixing ratios led to incorrect water-cement ratio..."
+                value={rootCause}
+                onChange={(e) => setRootCause(e.target.value)}
+                className="mt-2"
+                rows={6}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowRCAForm(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveRCA}
+                disabled={!rootCause.trim() || updateDefectMutation.isPending}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {updateDefectMutation.isPending ? "Saving..." : "Save RCA & Continue"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Action Plan Form Dialog */}
+      <Dialog open={showActionPlanForm} onOpenChange={setShowActionPlanForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              Create Action Plan
+            </DialogTitle>
+            <DialogDescription>
+              Define corrective and preventive actions for: {selectedDefect?.title}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="correctiveAction" className="text-sm font-semibold">
+                Corrective Action <span className="text-red-500">*</span>
+              </Label>
+              <p className="text-xs text-gray-500 mt-1">
+                Actions to fix the current problem
+              </p>
+              <Textarea
+                id="correctiveAction"
+                placeholder="Example: Re-pour affected concrete sections, provide immediate training to workers on proper mixing procedures..."
+                value={correctiveAction}
+                onChange={(e) => setCorrectiveAction(e.target.value)}
+                className="mt-2"
+                rows={4}
+              />
+            </div>
+
+            {(selectedDefect?.type === 'PAR' || selectedDefect?.type === 'NCR') && (
+              <div>
+                <Label htmlFor="preventiveAction" className="text-sm font-semibold">
+                  Preventive Action
+                </Label>
+                <p className="text-xs text-gray-500 mt-1">
+                  Actions to prevent recurrence in the future
+                </p>
+                <Textarea
+                  id="preventiveAction"
+                  placeholder="Example: Implement mandatory concrete mixing training for all workers, install visual guides at mixing stations, conduct weekly spot checks..."
+                  value={preventiveAction}
+                  onChange={(e) => setPreventiveAction(e.target.value)}
+                  className="mt-2"
+                  rows={4}
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="dueDate" className="text-sm font-semibold">
+                  Due Date
+                </Label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="assignedTo" className="text-sm font-semibold">
+                  Assign To
+                </Label>
+                <Select value={assignedTo?.toString() || ""} onValueChange={(v) => setAssignedTo(parseInt(v))}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {usersQuery.data?.map((user: any) => (
+                      <SelectItem key={user.id} value={user.id.toString()}>
+                        {user.name || user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowActionPlanForm(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveActionPlan}
+                disabled={!correctiveAction.trim() || updateDefectMutation.isPending}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {updateDefectMutation.isPending ? "Saving..." : "Save Action Plan"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -503,3 +503,31 @@
 - [x] เปลี่ยน default status filter จาก "Open" เป็น "All Status"
 - [x] ทดสอบว่า CAR ที่สร้างใหม่แสดงทันทีโดยไม่ต้องเปลี่ยน filter
 - [x] บันทึก checkpoint
+
+## พัฒนาฟอร์ม RCA และ Action Plan
+- [ ] ออกแบบ UI/UX ฟอร์ม RCA (Root Cause Analysis)
+- [ ] ออกแบบ UI/UX ฟอร์ม Action Plan (Corrective/Preventive Action)
+- [ ] เพิ่มปุ่ม "Add RCA" ในการ์ด CAR/NCR/PAR ที่มีสถานะ 'reported'
+- [ ] สร้าง Dialog ฟอร์ม RCA พร้อมฟิลด์:
+  - Root Cause (สาเหตุราก) - Textarea
+  - Analysis Method (วิธีวิเคราะห์: 5 Whys, Fishbone, etc.)
+  - Supporting Evidence (หลักฐานประกอบ)
+- [ ] เพิ่มปุ่ม "Create Action Plan" หลังกรอก RCA เสร็จ
+- [ ] สร้าง Dialog ฟอร์ม Action Plan พร้อมฟิลด์:
+  - Corrective Action (การแก้ไข) - Textarea
+  - Preventive Action (การป้องกัน) - Textarea (สำหรับ PAR/NCR)
+  - Due Date (กำหนดเสร็จ) - Date picker
+  - Assigned To (ผู้รับผิดชอบ) - User dropdown
+- [ ] เชื่อมต่อกับ defect.update API
+- [ ] เพิ่มปุ่มเปลี่ยนสถานะ workflow:
+  - reported → rca_pending
+  - rca_pending → action_plan (หลังกรอก RCA)
+  - action_plan → assigned (หลังกรอก Action Plan)
+  - assigned → in_progress
+  - in_progress → implemented
+  - implemented → verification
+  - verification → effectiveness_check
+  - effectiveness_check → closed
+- [ ] แสดง workflow timeline/progress bar
+- [ ] ทดสอบ workflow ทั้งหมด
+- [ ] บันทึก checkpoint
