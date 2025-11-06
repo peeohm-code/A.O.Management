@@ -146,7 +146,7 @@ export default function QCInspection() {
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       pending: "bg-gray-100 text-gray-800",
-      in_progress: "bg-blue-100 text-blue-800",
+
       passed: "bg-green-100 text-green-800",
       failed: "bg-red-100 text-red-800",
     };
@@ -156,7 +156,7 @@ export default function QCInspection() {
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
       pending: "รอการตรวจสอบ",
-      in_progress: "กำลังตรวจสอบ",
+
       passed: "ผ่าน",
       failed: "ไม่ผ่าน",
       not_started: "ยังไม่เริ่ม",
@@ -187,7 +187,7 @@ export default function QCInspection() {
     const labels: Record<string, string> = {
       not_started: "รอการตรวจสอบ",
       pending_inspection: "รอการตรวจสอบ",
-      in_progress: "กำลังตรวจสอบ",
+
       completed: "ผ่าน",
       failed: "ไม่ผ่าน ต้องแก้ไข",
     };
@@ -198,7 +198,7 @@ export default function QCInspection() {
     const colors: Record<string, string> = {
       not_started: "text-gray-500 border-gray-300",
       pending_inspection: "text-gray-500 border-gray-300",
-      in_progress: "text-blue-600 border-blue-300",
+
       completed: "text-green-600 border-green-300",
       failed: "text-red-600 border-red-300",
     };
@@ -216,7 +216,7 @@ export default function QCInspection() {
   return (
     <div className="container py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">QC Inspection</h1>
+        <h1 className="text-3xl font-bold">QC Inspection Overview</h1>
         <p className="text-muted-foreground mt-1">
           ระบบตรวจสอบคุณภาพงานก่อสร้าง
         </p>
