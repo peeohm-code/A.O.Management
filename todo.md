@@ -432,3 +432,4 @@
 - [x] แก้ไข: ปุ่ม "ขออนุมัติตรวจ" ยังไม่แสดงในหน้า Task Detail (ตรวจสอบ status ของ checklist)
 - [x] แก้ไข: Database error - status "pending_inspection" ไม่อยู่ใน enum ของ taskChecklists
 - [x] แก้ไข: โค้ดยังใช้ค่า "passed" ซึ่งไม่มีใน enum แล้ว ต้องเปลี่ยนเป็น "completed"
+- [x] ลบ tabs "Dependencies" และ "ความเห็น" ออกจากหน้า Task Detail

@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
-import { DependenciesTab } from "@/components/DependenciesTab";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -414,18 +414,12 @@ export default function TaskDetail() {
             <CheckSquare className="w-4 h-4 mr-2" />
             Checklists
           </TabsTrigger>
-          <TabsTrigger value="dependencies">
-            <FileText className="w-4 h-4 mr-2" />
-            Dependencies
-          </TabsTrigger>
+
           <TabsTrigger value="attachments">
             <FileText className="w-4 h-4 mr-2" />
             ไฟล์แนบ
           </TabsTrigger>
-          <TabsTrigger value="comments">
-            <MessageSquare className="w-4 h-4 mr-2" />
-            ความเห็น ({comments.length})
-          </TabsTrigger>
+
           <TabsTrigger value="activity">
             <FileText className="w-4 h-4 mr-2" />
             Activity Log ({activities.length})
@@ -435,11 +429,6 @@ export default function TaskDetail() {
         {/* Checklists Tab */}
         <TabsContent value="checklists" className="space-y-4">
           <ChecklistsTab taskId={taskId} />
-        </TabsContent>
-
-        {/* Dependencies Tab */}
-        <TabsContent value="dependencies" className="space-y-4">
-          <DependenciesTab taskId={taskId} projectId={task.projectId} />
         </TabsContent>
 
         {/* Attachments Tab */}
@@ -519,53 +508,6 @@ export default function TaskDetail() {
                           <X className="w-4 h-4 text-red-600" />
                         </Button>
                       )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Comments Tab */}
-        <TabsContent value="comments" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>เพิ่มความเห็น</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="เขียนความเห็น..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                rows={4}
-              />
-              <Button onClick={handleAddComment} disabled={!commentText.trim()}>
-                <MessageSquare className="w-4 h-4 mr-2" />
-                เพิ่มความเห็น
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>ความเห็นทั้งหมด ({comments.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {comments.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">ยังไม่มีความเห็น</p>
-              ) : (
-                <div className="space-y-4">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="border-b pb-4 last:border-b-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="font-semibold text-sm">User #{comment.userId}</span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(comment.createdAt).toLocaleString("th-TH")}
-                        </span>
-                      </div>
-                      <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
                     </div>
                   ))}
                 </div>
