@@ -15,6 +15,7 @@ import TaskDetail from "./pages/TaskDetail";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
 import Home from "./pages/Home";
+import LoginDemo from "./pages/LoginDemo";
 import NewProject from "./pages/NewProject";
 import NewTask from "./pages/NewTask";
 import ChecklistTemplates from "./pages/ChecklistTemplates";
@@ -24,6 +25,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/login-demo"} component={LoginDemo} />
       <Route path={"/tasks/new"}>
         {() => (
           <DashboardLayout>

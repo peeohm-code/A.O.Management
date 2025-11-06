@@ -174,4 +174,50 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Increase touch target sizes for mobile */
+    button,
+    [role="button"],
+    a {
+      min-height: 44px; /* iOS recommended minimum touch target */
+      min-width: 44px;
+    }
+
+    /* Adjust font sizes for mobile readability */
+    h1 {
+      @apply text-2xl;
+    }
+    h2 {
+      @apply text-xl;
+    }
+    h3 {
+      @apply text-lg;
+    }
+
+    /* Make cards stack vertically on mobile */
+    .grid {
+      @apply grid-cols-1;
+    }
+
+    /* Horizontal scrolling for tables */
+    table {
+      @apply block overflow-x-auto;
+    }
+
+    /* Adjust padding for mobile */
+    .card,
+    [class*="Card"] {
+      @apply p-3;
+    }
+
+    /* Increase spacing between interactive elements */
+    .space-y-2 {
+      @apply space-y-3;
+    }
+    .space-x-2 {
+      @apply space-x-3;
+    }
+  }
 }

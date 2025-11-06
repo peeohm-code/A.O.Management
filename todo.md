@@ -741,3 +741,21 @@
 - [ ] Update APP_TITLE and APP_LOGO constants in shared/const.ts
 - [ ] Test logo and title display across all pages
 - [ ] Save checkpoint
+
+## Redesign Login Page with A.O. Construction Branding
+- [ ] Analyze A.O. Construction brand colors (navy blue to teal gradient, green accents)
+- [ ] Update DashboardLayoutSkeleton login UI with brand colors
+- [ ] Add A.O. Construction logo to login page
+- [ ] Update button colors and styling to match brand
+- [ ] Add gradient background or brand-themed design elements
+- [ ] Test login page appearance
+- [ ] Save checkpoint
+
+## Improve Mobile Responsiveness
+- [x] Test all pages on mobile viewport
+- [x] Convert sidebar to mobile drawer (already built-in with shadcn/ui Sidebar)
+- [x] Make tables horizontally scrollable on mobile (added CSS rules)
+- [x] Adjust card layouts for mobile screens (updated grid breakpoints)
+- [x] Increase touch target sizes for mobile (min 44px touch targets)
+- [x] Test on actual mobile devices
+- [ ] Save checkpoint

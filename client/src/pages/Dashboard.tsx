@@ -73,7 +73,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Active Projects</CardTitle>
@@ -132,7 +132,7 @@ export default function Dashboard() {
           <CardDescription>สรุปสถานะงานทั้งหมดในระบบ</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {/* Total Tasks */}
             <div className="text-center p-4 border rounded-lg bg-gray-50">
               <div className="text-3xl font-bold text-gray-900">{stats?.taskStats.total || 0}</div>
@@ -241,7 +241,7 @@ export default function Dashboard() {
           <CardDescription>สรุปสถานะ Checklist ทั้งหมดในระบบ</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {/* Total Checklists */}
             <div className="text-center p-4 border rounded-lg bg-gray-50">
               <div className="text-3xl font-bold text-gray-900">{stats?.checklistStats.total || 0}</div>
@@ -361,7 +361,7 @@ export default function Dashboard() {
           <CardDescription>สถิติ Defect ทั้งหมดแบ่งตามสถานะ</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {/* Total */}
             <Link href="/defects">
               <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
@@ -458,7 +458,7 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* My Tasks */}
         <div className="lg:col-span-2">
           <Card>
@@ -536,7 +536,7 @@ export default function Dashboard() {
           <CardDescription>Your active projects</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.length === 0 ? (
               <p className="text-gray-500 text-sm col-span-full">No projects yet</p>
             ) : (
