@@ -228,52 +228,22 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                             {checklist.items?.length || 0} รายการ
                           </span>
                         </div>
-                        {/* Status Dropdown - Only show for not_started and pending_inspection */}
-                        {(checklist.status === "not_started" || checklist.status === "pending_inspection") && (
+                        {/* Request Inspection Button - Only show for not_started */}
+                        {checklist.status === "not_started" && (
                           <div className="mt-2">
-                            {editingStatusId === checklist.id ? (
-                              <div className="flex gap-2">
-                                <Select value={newStatus} onValueChange={setNewStatus}>
-                                  <SelectTrigger className="h-8 text-sm">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
-                                    <SelectItem value="pending_inspection">รอการตรวจสอบ</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    updateStatusMutation.mutate({
-                                      id: checklist.id,
-                                      status: newStatus as any,
-                                    });
-                                  }}
-                                  disabled={updateStatusMutation.isPending}
-                                >
-                                  บันทึก
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEditingStatusId(null)}
-                                >
-                                  ยกเลิก
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setEditingStatusId(checklist.id);
-                                  setNewStatus(checklist.status);
-                                }}
-                              >
-                                เปลี่ยนสถานะ
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => {
+                                updateStatusMutation.mutate({
+                                  id: checklist.id,
+                                  status: "pending_inspection" as any,
+                                });
+                              }}
+                              disabled={updateStatusMutation.isPending}
+                            >
+                              {updateStatusMutation.isPending ? "กำลังส่ง..." : "ขออนุมัติตรวจ"}
+                            </Button>
                           </div>
                         )}
                       </div>
