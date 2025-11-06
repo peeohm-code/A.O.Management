@@ -733,3 +733,11 @@
 - [x] Update filter to show only overdue defects when clicked
 - [x] Test overdue filter functionality
 - [ ] Save checkpoint
+
+## Change Logo and App Name to A.O. Construction
+- [ ] Copy A.O. Construction logo to public folder
+- [ ] Update VITE_APP_LOGO environment variable
+- [ ] Update VITE_APP_TITLE to "A.O.\nCM & QC"
+- [ ] Update APP_TITLE and APP_LOGO constants in shared/const.ts
+- [ ] Test logo and title display across all pages
+- [ ] Save checkpoint
