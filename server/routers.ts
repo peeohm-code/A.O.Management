@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { canEditDefect, canDeleteDefect } from "@shared/permissions";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
@@ -668,7 +669,7 @@ const defectRouter = router({
     }),
 
   // Create new CAR/PAR/NCR
-  create: protectedProcedure
+  create: roleBasedProcedure('defects', 'create')
     .input(
       z.object({
         taskId: z.number(),
@@ -730,6 +731,14 @@ const defectRouter = router({
       const { id, ...updateData } = input;
       const defect = await db.getDefectById(id);
       if (!defect) throw new Error("Defect not found");
+      
+      // Check edit permission
+      if (!canEditDefect(ctx.user.role, ctx.user.id, defect)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'คุณไม่มีสิทธิ์แก้ไข defect นี้',
+        });
+      }
 
       const result = await db.updateDefect(id, {
         ...updateData,
@@ -799,6 +808,22 @@ const defectRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       await db.deleteDefectAttachment(input.id);
+      return { success: true };
+    }),
+
+  // Delete defect (Owner, Admin, PM only)
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      // Check delete permission
+      if (!canDeleteDefect(ctx.user.role)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้',
+        });
+      }
+      
+      await db.deleteDefect(input.id);
       return { success: true };
     }),
 

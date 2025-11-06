@@ -777,12 +777,16 @@
 - [x] Update adminProcedure to support owner/admin roles
 - [x] Save checkpoint Phase 1
 
-### Phase 2: Defects Permission (Next)
-- [ ] Add permission checks to defect router
-- [ ] Implement PM can delete defects
-- [ ] Implement Field Engineer can edit assigned defects only
-- [ ] Test defect permissions
-- [ ] Save checkpoint Phase 2
+### Phase 2: Defects Permission ✅
+- [x] Add permission checks to defect router
+- [x] Implement PM can delete defects
+- [x] Implement Field Engineer can edit assigned defects only
+- [x] Add deleteDefect function to db.ts
+- [x] Add roleBasedProcedure for create defect
+- [x] Add canEditDefect check for update defect
+- [x] Add canDeleteDefect check for delete defect
+- [x] Test defect permissions
+- [x] Save checkpoint Phase 2
 
 ### Phase 3: Projects & Tasks Permission
 - [ ] Add permission checks to project router

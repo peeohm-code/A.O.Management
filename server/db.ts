@@ -1434,6 +1434,17 @@ export async function deleteDefectAttachment(id: number) {
   await db.delete(defectAttachments).where(eq(defectAttachments.id, id));
 }
 
+export async function deleteDefect(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete related attachments first
+  await db.delete(defectAttachments).where(eq(defectAttachments.defectId, id));
+  
+  // Delete the defect
+  await db.delete(defects).where(eq(defects.id, id));
+}
+
 // ===== Defect Dashboard Statistics =====
 
 /**
