@@ -474,7 +474,7 @@ export default function Defects() {
                     disabled={updateDefectMutation.isPending}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                   >
-                    Effectiveness Check
+                    ตรวจสอบประสิทธิผล
                   </Button>
                 )}
               </div>

@@ -638,3 +638,13 @@
 - [x] Find all remaining references to openDefectsQuery in Defects.tsx (8 occurrences)
 - [x] Replace with allDefectsQuery
 - [x] Test that the page loads without errors
+
+## Workflow Verification and Fixes
+- [x] Check all workflow buttons in Defects page
+- [x] Verify "เริ่มดำเนินการ" button shows for status=assigned (after Action Plan)
+- [x] Verify "แก้ไขเสร็จแล้ว" button shows for status=in_progress
+- [x] Verify "ขอตรวจสอบ" button shows for status=implemented
+- [x] Verify "ตรวจสอบผลการแก้ไข" button shows for status=verification
+- [x] Verify "ตรวจสอบประสิทธิผล" button shows for status=effectiveness_check
+- [x] Translate "Effectiveness Check" button to Thai
+- [x] Confirm complete workflow: reported → action_plan → assigned → in_progress → implemented → verification → effectiveness_check → closed
