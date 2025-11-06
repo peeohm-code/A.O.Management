@@ -220,6 +220,7 @@ const taskRouter = router({
         id: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
+        category: z.string().optional(),
         status: z
           .enum([
             "todo",
@@ -231,7 +232,10 @@ const taskRouter = router({
             "completed",
           ])
           .optional(),
+        priority: z.enum(["low", "medium", "high", "critical"]).optional(),
         progress: z.number().min(0).max(100).optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
         assigneeId: z.number().optional(),
       })
     )

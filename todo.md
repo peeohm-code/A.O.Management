@@ -402,3 +402,22 @@
 - [x] Delete "งานเตรียมงาน" task from database
 - [x] Verify 5-category system is working (preparation, structure, architecture, mep, other)
 - [x] Test Gantt Chart displays all categories correctly
+
+## Update Default Category Colors
+- [x] Update database default colors (preparation=green, structure=blue, architecture=yellow, mep=red, other=gray)
+- [x] Update getCategoryColor fallback colors in GanttChart.tsx
+- [ ] Test all categories display correct colors
+- [ ] Verify progress bars use correct colors
+
+## Edit Task Feature
+- [x] Create EditTaskDialog component
+- [x] Add click handler to task rows
+- [x] Populate dialog with existing task data
+- [x] Update task.update tRPC mutation to support all fields
+- [ ] Test editing task details
+
+## Delete Task Feature
+- [x] Add delete button to EditTaskDialog
+- [x] Add confirmation dialog before delete
+- [x] Integrate with task.delete tRPC mutation
+- [ ] Test deleting task

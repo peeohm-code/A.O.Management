@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { EditTaskDialog } from "@/components/EditTaskDialog";
 import {
   DndContext,
   closestCenter,
@@ -153,6 +154,9 @@ function SortableGroupRow({
 type ViewMode = 'daily' | 'weekly' | 'monthly';
 
 export default function GanttChart({ tasks, projectId }: GanttChartProps) {
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   // Fetch category colors from database
   const { data: categoryColors = [] } = trpc.categoryColor.getByProject.useQuery(
     { projectId: projectId || 0 },
@@ -440,7 +444,15 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                       <tr key={task.id} className="border-b hover:bg-gray-50">
                         <td className="p-2 sticky left-0 bg-white">
                           <div className="pl-8">
-                            <div className="font-medium">{task.name}</div>
+                            <div 
+                              className="font-medium cursor-pointer hover:text-blue-600" 
+                              onClick={() => {
+                                setEditingTask(task);
+                                setIsEditDialogOpen(true);
+                              }}
+                            >
+                              {task.name}
+                            </div>
                             <Badge
                               variant="outline"
                               style={{
@@ -587,6 +599,16 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
           ลากและวางเพื่อจัดเรียงหมวดหมู่ใหม่
         </div>
       </div>
+
+      {/* Edit Task Dialog */}
+      {editingTask && projectId && (
+        <EditTaskDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          task={editingTask}
+          projectId={projectId}
+        />
+      )}
     </div>
   );
 }
@@ -601,14 +623,13 @@ function getCategoryLabel(category: string): string {
   };
   return categoryLabels[category] || category;
 }
-
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
     preparation: "#10B981", // green
     structure: "#3B82F6", // blue
-    architecture: "#8B5CF6", // purple
-    mep: "#F59E0B", // amber
+    architecture: "#EAB308", // yellow
+    mep: "#EF4444", // red
     other: "#6B7280", // gray
   };
-  return colors[category] || "#6b7280";
+  return colors[category] || "#9CA3AF";
 }
