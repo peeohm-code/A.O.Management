@@ -1443,15 +1443,20 @@ export async function getDefectStatsByStatus() {
   const db = await getDb();
   if (!db) return [];
   
-  const result = await db
-    .select({
-      status: defects.status,
-      count: sql<number>`COUNT(*)`.as('count')
-    })
-    .from(defects)
-    .groupBy(defects.status);
-  
-  return result;
+  try {
+    const result = await db
+      .select({
+        status: defects.status,
+        count: sql<number>`COUNT(*)`.as('count')
+      })
+      .from(defects)
+      .groupBy(defects.status);
+    
+    return Array.isArray(result) ? result : [];
+  } catch (error) {
+    console.error('[getDefectStatsByStatus] Error:', error);
+    return [];
+  }
 }
 
 /**
@@ -1461,15 +1466,20 @@ export async function getDefectStatsByType() {
   const db = await getDb();
   if (!db) return [];
   
-  const result = await db
-    .select({
-      type: defects.type,
-      count: sql<number>`COUNT(*)`.as('count')
-    })
-    .from(defects)
-    .groupBy(defects.type);
-  
-  return result;
+  try {
+    const result = await db
+      .select({
+        type: defects.type,
+        count: sql<number>`COUNT(*)`.as('count')
+      })
+      .from(defects)
+      .groupBy(defects.type);
+    
+    return Array.isArray(result) ? result : [];
+  } catch (error) {
+    console.error('[getDefectStatsByType] Error:', error);
+    return [];
+  }
 }
 
 /**
@@ -1479,15 +1489,20 @@ export async function getDefectStatsByPriority() {
   const db = await getDb();
   if (!db) return [];
   
-  const result = await db
-    .select({
-      priority: defects.priority,
-      count: sql<number>`COUNT(*)`.as('count')
-    })
-    .from(defects)
-    .groupBy(defects.priority);
-  
-  return result;
+  try {
+    const result = await db
+      .select({
+        priority: defects.priority,
+        count: sql<number>`COUNT(*)`.as('count')
+      })
+      .from(defects)
+      .groupBy(defects.priority);
+    
+    return Array.isArray(result) ? result : [];
+  } catch (error) {
+    console.error('[getDefectStatsByPriority] Error:', error);
+    return [];
+  }
 }
 
 /**
@@ -1503,43 +1518,54 @@ export async function getDefectMetrics() {
     overdue: 0
   };
   
-  const [totalResult] = await db
-    .select({ count: sql<number>`COUNT(*)`.as('count') })
-    .from(defects);
-  
-  const [openResult] = await db
-    .select({ count: sql<number>`COUNT(*)`.as('count') })
-    .from(defects)
-    .where(sql`${defects.status} IN ('reported', 'action_plan', 'assigned', 'in_progress', 'implemented')`);
-  
-  const [closedResult] = await db
-    .select({ count: sql<number>`COUNT(*)`.as('count') })
-    .from(defects)
-    .where(eq(defects.status, 'closed'));
-  
-  const [verificationResult] = await db
-    .select({ count: sql<number>`COUNT(*)`.as('count') })
-    .from(defects)
-    .where(eq(defects.status, 'verification'));
-  
-  const [overdueResult] = await db
-    .select({ count: sql<number>`COUNT(*)`.as('count') })
-    .from(defects)
-    .where(
-      and(
-        sql`${defects.dueDate} IS NOT NULL`,
-        sql`${defects.dueDate} < NOW()`,
-        sql`${defects.status} != 'closed'`
-      )
-    );
-  
-  return {
-    total: totalResult?.count || 0,
-    open: openResult?.count || 0,
-    closed: closedResult?.count || 0,
-    pendingVerification: verificationResult?.count || 0,
-    overdue: overdueResult?.count || 0
-  };
+  try {
+    const [totalResult] = await db
+      .select({ count: sql<number>`COUNT(*)`.as('count') })
+      .from(defects);
+    
+    const [openResult] = await db
+      .select({ count: sql<number>`COUNT(*)`.as('count') })
+      .from(defects)
+      .where(sql`${defects.status} IN ('reported', 'action_plan', 'assigned', 'in_progress', 'implemented')`);
+    
+    const [closedResult] = await db
+      .select({ count: sql<number>`COUNT(*)`.as('count') })
+      .from(defects)
+      .where(eq(defects.status, 'closed'));
+    
+    const [verificationResult] = await db
+      .select({ count: sql<number>`COUNT(*)`.as('count') })
+      .from(defects)
+      .where(eq(defects.status, 'verification'));
+    
+    const [overdueResult] = await db
+      .select({ count: sql<number>`COUNT(*)`.as('count') })
+      .from(defects)
+      .where(
+        and(
+          sql`${defects.dueDate} IS NOT NULL`,
+          sql`${defects.dueDate} < NOW()`,
+          sql`${defects.status} != 'closed'`
+        )
+      );
+    
+    return {
+      total: totalResult?.count || 0,
+      open: openResult?.count || 0,
+      closed: closedResult?.count || 0,
+      pendingVerification: verificationResult?.count || 0,
+      overdue: overdueResult?.count || 0
+    };
+  } catch (error) {
+    console.error('[getDefectMetrics] Error:', error);
+    return {
+      total: 0,
+      open: 0,
+      closed: 0,
+      pendingVerification: 0,
+      overdue: 0
+    };
+  }
 }
 
 /**

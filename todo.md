@@ -719,3 +719,10 @@
 - [x] Ensure consistent styling with other overview sections
 - [x] Test defect metrics display correctly
 - [ ] Save checkpoint
+
+## Fix Defects Page Error "Cannot convert undefined or null to object"
+- [x] Check defect queries and data handling
+- [x] Add error handling to defect router procedures
+- [x] Add null checks to Defects page component
+- [x] Test defects page functionality
+- [ ] Save checkpoint

@@ -651,7 +651,13 @@ const defectRouter = router({
 
   // Get all defects
   allDefects: protectedProcedure.query(async () => {
-    return await db.getAllDefects();
+    try {
+      const defects = await db.getAllDefects();
+      return Array.isArray(defects) ? defects : [];
+    } catch (error) {
+      console.error('[defectRouter.allDefects] Error:', error);
+      return [];
+    }
   }),
 
   // Get single defect by ID
@@ -799,22 +805,47 @@ const defectRouter = router({
   // Dashboard Statistics
   getStatsByStatus: protectedProcedure
     .query(async () => {
-      return await db.getDefectStatsByStatus();
+      try {
+        const stats = await db.getDefectStatsByStatus();
+        return Array.isArray(stats) ? stats : [];
+      } catch (error) {
+        console.error('[defectRouter.getStatsByStatus] Error:', error);
+        return [];
+      }
     }),
 
   getStatsByType: protectedProcedure
     .query(async () => {
-      return await db.getDefectStatsByType();
+      try {
+        const stats = await db.getDefectStatsByType();
+        return Array.isArray(stats) ? stats : [];
+      } catch (error) {
+        console.error('[defectRouter.getStatsByType] Error:', error);
+        return [];
+      }
     }),
 
   getStatsByPriority: protectedProcedure
     .query(async () => {
-      return await db.getDefectStatsByPriority();
+      try {
+        const stats = await db.getDefectStatsByPriority();
+        return Array.isArray(stats) ? stats : [];
+      } catch (error) {
+        console.error('[defectRouter.getStatsByPriority] Error:', error);
+        return [];
+      }
     }),
 
   getMetrics: protectedProcedure
     .query(async () => {
-      return await db.getDefectMetrics();
+      try {
+        const metrics = await db.getDefectMetrics();
+        // Ensure we always return a valid metrics object
+        return metrics || { total: 0, open: 0, closed: 0, pendingVerification: 0, overdue: 0 };
+      } catch (error) {
+        console.error('[defectRouter.getMetrics] Error:', error);
+        return { total: 0, open: 0, closed: 0, pendingVerification: 0, overdue: 0 };
+      }
     }),
 
   getRecent: protectedProcedure
