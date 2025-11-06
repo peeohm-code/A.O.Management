@@ -481,3 +481,9 @@
   - [x] เพิ่ม Form Validation และ Error Messages
 - [ ] ทดสอบการสร้าง CAR/PAR/NCR จาก checklist ที่ไม่ผ่าน
 - [ ] ทดสอบการบันทึกและแสดงผลใน Defects page
+
+## Fix user.list Error in QC Inspection
+- [x] เพิ่ม user.list procedure ใน server/routers.ts
+- [x] เพิ่ม getAllUsers() function ใน server/db.ts
+- [x] ทดสอบ dropdown "มอบหมายให้" ในฟอร์ม Create CAR/NCR
+- [x] บันทึก checkpoint

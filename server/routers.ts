@@ -1051,6 +1051,12 @@ export const appRouter = router({
     }),
   }),
 
+  user: router({
+    list: protectedProcedure.query(async () => {
+      return await db.getAllUsers();
+    }),
+  }),
+
   dashboard: dashboardRouter,
   project: projectRouter,
   task: taskRouter,

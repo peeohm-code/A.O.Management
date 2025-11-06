@@ -122,6 +122,14 @@ export async function getUserById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(users);
+  return result;
+}
+
 /**
  * Project Management
  */
