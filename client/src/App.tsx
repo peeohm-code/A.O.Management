@@ -9,7 +9,6 @@ import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 import QCInspection from "./pages/QCInspection";
 import Defects from "./pages/Defects";
-import DefectDashboard from "./pages/DefectDashboard";
 import NotificationCenter from "./pages/NotificationCenter";
 import ProjectDetail from "./pages/ProjectDetail";
 import TaskDetail from "./pages/TaskDetail";
@@ -78,13 +77,6 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Defects />
-          </DashboardLayout>
-        )}
-      </Route>
-      <Route path={"/defect-dashboard"}>
-        {() => (
-          <DashboardLayout>
-            <DefectDashboard />
           </DashboardLayout>
         )}
       </Route>

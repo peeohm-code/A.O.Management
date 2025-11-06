@@ -34,7 +34,6 @@ const menuItems = [
   { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
-  { icon: BarChart3, label: "Defect Dashboard", path: "/defect-dashboard" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: FileText, label: "Reports", path: "/reports" },
   { icon: SettingsIcon, label: "Settings", path: "/settings" },

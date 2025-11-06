@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -29,6 +29,13 @@ export default function Defects() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [resolutionComment, setResolutionComment] = useState("");
+  
+  // Dashboard queries
+  const metricsQuery = trpc.defect.getMetrics.useQuery();
+  const statsByStatusQuery = trpc.defect.getStatsByStatus.useQuery();
+  const statsByTypeQuery = trpc.defect.getStatsByType.useQuery();
+  const statsByPriorityQuery = trpc.defect.getStatsByPriority.useQuery();
+  const metrics = metricsQuery.data || { total: 0, open: 0, closed: 0, pendingVerification: 0, overdue: 0 };
   
   // RCA & Action Plan states
   const [showRCAForm, setShowRCAForm] = useState(false);
@@ -248,7 +255,81 @@ export default function Defects() {
         <p className="text-gray-600 mt-1">Monitor and manage construction defects</p>
       </div>
 
+      {/* Dashboard Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => setStatusFilter("all")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ทั้งหมด</CardTitle>
+            <FileWarning className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.total}</div>
+            <p className="text-xs text-muted-foreground">Total Defects</p>
+          </CardContent>
+        </Card>
 
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => setStatusFilter("all")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">เปิดอยู่</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{metrics.open}</div>
+            <p className="text-xs text-muted-foreground">Open Defects</p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => setStatusFilter("closed")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ปิดแล้ว</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{metrics.closed}</div>
+            <p className="text-xs text-muted-foreground">Closed Defects</p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow border-yellow-200 bg-yellow-50"
+          onClick={() => setStatusFilter("verification")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">รอตรวจสอบ</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
+            <p className="text-xs text-yellow-700">Pending Verification</p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow border-red-200 bg-red-50"
+          onClick={() => {
+            // Filter overdue defects - will need custom filter logic
+            toast.info("กรองแสดง Defect ที่เกินกำหนด");
+          }}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">เกินกำหนด</CardTitle>
+            <TrendingUp className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{metrics.overdue}</div>
+            <p className="text-xs text-red-700">Overdue</p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">

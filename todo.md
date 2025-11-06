@@ -675,3 +675,14 @@
 - [x] Add route for /defect-dashboard in App.tsx
 - [x] Add menu item "Defect Dashboard" in DashboardLayout
 - [x] Import BarChart3 icon for menu
+
+## Move Dashboard to Defects Page
+- [x] Add dashboard metrics section at the top of Defects page
+- [x] Add clickable metric cards (total, open, closed, pending verification, overdue)
+- [x] Add click handlers to filter defects when clicking cards
+- [x] Import dashboard queries (getMetrics, getStatsByStatus, getStatsByType, getStatsByPriority)
+- [x] Add icons (Clock, FileWarning, TrendingUp) to metrics cards
+- [x] Keep defect list table below dashboard section
+- [x] Remove separate DefectDashboard.tsx page
+- [x] Remove Defect Dashboard menu item from DashboardLayout
+- [x] Remove /defect-dashboard route from App.tsx
