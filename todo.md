@@ -436,3 +436,4 @@
 - [ ] เพิ่มฟีเจอร์: drag & drop + filter (รอตรวจสอบ/ไม่ผ่าน/ผ่าน) ใน ChecklistsTab
 - [x] เพิ่ม Filter dropdown สำหรับ Checklists (รอตรวจสอบ, ไม่ผ่าน, ผ่าน)
 - [x] แก้ไขหน้า QC Inspection: เปลี่ยนชื่อเป็น "QC Inspection Overview" และลบสถานะ "กำลังตรวจ"
+- [x] เพิ่มกราฟวงกลมสรุปสัดส่วน Checklists ตามสถานะในหน้า QC Inspection Overview
