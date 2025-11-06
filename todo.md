@@ -759,3 +759,8 @@
 - [x] Increase touch target sizes for mobile (min 44px touch targets)
 - [x] Test on actual mobile devices
 - [ ] Save checkpoint
+
+## Remove In Progress Card from Checklist Overview
+- [x] Remove "กำลังตรวจสอบ" (in_progress) card from Dashboard Checklist Overview
+- [x] Update grid layout from 6 columns to 5 columns
+- [ ] Save checkpoint

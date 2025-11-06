@@ -241,7 +241,7 @@ export default function Dashboard() {
           <CardDescription>สรุปสถานะ Checklist ทั้งหมดในระบบ</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {/* Total Checklists */}
             <div className="text-center p-4 border rounded-lg bg-gray-50">
               <div className="text-3xl font-bold text-gray-900">{stats?.checklistStats.total || 0}</div>
@@ -280,26 +280,6 @@ export default function Dashboard() {
                       style={{
                         width: stats?.checklistStats.total
                           ? `${((stats.checklistStats.pending_inspection / stats.checklistStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* In Progress */}
-            <Link href="/qc">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-blue-50 hover:bg-blue-100">
-                <div className="text-3xl font-bold text-blue-700">{stats?.checklistStats.in_progress || 0}</div>
-                <div className="text-sm text-blue-600 mt-1">กำลังตรวจสอบ</div>
-                <div className="mt-2">
-                  <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.checklistStats.total
-                          ? `${((stats.checklistStats.in_progress / stats.checklistStats.total) * 100).toFixed(0)}%`
                           : "0%",
                       }}
                     />
