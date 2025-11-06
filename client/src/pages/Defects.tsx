@@ -275,14 +275,18 @@ export default function Defects() {
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full md:w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="สถานะ" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="open">Open</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
-            <SelectItem value="verified">Verified</SelectItem>
+            <SelectItem value="all">ทั้งหมด</SelectItem>
+            <SelectItem value="reported">รายงานแล้ว</SelectItem>
+            <SelectItem value="action_plan">กำลังวางแผน</SelectItem>
+            <SelectItem value="assigned">มอบหมายแล้ว</SelectItem>
+            <SelectItem value="in_progress">กำลังดำเนินการ</SelectItem>
+            <SelectItem value="implemented">แก้ไขเสร็จแล้ว</SelectItem>
+            <SelectItem value="verification">รอตรวจสอบ</SelectItem>
+            <SelectItem value="effectiveness_check">ตรวจสอบประสิทธิผล</SelectItem>
+            <SelectItem value="closed">ปิดแล้ว</SelectItem>
           </SelectContent>
         </Select>
       </div>

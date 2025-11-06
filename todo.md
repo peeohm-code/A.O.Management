@@ -617,3 +617,11 @@
 - [x] Translate button labels
 - [x] Fix workflow: Add "Start Work" button after Action Plan is saved
 - [x] Translate all workflow action buttons to Thai
+
+## Defect Filter Fix
+- [x] Check current filter logic in Defects page
+- [x] Ensure all defect statuses are included in the filter
+- [x] Update status filter to include all 9 statuses (reported, action_plan, assigned, in_progress, implemented, verification, effectiveness_check, closed)
+- [x] Translate all status filter options to Thai
+- [x] Test that defects remain visible after Action Plan is saved
+- [x] Verify defects show up correctly in all status transitions
