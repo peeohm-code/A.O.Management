@@ -478,6 +478,40 @@ const checklistRouter = router({
       return { success: true };
     }),
 
+  deleteTemplate: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Check if template is in use (has associated task checklists)
+        const checklistsUsingTemplate = await db.getTaskChecklistsByTemplateId(input.id);
+        
+        if (checklistsUsingTemplate && checklistsUsingTemplate.length > 0) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Cannot delete template. It is currently used in ${checklistsUsingTemplate.length} task checklist(s). Please remove the template from all tasks first.`,
+          });
+        }
+
+        // Delete the template (this will also delete associated items)
+        await db.deleteChecklistTemplate(input.id);
+
+        await db.logActivity({
+          userId: ctx.user.id,
+          action: "checklist_template_deleted",
+          details: JSON.stringify({ templateId: input.id }),
+        });
+
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error('[deleteTemplate] Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Failed to delete template',
+        });
+      }
+    }),
+
   listTemplates: protectedProcedure.query(async () => {
     return await db.getAllChecklistTemplates();
   }),

@@ -525,6 +525,17 @@ export async function deleteChecklistTemplateItems(templateId: number) {
   return await db.delete(checklistTemplateItems).where(eq(checklistTemplateItems.templateId, templateId));
 }
 
+export async function deleteChecklistTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // First delete all items associated with this template
+  await deleteChecklistTemplateItems(id);
+  
+  // Then delete the template itself
+  return await db.delete(checklistTemplates).where(eq(checklistTemplates.id, id));
+}
+
 export async function getChecklistTemplateById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
@@ -643,6 +654,16 @@ export async function getTaskChecklistsByTask(taskId: number) {
   }
 
   return result;
+}
+
+export async function getTaskChecklistsByTemplateId(templateId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.templateId, templateId));
 }
 
 export async function getTaskChecklistById(id: number) {

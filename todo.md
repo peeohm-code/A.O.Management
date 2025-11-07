@@ -910,3 +910,11 @@
 - [ ] Fix backend create procedure to pass templateId correctly when creating items
 - [ ] Test creating checklist template with items
 - [ ] Save checkpoint
+
+## Add Delete Functionality to Checklist Templates
+- [x] Add deleteChecklistTemplate function in server/db.ts
+- [x] Add deleteTemplate procedure in server/routers.ts
+- [x] Add delete button in Checklist Templates UI
+- [x] Add confirmation dialog before deletion
+- [x] Handle case when template is in use (has associated task checklists)
+- [x] Test delete functionality end-to-end

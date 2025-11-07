@@ -28,7 +28,9 @@ import { Plus, Trash2, Edit } from "lucide-react";
 export default function ChecklistTemplates() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [deletingTemplate, setDeletingTemplate] = useState<any>(null);
   
   const [templateName, setTemplateName] = useState("");
   const [templateCategory, setTemplateCategory] = useState("");
@@ -43,6 +45,7 @@ export default function ChecklistTemplates() {
   const templatesQuery = trpc.checklist.templates.useQuery();
   const createTemplateMutation = trpc.checklist.createTemplate.useMutation();
   const updateTemplateMutation = trpc.checklist.updateTemplate.useMutation();
+  const deleteTemplateMutation = trpc.checklist.deleteTemplate.useMutation();
 
   const allTemplates = [
     ...(templatesQuery.data?.preExecution || []),
@@ -146,6 +149,26 @@ export default function ChecklistTemplates() {
         : [{ itemText: "", order: 0 }]
     );
     setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteClick = (template: any) => {
+    setDeletingTemplate(template);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteTemplate = async () => {
+    if (!deletingTemplate) return;
+
+    try {
+      await deleteTemplateMutation.mutateAsync({ id: deletingTemplate.id });
+      toast.success("ลบ Template สำเร็จ");
+      setIsDeleteDialogOpen(false);
+      setDeletingTemplate(null);
+      templatesQuery.refetch();
+    } catch (error: any) {
+      toast.error(error.message || "เกิดข้อผิดพลาดในการลบ Template");
+      console.error(error);
+    }
   };
 
   const handleUpdateTemplate = async () => {
@@ -392,16 +415,26 @@ export default function ChecklistTemplates() {
                   {template.description && (
                     <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                   )}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{template.items?.length || 0} รายการ</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditClick(template)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      แก้ไข
-                    </Button>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{template.items?.length || 0} รายการ</span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditClick(template)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        แก้ไข
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteClick(template)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -429,16 +462,26 @@ export default function ChecklistTemplates() {
                   {template.description && (
                     <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                   )}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{template.items?.length || 0} รายการ</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditClick(template)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      แก้ไข
-                    </Button>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{template.items?.length || 0} รายการ</span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditClick(template)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        แก้ไข
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteClick(template)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -466,16 +509,26 @@ export default function ChecklistTemplates() {
                   {template.description && (
                     <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                   )}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{template.items?.length || 0} รายการ</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditClick(template)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      แก้ไข
-                    </Button>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{template.items?.length || 0} รายการ</span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditClick(template)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        แก้ไข
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteClick(template)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -492,6 +545,40 @@ export default function ChecklistTemplates() {
           </p>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>ยืนยันการลบ Template</DialogTitle>
+            <DialogDescription>
+              คุณต้องการลบ template "{deletingTemplate?.name}" หรือไม่?
+              <br />
+              <span className="text-red-600 font-medium">
+                การกระทำนี้ไม่สามารถย้อนกลับได้
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setDeletingTemplate(null);
+              }}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteTemplate}
+              disabled={deleteTemplateMutation.isPending}
+            >
+              {deleteTemplateMutation.isPending ? "กำลังลบ..." : "ลบ Template"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
