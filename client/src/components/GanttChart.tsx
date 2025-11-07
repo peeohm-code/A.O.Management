@@ -599,6 +599,8 @@ function getCategoryLabel(category: string): string {
     mep: "งานระบบ",
     other: "งานอื่นๆ",
   };
+  // Return mapped label if exists, otherwise return the category as-is
+  // This ensures both English keys and Thai subcategories work correctly
   return categoryLabels[category] || category;
 }
 

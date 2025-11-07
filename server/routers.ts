@@ -173,10 +173,19 @@ const taskRouter = router({
   }),
 
   myTasks: protectedProcedure.query(async ({ ctx }) => {
-    const tasks = await db.getTasksByAssignee(ctx.user.id);
+    // Get all projects where user is a member
+    const userProjects = await db.getProjectsByUser(ctx.user.id);
+    const projectIds = userProjects.map(p => p.projects.id);
+    
+    // Get all tasks from those projects
+    const allTasks = [];
+    for (const projectId of projectIds) {
+      const projectTasks = await db.getTasksByProject(projectId);
+      allTasks.push(...projectTasks);
+    }
     
     // Add computed display status to each task
-    return tasks.map(task => {
+    return allTasks.map(task => {
       const displayStatus = getTaskDisplayStatus(task);
       return {
         ...task,
@@ -194,6 +203,19 @@ const taskRouter = router({
         parentTaskId: z.number().optional(),
         name: z.string().min(1),
         description: z.string().optional(),
+        category: z.string().optional(),
+        status: z.enum([
+          "todo",
+          "pending_pre_inspection",
+          "ready_to_start",
+          "in_progress",
+          "pending_final_inspection",
+          "rectification_needed",
+          "completed",
+          "not_started",
+          "delayed"
+        ]).optional(),
+        priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
         assigneeId: z.number().optional(),

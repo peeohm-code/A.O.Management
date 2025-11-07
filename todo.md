@@ -924,3 +924,8 @@
 - [x] Display list of task checklists in confirmation dialog
 - [x] Show warning if template is in use
 - [x] Test the improved dialog
+
+## Critical Bug Fixes
+- [x] Fix Gantt chart showing wrong category (เตรียมงาน → งานอื่นๆ)
+- [x] Fix tasks created from project not showing in My Task page
+- [x] Remove create task button from My Task page (only allow creation from project)

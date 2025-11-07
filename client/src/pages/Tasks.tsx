@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, Calendar, User, Plus } from "lucide-react";
+import { Loader2, Search, Calendar, User } from "lucide-react";
 import { Link } from "wouter";
 import { Building2 } from "lucide-react";
 import {
@@ -84,16 +84,8 @@ export default function Tasks() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">My Tasks</h1>
-          <p className="text-gray-600 mt-1">Manage and track your assigned tasks</p>
+          <p className="text-gray-600 mt-1">View tasks from your projects</p>
         </div>
-        {canCreate && (
-          <Link href="/tasks/new">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Task
-            </Button>
-          </Link>
-        )}
       </div>
 
       {/* Filters */}
