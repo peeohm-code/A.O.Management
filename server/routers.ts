@@ -699,16 +699,29 @@ const checklistRouter = router({
     const tasks = await db.getAllTasks();
     const templates = await db.getAllChecklistTemplates();
     
+    // Get all template items for all templates
+    const allTemplateItems = await Promise.all(
+      templates.map(async (template) => ({
+        templateId: template.id,
+        items: await db.getChecklistTemplateItems(template.id),
+      }))
+    );
+    
     // Map checklists with task and template info
     return checklists.map(checklist => {
       const task = tasks.find(t => t.id === checklist.taskId);
       const template = templates.find(t => t.id === checklist.templateId);
+      const templateItems = allTemplateItems.find(t => t.templateId === checklist.templateId)?.items || [];
       
       return {
         ...checklist,
         name: template?.name || "Unknown Template",
         taskName: task?.name || "Unknown Task",
-        items: [], // Will be populated from checklistItemResults if needed
+        items: templateItems.map(item => ({
+          id: item.id,
+          description: item.itemText,
+          acceptanceCriteria: null, // Can be added to schema later if needed
+        })),
       };
     });
   }),

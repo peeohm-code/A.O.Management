@@ -929,3 +929,11 @@
 - [x] Fix Gantt chart showing wrong category (เตรียมงาน → งานอื่นๆ)
 - [x] Fix tasks created from project not showing in My Task page
 - [x] Remove create task button from My Task page (only allow creation from project)
+
+## Fix Task Checklist Creation Error
+- [x] Fix SQL error when creating task checklist - invalid status enum value
+
+## Fix QC Inspection Checklist Mismatch
+- [x] Investigate why checklist template items don't match in QC Inspection page
+- [x] Fix data loading or mapping issue between template and inspection
+- [x] Test end-to-end flow from template to QC inspection

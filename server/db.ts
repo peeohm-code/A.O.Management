@@ -620,7 +620,7 @@ export async function createTaskChecklist(data: {
     taskId: data.taskId,
     templateId: data.templateId,
     stage: data.stage,
-    status: "pending",
+    status: "not_started",
   });
 }
 
