@@ -189,7 +189,7 @@
 - [x] Update Checklist Template creation/edit UI (simplified form)
 - [x] Update QC Inspection UI to show only Pass/Fail/N/A options
 - [x] Move comments and photo upload to end of inspection form (template level)
-- [ ] Fix error 500 when creating new templates
+- [x] Fix error 500 when creating new templates
 - [ ] Test complete workflow with new structure
 
 ## Post-Inspection Features and QC Form Fixes
@@ -904,4 +904,9 @@
 - [ ] Check all task statuses are correct
 - [ ] Verify defects link to correct tasks
 - [ ] Test all pages for data consistency
+- [ ] Save checkpoint
+
+## Fix Checklist Template Item Creation Error
+- [ ] Fix backend create procedure to pass templateId correctly when creating items
+- [ ] Test creating checklist template with items
 - [ ] Save checkpoint

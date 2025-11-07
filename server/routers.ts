@@ -389,30 +389,42 @@ const checklistRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const templateResult = await db.createChecklistTemplate({
-        name: input.name,
-        category: input.category,
-        stage: input.stage,
-        description: input.description,
-        allowGeneralComments: input.allowGeneralComments,
-        allowPhotos: input.allowPhotos,
-        createdBy: ctx.user.id,
-      });
+      try {
+        // Create checklist template
+        
+        const templateResult = await db.createChecklistTemplate({
+          name: input.name,
+          category: input.category,
+          stage: input.stage,
+          description: input.description,
+          allowGeneralComments: input.allowGeneralComments,
+          allowPhotos: input.allowPhotos,
+          createdBy: ctx.user.id,
+        });
 
-      const templateId = (templateResult as any).insertId as number;
+        const templateId = templateResult.insertId;
 
-      // Add items if provided
-      if (input.items && input.items.length > 0) {
-        for (const item of input.items) {
-          await db.addChecklistTemplateItem({
-            templateId,
-            itemText: item.itemText,
-            order: item.order,
-          });
+        // Add items if provided
+        if (input.items && input.items.length > 0) {
+          // Add template items
+          for (const item of input.items) {
+            await db.addChecklistTemplateItem({
+              templateId,
+              itemText: item.itemText,
+              order: item.order,
+            });
+          }
+          // Items added
         }
-      }
 
-      return { success: true, id: templateId };
+        return { success: true };
+      } catch (error) {
+        console.error('[createTemplate] Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Failed to create template',
+        });
+      }
     }),
 
   updateTemplate: protectedProcedure

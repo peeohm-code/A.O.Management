@@ -481,7 +481,7 @@ export async function createChecklistTemplate(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.insert(checklistTemplates).values({
+  const [result] = await db.insert(checklistTemplates).values({
     name: data.name,
     category: data.category,
     stage: data.stage,
@@ -490,6 +490,15 @@ export async function createChecklistTemplate(data: {
     allowPhotos: data.allowPhotos,
     createdBy: data.createdBy,
   });
+
+  // Handle BigInt conversion properly - convert to string first, then parse
+  const insertId = parseInt(String(result.insertId));
+  
+  if (isNaN(insertId) || insertId === 0) {
+    throw new Error(`Invalid insertId: ${result.insertId}`);
+  }
+  
+  return { insertId };
 }
 
 export async function updateChecklistTemplate(
