@@ -31,6 +31,7 @@ export default function ChecklistTemplates() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
   const [deletingTemplate, setDeletingTemplate] = useState<any>(null);
+  const [deletingTemplateId, setDeletingTemplateId] = useState<number | null>(null);
   
   const [templateName, setTemplateName] = useState("");
   const [templateCategory, setTemplateCategory] = useState("");
@@ -46,6 +47,12 @@ export default function ChecklistTemplates() {
   const createTemplateMutation = trpc.checklist.createTemplate.useMutation();
   const updateTemplateMutation = trpc.checklist.updateTemplate.useMutation();
   const deleteTemplateMutation = trpc.checklist.deleteTemplate.useMutation();
+  
+  // Query task checklists for the template being deleted
+  const taskChecklistsQuery = trpc.checklist.getTaskChecklistsByTemplateId.useQuery(
+    { templateId: deletingTemplateId! },
+    { enabled: deletingTemplateId !== null }
+  );
 
   const allTemplates = [
     ...(templatesQuery.data?.preExecution || []),
@@ -153,6 +160,7 @@ export default function ChecklistTemplates() {
 
   const handleDeleteClick = (template: any) => {
     setDeletingTemplate(template);
+    setDeletingTemplateId(template.id);
     setIsDeleteDialogOpen(true);
   };
 
@@ -164,6 +172,7 @@ export default function ChecklistTemplates() {
       toast.success("ลบ Template สำเร็จ");
       setIsDeleteDialogOpen(false);
       setDeletingTemplate(null);
+      setDeletingTemplateId(null);
       templatesQuery.refetch();
     } catch (error: any) {
       toast.error(error.message || "เกิดข้อผิดพลาดในการลบ Template");
@@ -548,23 +557,65 @@ export default function ChecklistTemplates() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>ยืนยันการลบ Template</DialogTitle>
             <DialogDescription>
-              คุณต้องการลบ template "{deletingTemplate?.name}" หรือไม่?
-              <br />
-              <span className="text-red-600 font-medium">
-                การกระทำนี้ไม่สามารถย้อนกลับได้
-              </span>
+              คุณต้องการลบ template <strong>"{deletingTemplate?.name}"</strong> หรือไม่?
             </DialogDescription>
           </DialogHeader>
+
+          <div className="space-y-4">
+            {taskChecklistsQuery.isLoading && (
+              <div className="text-sm text-muted-foreground">กำลังตรวจสอบการใช้งาน...</div>
+            )}
+
+            {taskChecklistsQuery.data && taskChecklistsQuery.data.length > 0 && (
+              <div className="border border-yellow-200 bg-yellow-50 p-4 rounded-lg">
+                <div className="flex items-start gap-2 mb-2">
+                  <svg className="h-5 w-5 text-yellow-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-yellow-900">เตือน: Template นี้กำลังถูกใช้งานอยู่</h4>
+                    <p className="text-sm text-yellow-800 mt-1">
+                      Template นี้ถูกใช้ใน <strong>{taskChecklistsQuery.data.length}</strong> checklist:
+                    </p>
+                  </div>
+                </div>
+                <ul className="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                  {taskChecklistsQuery.data.map((checklist: any) => (
+                    <li key={checklist.id} className="text-sm bg-white p-2 rounded border border-yellow-100">
+                      <div className="font-medium text-gray-900">{checklist.taskName}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        Stage: {checklist.stage} • Status: {checklist.status}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {taskChecklistsQuery.data && taskChecklistsQuery.data.length === 0 && (
+              <div className="text-sm text-muted-foreground">
+                ไม่มี checklist ใดใช้ template นี้
+              </div>
+            )}
+
+            <div className="border-t pt-4">
+              <p className="text-sm text-red-600 font-medium">
+                ⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้
+              </p>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button
               variant="outline"
               onClick={() => {
                 setIsDeleteDialogOpen(false);
                 setDeletingTemplate(null);
+                setDeletingTemplateId(null);
               }}
             >
               ยกเลิก
@@ -572,7 +623,7 @@ export default function ChecklistTemplates() {
             <Button
               variant="destructive"
               onClick={handleDeleteTemplate}
-              disabled={deleteTemplateMutation.isPending}
+              disabled={deleteTemplateMutation.isPending || (taskChecklistsQuery.data && taskChecklistsQuery.data.length > 0)}
             >
               {deleteTemplateMutation.isPending ? "กำลังลบ..." : "ลบ Template"}
             </Button>

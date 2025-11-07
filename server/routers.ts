@@ -522,6 +522,27 @@ const checklistRouter = router({
       return await db.getTaskChecklistsByTask(input.taskId);
     }),
 
+  getTaskChecklistsByTemplateId: protectedProcedure
+    .input(z.object({ templateId: z.number() }))
+    .query(async ({ input }) => {
+      const checklists = await db.getTaskChecklistsByTemplateId(input.templateId);
+      // Get task details for each checklist
+      const result = [];
+      for (const checklist of checklists) {
+        const task = await db.getTaskById(checklist.taskId);
+        if (task) {
+          result.push({
+            id: checklist.id,
+            taskId: checklist.taskId,
+            taskName: task.name,
+            stage: checklist.stage,
+            status: checklist.status,
+          });
+        }
+      }
+      return result;
+    }),
+
   assignToTask: protectedProcedure
     .input(
       z.object({

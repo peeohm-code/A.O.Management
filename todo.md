@@ -918,3 +918,9 @@
 - [x] Add confirmation dialog before deletion
 - [x] Handle case when template is in use (has associated task checklists)
 - [x] Test delete functionality end-to-end
+
+## Improve Delete Confirmation Dialog
+- [x] Fetch task checklists using the template when delete button is clicked
+- [x] Display list of task checklists in confirmation dialog
+- [x] Show warning if template is in use
+- [x] Test the improved dialog
