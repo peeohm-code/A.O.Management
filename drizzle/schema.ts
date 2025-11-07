@@ -83,6 +83,7 @@ export const tasks = mysqlTable("tasks", {
   assigneeId: int("assigneeId"),
   category: varchar("category", { length: 50 }), // e.g., "structure", "architecture", "mep", "finishing"
   order: int("order").default(0).notNull(), // For sorting
+  photoUrls: text("photoUrls"), // JSON array of photo URLs
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -182,6 +183,7 @@ export const checklistItemResults = mysqlTable("checklistItemResults", {
   taskChecklistId: int("taskChecklistId").notNull(),
   templateItemId: int("templateItemId").notNull(),
   result: mysqlEnum("result", ["pass", "fail", "na"]).notNull(),
+  photoUrls: text("photoUrls"), // JSON array of photo URLs
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

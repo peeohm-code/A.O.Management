@@ -121,9 +121,6 @@ importers:
       '@trpc/server':
         specifier: ^11.6.0
         version: 11.6.0(typescript@5.9.3)
-      '@types/multer':
-        specifier: ^2.0.0
-        version: 2.0.0
       axios:
         specifier: ^1.12.0
         version: 1.12.2
@@ -236,6 +233,9 @@ importers:
       '@types/express':
         specifier: 4.17.21
         version: 4.17.21
+      '@types/multer':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@types/node':
         specifier: ^24.7.0
         version: 24.7.0

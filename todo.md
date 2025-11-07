@@ -983,3 +983,14 @@
 - [x] Add defect type badges (CAR/NCR/PAR) to cards
 - [x] Fix status display consistency between cards and filters
 - [x] Test all fixes
+
+## Add Photo Upload to Tasks, Checklists, and Defects
+- [x] Update schema: add photoUrls field to tasks table
+- [x] Update schema: add photoUrls field to checklistItemResults table
+- [x] Run database migration (pnpm db:push)
+- [ ] Add photo upload UI to Tasks creation/edit form
+- [ ] Add photo upload UI to Checklist inspection
+- [ ] Add photo upload UI to Defects creation form
+- [ ] Display uploaded photos in all relevant cards/views
+- [ ] Add photo gallery view with lightbox
+- [ ] Test photo upload and display functionality

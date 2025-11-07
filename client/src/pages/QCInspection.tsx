@@ -11,9 +11,10 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle, Upload, X, Image as ImageIcon } from "lucide-react";
+import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
+import { ImageUpload } from "@/components/ImageUpload";
 
 type InspectionResult = "pass" | "fail" | "na";
 
@@ -45,8 +46,9 @@ export default function QCInspection() {
     description: "",
     severity: "medium",
   });
-  const [beforePhotos, setBeforePhotos] = useState<File[]>([]);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [beforePhotos, setBeforePhotos] = useState<string[]>([]);
+  const [defectPhotos, setDefectPhotos] = useState<string[]>([]);
+
   
   // Read status from URL parameter
   const [statusFilter, setStatusFilter] = useState<string | null>(() => {
@@ -165,10 +167,8 @@ export default function QCInspection() {
     }
 
     try {
-      setUploadingPhotos(true);
-      
-      // Create defect first
-      const defect = await createDefectMutation.mutateAsync({
+      // Create defect with photo URLs
+      await createDefectMutation.mutateAsync({
         taskId: checklist.taskId,
         checklistId: checklist.id,
         type: defectForm.type,
@@ -177,40 +177,9 @@ export default function QCInspection() {
         severity: defectForm.severity,
         ncrLevel: defectForm.ncrLevel,
         assignedTo: defectForm.assignedTo,
+        photoUrls: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
       });
-
-      // Upload before photos if any
-      if (beforePhotos.length > 0) {
-        for (const photo of beforePhotos) {
-          // Upload to S3
-          const formData = new FormData();
-          formData.append('file', photo);
-          
-          const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          
-          if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload ${photo.name}`);
-          }
-          
-          const { url, key } = await uploadResponse.json();
-          
-          // Save attachment record
-          await uploadAttachmentMutation.mutateAsync({
-            defectId: defect.id,
-            fileUrl: url,
-            fileKey: key,
-            fileName: photo.name,
-            fileType: photo.type,
-            fileSize: photo.size,
-            attachmentType: 'before' as const,
-          });
-        }
-      }
       
-      setUploadingPhotos(false);
       toast.success("สร้าง " + defectForm.type + " สำเร็จ");
       
       // Reset form
@@ -222,10 +191,9 @@ export default function QCInspection() {
         description: "",
         severity: "medium",
       });
-      setBeforePhotos([]);
+      setDefectPhotos([]);
       refetchChecklists();
     } catch (error) {
-      setUploadingPhotos(false);
       console.error('Error creating defect:', error);
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
@@ -249,47 +217,22 @@ export default function QCInspection() {
       return;
     }
 
-    try {
-      setUploadingPhotos(true);
-      
-      // Upload photos if any
-      let photoUrls: string[] = [];
-      if (beforePhotos.length > 0) {
-        const uploadPromises = beforePhotos.map(async (file) => {
-          const formData = new FormData();
-          formData.append('file', file);
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          if (!response.ok) throw new Error('Upload failed');
-          const data = await response.json();
-          return data.url;
-        });
-        photoUrls = await Promise.all(uploadPromises);
-      }
+    const hasFailures = Object.values(itemResults).some(r => r.result === "fail");
+    const finalStatus = hasFailures ? "failed" : "completed";
 
-      const hasFailures = Object.values(itemResults).some(r => r.result === "fail");
-      const finalStatus = hasFailures ? "failed" : "completed";
-
-      updateChecklistMutation.mutate({
-        id: selectedChecklist.id,
-        status: finalStatus,
-        generalComments: generalComments || undefined,
-        photoUrls: photoUrls.length > 0 ? JSON.stringify(photoUrls) : undefined,
-        itemResults: Object.entries(itemResults).map(([itemId, data]) => ({
-          templateItemId: parseInt(itemId),
-          result: data.result as "pass" | "fail" | "na",
-        })),
-      });
-      
-      // Reset photos after successful submission
-      setBeforePhotos([]);
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
-    } finally {
-      setUploadingPhotos(false);
-    }
+    updateChecklistMutation.mutate({
+      id: selectedChecklist.id,
+      status: finalStatus,
+      generalComments: generalComments || undefined,
+      photoUrls: beforePhotos.length > 0 ? JSON.stringify(beforePhotos) : undefined,
+      itemResults: Object.entries(itemResults).map(([itemId, data]) => ({
+        templateItemId: parseInt(itemId),
+        result: data.result as "pass" | "fail" | "na",
+      })),
+    });
+    
+    // Reset photos after successful submission
+    setBeforePhotos([]);
   };
 
   const getStatusBadge = (status: string) => {
@@ -580,50 +523,11 @@ export default function QCInspection() {
             {/* Photo Upload */}
             <div className="space-y-2">
               <Label>รูปภาพประกอบการตรวจสอบ</Label>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      setBeforePhotos(prev => [...prev, ...files]);
-                    }}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => document.querySelector<HTMLInputElement>('input[type="file"]')?.click()}
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                </div>
-                {beforePhotos.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2">
-                    {beforePhotos.map((file, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => setBeforePhotos(prev => prev.filter((_, i) => i !== index))}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <ImageUpload
+                value={beforePhotos}
+                onChange={setBeforePhotos}
+                maxImages={10}
+              />
             </div>
 
             {/* General Comments */}
@@ -894,72 +798,18 @@ export default function QCInspection() {
 
             {/* Before Photos Upload Section */}
             <div className="space-y-3 p-5 rounded-lg border bg-card">
-              <h3 className="font-semibold text-base flex items-center gap-2">
-                <ImageIcon className="h-5 w-5" />
-                รูปภาพก่อนแก้ไข (Before Photos)
+              <h3 className="font-semibold text-base">
+                รูปภาพประกอบปัญหา
               </h3>
               <p className="text-sm text-muted-foreground">
-                อัปโหลดรูปภาพแสดงสภาพปัญหาก่อนดำเนินการแก้ไข (รองรับ JPG, PNG, HEIC สูงสุด 10MB/ไฟล์)
+                อัปโหลดรูปภาพแสดงสภาพปัญหาก่อนดำเนินการแก้ไข
               </p>
               
-              {/* File Input */}
-              <div className="space-y-3">
-                <label htmlFor="before-photos" className="cursor-pointer">
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 hover:border-primary/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex flex-col items-center gap-3 text-center">
-                      <Upload className="h-10 w-10 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">คลิกเพื่อเลือกรูปภาพ</p>
-                        <p className="text-sm text-muted-foreground mt-1">หรือลากไฟล์มาวางที่นี่</p>
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    id="before-photos"
-                    type="file"
-                    accept="image/*,.heic"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      // Validate file size (10MB max)
-                      const validFiles = files.filter(f => {
-                        if (f.size > 10 * 1024 * 1024) {
-                          toast.error(`ไฟล์ ${f.name} มีขนาดเกิน 10MB`);
-                          return false;
-                        }
-                        return true;
-                      });
-                      setBeforePhotos(prev => [...prev, ...validFiles]);
-                    }}
-                  />
-                </label>
-
-                {/* Preview uploaded files */}
-                {beforePhotos.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {beforePhotos.map((file, index) => (
-                      <div key={index} className="relative group">
-                        <div className="aspect-square rounded-lg border bg-muted overflow-hidden">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Before ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setBeforePhotos(prev => prev.filter((_, i) => i !== index))}
-                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                        <p className="text-xs text-muted-foreground mt-1 truncate">{file.name}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <ImageUpload
+                value={defectPhotos}
+                onChange={setDefectPhotos}
+                maxImages={10}
+              />
             </div>
           </div>
 
@@ -973,21 +823,14 @@ export default function QCInspection() {
             </Button>
             <Button 
               onClick={handleSubmitDefect} 
-              disabled={createDefectMutation.isPending || uploadingPhotos || !defectForm.title}
+              disabled={createDefectMutation.isPending || !defectForm.title}
               className={`h-11 px-6 ${
                 defectForm.type === "CAR" ? "bg-yellow-600 hover:bg-yellow-700" :
                 defectForm.type === "PAR" ? "bg-blue-600 hover:bg-blue-700" :
                 "bg-red-600 hover:bg-red-700"
               }`}
             >
-              {(createDefectMutation.isPending || uploadingPhotos) ? (
-                <>
-                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  {uploadingPhotos ? 'กำลังอัปโหลดรูป...' : 'กำลังสร้าง...'}
-                </>
-              ) : (
-                `สร้าง ${defectForm.type}`
-              )}
+              {createDefectMutation.isPending ? 'กำลังสร้าง...' : `สร้าง ${defectForm.type}`}
             </Button>
           </DialogFooter>
         </DialogContent>
