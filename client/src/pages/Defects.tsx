@@ -30,9 +30,7 @@ export default function Defects() {
   const canDeleteDefect = useCanDeleteDefect();
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [overdueFilter, setOverdueFilter] = useState<boolean>(false);
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [resolutionComment, setResolutionComment] = useState("");
   
@@ -70,25 +68,13 @@ export default function Defects() {
   const defects = allDefectsQuery.data || [];
 
   let filteredDefects = defects.filter((d) =>
-    d.title.toLowerCase().includes(searchTerm.toLowerCase())
+    d.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (d.taskName && d.taskName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (d.checklistTemplateName && d.checklistTemplateName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
-  if (severityFilter !== "all") {
-    filteredDefects = filteredDefects.filter((d) => d.severity === severityFilter);
-  }
 
   if (statusFilter !== "all") {
     filteredDefects = filteredDefects.filter((d) => d.status === statusFilter);
-  }
-
-  // Filter overdue defects
-  if (overdueFilter) {
-    const now = new Date();
-    filteredDefects = filteredDefects.filter((d) => {
-      if (!d.dueDate || d.status === 'closed') return false;
-      const dueDate = new Date(d.dueDate);
-      return dueDate < now;
-    });
   }
 
   const getSeverityColor = (severity: string) => {
@@ -108,14 +94,52 @@ export default function Defects() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "open":
-        return "bg-red-100 text-red-800";
-      case "in_progress":
+      case "reported":
         return "bg-yellow-100 text-yellow-800";
-      case "resolved":
+      case "action_plan":
         return "bg-blue-100 text-blue-800";
-      case "verified":
+      case "assigned":
+        return "bg-purple-100 text-purple-800";
+      case "in_progress":
+        return "bg-orange-100 text-orange-800";
+      case "implemented":
+        return "bg-cyan-100 text-cyan-800";
+      case "verification":
+        return "bg-indigo-100 text-indigo-800";
+      case "effectiveness_check":
+        return "bg-pink-100 text-pink-800";
+      case "closed":
         return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      reported: "รายงานแล้ว",
+      action_plan: "กำลังวางแผน",
+      assigned: "มอบหมายแล้ว",
+      in_progress: "กำลังดำเนินการ",
+      implemented: "แก้ไขเสร็จแล้ว",
+      verification: "รอตรวจสอบ",
+      effectiveness_check: "ตรวจสอบประสิทธิผล",
+      closed: "ปิดแล้ว",
+      rejected: "ปฏิเสธ",
+    };
+    return labels[status] || status;
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "CAR":
+        return "bg-yellow-100 text-yellow-800";
+      case "PAR":
+        return "bg-blue-100 text-blue-800";
+      case "NCR":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -369,32 +393,19 @@ export default function Defects() {
             </div>
           </div>
         </CardContent>
-      </Card>{/* Filters */}
+      </Card>
+
+      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Search defects..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Select value={severityFilter} onValueChange={setSeverityFilter}>
-          <SelectTrigger className="w-full md:w-40">
-            <SelectValue placeholder="Severity" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Severity</SelectItem>
-            <SelectItem value="critical">Critical</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="low">Low</SelectItem>
-          </SelectContent>
-        </Select>
+        <Input
+          placeholder="Search defects..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1"
+        />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full md:w-40">
-            <SelectValue placeholder="สถานะ" />
+          <SelectTrigger className="w-full md:w-48">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">ทั้งหมด</SelectItem>
@@ -438,15 +449,21 @@ export default function Defects() {
                       <p className="text-sm text-gray-600 mt-2 line-clamp-2">{defect.description}</p>
                     )}
                     <div className="flex flex-wrap gap-2 mt-3">
+                      <Badge className={`${getTypeColor(defect.type)}`}>
+                        {defect.type}
+                      </Badge>
                       <Badge className={`${getSeverityColor(defect.severity)}`}>
                         {defect.severity.toUpperCase()}
                       </Badge>
                       <Badge className={`${getStatusColor(defect.status)}`}>
-                        {defect.status.replace(/_/g, " ").toUpperCase()}
+                        {getStatusLabel(defect.status)}
                       </Badge>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      Reported: {new Date(defect.createdAt).toLocaleDateString()}
+                      Checklist: {defect.checklistTemplateName || 'N/A'} • งาน: {defect.taskName || 'Unknown Task'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Reported: {new Date(defect.createdAt).toLocaleDateString('th-TH')}
                     </p>
                   </div>
                 </div>

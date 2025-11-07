@@ -976,3 +976,10 @@
 - [x] Add stage filter dropdown (All Stages, Pre-execution, In-progress, Post-execution)
 - [x] Use simple horizontal layout like Tasks page
 - [x] Test search and filter functionality
+
+## Fix Defects Page Issues
+- [x] Add simple search and status filter UI (like Tasks page)
+- [x] Fix backend to JOIN tasks table and return task names (fix Unknown Task)
+- [x] Add defect type badges (CAR/NCR/PAR) to cards
+- [x] Fix status display consistency between cards and filters
+- [x] Test all fixes

@@ -864,10 +864,44 @@ export async function getAllDefects() {
   const db = await getDb();
   if (!db) return [];
 
-  return await db
-    .select()
+  const results = await db
+    .select({
+      id: defects.id,
+      taskId: defects.taskId,
+      checklistItemResultId: defects.checklistItemResultId,
+      title: defects.title,
+      description: defects.description,
+      photoUrls: defects.photoUrls,
+      status: defects.status,
+      severity: defects.severity,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      resolvedBy: defects.resolvedBy,
+      resolvedAt: defects.resolvedAt,
+      resolutionPhotoUrls: defects.resolutionPhotoUrls,
+      resolutionComment: defects.resolutionComment,
+      type: defects.type,
+      checklistId: defects.checklistId,
+      rootCause: defects.rootCause,
+      correctiveAction: defects.correctiveAction,
+      preventiveAction: defects.preventiveAction,
+      dueDate: defects.dueDate,
+      ncrLevel: defects.ncrLevel,
+      verifiedBy: defects.verifiedBy,
+      verifiedAt: defects.verifiedAt,
+      verificationComment: defects.verificationComment,
+      createdAt: defects.createdAt,
+      updatedAt: defects.updatedAt,
+      taskName: tasks.name,
+      checklistTemplateName: checklistTemplates.name,
+    })
     .from(defects)
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .leftJoin(taskChecklists, eq(defects.checklistId, taskChecklists.id))
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
     .orderBy(desc(defects.createdAt));
+  
+  return results;
 }
 
 export async function updateDefect(
