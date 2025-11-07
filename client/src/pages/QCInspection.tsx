@@ -57,19 +57,18 @@ export default function QCInspection() {
     return null;
   });
 
-  // Queries - get all tasks and checklists
-  const { data: tasks } = trpc.task.list.useQuery({});
+  // Queries - get all checklists (taskName already included from backend)
   const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
   
-  // Map checklists with task names
+  // Use checklists directly (taskName is already included from backend JOIN)
   const allChecklists = React.useMemo(() => {
-    if (!checklistsData || !tasks) return [];
-    return checklistsData.map(checklist => {
-      const task = tasks.find(t => t.id === checklist.taskId);
-      return { ...checklist, taskName: task?.name || "Unknown Task" };
-    });
-  }, [checklistsData, tasks]);
+    if (!checklistsData) return [];
+    return checklistsData.map(checklist => ({
+      ...checklist,
+      taskName: checklist.taskName || "Unknown Task"
+    }));
+  }, [checklistsData]);
 
   // Calculate real stats from all checklists
   const checklistStats = React.useMemo(() => {

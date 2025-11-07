@@ -682,10 +682,29 @@ export async function getAllTaskChecklists() {
   const db = await getDb();
   if (!db) return [];
 
-  return await db
-    .select()
+  const result = await db
+    .select({
+      id: taskChecklists.id,
+      taskId: taskChecklists.taskId,
+      templateId: taskChecklists.templateId,
+      stage: taskChecklists.stage,
+      status: taskChecklists.status,
+      inspectedBy: taskChecklists.inspectedBy,
+      inspectedAt: taskChecklists.inspectedAt,
+      generalComments: taskChecklists.generalComments,
+      photoUrls: taskChecklists.photoUrls,
+      signature: taskChecklists.signature,
+      createdAt: taskChecklists.createdAt,
+      updatedAt: taskChecklists.updatedAt,
+      taskName: tasks.name,
+      templateName: checklistTemplates.name,
+    })
     .from(taskChecklists)
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
     .orderBy(desc(taskChecklists.createdAt));
+
+  return result;
 }
 
 export async function updateTaskChecklist(

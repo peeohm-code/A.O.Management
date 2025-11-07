@@ -946,3 +946,13 @@
 - [x] Implement proper status handling (all pass vs some fail)
 - [ ] Test complete inspection flow
 - [ ] Verify no regression after checkpoint
+
+## Fix Unknown Task Display in QC Inspection
+- [x] Investigate why checklist cards show "Unknown Task" instead of task name
+- [x] Fix backend query to properly join and return task information
+- [x] Test QC Inspection page to verify task names display correctly
+
+## Add Filtering to QC Inspection Page
+- [ ] Add filter UI (project, status, stage dropdowns)
+- [ ] Implement filter logic in frontend
+- [ ] Test filtering functionality
