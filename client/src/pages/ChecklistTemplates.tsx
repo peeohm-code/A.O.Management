@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,10 @@ export default function ChecklistTemplates() {
   const [deletingTemplate, setDeletingTemplate] = useState<any>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<number | null>(null);
   
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [stageFilter, setStageFilter] = useState<string>("all");
+  
   const [templateName, setTemplateName] = useState("");
   const [templateCategory, setTemplateCategory] = useState("");
   const [templateStage, setTemplateStage] = useState<"pre_execution" | "in_progress" | "post_execution">("pre_execution");
@@ -59,6 +63,27 @@ export default function ChecklistTemplates() {
     ...(templatesQuery.data?.inProgress || []),
     ...(templatesQuery.data?.postExecution || []),
   ];
+  
+  // Filter templates
+  const filteredTemplates = React.useMemo(() => {
+    let filtered = allTemplates;
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((t: any) => 
+        t.name?.toLowerCase().includes(query) ||
+        t.category?.toLowerCase().includes(query)
+      );
+    }
+    
+    // Filter by stage
+    if (stageFilter !== 'all') {
+      filtered = filtered.filter((t: any) => t.stage === stageFilter);
+    }
+    
+    return filtered;
+  }, [allTemplates, searchQuery, stageFilter]);
 
   const getStageLabel = (stage: string) => {
     switch (stage) {
@@ -403,11 +428,65 @@ export default function ChecklistTemplates() {
         </Dialog>
       </div>
 
+      {/* Search and Filters - Simple style like Tasks page */}
+      <div className="mb-6 flex gap-4">
+        {/* Search Box */}
+        <Input
+          placeholder="Search templates..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1"
+        />
+        
+        {/* Stage Filter Dropdown */}
+        <Select 
+          value={stageFilter} 
+          onValueChange={setStageFilter}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="All Stages" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Stages</SelectItem>
+            <SelectItem value="pre_execution">ก่อนเริ่มงาน</SelectItem>
+            <SelectItem value="in_progress">ระหว่างทำงาน</SelectItem>
+            <SelectItem value="post_execution">หลังเสร็จงาน</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Active Filters Display */}
+      {(searchQuery || stageFilter !== 'all') && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-muted-foreground">กรองโดย:</span>
+            {searchQuery && (
+              <Badge variant="secondary">
+                ค้นหา: "{searchQuery}"
+              </Badge>
+            )}
+            {stageFilter !== 'all' && (
+              <Badge variant="secondary">
+                ระยะ: {getStageLabel(stageFilter)}
+              </Badge>
+            )}
+            <span className="text-sm text-muted-foreground">({filteredTemplates.length} รายการ)</span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setStageFilter("all");
+              }}
+            >
+              ล้างตัวกรอง
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Pre-execution Templates */}
-        {templatesQuery.data?.preExecution && templatesQuery.data.preExecution.length > 0 && (
-          <>
-            {templatesQuery.data.preExecution.map((template: any) => (
+        {filteredTemplates.map((template: any) => (
               <Card key={template.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -448,105 +527,9 @@ export default function ChecklistTemplates() {
                 </CardContent>
               </Card>
             ))}
-          </>
-        )}
-
-        {/* In-progress Templates */}
-        {templatesQuery.data?.inProgress && templatesQuery.data.inProgress.length > 0 && (
-          <>
-            {templatesQuery.data.inProgress.map((template: any) => (
-              <Card key={template.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <CardDescription className="mt-1">{template.category || "ไม่มีหมวดหมู่"}</CardDescription>
-                    </div>
-                    <Badge className={getStageColor(template.stage)}>
-                      {getStageLabel(template.stage)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {template.description && (
-                    <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
-                  )}
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{template.items?.length || 0} รายการ</span>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditClick(template)}
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        แก้ไข
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteClick(template)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </>
-        )}
-
-        {/* Post-execution Templates */}
-        {templatesQuery.data?.postExecution && templatesQuery.data.postExecution.length > 0 && (
-          <>
-            {templatesQuery.data.postExecution.map((template: any) => (
-              <Card key={template.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <CardDescription className="mt-1">{template.category || "ไม่มีหมวดหมู่"}</CardDescription>
-                    </div>
-                    <Badge className={getStageColor(template.stage)}>
-                      {getStageLabel(template.stage)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {template.description && (
-                    <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
-                  )}
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{template.items?.length || 0} รายการ</span>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditClick(template)}
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        แก้ไข
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteClick(template)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </>
-        )}
       </div>
 
-      {allTemplates.length === 0 && (
+      {filteredTemplates.length === 0 && searchQuery === "" && stageFilter === "all" && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">ยังไม่มี Template</p>
           <p className="text-sm text-muted-foreground mt-1">

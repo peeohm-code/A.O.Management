@@ -970,3 +970,9 @@
 - [x] Analyze Tasks page filter UI design and layout
 - [x] Redesign QC Inspection filters to use same style as Tasks page
 - [x] Test new filter UI for usability
+
+## Add Filters to Checklist Templates Page
+- [x] Add search box to search by template name
+- [x] Add stage filter dropdown (All Stages, Pre-execution, In-progress, Post-execution)
+- [x] Use simple horizontal layout like Tasks page
+- [x] Test search and filter functionality
