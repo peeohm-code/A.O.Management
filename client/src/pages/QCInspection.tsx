@@ -56,10 +56,14 @@ export default function QCInspection() {
     }
     return null;
   });
+  
+  // Additional filters
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Queries - get all checklists (taskName already included from backend)
   const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
+  const { data: projects } = trpc.project.list.useQuery();
   
   // Use checklists directly (taskName is already included from backend JOIN)
   const allChecklists = React.useMemo(() => {
@@ -86,11 +90,29 @@ export default function QCInspection() {
     failed: checklistStats.failed || 0,
   };
 
-  // Filter checklists by status
+  // Filter checklists by all criteria
   const filteredChecklists = React.useMemo(() => {
-    if (!statusFilter) return allChecklists;
-    return allChecklists.filter(c => (c.status || 'not_started') === statusFilter);
-  }, [allChecklists, statusFilter]);
+    let filtered = allChecklists;
+    
+    // Filter by status (from URL or manual selection)
+    if (statusFilter) {
+      filtered = filtered.filter(c => (c.status || 'not_started') === statusFilter);
+    }
+    
+    // Filter by search query (task name or template name)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(c => 
+        c.taskName?.toLowerCase().includes(query) ||
+        c.name?.toLowerCase().includes(query) ||
+        c.templateName?.toLowerCase().includes(query)
+      );
+    }
+    
+    // Stage filter removed for simplicity
+    
+    return filtered;
+  }, [allChecklists, statusFilter, searchQuery]);
 
   const selectedChecklist = allChecklists.find(c => c.id === selectedChecklistId);
 
@@ -373,17 +395,69 @@ export default function QCInspection() {
         </CardContent>
       </Card>
 
+      {/* Search and Filters - Simple style like Tasks page */}
+      <div className="mb-6 flex gap-4">
+        {/* Search Box */}
+        <Input
+          placeholder="Search checklists..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1"
+        />
+        
+        {/* Status Filter Dropdown */}
+        <Select 
+          value={statusFilter || 'all'} 
+          onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+            <SelectItem value="pending_inspection">รอตรวจสอบ</SelectItem>
+            <SelectItem value="completed">ผ่าน</SelectItem>
+            <SelectItem value="failed">ไม่ผ่าน</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Active Filters Display - Only show if filters are active */}
+      {(searchQuery || statusFilter) && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-muted-foreground">กรองโดย:</span>
+            {searchQuery && (
+              <Badge variant="secondary">
+                ค้นหา: "{searchQuery}"
+              </Badge>
+            )}            {statusFilter && (
+              <Badge variant="secondary">
+                สถานะ: {statusFilter === 'not_started' ? 'ยังไม่เริ่ม' : statusFilter === 'pending_inspection' ? 'รอตรวจสอบ' : statusFilter === 'completed' ? 'ผ่าน' : 'ไม่ผ่าน'}
+              </Badge>
+            )}
+            <span className="text-sm text-muted-foreground">({filteredChecklists.length} รายการ)</span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter(null);
+              }}
+            >
+              ล้างตัวกรอง
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Checklists Grid */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">
-            {statusFilter ? `Checklists - ${getStatusBadge(statusFilter).props.children}` : 'Checklists ทั้งหมด'}
+            Checklists ({filteredChecklists.length})
           </h2>
-          {statusFilter && (
-            <Button variant="outline" onClick={() => setStatusFilter(null)}>
-              แสดงทั้งหมด
-            </Button>
-          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredChecklists.map((checklist) => (

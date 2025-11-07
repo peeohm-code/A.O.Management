@@ -956,3 +956,17 @@
 - [ ] Add filter UI (project, status, stage dropdowns)
 - [ ] Implement filter logic in frontend
 - [ ] Test filtering functionality
+
+## Add Search and Filters to QC Inspection Page
+- [ ] Add search box to search by task name or template name
+- [ ] Add status filter dropdown (ทั้งหมด, ยังไม่เริ่ม, รอตรวจสอบ, ผ่าน, ไม่ผ่าน)
+- [ ] Add project filter dropdown
+- [ ] Add stage filter dropdown (pre_execution, in_progress, post_execution)
+- [ ] Implement filter logic to combine all filters
+- [ ] Test search and filter functionality
+- [ ] Save checkpoint
+
+## Redesign QC Inspection Filters to Match Tasks Page UI
+- [x] Analyze Tasks page filter UI design and layout
+- [x] Redesign QC Inspection filters to use same style as Tasks page
+- [x] Test new filter UI for usability
