@@ -119,6 +119,7 @@ export default function QCInspection() {
     setIsInspecting(true);
     setItemResults({});
     setGeneralComments("");
+    setBeforePhotos([]);
   };
 
   const handleCreateDefect = (checklistId: number) => {
@@ -216,7 +217,7 @@ export default function QCInspection() {
     }));
   };
 
-  const handleSubmitInspection = () => {
+  const handleSubmitInspection = async () => {
     if (!selectedChecklist) return;
 
     const items = selectedChecklist.items as any[];
@@ -227,14 +228,47 @@ export default function QCInspection() {
       return;
     }
 
-    const hasFailures = Object.values(itemResults).some(r => r.result === "fail");
-    const finalStatus = hasFailures ? "failed" : "completed";
+    try {
+      setUploadingPhotos(true);
+      
+      // Upload photos if any
+      let photoUrls: string[] = [];
+      if (beforePhotos.length > 0) {
+        const uploadPromises = beforePhotos.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          if (!response.ok) throw new Error('Upload failed');
+          const data = await response.json();
+          return data.url;
+        });
+        photoUrls = await Promise.all(uploadPromises);
+      }
 
-    updateChecklistMutation.mutate({
-      id: selectedChecklist.id,
-      status: finalStatus,
-      generalComments: generalComments || undefined,
-    });
+      const hasFailures = Object.values(itemResults).some(r => r.result === "fail");
+      const finalStatus = hasFailures ? "failed" : "completed";
+
+      updateChecklistMutation.mutate({
+        id: selectedChecklist.id,
+        status: finalStatus,
+        generalComments: generalComments || undefined,
+        photoUrls: photoUrls.length > 0 ? JSON.stringify(photoUrls) : undefined,
+        itemResults: Object.entries(itemResults).map(([itemId, data]) => ({
+          templateItemId: parseInt(itemId),
+          result: data.result as "pass" | "fail" | "na",
+        })),
+      });
+      
+      // Reset photos after successful submission
+      setBeforePhotos([]);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
+    } finally {
+      setUploadingPhotos(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -426,46 +460,97 @@ export default function QCInspection() {
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
-            {/* Inspection Items */}
-            <div className="space-y-4">
-              <h3 className="font-semibold">รายการตรวจสอบ</h3>
-              {(selectedChecklist?.items as any[] || []).map((item) => (
-                <Card key={item.id}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="font-medium">{item.description}</p>
-                        {item.acceptanceCriteria && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            เกณฑ์: {item.acceptanceCriteria}
-                          </p>
-                        )}
-                      </div>
-                      <RadioGroup
-                        value={itemResults[item.id]?.result || ""}
-                        onValueChange={(value) => handleItemResult(item.id, value as InspectionResult)}
-                      >
-                        <div className="flex gap-4">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="pass" id={`pass-${item.id}`} />
-                            <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                              <CheckCircle2 className="h-4 w-4 text-green-600" />
-                              ผ่าน
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="fail" id={`fail-${item.id}`} />
-                            <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                              <XCircle className="h-4 w-4 text-red-600" />
-                              ไม่ผ่าน
-                            </Label>
-                          </div>
+            {/* Inspection Items - All in one card */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4">รายการตรวจสอบ</h3>
+                <div className="space-y-4">
+                  {(selectedChecklist?.items as any[] || []).map((item, index) => (
+                    <div key={item.id} className="pb-4 border-b last:border-b-0 last:pb-0">
+                      <div className="space-y-3">
+                        <div>
+                          <p className="font-medium">{index + 1}. {item.description}</p>
+                          {item.acceptanceCriteria && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              เกณฑ์: {item.acceptanceCriteria}
+                            </p>
+                          )}
                         </div>
-                      </RadioGroup>
+                        <RadioGroup
+                          value={itemResults[item.id]?.result || ""}
+                          onValueChange={(value) => handleItemResult(item.id, value as InspectionResult)}
+                        >
+                          <div className="flex gap-4">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="pass" id={`pass-${item.id}`} />
+                              <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-1 cursor-pointer">
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                ผ่าน
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="fail" id={`fail-${item.id}`} />
+                              <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-1 cursor-pointer">
+                                <XCircle className="h-4 w-4 text-red-600" />
+                                ไม่ผ่าน
+                              </Label>
+                            </div>
+                          </div>
+                        </RadioGroup>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Photo Upload */}
+            <div className="space-y-2">
+              <Label>รูปภาพประกอบการตรวจสอบ</Label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setBeforePhotos(prev => [...prev, ...files]);
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => document.querySelector<HTMLInputElement>('input[type="file"]')?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </div>
+                {beforePhotos.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {beforePhotos.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setBeforePhotos(prev => prev.filter((_, i) => i !== index))}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* General Comments */}

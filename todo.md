@@ -937,3 +937,12 @@
 - [x] Investigate why checklist template items don't match in QC Inspection page
 - [x] Fix data loading or mapping issue between template and inspection
 - [x] Test end-to-end flow from template to QC inspection
+
+## Fix QC Inspection UI and Functionality (Regression)
+- [x] Review previous QC Inspection implementation from git history
+- [x] Fix checklist items to display in single card instead of multiple cards
+- [x] Add photo upload functionality for inspection
+- [x] Fix save button not working
+- [x] Implement proper status handling (all pass vs some fail)
+- [ ] Test complete inspection flow
+- [ ] Verify no regression after checkpoint

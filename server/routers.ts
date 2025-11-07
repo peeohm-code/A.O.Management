@@ -615,14 +615,38 @@ const checklistRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["not_started", "pending_inspection"]),
+        status: z.enum(["not_started", "pending_inspection", "in_progress", "completed", "failed"]),
+        generalComments: z.string().optional(),
+        photoUrls: z.string().optional(),
+        itemResults: z.array(z.object({
+          templateItemId: z.number(),
+          result: z.enum(["pass", "fail", "na"]),
+        })).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const checklist = await db.getTaskChecklistById(input.id);
       if (!checklist) throw new Error("Checklist not found");
 
-      await db.updateTaskChecklistStatus(input.id, input.status);
+      // Update checklist status, comments, and photos
+      await db.updateTaskChecklist(input.id, {
+        status: input.status,
+        generalComments: input.generalComments,
+        photoUrls: input.photoUrls,
+        inspectedBy: ctx.user.id,
+        inspectedAt: new Date(),
+      });
+
+      // Save individual item results if provided
+      if (input.itemResults && input.itemResults.length > 0) {
+        for (const itemResult of input.itemResults) {
+          await db.saveChecklistItemResult({
+            taskChecklistId: input.id,
+            templateItemId: itemResult.templateItemId,
+            result: itemResult.result,
+          });
+        }
+      }
 
       await db.logActivity({
         userId: ctx.user.id,

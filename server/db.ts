@@ -691,19 +691,23 @@ export async function getAllTaskChecklists() {
 export async function updateTaskChecklist(
   id: number,
   data: Partial<{
-    status: "pending" | "in_progress" | "passed" | "failed";
+    status: "not_started" | "pending_inspection" | "in_progress" | "completed" | "failed";
     inspectedBy: number;
     inspectedAt: Date;
+    generalComments: string;
+    photoUrls: string;
     signature: string;
   }>
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const updateData: Record<string, any> = {};
+  const updateData: any = {};
   if (data.status !== undefined) updateData.status = data.status;
   if (data.inspectedBy !== undefined) updateData.inspectedBy = data.inspectedBy;
   if (data.inspectedAt !== undefined) updateData.inspectedAt = data.inspectedAt;
+  if (data.generalComments !== undefined) updateData.generalComments = data.generalComments;
+  if (data.photoUrls !== undefined) updateData.photoUrls = data.photoUrls;
   if (data.signature !== undefined) updateData.signature = data.signature;
 
   return await db.update(taskChecklists).set(updateData).where(eq(taskChecklists.id, id));
@@ -758,6 +762,9 @@ export async function getChecklistItemResults(taskChecklistId: number) {
     .from(checklistItemResults)
     .where(eq(checklistItemResults.taskChecklistId, taskChecklistId));
 }
+
+// Alias for consistency
+export const saveChecklistItemResult = addChecklistItemResult;
 
 /**
  * Defect Management
