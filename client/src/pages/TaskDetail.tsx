@@ -259,149 +259,135 @@ export default function TaskDetail() {
         )}
       </div>
 
-      {/* Unified Task Info Card */}
+      {/* Consolidated Task Info Card */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">ข้อมูลงาน</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Column 1: Timeline & Progress */}
-            <div className="space-y-4">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            {/* Project Name */}
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Building2 className="w-4 h-4" />
+              <span>โครงการ: {project?.name || "-"}</span>
+            </div>
+
+            {/* Main Info Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+              {/* Date Range */}
               <div>
-                <p className="text-xs text-gray-500 mb-2">ระยะเวลา</p>
-                {(task.startDate || task.endDate) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">ระยะเวลา</span>
-                      <span className="text-lg font-bold">{duration || 0} วัน</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">เหลือเวลา</span>
-                      <span className="text-lg font-bold">
-                        {(() => {
-                          if (!task.endDate) return "-";
-                          const end = new Date(task.endDate).getTime();
-                          const now = Date.now();
-                          const remaining = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-                          return remaining > 0 ? `${remaining} วัน` : "หมดเวลา";
-                        })()}
-                      </span>
-                    </div>
-                    {task.startDate && (
-                      <div className="pt-2 border-t">
-                        <p className="text-xs text-gray-500">เริ่ม</p>
-                        <p className="text-sm font-semibold">
-                          {new Date(task.startDate).toLocaleDateString("th-TH", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric"
-                          })}
-                        </p>
-                      </div>
-                    )}
-                    {task.endDate && (
-                      <div>
-                        <p className="text-xs text-gray-500">สิ้นสุด</p>
-                        <p className="text-sm font-semibold">
-                          {new Date(task.endDate).toLocaleDateString("th-TH", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric"
-                          })}
-                        </p>
-                      </div>
-                    )}
+                <p className="text-xs text-gray-500 mb-1">ระยะเวลา</p>
+                <p className="text-sm font-medium">
+                  {task.startDate && task.endDate
+                    ? `${new Date(task.startDate).toLocaleDateString("th-TH", { day: "numeric", month: "short" })} - ${new Date(task.endDate).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" })} (${duration} วัน)`
+                    : "-"}
+                </p>
+              </div>
+
+              {/* Progress */}
+              <div>
+                <p className="text-xs text-gray-500 mb-1">ความคืบหน้า</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${task.progress}%` }} />
                   </div>
-                )}
+                  <span className="text-sm font-bold text-blue-600">{task.progress}%</span>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <p className="text-xs text-gray-500 mb-1">สถานะ</p>
+                <Badge className={task.status === "ล่าช้า" ? "bg-red-100 text-red-700" : task.status === "Progress" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"}>
+                  {task.status}
+                </Badge>
+              </div>
+
+              {/* Assignee */}
+              <div>
+                <p className="text-xs text-gray-500 mb-1">ผู้รับผิดชอบ</p>
+                <p className="text-sm font-medium">{task.assigneeId ? `User #${task.assigneeId}` : "ไม่ได้กำหนด"}</p>
               </div>
             </div>
 
-            {/* Column 2: Progress */}
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs text-gray-500 mb-2">ความคืบหน้า</p>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Progress</span>
-                  <span className="text-2xl font-bold text-blue-600">{task.progress}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
-                  <div
-                    className="bg-blue-600 h-3 rounded-full transition-all"
-                    style={{ width: `${task.progress}%` }}
-                  />
-                </div>
-                {!showProgressForm ? (
+            {/* Quick Actions */}
+            <div className="flex gap-2 pt-2 border-t">
+              <Button size="sm" variant="outline" onClick={() => {
+                setNewProgress(task.progress.toString());
+                setShowProgressForm(true);
+              }}>
+                อัปเดตความคืบหน้า
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    ลบ
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>ยืนยันการลบงาน</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      คุณแน่ใจหรือไม่ว่าต้องการลบงานนี้? การกระทำนี้ไม่สามารถย้อนกลับได้
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={async () => {
+                        try {
+                          await deleteTaskMutation.mutateAsync({ id: taskId });
+                          toast.success("ลบงานสำเร็จ");
+                          setLocation("/tasks");
+                        } catch (error) {
+                          toast.error("เกิดข้อผิดพลาด");
+                        }
+                      }}
+                    >
+                      ลบ
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
+            {/* Progress Update Form */}
+            {showProgressForm && (
+              <div className="space-y-2 pt-2 border-t">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={newProgress}
+                  onChange={(e) => setNewProgress(e.target.value)}
+                  placeholder="0-100"
+                />
+                <div className="flex gap-2">
                   <Button
-                    variant="outline"
                     size="sm"
-                    className="w-full"
-                    onClick={() => {
-                      setNewProgress(task.progress.toString());
-                      setShowProgressForm(true);
+                    disabled={!newProgress || parseInt(newProgress) < 0 || parseInt(newProgress) > 100}
+                    onClick={async () => {
+                      try {
+                        await updateTaskMutation.mutateAsync({
+                          id: taskId,
+                          progress: parseInt(newProgress),
+                        });
+                        toast.success("อัปเดตความคืบหน้าสำเร็จ");
+                        setShowProgressForm(false);
+                        taskQuery.refetch();
+                        activityQuery.refetch();
+                      } catch (error) {
+                        toast.error("เกิดข้อผิดพลาด");
+                      }
                     }}
                   >
-                    อัปเดตความคืบหน้า
+                    บันทึก
                   </Button>
-                ) : (
-                  <div className="space-y-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={newProgress}
-                      onChange={(e) => setNewProgress(e.target.value)}
-                      placeholder="0-100"
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        disabled={!newProgress || parseInt(newProgress) < 0 || parseInt(newProgress) > 100}
-                        onClick={async () => {
-                          try {
-                            await updateTaskMutation.mutateAsync({
-                              id: taskId,
-                              progress: parseInt(newProgress),
-                            });
-                            toast.success("อัปเดตความคืบหน้าสำเร็จ");
-                            setShowProgressForm(false);
-                            taskQuery.refetch();
-                            activityQuery.refetch();
-                          } catch (error) {
-                            toast.error("เกิดข้อผิดพลาด");
-                          }
-                        }}
-                      >
-                        บันทึก
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setShowProgressForm(false)}
-                      >
-                        ยกเลิก
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                  <Button size="sm" variant="outline" onClick={() => setShowProgressForm(false)}>
+                    ยกเลิก
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            {/* Column 3: Assignee */}
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
-                  <User className="w-3 h-3" />
-                  ผู้รับผิดชอบ
-                </p>
-                {task.assigneeId ? (
-                  <p className="text-sm font-semibold">User #{task.assigneeId}</p>
-                ) : (
-                  <p className="text-sm text-gray-400">ไม่ได้กำหนด</p>
-                )}
-              </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
