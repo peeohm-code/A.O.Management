@@ -1007,3 +1007,17 @@
 - [ ] Add bulk actions (mark all as read, delete read)
 - [ ] Implement new notification triggers in backend (deadline alerts, status changes, etc.)
 - [ ] Test complete notification workflow
+
+## Move Notifications and User Menu to Top Bar
+- [x] Create NotificationDropdown component (bell icon + badge + dropdown)
+- [x] Create UserDropdown component (avatar + dropdown menu)
+- [x] Update DashboardLayout to add top bar with new components
+- [x] Remove Notifications and Settings from sidebar
+- [x] Test top bar layout and functionality
+
+## UI Reorganization - Header Dropdowns
+- [x] สร้าง NotificationDropdown component แยกออกมา
+- [x] สร้าง UserDropdown component แยกออกมา
+- [x] ลบ Notifications, Settings, User Management ออกจาก sidebar
+- [x] เพิ่ม NotificationDropdown และ UserDropdown ใน header
+- [x] แก้ไข import ที่ขาดหายไป (UserCircle, LogOut icons)

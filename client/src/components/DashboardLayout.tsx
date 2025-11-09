@@ -23,7 +23,9 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, LogOut, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, Bell, FileText, Settings as SettingsIcon, BarChart3, Users, UserCircle } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut } from "lucide-react";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
+import { UserDropdown } from "@/components/UserDropdown";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -47,10 +49,7 @@ const menuItems = [
   { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
-  { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: FileText, label: "Reports", path: "/reports" },
-  { icon: Users, label: "User Management", path: "/users" },
-  { icon: SettingsIcon, label: "Settings", path: "/settings" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -314,20 +313,26 @@ function DashboardLayoutContent({
       </div>
 
       <SidebarInset>
-        {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? APP_TITLE}
-                  </span>
-                </div>
-              </div>
-            </div>
+        {/* Top Bar - Desktop & Mobile */}
+        <div className="flex border-b h-14 items-center justify-between bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+          <div className="flex items-center gap-2">
+            {isMobile && (
+              <>
+                <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
+                <span className="tracking-tight text-foreground font-medium">
+                  {activeMenuItem?.label ?? APP_TITLE}
+                </span>
+              </>
+            )}
+            {!isMobile && (
+              <span className="text-lg font-semibold">{APP_TITLE}</span>
+            )}
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <NotificationDropdown />
+            <UserDropdown />
+          </div>
+        </div>
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>
