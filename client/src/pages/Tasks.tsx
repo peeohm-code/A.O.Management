@@ -155,14 +155,14 @@ export default function Tasks() {
         >
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-1">
-              <span className="text-blue-600">📈</span> กำลังทำ
+              <span className="text-[#00366D]">📈</span> กำลังทำ
             </CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{stats.in_progress}</CardTitle>
+            <CardTitle className="text-3xl text-[#00366D]">{stats.in_progress}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all"
+                className="bg-[#00366D] h-2 rounded-full transition-all"
                 style={{ width: `${stats.total > 0 ? (stats.in_progress / stats.total) * 100 : 0}%` }}
               />
             </div>
@@ -199,14 +199,14 @@ export default function Tasks() {
         >
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-1">
-              <span className="text-green-600">✅</span> เสร็จสมบูรณ์
+              <span className="text-[#00CE81]">✅</span> เสร็จสมบูรณ์
             </CardDescription>
-            <CardTitle className="text-3xl text-green-600">{stats.completed}</CardTitle>
+            <CardTitle className="text-3xl text-[#00CE81]">{stats.completed}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-green-500 h-2 rounded-full transition-all"
+                className="bg-[#00CE81] h-2 rounded-full transition-all"
                 style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%` }}
               />
             </div>
@@ -256,7 +256,7 @@ export default function Tasks() {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-blue-500 h-2 rounded-full transition-all"
+                      className="bg-[#00366D] h-2 rounded-full transition-all"
                       style={{ width: `${task.progress}%` }}
                     />
                   </div>

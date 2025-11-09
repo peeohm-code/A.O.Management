@@ -43,7 +43,7 @@ export default function NotificationCenter() {
       case "high":
         return <AlertCircle className="w-4 h-4 text-orange-600" />;
       case "normal":
-        return <Bell className="w-4 h-4 text-blue-600" />;
+        return <Bell className="w-4 h-4 text-[#00366D]" />;
       case "low":
         return <Bell className="w-4 h-4 text-gray-400" />;
       default:
@@ -83,7 +83,7 @@ export default function NotificationCenter() {
       case "task_assigned":
       case "task_status_changed":
       case "task_updated":
-        return <ClipboardList {...iconProps} className="w-5 h-5 text-blue-600" />;
+        return <ClipboardList {...iconProps} className="w-5 h-5 text-[#00366D]" />;
       case "task_deadline_approaching":
       case "task_overdue":
       case "deadline_reminder":
@@ -94,7 +94,7 @@ export default function NotificationCenter() {
         return <Search {...iconProps} className="w-5 h-5 text-yellow-600" />;
       case "inspection_completed":
       case "inspection_passed":
-        return <CheckCheck {...iconProps} className="w-5 h-5 text-green-600" />;
+        return <CheckCheck {...iconProps} className="w-5 h-5 text-[#00CE81]" />;
       case "inspection_failed":
       case "reinspection_required":
         return <XCircle {...iconProps} className="w-5 h-5 text-red-600" />;
@@ -280,7 +280,7 @@ export default function NotificationCenter() {
                         {getPriorityLabel(notif.priority)}
                       </Badge>
                       {!notif.isRead && (
-                        <Badge className="bg-blue-600 text-white text-xs">ใหม่</Badge>
+                        <Badge className="bg-[#00366D] text-white text-xs">ใหม่</Badge>
                       )}
                     </div>
                     {notif.content && (

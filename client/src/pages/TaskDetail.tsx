@@ -144,13 +144,13 @@ export default function TaskDetail() {
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       todo: "bg-gray-100 text-gray-700 border-gray-300",
-      in_progress: "bg-blue-100 text-blue-700 border-blue-300",
+      in_progress: "bg-blue-100 text-[#00366D] border-blue-300",
       pending_pre_inspection: "bg-yellow-100 text-yellow-700 border-yellow-300",
-      ready_to_start: "bg-green-100 text-green-700 border-green-300",
+      ready_to_start: "bg-green-100 text-[#00CE81] border-green-300",
       pending_in_progress_inspection: "bg-yellow-100 text-yellow-700 border-yellow-300",
       pending_final_inspection: "bg-yellow-100 text-yellow-700 border-yellow-300",
       rectification_needed: "bg-red-100 text-red-700 border-red-300",
-      completed: "bg-green-100 text-green-700 border-green-300",
+      completed: "bg-green-100 text-[#00CE81] border-green-300",
       not_started: "bg-gray-100 text-gray-700 border-gray-300",
       delayed: "bg-red-100 text-red-700 border-red-300",
     };
@@ -174,7 +174,7 @@ export default function TaskDetail() {
   if (taskQuery.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#00366D]" />
       </div>
     );
   }
@@ -218,7 +218,7 @@ export default function TaskDetail() {
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                   <Building2 className="w-4 h-4" />
                   <Link href={`/projects/${project.id}`}>
-                    <span className="font-semibold hover:text-blue-600 hover:underline cursor-pointer">
+                    <span className="font-semibold hover:text-[#00366D] hover:underline cursor-pointer">
                       โครงการ: {project.name}
                     </span>
                   </Link>
@@ -246,9 +246,9 @@ export default function TaskDetail() {
                 <p className="text-xs text-gray-500 mb-1">ความคืบหน้า</p>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${task.progress}%` }} />
+                    <div className="bg-[#00366D] h-2 rounded-full" style={{ width: `${task.progress}%` }} />
                   </div>
-                  <span className="text-sm font-bold text-blue-600">{task.progress}%</span>
+                  <span className="text-sm font-bold text-[#00366D]">{task.progress}%</span>
                 </div>
               </div>
 
@@ -441,7 +441,7 @@ export default function TaskDetail() {
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         {attachment.mimeType?.startsWith("image/") ? (
-                          <ImageIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                          <ImageIcon className="w-5 h-5 text-[#00366D] flex-shrink-0" />
                         ) : (
                           <File className="w-5 h-5 text-gray-600 flex-shrink-0" />
                         )}
@@ -450,7 +450,7 @@ export default function TaskDetail() {
                             href={attachment.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-medium text-blue-600 hover:underline block truncate"
+                            className="text-sm font-medium text-[#00366D] hover:underline block truncate"
                           >
                             {attachment.fileName}
                           </a>
@@ -537,7 +537,7 @@ export default function TaskDetail() {
                 <div className="space-y-3">
                   {activities.map((activity) => (
                     <div key={activity.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-[#00366D] rounded-full mt-2 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-sm">User #{activity.userId}</span>

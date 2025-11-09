@@ -239,7 +239,7 @@ export default function QCInspection() {
     const config: Record<string, { label: string; className: string }> = {
       not_started: { label: "ยังไม่เริ่ม", className: "bg-gray-100 text-gray-700" },
       pending_inspection: { label: "รอตรวจสอบ", className: "bg-yellow-100 text-yellow-700" },
-      completed: { label: "ผ่าน", className: "bg-green-100 text-green-700" },
+      completed: { label: "ผ่าน", className: "bg-green-100 text-[#00CE81]" },
       failed: { label: "ไม่ผ่าน", className: "bg-red-100 text-red-700" },
     };
     const { label, className } = config[status] || config.not_started;
@@ -320,7 +320,7 @@ export default function QCInspection() {
                 onClick={() => setStatusFilter(statusFilter === 'completed' ? null : 'completed')}
               >
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+                  <div className="text-2xl font-bold text-[#00CE81]">{stats.completed}</div>
                   <div className="text-sm text-muted-foreground">ผ่าน</div>
                 </CardContent>
               </Card>
@@ -506,7 +506,7 @@ export default function QCInspection() {
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="pass" id={`pass-${item.id}`} />
                               <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                <CheckCircle2 className="h-4 w-4 text-[#00CE81]" />
                                 ผ่าน
                               </Label>
                             </div>
@@ -579,19 +579,19 @@ export default function QCInspection() {
             <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
-                  <ClipboardCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <ClipboardCheck className="h-5 w-5 text-[#00366D] dark:text-blue-400 mt-0.5" />
                   <div className="flex-1 space-y-2">
                     <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-100">ข้อมูลการตรวจสอบ</h4>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <CheckCircle2 className="h-4 w-4 text-[#00366D] dark:text-blue-400" />
                         <div>
                           <span className="text-muted-foreground">Checklist:</span>
                           <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.name}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <Calendar className="h-4 w-4 text-[#00366D] dark:text-blue-400" />
                         <div>
                           <span className="text-muted-foreground">งาน:</span>
                           <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.taskName}</p>
@@ -632,7 +632,7 @@ export default function QCInspection() {
                   </SelectItem>
                   <SelectItem value="PAR" className="text-base py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-[#00366D]"></div>
                       <div>
                         <div className="font-semibold">PAR - Preventive Action Request</div>
                         <div className="text-xs text-muted-foreground">คำขอดำเนินการป้องกัน</div>
@@ -722,7 +722,7 @@ export default function QCInspection() {
                   <SelectContent>
                     <SelectItem value="low" className="py-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-[#00CE81]"></div>
                         <span>ต่ำ - Low</span>
                       </div>
                     </SelectItem>
@@ -839,7 +839,7 @@ export default function QCInspection() {
               disabled={createDefectMutation.isPending || !defectForm.title}
               className={`h-11 px-6 ${
                 defectForm.type === "CAR" ? "bg-yellow-600 hover:bg-yellow-700" :
-                defectForm.type === "PAR" ? "bg-blue-600 hover:bg-blue-700" :
+                defectForm.type === "PAR" ? "bg-[#00366D] hover:bg-blue-700" :
                 "bg-red-600 hover:bg-red-700"
               }`}
             >

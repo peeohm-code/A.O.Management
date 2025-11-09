@@ -78,11 +78,11 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#1e3a5f] via-[#2d7a7a] to-[#00b894]">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#00366D] via-[#006b7a] to-[#00CE81]">
         <div className="flex flex-col items-center gap-8 p-10 max-w-md w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
           <div className="flex flex-col items-center gap-6">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#2d7a7a] to-[#00b894] rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#00366D] to-[#00CE81] rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
               <div className="relative bg-white p-3 rounded-xl">
                 <img
                   src={APP_LOGO}
@@ -92,7 +92,7 @@ export default function DashboardLayout({
               </div>
             </div>
             <div className="text-center space-y-3">
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#1e3a5f] to-[#2d7a7a] bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#00366D] to-[#00CE81] bg-clip-text text-transparent">
                 {APP_TITLE.split('\n').map((line, i) => (
                   <div key={i}>{line}</div>
                 ))}

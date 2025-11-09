@@ -250,7 +250,7 @@ export default function UserProfile() {
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex gap-3">
-            <Shield className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+            <Shield className="w-5 h-5 text-[#00366D] shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="font-medium text-blue-900">เกี่ยวกับบทบาทของคุณ</p>
               <p className="text-sm text-blue-800">

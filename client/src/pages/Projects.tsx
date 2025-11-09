@@ -123,8 +123,8 @@ export default function Projects() {
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 75) return "bg-green-500";
-    if (progress >= 50) return "bg-blue-500";
+    if (progress >= 75) return "bg-[#00CE81]";
+    if (progress >= 50) return "bg-[#00366D]";
     if (progress >= 25) return "bg-yellow-500";
     return "bg-gray-400";
   };

@@ -94,7 +94,7 @@ export default function Settings() {
               {/* User Avatar */}
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-2xl font-bold text-[#00366D]">
                     {user.name?.charAt(0).toUpperCase() || "U"}
                   </span>
                 </div>

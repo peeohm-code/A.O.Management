@@ -342,7 +342,7 @@ export default function DefectDetail() {
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       CAR: "bg-yellow-100 text-yellow-700 border-yellow-300",
-      PAR: "bg-blue-100 text-blue-700 border-blue-300",
+      PAR: "bg-blue-100 text-[#00366D] border-blue-300",
       NCR: "bg-red-100 text-red-700 border-red-300",
     };
     return colors[type] || "bg-gray-100 text-gray-700 border-gray-300";
@@ -366,9 +366,9 @@ export default function DefectDetail() {
     const colors: Record<string, string> = {
       reported: "bg-orange-100 text-orange-700 border-orange-300",
       action_plan: "bg-yellow-100 text-yellow-700 border-yellow-300",
-      assigned: "bg-blue-100 text-blue-700 border-blue-300",
-      in_progress: "bg-blue-100 text-blue-700 border-blue-300",
-      implemented: "bg-green-100 text-green-700 border-green-300",
+      assigned: "bg-blue-100 text-[#00366D] border-blue-300",
+      in_progress: "bg-blue-100 text-[#00366D] border-blue-300",
+      implemented: "bg-green-100 text-[#00CE81] border-green-300",
       verification: "bg-purple-100 text-purple-700 border-purple-300",
       effectiveness_check: "bg-indigo-100 text-indigo-700 border-indigo-300",
       closed: "bg-gray-100 text-gray-700 border-gray-300",
@@ -391,7 +391,7 @@ export default function DefectDetail() {
       critical: "bg-red-100 text-red-700 border-red-300",
       high: "bg-orange-100 text-orange-700 border-orange-300",
       medium: "bg-yellow-100 text-yellow-700 border-yellow-300",
-      low: "bg-green-100 text-green-700 border-green-300",
+      low: "bg-green-100 text-[#00CE81] border-green-300",
     };
     return colors[severity] || "bg-gray-100 text-gray-700 border-gray-300";
   };
@@ -496,7 +496,7 @@ export default function DefectDetail() {
                 {defect.taskId && (
                   <div>
                     <p className="text-sm text-gray-500 mb-1">งาน</p>
-                    <Link href={`/tasks/${defect.taskId}`} className="font-medium text-blue-600 hover:underline">
+                    <Link href={`/tasks/${defect.taskId}`} className="font-medium text-[#00366D] hover:underline">
                       Task #{defect.taskId}
                     </Link>
                   </div>
@@ -628,7 +628,7 @@ export default function DefectDetail() {
                 )}
                 {defect.closedAt && (
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    <CheckCircle2 className="w-4 h-4 text-[#00CE81]" />
                     <div>
                       <p className="text-sm text-gray-500">ปิดเมื่อ</p>
                       <p className="font-medium">
@@ -853,7 +853,7 @@ export default function DefectDetail() {
                     <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0 last:pb-0">
                       <div className="flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <Clock className="w-4 h-4 text-blue-600" />
+                          <Clock className="w-4 h-4 text-[#00366D]" />
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1098,7 +1098,7 @@ export default function DefectDetail() {
                 {/* After */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-[#00CE81]"></div>
                     หลังแก้ไข (After)
                   </h3>
                   <div className="space-y-2">

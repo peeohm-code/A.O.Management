@@ -74,7 +74,7 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
       ? trend < 0 
       : trend > 0;
 
-    const trendColor = isGoodTrend ? "text-green-600" : "text-red-600";
+    const trendColor = isGoodTrend ? "text-[#00CE81]" : "text-red-600";
     const TrendIcon = trend > 0 ? TrendingUp : TrendingDown;
 
     return (
@@ -93,8 +93,8 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
       icon: Briefcase,
       color: "blue",
       bgGradient: "from-blue-50 to-blue-100/50",
-      textColor: "text-blue-700",
-      iconBg: "bg-blue-500",
+      textColor: "text-[#00366D]",
+      iconBg: "bg-[#00366D]",
       metricType: "active",
       trend: trends.active,
     },
@@ -105,8 +105,8 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
       icon: CheckCircle2,
       color: "green",
       bgGradient: "from-green-50 to-green-100/50",
-      textColor: "text-green-700",
-      iconBg: "bg-green-500",
+      textColor: "text-[#00CE81]",
+      iconBg: "bg-[#00CE81]",
       badge: "✅ ปกติ",
       metricType: "onTrack",
       trend: trends.onTrack,
@@ -169,7 +169,7 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
     } else if (status.includes("at_risk")) {
       return <Badge className="bg-orange-500">เสี่ยง</Badge>;
     } else if (status === "completed") {
-      return <Badge className="bg-green-500">เสร็จสมบูรณ์</Badge>;
+      return <Badge className="bg-[#00CE81] text-white">เสร็จสมบูรณ์</Badge>;
     } else {
       return <Badge variant="secondary">ปกติ</Badge>;
     }

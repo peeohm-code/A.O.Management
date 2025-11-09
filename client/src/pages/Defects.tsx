@@ -355,10 +355,10 @@ export default function Defects() {
               }}
             >
               <div className="text-sm text-gray-600 mb-1">ปิดแล้ว</div>
-              <div className="text-3xl font-bold text-green-600 mb-2">{metrics.closed}</div>
+              <div className="text-3xl font-bold text-[#00CE81] mb-2">{metrics.closed}</div>
               <div className="h-2 bg-green-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-green-500" 
+                  className="h-full bg-[#00CE81]" 
                   style={{ width: metrics.total > 0 ? `${(metrics.closed / metrics.total) * 100}%` : "0%" }} 
                 />
               </div>
@@ -578,7 +578,7 @@ export default function Defects() {
                     </>
                   )}
                   {selectedDefect.dueDate && (
-                    <p className="text-xs text-green-700 mt-2">กำหนดเสร็จ: {new Date(selectedDefect.dueDate).toLocaleDateString('th-TH')}</p>
+                    <p className="text-xs text-[#00CE81] mt-2">กำหนดเสร็จ: {new Date(selectedDefect.dueDate).toLocaleDateString('th-TH')}</p>
                   )}
                 </div>
               )}
@@ -588,7 +588,7 @@ export default function Defects() {
                 {selectedDefect.status === "reported" && (
                   <Button
                     onClick={() => setShowRCAForm(true)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="flex-1 bg-[#00366D] hover:bg-blue-700"
                   >
                     วิเคราะห์สาเหตุต้นตอ
                   </Button>
@@ -623,7 +623,7 @@ export default function Defects() {
                   <Button
                     onClick={() => handleUpdateDefect("verification")}
                     disabled={updateDefectMutation.isPending}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="flex-1 bg-[#00366D] hover:bg-blue-700"
                   >
                     ขอตรวจสอบ
                   </Button>
@@ -657,7 +657,7 @@ export default function Defects() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5 text-blue-600" />
+              <Search className="w-5 h-5 text-[#00366D]" />
               การวิเคราะห์สาเหตุต้นตอ (Root Cause Analysis)
             </DialogTitle>
             <DialogDescription>
@@ -711,7 +711,7 @@ export default function Defects() {
               <Button
                 onClick={handleSaveRCA}
                 disabled={!rootCause.trim() || updateDefectMutation.isPending}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-[#00366D] hover:bg-blue-700"
               >
                 {updateDefectMutation.isPending ? "กำลังบันทึก..." : "บันทึก RCA และดำเนินการต่อ"}
               </Button>
@@ -725,7 +725,7 @@ export default function Defects() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <CheckCircle2 className="w-5 h-5 text-[#00CE81]" />
               สร้างแผนการแก้ไข (Action Plan)
             </DialogTitle>
             <DialogDescription>
@@ -955,8 +955,8 @@ export default function Defects() {
                 {/* After Photos */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 pb-2 border-b">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <h4 className="font-semibold text-green-700">หลังแก้ไข (After)</h4>
+                    <div className="w-3 h-3 rounded-full bg-[#00CE81]"></div>
+                    <h4 className="font-semibold text-[#00CE81]">หลังแก้ไข (After)</h4>
                   </div>
                   {getAfterAttachmentsQuery.isLoading ? (
                     <div className="flex items-center justify-center py-8">
@@ -1109,7 +1109,7 @@ export default function Defects() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <CheckCircle2 className="w-5 h-5 text-[#00CE81]" />
               Effectiveness Check - {selectedDefect?.type}
             </DialogTitle>
             <DialogDescription>

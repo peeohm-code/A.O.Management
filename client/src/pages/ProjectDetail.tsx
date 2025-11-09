@@ -187,7 +187,7 @@ export default function ProjectDetail() {
             <CardTitle className="text-sm font-medium text-gray-600">กำลังทำ</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{inProgressTasks}</div>
+            <div className="text-2xl font-bold text-[#00366D]">{inProgressTasks}</div>
           </CardContent>
         </Card>
         <Card>
@@ -203,7 +203,7 @@ export default function ProjectDetail() {
             <CardTitle className="text-sm font-medium text-gray-600">เสร็จสมบูรณ์</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-[#00CE81]">
               {completedTasks}/{totalTasks}
             </div>
           </CardContent>

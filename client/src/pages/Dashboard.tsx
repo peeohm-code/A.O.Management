@@ -116,7 +116,7 @@ export default function Dashboard() {
 
             {/* Date Range Selector */}
             <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-2 border border-gray-200">
-              <Calendar className="w-5 h-5 text-blue-600" />
+              <Calendar className="w-5 h-5 text-[#00366D]" />
               <Select value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
                 <SelectTrigger className="w-[180px] border-none bg-transparent focus:ring-0">
                   <SelectValue placeholder="เลือกช่วงเวลา" />
@@ -136,8 +136,8 @@ export default function Dashboard() {
           {dateRange !== "all" && (
             <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                <span className="text-sm text-blue-700 font-medium">
+                <div className="w-2 h-2 bg-[#00366D] rounded-full animate-pulse" />
+                <span className="text-sm text-[#00366D] font-medium">
                   กำลังแสดงข้อมูล: <strong>{getDateRangeLabel(dateRange)}</strong>
                 </span>
               </div>
@@ -145,7 +145,7 @@ export default function Dashboard() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setDateRange("all")}
-                className="text-blue-700 hover:text-blue-800 hover:bg-blue-100"
+                className="text-[#00366D] hover:text-blue-800 hover:bg-blue-100"
               >
                 <X className="w-4 h-4 mr-1" />
                 แสดงทั้งหมด
@@ -192,7 +192,7 @@ export default function Dashboard() {
             <Card className="shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-blue-500 rounded-lg">
+                  <div className="p-2 bg-[#00366D] rounded-lg">
                     <Bell className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -227,7 +227,7 @@ export default function Dashboard() {
                           </p>
                         </div>
                         {!notif.isRead && (
-                          <Badge variant="default" className="text-xs bg-blue-500">
+                          <Badge variant="default" className="text-xs bg-[#00366D]">
                             ใหม่
                           </Badge>
                         )}
