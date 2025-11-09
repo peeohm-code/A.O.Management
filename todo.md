@@ -1512,3 +1512,12 @@
 - [x] รัน auto-archive job script
 - [x] ตรวจสอบผลการ archive อัตโนมัติ (0 rules enabled)
 - [x] Save final checkpoint
+
+
+## Setup Auto-Archive System (Nov 9, 2025)
+- [x] สร้าง auto-archive rule แรกในระบบ (Archive completed projects after 180 days)
+- [x] ทดสอบรัน auto-archive job กับ rule ที่สร้าง (Found 1 rule, 0 projects matched)
+- [x] สร้าง cron job script wrapper (setup-cron.sh)
+- [x] เขียนคู่มือการตั้งค่า crontab (updated README.md)
+- [ ] ทดสอบระบบ auto-archive ทั้งหมด
+- [ ] Save final checkpoint

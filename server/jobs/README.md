@@ -2,6 +2,70 @@
 
 This directory contains scheduled job scripts for background tasks.
 
+## Auto-Archive Job
+
+**File:** `autoArchiveJob.ts`
+
+**Purpose:** Automatically archive projects based on configured rules (e.g., archive completed projects after 180 days).
+
+### Quick Setup
+
+Use the automated setup script:
+
+```bash
+bash server/jobs/setup-cron.sh
+```
+
+The script will guide you through:
+- Verifying project paths
+- Choosing a cron schedule
+- Installing the cron job automatically (optional)
+- Creating logs directory
+
+### Manual Execution
+
+```bash
+cd /home/ubuntu/construction_management_app
+pnpm tsx server/jobs/autoArchiveJob.ts
+```
+
+### Manual Cron Setup
+
+1. Create logs directory:
+```bash
+mkdir -p /home/ubuntu/construction_management_app/logs
+```
+
+2. Edit crontab:
+```bash
+crontab -e
+```
+
+3. Add schedule (example: daily at 2 AM):
+```bash
+0 2 * * * cd /home/ubuntu/construction_management_app && pnpm tsx server/jobs/autoArchiveJob.ts >> /home/ubuntu/construction_management_app/logs/auto-archive.log 2>&1
+```
+
+4. Verify:
+```bash
+crontab -l
+```
+
+5. View logs:
+```bash
+tail -f /home/ubuntu/construction_management_app/logs/auto-archive.log
+```
+
+### Job Behavior
+
+- Fetches all enabled archive rules from database
+- For each rule, finds projects matching criteria
+- Archives matching projects automatically
+- Logs history in archiveHistory table
+- Reports results to console/log file
+
+---
+
 ## Archive Notification Job
 
 **File:** `checkArchiveJob.ts`
