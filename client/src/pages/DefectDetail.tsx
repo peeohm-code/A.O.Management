@@ -4,7 +4,8 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock, Image, Upload, Trash2, X } from "lucide-react";
+import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock, Image, Upload, Trash2, X, ChevronLeft, ChevronRight, Maximize2, GitCompare, Download } from "lucide-react";
+import jsPDF from "jspdf";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,14 @@ export default function DefectDetail() {
   // Photo upload state
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [currentPhotoType, setCurrentPhotoType] = useState<"before" | "after">("before");
+
+  // Comparison state
+  const [showComparison, setShowComparison] = useState(false);
 
   // Edit dialog state
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -168,6 +177,168 @@ export default function DefectDetail() {
     }
   };
 
+  const openLightbox = (index: number, type: "before" | "after") => {
+    setCurrentPhotoIndex(index);
+    setCurrentPhotoType(type);
+    setLightboxOpen(true);
+  };
+
+  const getCurrentPhotos = () => {
+    return currentPhotoType === "before" 
+      ? (beforePhotosQuery.data || []) 
+      : (afterPhotosQuery.data || []);
+  };
+
+  const handlePrevPhoto = () => {
+    const photos = getCurrentPhotos();
+    setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : photos.length - 1));
+  };
+
+  const handleNextPhoto = () => {
+    const photos = getCurrentPhotos();
+    setCurrentPhotoIndex((prev) => (prev < photos.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleExportPDF = async () => {
+    if (!defect) return;
+
+    try {
+      const pdf = new jsPDF();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let yPos = 20;
+
+      // Helper function to add text with word wrap
+      const addText = (text: string, fontSize: number = 12, isBold: boolean = false) => {
+        pdf.setFontSize(fontSize);
+        if (isBold) pdf.setFont("helvetica", "bold");
+        else pdf.setFont("helvetica", "normal");
+        
+        const lines = pdf.splitTextToSize(text, pageWidth - 40);
+        pdf.text(lines, 20, yPos);
+        yPos += (lines.length * fontSize * 0.5) + 5;
+      };
+
+      // Helper to check if new page needed
+      const checkNewPage = (requiredSpace: number = 20) => {
+        if (yPos + requiredSpace > pageHeight - 20) {
+          pdf.addPage();
+          yPos = 20;
+        }
+      };
+
+      // Title
+      addText(`Defect Report: ${defect.type} - ${defect.title}`, 18, true);
+      yPos += 5;
+
+      // Basic Info
+      addText("Basic Information", 14, true);
+      addText(`Type: ${defect.type}`);
+      addText(`Severity: ${getSeverityLabel(defect.severity)}`);
+      addText(`Status: ${getStatusLabel(defect.status)}`);
+      addText(`Created: ${new Date(defect.createdAt).toLocaleDateString('th-TH')}`);
+      if (defect.assignedToName) addText(`Assigned To: ${defect.assignedToName}`);
+      yPos += 5;
+
+      // Description
+      checkNewPage(30);
+      addText("Description", 14, true);
+      addText(defect.description || "N/A");
+      yPos += 5;
+
+      // Root Cause Analysis
+      if (defect.rootCause) {
+        checkNewPage(30);
+        addText("Root Cause Analysis", 14, true);
+        addText(defect.rootCause);
+        yPos += 5;
+      }
+
+      // Corrective Action
+      if (defect.correctiveAction) {
+        checkNewPage(30);
+        addText("Corrective Action", 14, true);
+        addText(defect.correctiveAction);
+        yPos += 5;
+      }
+
+      // Preventive Action
+      if (defect.preventiveAction) {
+        checkNewPage(30);
+        addText("Preventive Action", 14, true);
+        addText(defect.preventiveAction);
+        yPos += 5;
+      }
+
+      // Verification
+      if (defect.verificationComment) {
+        checkNewPage(30);
+        addText("Verification Comment", 14, true);
+        addText(defect.verificationComment);
+        yPos += 5;
+      }
+
+      // Photos
+      const loadImage = (url: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+          const img = new window.Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = url;
+        });
+      };
+
+      // Before Photos
+      if (beforePhotosQuery.data && beforePhotosQuery.data.length > 0) {
+        checkNewPage(60);
+        addText("Before Photos", 14, true);
+        
+        for (const photo of beforePhotosQuery.data) {
+          try {
+            checkNewPage(90);
+            const img = await loadImage(photo.fileUrl);
+            const imgWidth = 80;
+            const imgHeight = (img.height / img.width) * imgWidth;
+            pdf.addImage(img, "JPEG", 20, yPos, imgWidth, imgHeight);
+            yPos += imgHeight + 5;
+            addText(photo.fileName, 10);
+          } catch (error) {
+            addText(`[Image failed to load: ${photo.fileName}]`, 10);
+          }
+        }
+        yPos += 5;
+      }
+
+      // After Photos
+      if (afterPhotosQuery.data && afterPhotosQuery.data.length > 0) {
+        checkNewPage(60);
+        addText("After Photos", 14, true);
+        
+        for (const photo of afterPhotosQuery.data) {
+          try {
+            checkNewPage(90);
+            const img = await loadImage(photo.fileUrl);
+            const imgWidth = 80;
+            const imgHeight = (img.height / img.width) * imgWidth;
+            pdf.addImage(img, "JPEG", 20, yPos, imgWidth, imgHeight);
+            yPos += imgHeight + 5;
+            addText(photo.fileName, 10);
+          } catch (error) {
+            addText(`[Image failed to load: ${photo.fileName}]`, 10);
+          }
+        }
+      }
+
+      // Save PDF
+      pdf.save(`Defect_Report_${defect.type}_${defect.id}.pdf`);
+      toast.success("สร้าง PDF สำเร็จ");
+    } catch (error) {
+      console.error("PDF generation error:", error);
+      toast.error("เกิดข้อผิดพลาดในการสร้าง PDF");
+    }
+  };
+
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       CAR: "bg-yellow-100 text-yellow-700 border-yellow-300",
@@ -276,18 +447,24 @@ export default function DefectDetail() {
               </div>
               <h1 className="text-3xl font-bold text-gray-900">{defect.title}</h1>
             </div>
-            {canEdit(defect) && (
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={handleEdit}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  แก้ไข
-                </Button>
-                <Button variant="outline" onClick={() => setShowStatusDialog(true)}>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  อัปเดตสถานะ
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+              {canEdit && (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    แก้ไข
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowStatusDialog(true)}>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    อัปเดตสถานะ
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -471,10 +648,23 @@ export default function DefectDetail() {
           {/* Photos Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="w-5 h-5" />
-                รูปภาพประกอบ
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Image className="w-5 h-5" />
+                  รูปภาพประกอบ
+                </CardTitle>
+                {beforePhotosQuery.data && beforePhotosQuery.data.length > 0 && 
+                 afterPhotosQuery.data && afterPhotosQuery.data.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowComparison(true)}
+                  >
+                    <GitCompare className="w-4 h-4 mr-2" />
+                    เปรียบเทียบ Before/After
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -525,13 +715,20 @@ export default function DefectDetail() {
                     </div>
                   ) : beforePhotosQuery.data && beforePhotosQuery.data.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2">
-                      {beforePhotosQuery.data.map((photo) => (
+                      {beforePhotosQuery.data.map((photo, index) => (
                         <div key={photo.id} className="relative group">
                           <img
                             src={photo.fileUrl}
                             alt={photo.fileName}
-                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => openLightbox(index, "before")}
                           />
+                          <button
+                            onClick={() => openLightbox(index, "before")}
+                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg"
+                          >
+                            <Maximize2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
                           {canEdit && (
                             <button
                               onClick={() => handleDeletePhoto(photo.id, "before")}
@@ -599,13 +796,20 @@ export default function DefectDetail() {
                     </div>
                   ) : afterPhotosQuery.data && afterPhotosQuery.data.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2">
-                      {afterPhotosQuery.data.map((photo) => (
+                      {afterPhotosQuery.data.map((photo, index) => (
                         <div key={photo.id} className="relative group">
                           <img
                             src={photo.fileUrl}
                             alt={photo.fileName}
-                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => openLightbox(index, "after")}
                           />
+                          <button
+                            onClick={() => openLightbox(index, "after")}
+                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg"
+                          >
+                            <Maximize2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
                           {canEdit && (
                             <button
                               onClick={() => handleDeletePhoto(photo.id, "after")}
@@ -785,6 +989,137 @@ export default function DefectDetail() {
             </Button>
             <Button onClick={handleUpdateStatus} disabled={updateDefectMutation.isPending}>
               {updateDefectMutation.isPending ? "กำลังอัปเดต..." : "อัปเดต"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lightbox Modal */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-4xl p-0">
+          <div className="relative bg-black">
+            {getCurrentPhotos().length > 0 && (
+              <>
+                {/* Main Image */}
+                <div className="relative">
+                  <img
+                    src={getCurrentPhotos()[currentPhotoIndex]?.fileUrl}
+                    alt={getCurrentPhotos()[currentPhotoIndex]?.fileName}
+                    className="w-full max-h-[80vh] object-contain"
+                  />
+                  
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setLightboxOpen(false)}
+                    className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+
+                  {/* Photo Counter */}
+                  <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                    {currentPhotoIndex + 1} / {getCurrentPhotos().length}
+                  </div>
+
+                  {/* Photo Type Badge */}
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-1 rounded-full text-sm">
+                    {currentPhotoType === "before" ? "รูปก่อนแก้ไข" : "รูปหลังแก้ไข"}
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  {getCurrentPhotos().length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrevPhoto}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={handleNextPhoto}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Photo Info */}
+                <div className="bg-gray-900 text-white p-4">
+                  <p className="text-sm font-medium">{getCurrentPhotos()[currentPhotoIndex]?.fileName}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    ขนาด: {(getCurrentPhotos()[currentPhotoIndex]?.fileSize / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Comparison Modal */}
+      <Dialog open={showComparison} onOpenChange={setShowComparison}>
+        <DialogContent className="max-w-6xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <GitCompare className="w-5 h-5" />
+              เปรียบเทียบรูปภาพ Before vs After
+            </DialogTitle>
+            <DialogDescription>
+              เปรียบเทียบรูปภาพก่อนและหลังการแก้ไขปัซหา
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Side by Side Comparison */}
+            {beforePhotosQuery.data && beforePhotosQuery.data.length > 0 && 
+             afterPhotosQuery.data && afterPhotosQuery.data.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Before */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    ก่อนแก้ไข (Before)
+                  </h3>
+                  <div className="space-y-2">
+                    {beforePhotosQuery.data.map((photo) => (
+                      <div key={photo.id} className="relative group">
+                        <img
+                          src={photo.fileUrl}
+                          alt={photo.fileName}
+                          className="w-full h-64 object-cover rounded-lg border-2 border-red-200"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">{photo.fileName}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* After */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    หลังแก้ไข (After)
+                  </h3>
+                  <div className="space-y-2">
+                    {afterPhotosQuery.data.map((photo) => (
+                      <div key={photo.id} className="relative group">
+                        <img
+                          src={photo.fileUrl}
+                          alt={photo.fileName}
+                          className="w-full h-64 object-cover rounded-lg border-2 border-green-200"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">{photo.fileName}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowComparison(false)}>
+              ปิด
             </Button>
           </DialogFooter>
         </DialogContent>

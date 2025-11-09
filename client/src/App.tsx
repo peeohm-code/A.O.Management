@@ -71,6 +71,13 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
+      <Route path={"/qc-inspection"}>
+        {() => (
+          <DashboardLayout>
+            <QCInspection />
+          </DashboardLayout>
+        )}
+      </Route>
       <Route path={"/checklist-templates"}>
         {() => (
           <DashboardLayout>

@@ -1180,3 +1180,14 @@
 - [x] แสดง Gallery รูปภาพที่อัปโหลดแล้วแยกตาม Before/After
 - [x] เพิ่มฟีเจอร์ลบรูปภาพ (สำหรับผู้อัปโหลดและ Admin)
 - [x] ทดสอบการอัปโหลดและแสดงผล
+
+## Advanced Photo Features for Defects
+- [x] เพิ่ม Lightbox/Modal สำหรับดูรูปภาพขนาดเต็ม
+- [x] เพิ่มปุ่ม Previous/Next สำหรับเลื่อนดูรูปภาพ
+- [x] เพิ่มฟีเจอร์เปรียบเทียบรูป Before/After (Side-by-side)
+- [x] เพิ่ม Slider เปรียบเทียบรูป Before/After
+- [x] สร้างฟีเจอร์ Export รายงาน PDF พร้อมรูปภาพ
+- [x] ทดสอบฟีเจอร์ทั้งหมด
+
+## Bug Fix: 404 Error
+- [x] แก้ไข 404 Page Not Found ที่หน้า /qc-inspection
