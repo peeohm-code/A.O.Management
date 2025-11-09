@@ -191,15 +191,17 @@ export default function TaskDetail() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {/* Back Button */}
+      <div className="mb-4">
+        <Link href="/tasks" className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>กลับ</span>
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <Link href="/tasks">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              กลับ
-            </Button>
-          </Link>
+        <div className="flex items-center justify-between">
           <div className="flex gap-2 items-center">
             <Badge className={task.displayStatusColor}>
               {task.displayStatusLabel}
@@ -298,9 +300,17 @@ export default function TaskDetail() {
               {/* Status */}
               <div>
                 <p className="text-xs text-gray-500 mb-1">สถานะ</p>
-                <Badge className={task.status === "ล่าช้า" ? "bg-red-100 text-red-700" : task.status === "Progress" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"}>
-                  {task.status}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge className={getStatusColor(task.status)}>
+                    {getStatusLabel(task.status)}
+                  </Badge>
+                  {task.endDate && new Date(task.endDate) < new Date() && task.status !== 'completed' && (
+                    <Badge className="bg-red-100 text-red-700 border-red-300">
+                      <AlertTriangle className="w-3 h-3 mr-1" />
+                      ล่าช้า {Math.ceil((new Date().getTime() - new Date(task.endDate).getTime()) / (1000 * 60 * 60 * 24))} วัน
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {/* Assignee */}
