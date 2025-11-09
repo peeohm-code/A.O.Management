@@ -412,10 +412,15 @@ export default function QCInspection() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{checklist.name}</CardTitle>
-                    <CardDescription className="mt-1 flex items-center gap-1 text-sm">
-                      <Calendar className="h-3 w-3" />
-                      {checklist.taskName}
+                    <CardTitle className="text-lg">{checklist.templateName || checklist.name}</CardTitle>
+                    <CardDescription className="mt-1 space-y-1">
+                      <div className="flex items-center gap-1 text-sm">
+                        <Calendar className="h-3 w-3" />
+                        <span>งาน: {checklist.taskName}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm">
+                        <span>🏗️ โครงการ: {checklist.projectName || 'ไม่ระบุ'}</span>
+                      </div>
                     </CardDescription>
                   </div>
                   {getStatusBadge(checklist.status || 'not_started')}
@@ -469,9 +474,10 @@ export default function QCInspection() {
       <Dialog open={isInspecting} onOpenChange={setIsInspecting}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedChecklist?.name}</DialogTitle>
-            <DialogDescription>
-              งาน: {selectedChecklist?.taskName}
+            <DialogTitle>{selectedChecklist?.templateName || selectedChecklist?.name}</DialogTitle>
+            <DialogDescription className="space-y-1">
+              <div>📋 งาน: {selectedChecklist?.taskName}</div>
+              <div>🏗️ โครงการ: {selectedChecklist?.projectName || 'ไม่ระบุ'}</div>
             </DialogDescription>
           </DialogHeader>
 
@@ -589,6 +595,13 @@ export default function QCInspection() {
                         <div>
                           <span className="text-muted-foreground">งาน:</span>
                           <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.taskName}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">🏗️</span>
+                        <div>
+                          <span className="text-muted-foreground">โครงการ:</span>
+                          <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.projectName || 'ไม่ระบุ'}</p>
                         </div>
                       </div>
                     </div>

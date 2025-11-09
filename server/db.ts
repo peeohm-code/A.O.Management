@@ -698,9 +698,12 @@ export async function getAllTaskChecklists() {
       updatedAt: taskChecklists.updatedAt,
       taskName: tasks.name,
       templateName: checklistTemplates.name,
+      projectId: tasks.projectId,
+      projectName: projects.name,
     })
     .from(taskChecklists)
     .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .leftJoin(projects, eq(tasks.projectId, projects.id))
     .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
     .orderBy(desc(taskChecklists.createdAt));
 

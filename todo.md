@@ -1033,3 +1033,18 @@
 - [x] เพิ่ม Tasks tab ใหม่ที่แสดงรายการงานแบบ list/table
 - [x] จัดเรียง tabs ใหม่: Gantt Chart | Tasks | QC | Documents | Team
 - [x] ทดสอบให้แน่ใจว่าทุก tab ทำงานถูกต้อง
+
+## Checklist Instance Feature - Link Templates to Tasks
+- [ ] สร้างตาราง checklistInstances ในฐานข้อมูล (เชื่อม projectId, taskId, templateId)
+- [ ] สร้างตาราง checklistInstanceItems ในฐานข้อมูล (รายการข้อตรวจสอบพร้อมสถานะ)
+- [ ] สร้าง tRPC procedures: createChecklistInstance, getTaskChecklists, updateChecklistItem, deleteChecklistInstance
+- [ ] สร้าง Dialog เลือก Template ในหน้า Task Detail
+- [ ] แสดง Checklist Instances ที่เชื่อมกับ Task
+- [ ] เพิ่มฟังก์ชันติ๊กถูก/ผิดแต่ละข้อใน Checklist
+- [ ] ทดสอบการทำงานทั้งหมด
+
+## QC Inspection Page - Show Task and Project Info
+- [x] ปรับ getAllTaskChecklists() ใน server/db.ts ให้ JOIN กับ projects table
+- [x] เพิ่ม projectName และ projectId ใน query result
+- [x] ปรับหน้า QC Inspection ให้แสดงชื่องานและชื่อโครงการ
+- [x] ทดสอบการแสดงผล
