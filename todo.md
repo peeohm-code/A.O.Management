@@ -1305,3 +1305,8 @@
 - [x] ปรับปรุง Defects page
 - [x] ปรับปรุง Navigation และ Sidebar
 - [x] ทดสอบและบันทึก checkpoint
+
+## Company Logo Update
+- [x] คัดลอกไฟล์โลโก้ไปยัง public directory
+- [x] อัปเดต APP_LOGO constant ใน const.ts
+- [x] ทดสอบและบันทึก checkpoint
