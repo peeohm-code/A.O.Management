@@ -1310,3 +1310,14 @@
 - [x] คัดลอกไฟล์โลโก้ไปยัง public directory
 - [x] อัปเดต APP_LOGO constant ใน const.ts
 - [x] ทดสอบและบันทึก checkpoint
+
+## Favicon Update
+- [x] สร้าง favicon จากโลโก้
+- [x] อัปเดต index.html ให้ใช้ favicon ใหม่
+
+## Team Management Feature
+- [x] ตรวจสอบ database schema (users table มีอยู่แล้ว)
+- [x] สร้าง backend API สำหรับ CRUD users
+- [x] สร้างหน้า Team Management UI
+- [x] เพิ่ม role-based access control
+- [x] ทดสอบและบันทึก checkpoint

@@ -22,6 +22,7 @@ import NewTask from "./pages/NewTask";
 import ChecklistTemplates from "./pages/ChecklistTemplates";
 import UserManagement from "./pages/UserManagement";
 import UserProfile from "./pages/UserProfile";
+import TeamManagement from "./pages/TeamManagement";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -131,6 +132,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <UserManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/team"}>
+        {() => (
+          <DashboardLayout>
+            <TeamManagement />
           </DashboardLayout>
         )}
       </Route>
