@@ -8,6 +8,7 @@ import * as db from "./db";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
 import { notifyOwner } from "./_core/notification";
+import { emitNotification } from "./_core/socket";
 
 /**
  * Project Router - Project Management
@@ -71,6 +72,7 @@ const projectRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { id, ...updateData } = input;
+      const project = await db.getProjectById(id);
       const result = await db.updateProject(id, updateData);
 
       await db.logActivity({
@@ -79,6 +81,34 @@ const projectRouter = router({
         action: "project_updated",
         details: JSON.stringify(updateData),
       });
+
+      // Send notification if status changed
+      if (updateData.status && project) {
+        const statusLabels: Record<string, string> = {
+          planning: "วางแผน",
+          active: "กำลังดำเนินการ",
+          on_hold: "พักไว้",
+          completed: "เสร็จสิ้น",
+          cancelled: "ยกเลิก",
+        };
+        
+        // Get project members
+        const members = await db.getProjectMembers(id);
+        const notification = {
+          id: `project-status-${id}-${Date.now()}`,
+          type: "project_status" as const,
+          title: "สถานะโครงการเปลี่ยนแปลง",
+          message: `โครงการ "${project.name}" เปลี่ยนสถานะเป็น "${statusLabels[updateData.status]}"`,
+          link: `/projects/${id}`,
+          timestamp: new Date(),
+          read: false,
+        };
+        
+        // Notify all project members
+        members.forEach((member) => {
+          emitNotification(member.userId, notification);
+        });
+      }
 
       return result;
     }),
@@ -288,18 +318,40 @@ const taskRouter = router({
         details: JSON.stringify(updateData),
       });
 
-      // Notify followers
-      const followers = await db.getTaskFollowers(id);
-      for (const follower of followers) {
-        if (follower.userId !== ctx.user.id) {
-          await db.createNotification({
-            userId: follower.userId,
-            type: "task_updated",
-            title: "Task Updated",
-            content: task.name,
-            relatedTaskId: id,
-          });
-        }
+      // Send real-time notifications
+      if (updateData.status) {
+        const displayStatus = getTaskDisplayStatusLabel(updateData.status);
+        const notification = {
+          id: `task-status-${id}-${Date.now()}`,
+          type: "task_status" as const,
+          title: "สถานะงานเปลี่ยนแปลง",
+          message: `งาน "${task.name}" เปลี่ยนสถานะเป็น "${displayStatus}"`,
+          link: `/tasks/${id}`,
+          timestamp: new Date(),
+          read: false,
+        };
+        
+        // Notify task followers
+        const followers = await db.getTaskFollowers(id);
+        followers.forEach((follower) => {
+          if (follower.userId !== ctx.user.id) {
+            emitNotification(follower.userId, notification);
+          }
+        });
+      }
+      
+      // Send notification if task is assigned to someone
+      if (updateData.assigneeId && updateData.assigneeId !== task.assigneeId) {
+        const notification = {
+          id: `task-assigned-${id}-${Date.now()}`,
+          type: "task_assigned" as const,
+          title: "มีงานใหม่มอบหมาย",
+          message: `คุณได้รับมอบหมายงาน "${task.name}"`,
+          link: `/tasks/${id}`,
+          timestamp: new Date(),
+          read: false,
+        };
+        emitNotification(updateData.assigneeId, notification);
       }
 
       return result;
@@ -848,15 +900,18 @@ const defectRouter = router({
         reportedBy: ctx.user.id,
       });
 
-      // Notify assignee if assigned
+      // Send real-time notification to assignee
       if (input.assignedTo) {
-        await db.createNotification({
-          userId: input.assignedTo,
-          type: "defect_assigned",
-          title: `${input.type} Assigned`,
-          content: input.title,
-          relatedTaskId: input.taskId,
-        });
+        const notification = {
+          id: `defect-reported-${Date.now()}`,
+          type: "defect_reported" as const,
+          title: `มี ${input.type} ใหม่มอบหมาย`,
+          message: `คุณได้รับมอบหมาย ${input.type}: "${input.title}"`,
+          link: `/defects`,
+          timestamp: new Date(),
+          read: false,
+        };
+        emitNotification(input.assignedTo, notification);
       }
 
       return result;

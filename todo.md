@@ -1270,3 +1270,19 @@
 - [ ] เพิ่มฟีเจอร์ Export reports เป็น PDF
 - [ ] เพิ่มฟีเจอร์ Export data เป็น Excel
 - [ ] ทดสอบ Advanced Analytics
+
+## Phase 4 - Notification Events & Mobile Optimization
+### Notification Events Integration
+- [x] เพิ่ม notification เมื่อเปลี่ยนสถานะโครงการ (project status change)
+- [x] เพิ่ม notification เมื่อเปลี่ยนสถานะงาน (task status change)
+- [x] เพิ่ม notification เมื่อมีการ assign งาน (task assigned)
+- [x] เพิ่ม notification เมื่อมีการรายงาน defect (defect reported)
+- [x] ทดสอบ notification events ทั้งหมด
+
+### Mobile Responsive Optimization
+- [x] ปรับปรุง Dashboard สำหรับมือถือ
+- [x] ปรับปรุง Key Metrics cards สำหรับมือถือ
+- [x] ปรับปรุง FilterBar สำหรับมือถือ
+- [x] ปรับปรุง NotificationBell popover สำหรับมือถือ
+- [x] ทดสอบ responsive design บนหน้าจอขนาดต่างๆ
+- [x] ทดสอบและบันทึก checkpoint

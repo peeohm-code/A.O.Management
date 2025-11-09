@@ -55,10 +55,10 @@ export function FilterBar({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3">
       <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
         <Filter className="w-4 h-4" />
-        <span>กรอง:</span>
+        <span className="hidden sm:inline">กรอง:</span>
       </div>
 
       {showStatus && statusOptions.length > 0 && (
@@ -66,7 +66,7 @@ export function FilterBar({
           value={filters.status || "all"}
           onValueChange={(value) => handleFilterChange("status", value)}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px]">
             <SelectValue placeholder="สถานะ" />
           </SelectTrigger>
           <SelectContent>
@@ -85,7 +85,7 @@ export function FilterBar({
           value={filters.assignee || "all"}
           onValueChange={(value) => handleFilterChange("assignee", value)}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="ผู้รับผิดชอบ" />
           </SelectTrigger>
           <SelectContent>
@@ -104,7 +104,7 @@ export function FilterBar({
           value={filters.category || "all"}
           onValueChange={(value) => handleFilterChange("category", value)}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px]">
             <SelectValue placeholder="หมวดหมู่" />
           </SelectTrigger>
           <SelectContent>
@@ -123,7 +123,7 @@ export function FilterBar({
           value={filters.priority || "all"}
           onValueChange={(value) => handleFilterChange("priority", value)}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px]">
             <SelectValue placeholder="ความสำคัญ" />
           </SelectTrigger>
           <SelectContent>

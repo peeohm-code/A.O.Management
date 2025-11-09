@@ -55,7 +55,7 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="end">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 p-0" align="end">
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold">การแจ้งเตือน</h3>
           <div className="flex gap-2">
@@ -81,7 +81,7 @@ export function NotificationBell() {
             )}
           </div>
         </div>
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[60vh] sm:h-[400px]">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <Bell className="w-12 h-12 mb-2 opacity-20" />
