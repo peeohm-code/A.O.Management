@@ -42,6 +42,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
   const [checklistToDelete, setChecklistToDelete] = useState<number | null>(null);
   const [editingStatusId, setEditingStatusId] = useState<number | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
+  const [expandedChecklistId, setExpandedChecklistId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -249,11 +250,17 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
               {sortedChecklists.map((checklist: any) => (
                 <Card 
                   key={checklist.id} 
-                  className="border-l-4 border-l-blue-500 cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => window.location.href = `/qc?checklistId=${checklist.id}`}
+                  className="border-l-4 border-l-blue-500"
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
+                    <div 
+                      className="flex items-start justify-between cursor-pointer hover:bg-gray-50 -m-4 p-4 rounded-lg transition-colors"
+                      onClick={(e) => {
+                        // Don't expand if clicking on buttons
+                        if ((e.target as HTMLElement).closest('button')) return;
+                        setExpandedChecklistId(expandedChecklistId === checklist.id ? null : checklist.id);
+                      }}
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">{checklist.templateName}</h4>
@@ -278,7 +285,8 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                               size="sm"
                               variant="outline"
                               className="h-8 text-sm"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 updateStatusMutation.mutate({
                                   id: checklist.id,
                                   status: 'pending_inspection' as any,
@@ -294,11 +302,27 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setChecklistToDelete(checklist.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setChecklistToDelete(checklist.id);
+                        }}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
+
+                    {/* Expanded Checklist Items */}
+                    {expandedChecklistId === checklist.id && checklist.items && checklist.items.length > 0 && (
+                      <div className="mt-4 pt-4 border-t space-y-2">
+                        <h5 className="font-semibold text-sm text-gray-700 mb-3">รายการตรวจสอบ:</h5>
+                        {checklist.items.map((item: any, index: number) => (
+                          <div key={item.id} className="flex items-start gap-2 text-sm">
+                            <span className="text-gray-500 min-w-[24px]">{index + 1}.</span>
+                            <span className="text-gray-700">{item.description}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}

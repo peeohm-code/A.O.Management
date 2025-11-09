@@ -204,9 +204,6 @@ export default function TaskDetail() {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div className="flex gap-2 items-center">
-            <Badge className={task.displayStatusColor}>
-              {task.displayStatusLabel}
-            </Badge>
             {user && (user.role === "admin" || user.role === "pm") && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -301,7 +298,7 @@ export default function TaskDetail() {
               {/* Status */}
               <div>
                 <p className="text-xs text-gray-500 mb-1">สถานะ</p>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-1">
                   <Badge className={getStatusColor(task.status)}>
                     {getStatusLabel(task.status)}
                   </Badge>
