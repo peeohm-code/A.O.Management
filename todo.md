@@ -1172,3 +1172,11 @@
 - [x] เพิ่มตัวกรองและการค้นหาในหน้า Defects (dropdown ประเภท, ความรุนแรง, สถานะ + ช่องค้นหา)
 - [x] เพิ่มฟีเจอร์แก้ไขและอัปเดตสถานะใน DefectDetail page (ปุ่ม Edit, ปุ่ม Update Status, Dialog forms)
 - [x] เพิ่ม Timeline/Activity Log ใน DefectDetail page
+
+## Defect Photo Upload Feature (Before/After)
+- [x] ตรวจสอบ defectAttachments table schema และ API ที่มีอยู่
+- [x] สร้าง UI สำหรับอัปโหลดรูปภาพ Before (ก่อนแก้ไข)
+- [x] สร้าง UI สำหรับอัปโหลดรูปภาพ After (หลังแก้ไข)
+- [x] แสดง Gallery รูปภาพที่อัปโหลดแล้วแยกตาม Before/After
+- [x] เพิ่มฟีเจอร์ลบรูปภาพ (สำหรับผู้อัปโหลดและ Admin)
+- [x] ทดสอบการอัปโหลดและแสดงผล

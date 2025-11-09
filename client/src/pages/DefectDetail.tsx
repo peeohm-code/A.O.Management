@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock, Image, Upload, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -33,8 +33,16 @@ export default function DefectDetail() {
 
   const defectQuery = trpc.defect.getById.useQuery({ id: defectId });
   const activityQuery = trpc.activity.getByDefect.useQuery({ defectId });
+  const beforePhotosQuery = trpc.defect.getAttachmentsByType.useQuery({ defectId, attachmentType: "before" });
+  const afterPhotosQuery = trpc.defect.getAttachmentsByType.useQuery({ defectId, attachmentType: "after" });
   const updateDefectMutation = trpc.defect.update.useMutation();
+  const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
+  const deleteAttachmentMutation = trpc.defect.deleteAttachment.useMutation();
   const canEdit = useCanEditDefect();
+
+  // Photo upload state
+  const [uploadingBefore, setUploadingBefore] = useState(false);
+  const [uploadingAfter, setUploadingAfter] = useState(false);
 
   // Edit dialog state
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -90,6 +98,71 @@ export default function DefectDetail() {
       setShowStatusDialog(false);
       setNewStatus("");
       defectQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
+  const handlePhotoUpload = async (file: File, type: "before" | "after") => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("ขนาดไฟล์ต้องไม่เกิน 10 MB");
+      return;
+    }
+
+    try {
+      if (type === "before") setUploadingBefore(true);
+      else setUploadingAfter(true);
+
+      // Upload to S3 via attachment API
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("การอัปโหลดล้มเหลว");
+      }
+
+      const { fileUrl, fileKey } = await uploadResponse.json();
+
+      // Save to database
+      await uploadAttachmentMutation.mutateAsync({
+        defectId,
+        fileUrl,
+        fileKey,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        attachmentType: type,
+      });
+
+      toast.success("อัปโหลดรูปภาพสำเร็จ");
+      beforePhotosQuery.refetch();
+      afterPhotosQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    } finally {
+      if (type === "before") setUploadingBefore(false);
+      else setUploadingAfter(false);
+    }
+  };
+
+  const handleDeletePhoto = async (attachmentId: number, type: "before" | "after") => {
+    if (!confirm("ต้องการลบรูปภาพนี้ใช่หรือไม่?")) return;
+
+    try {
+      await deleteAttachmentMutation.mutateAsync({ id: attachmentId });
+      toast.success("ลบรูปภาพสำเร็จ");
+      if (type === "before") beforePhotosQuery.refetch();
+      else afterPhotosQuery.refetch();
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
@@ -391,6 +464,167 @@ export default function DefectDetail() {
                     </div>
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Photos Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Image className="w-5 h-5" />
+                รูปภาพประกอบ
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Before Photos */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900">รูปก่อนแก้ไข (Before)</h3>
+                    {canEdit && (
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handlePhotoUpload(file, "before");
+                            e.target.value = "";
+                          }}
+                          disabled={uploadingBefore}
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={uploadingBefore}
+                          asChild
+                        >
+                          <span>
+                            {uploadingBefore ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                                กำลังอัปโหลด...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                อัปโหลด
+                              </>
+                            )}
+                          </span>
+                        </Button>
+                      </label>
+                    )}
+                  </div>
+                  {beforePhotosQuery.isLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      <p className="text-sm text-gray-500">กำลังโหลด...</p>
+                    </div>
+                  ) : beforePhotosQuery.data && beforePhotosQuery.data.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {beforePhotosQuery.data.map((photo) => (
+                        <div key={photo.id} className="relative group">
+                          <img
+                            src={photo.fileUrl}
+                            alt={photo.fileName}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          />
+                          {canEdit && (
+                            <button
+                              onClick={() => handleDeletePhoto(photo.id, "before")}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1 truncate">{photo.fileName}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                      <Image className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p className="text-sm text-gray-500">ยังไม่มีรูปภาพ</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* After Photos */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900">รูปหลังแก้ไข (After)</h3>
+                    {canEdit && (
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handlePhotoUpload(file, "after");
+                            e.target.value = "";
+                          }}
+                          disabled={uploadingAfter}
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={uploadingAfter}
+                          asChild
+                        >
+                          <span>
+                            {uploadingAfter ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                                กำลังอัปโหลด...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                อัปโหลด
+                              </>
+                            )}
+                          </span>
+                        </Button>
+                      </label>
+                    )}
+                  </div>
+                  {afterPhotosQuery.isLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      <p className="text-sm text-gray-500">กำลังโหลด...</p>
+                    </div>
+                  ) : afterPhotosQuery.data && afterPhotosQuery.data.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {afterPhotosQuery.data.map((photo) => (
+                        <div key={photo.id} className="relative group">
+                          <img
+                            src={photo.fileUrl}
+                            alt={photo.fileName}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          />
+                          {canEdit && (
+                            <button
+                              onClick={() => handleDeletePhoto(photo.id, "after")}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1 truncate">{photo.fileName}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                      <Image className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p className="text-sm text-gray-500">ยังไม่มีรูปภาพ</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
