@@ -34,8 +34,9 @@ interface KeyMetricsProps {
 }
 
 export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
-  const { active, onTrack, at_risk, delayed, total } = stats.projectStats;
-  const trends = stats.trends || { active: 0, onTrack: 0, at_risk: 0, delayed: 0 };
+  // Safely destructure with fallback values
+  const { active = 0, onTrack = 0, at_risk = 0, delayed = 0, total = 0 } = stats?.projectStats || {};
+  const trends = stats?.trends || { active: 0, onTrack: 0, at_risk: 0, delayed: 0 };
   const [, navigate] = useLocation();
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
 

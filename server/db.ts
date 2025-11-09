@@ -1684,10 +1684,13 @@ export async function getDefectStatsByType() {
  * Get defect statistics by priority
  */
 export async function getDefectStatsByPriority() {
-  const db = await getDb();
-  if (!db) return [];
-  
   try {
+    const db = await getDb();
+    if (!db) {
+      console.warn('[getDefectStatsByPriority] Database not available');
+      return [];
+    }
+    
     const result = await db
       .select({
         priority: defects.priority,
