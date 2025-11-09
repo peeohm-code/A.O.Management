@@ -1113,6 +1113,19 @@ export async function markNotificationAsRead(id: number) {
   }
 }
 
+export async function markAllNotificationsAsRead(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    const result = await db.update(notifications).set({ isRead: true }).where(eq(notifications.userId, userId));
+    return result;
+  } catch (error) {
+    console.error('[markAllNotificationsAsRead] Error updating notifications:', error);
+    throw error;
+  }
+}
+
 /**
  * Activity Log
  */

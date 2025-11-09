@@ -1202,6 +1202,19 @@ const notificationRouter = router({
         });
       }
     }),
+
+  markAllAsRead: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      try {
+        return await db.markAllNotificationsAsRead(ctx.user.id);
+      } catch (error) {
+        console.error('[notificationRouter.markAllAsRead] Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to mark all notifications as read',
+        });
+      }
+    }),
 });
 
 /**

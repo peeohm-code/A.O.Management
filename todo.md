@@ -994,3 +994,16 @@
 - [ ] Display uploaded photos in all relevant cards/views
 - [ ] Add photo gallery view with lightbox
 - [ ] Test photo upload and display functionality
+
+## Enhance Notification System
+- [ ] Update notifications schema: add priority field (urgent, high, normal, low)
+- [ ] Update notification type enum with 18 new types
+- [ ] Push schema changes to database
+- [ ] Redesign Notifications page UI with modern card-based layout
+- [ ] Add priority indicators (colors, icons) for each notification
+- [ ] Implement filter by priority, type, and read status
+- [ ] Add unread badge counter in sidebar
+- [ ] Implement mark as read/unread functionality
+- [ ] Add bulk actions (mark all as read, delete read)
+- [ ] Implement new notification triggers in backend (deadline alerts, status changes, etc.)
+- [ ] Test complete notification workflow
