@@ -1191,3 +1191,15 @@
 
 ## Bug Fix: 404 Error
 - [x] แก้ไข 404 Page Not Found ที่หน้า /qc-inspection
+
+## Dashboard UI/UX Improvements
+- [x] สร้าง dashboard components ย่อย (KeyMetrics, QuickActions, WorkOverview, AllProjectsTable, AllProjectsCards)
+- [x] สร้าง DashboardSkeleton component สำหรับ loading state
+- [x] เขียน Dashboard.tsx ใหม่พร้อม responsive layout (Desktop 2-column, Mobile 1-column)
+- [x] ทดสอบ responsive บน Desktop, Tablet, Mobile
+- [x] บันทึก checkpoint
+
+## Dashboard Advanced Features
+- [x] เพิ่ม Featured Projects Cards แสดงโครงการสำคัญที่ต้องติดตาม
+- [x] เพิ่ม Charts/Graphs ใน Work Overview (Donut Chart, Bar Chart, Stacked Bar)
+- [x] ทดสอบและบันทึก checkpoint

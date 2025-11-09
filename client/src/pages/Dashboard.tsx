@@ -1,545 +1,165 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { DashboardSkeleton } from "@/components/DashboardSkeleton";
+import { KeyMetrics } from "@/components/dashboard/KeyMetrics";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { WorkOverview } from "@/components/dashboard/WorkOverview";
+import { FeaturedProjects } from "@/components/dashboard/FeaturedProjects";
+import { AllProjectsTable } from "@/components/dashboard/AllProjectsTable";
+import { AllProjectsCards } from "@/components/dashboard/AllProjectsCards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, CheckCircle2, AlertCircle, Clock, ListTodo, ClipboardCheck, TrendingUp, AlertTriangle } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const statsQuery = trpc.dashboard.getStats.useQuery();
   const projectsQuery = trpc.project.list.useQuery();
-  const myTasksQuery = trpc.task.myTasks.useQuery();
   const notificationsQuery = trpc.notification.list.useQuery();
 
-  if (statsQuery.isLoading || projectsQuery.isLoading || myTasksQuery.isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin w-8 h-8" />
-      </div>
-    );
+  // Loading state with Skeleton
+  if (statsQuery.isLoading || projectsQuery.isLoading) {
+    return <DashboardSkeleton />;
   }
 
   const stats = statsQuery.data;
-  const projects = projectsQuery.data || [];
-  const myTasks = myTasksQuery.data || [];
+  const allProjects = projectsQuery.data || [];
   const notifications = notificationsQuery.data || [];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "in_progress":
-        return "bg-blue-100 text-blue-800";
-      case "pending_pre_inspection":
-      case "pending_final_inspection":
-        return "bg-yellow-100 text-yellow-800";
-      case "rectification_needed":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle2 className="w-4 h-4" />;
-      case "pending_pre_inspection":
-      case "pending_final_inspection":
-        return <Clock className="w-4 h-4" />;
-      case "rectification_needed":
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
+  // Filter active projects only
+  const activeProjects = allProjects.filter(
+    (p) => p.status !== "completed" && p.status !== "cancelled"
+  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome back, {user?.name}</p>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+        <p className="text-gray-600 mt-1">Welcome back, {user?.name}</p>
+      </div>
+
+      {/* Key Metrics */}
+      <KeyMetrics stats={stats || {}} />
+
+      {/* Featured Projects */}
+      <FeaturedProjects projects={activeProjects} />
+
+      {/* Main Content Grid: Desktop 2-column, Mobile 1-column */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content (70% on desktop) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Work Overview */}
+          <WorkOverview stats={stats || {}} />
+
+          {/* All Projects - Desktop: Table, Mobile: Cards */}
+          <div className="hidden md:block">
+            <AllProjectsTable projects={activeProjects} />
+          </div>
+          <div className="md:hidden">
+            <AllProjectsCards projects={activeProjects} />
+          </div>
         </div>
-        <Link href="/projects/new">
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            New Project
-          </Button>
-        </Link>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Active Projects</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats?.projectStats?.active || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">จาก {stats?.projectStats?.total || 0} โครงการทั้งหมด</p>
-          </CardContent>
-        </Card>
+        {/* Sidebar (30% on desktop) - Hidden on mobile, shown at bottom */}
+        <div className="hidden lg:block space-y-6">
+          {/* Quick Actions */}
+          <QuickActions />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Average Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats?.averageProgress || 0}%</div>
-            <div className="mt-2">
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-purple-500 h-2 rounded-full transition-all"
-                  style={{ width: `${stats?.averageProgress || 0}%` }}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Projects at Risk</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats?.projectStats?.at_risk || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">ต้องติดตามใกล้ชิด</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Delayed Projects</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats?.projectStats?.delayed || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">ล่าช้ากว่ากำหนด</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Task Statistics */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ListTodo className="w-5 h-5 text-blue-600" />
-            <CardTitle>Task Overview</CardTitle>
-          </div>
-          <CardDescription>สรุปสถานะงานทั้งหมดในระบบ</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* Total Tasks */}
-            <div className="text-center p-4 border rounded-lg bg-gray-50">
-              <div className="text-3xl font-bold text-gray-900">{stats?.taskStats.total || 0}</div>
-              <div className="text-sm text-gray-600 mt-1">งานทั้งหมด</div>
-            </div>
-
-            {/* Not Started */}
-            <Link href="/tasks">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
-                <div className="text-3xl font-bold text-gray-700">{stats?.taskStats.not_started || 0}</div>
-                <div className="text-sm text-gray-600 mt-1">ยังไม่เริ่ม</div>
-                <div className="mt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-gray-500 h-2 rounded-full"
-                      style={{
-                        width: stats?.taskStats.total
-                          ? `${((stats.taskStats.not_started / stats.taskStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* In Progress */}
-            <Link href="/tasks">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-blue-50 hover:bg-blue-100">
-                <div className="text-3xl font-bold text-blue-700">{stats?.taskStats.in_progress || 0}</div>
-                <div className="text-sm text-blue-600 mt-1 flex items-center justify-center gap-1">
-                  <TrendingUp className="w-4 h-4" />
-                  กำลังทำ
-                </div>
-                <div className="mt-2">
-                  <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.taskStats.total
-                          ? `${((stats.taskStats.in_progress / stats.taskStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Delayed */}
-            <Link href="/tasks">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
-                <div className="text-3xl font-bold text-red-700">{stats?.taskStats.delayed || 0}</div>
-                <div className="text-sm text-red-600 mt-1 flex items-center justify-center gap-1">
-                  <AlertTriangle className="w-4 h-4" />
-                  ล่าช้า
-                </div>
-                <div className="mt-2">
-                  <div className="w-full bg-red-200 rounded-full h-2">
-                    <div
-                      className="bg-red-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.taskStats.total
-                          ? `${((stats.taskStats.delayed / stats.taskStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Completed */}
-            <Link href="/tasks">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
-                <div className="text-3xl font-bold text-green-700">{stats?.taskStats.completed || 0}</div>
-                <div className="text-sm text-green-600 mt-1 flex items-center justify-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  เสร็จสมบูรณ์
-                </div>
-                <div className="mt-2">
-                  <div className="w-full bg-green-200 rounded-full h-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.taskStats.total
-                          ? `${((stats.taskStats.completed / stats.taskStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Checklist Statistics */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ClipboardCheck className="w-5 h-5 text-green-600" />
-            <CardTitle>Checklist Overview</CardTitle>
-          </div>
-          <CardDescription>สรุปสถานะ Checklist ทั้งหมดในระบบ</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* Total Checklists */}
-            <div className="text-center p-4 border rounded-lg bg-gray-50">
-              <div className="text-3xl font-bold text-gray-900">{stats?.checklistStats.total || 0}</div>
-              <div className="text-sm text-gray-600 mt-1">Checklist ทั้งหมด</div>
-            </div>
-
-            {/* Not Started */}
-            <Link href="/qc">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
-                <div className="text-3xl font-bold text-gray-700">{stats?.checklistStats.not_started || 0}</div>
-                <div className="text-sm text-gray-600 mt-1">ยังไม่เริ่ม</div>
-                <div className="mt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-gray-500 h-2 rounded-full"
-                      style={{
-                        width: stats?.checklistStats.total
-                          ? `${((stats.checklistStats.not_started / stats.checklistStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Pending Inspection */}
-            <Link href="/qc">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-yellow-50 hover:bg-yellow-100">
-                <div className="text-3xl font-bold text-yellow-700">{stats?.checklistStats.pending_inspection || 0}</div>
-                <div className="text-sm text-yellow-600 mt-1">รอการตรวจสอบ</div>
-                <div className="mt-2">
-                  <div className="w-full bg-yellow-200 rounded-full h-2">
-                    <div
-                      className="bg-yellow-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.checklistStats.total
-                          ? `${((stats.checklistStats.pending_inspection / stats.checklistStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Completed */}
-            <Link href="/qc">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
-                <div className="text-3xl font-bold text-green-700">{stats?.checklistStats.completed || 0}</div>
-                <div className="text-sm text-green-600 mt-1">ผ่าน</div>
-                <div className="mt-2">
-                  <div className="w-full bg-green-200 rounded-full h-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.checklistStats.total
-                          ? `${((stats.checklistStats.completed / stats.checklistStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Failed */}
-            <Link href="/defects">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
-                <div className="text-3xl font-bold text-red-700">{stats?.checklistStats.failed || 0}</div>
-                <div className="text-sm text-red-600 mt-1">ไม่ผ่าน</div>
-                <div className="mt-2">
-                  <div className="w-full bg-red-200 rounded-full h-2">
-                    <div
-                      className="bg-red-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.checklistStats.total
-                          ? `${((stats.checklistStats.failed / stats.checklistStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Defect Tracking Overview */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-red-600" />
-            <CardTitle>Defect Tracking Overview</CardTitle>
-          </div>
-          <CardDescription>สถิติ Defect ทั้งหมดแบ่งตามสถานะ</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* Total */}
-            <Link href="/defects">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-gray-50 hover:bg-gray-100">
-                <div className="text-3xl font-bold text-gray-900">{stats?.defectStats?.total || 0}</div>
-                <div className="text-sm text-gray-600 mt-1">ทั้งหมด</div>
-                <div className="mt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gray-400 h-2 rounded-full" style={{ width: "100%" }} />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Open */}
-            <Link href="/defects">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-orange-50 hover:bg-orange-100">
-                <div className="text-3xl font-bold text-orange-600">{stats?.defectStats?.open || 0}</div>
-                <div className="text-sm text-orange-600 mt-1">เปิดอยู่</div>
-                <div className="mt-2">
-                  <div className="w-full bg-orange-200 rounded-full h-2">
-                    <div
-                      className="bg-orange-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.defectStats?.total
-                          ? `${((stats.defectStats.open / stats.defectStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Closed */}
-            <Link href="/defects">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-green-50 hover:bg-green-100">
-                <div className="text-3xl font-bold text-green-600">{stats?.defectStats?.closed || 0}</div>
-                <div className="text-sm text-green-600 mt-1">ปิดแล้ว</div>
-                <div className="mt-2">
-                  <div className="w-full bg-green-200 rounded-full h-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.defectStats?.total
-                          ? `${((stats.defectStats.closed / stats.defectStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Pending Verification */}
-            <Link href="/defects">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-yellow-50 hover:bg-yellow-100">
-                <div className="text-3xl font-bold text-yellow-600">{stats?.defectStats?.pendingVerification || 0}</div>
-                <div className="text-sm text-yellow-600 mt-1">รอตรวจสอบ</div>
-                <div className="mt-2">
-                  <div className="w-full bg-yellow-200 rounded-full h-2">
-                    <div
-                      className="bg-yellow-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.defectStats?.total
-                          ? `${((stats.defectStats.pendingVerification / stats.defectStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Overdue */}
-            <Link href="/defects">
-              <div className="text-center p-4 border rounded-lg hover:shadow-md transition cursor-pointer bg-red-50 hover:bg-red-100">
-                <div className="text-3xl font-bold text-red-600">{stats?.defectStats?.overdue || 0}</div>
-                <div className="text-sm text-red-600 mt-1">เกินกำหนด</div>
-                <div className="mt-2">
-                  <div className="w-full bg-red-200 rounded-full h-2">
-                    <div
-                      className="bg-red-600 h-2 rounded-full"
-                      style={{
-                        width: stats?.defectStats?.total
-                          ? `${((stats.defectStats.overdue / stats.defectStats.total) * 100).toFixed(0)}%`
-                          : "0%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* My Tasks */}
-        <div className="lg:col-span-2">
+          {/* Notifications */}
           <Card>
             <CardHeader>
-              <CardTitle>My Tasks</CardTitle>
-              <CardDescription>Tasks assigned to you</CardDescription>
+              <div className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-blue-600" />
+                <CardTitle className="text-lg">Notifications</CardTitle>
+              </div>
+              <CardDescription>การแจ้งเตือนล่าสุด</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {myTasks.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No tasks assigned yet</p>
-                ) : (
-                  myTasks.slice(0, 5).map((task) => (
-                    <Link key={task.id} href={`/tasks/${task.id}`}>
-                      <div className="flex items-start justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                        <div className="flex-1">
-                          <h3 className="font-medium text-sm">{task.name}</h3>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Progress: {task.progress}%
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={task.displayStatusColor}>
-                            {task.displayStatusLabel}
-                          </Badge>
-                        </div>
+              {notifications.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  ไม่มีการแจ้งเตือน
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {notifications.slice(0, 5).map((notif: any) => (
+                    <div
+                      key={notif.id}
+                      className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 transition"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{notif.title}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(notif.createdAt).toLocaleDateString("th-TH")}
+                        </p>
                       </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-              {myTasks.length > 5 && (
-                <Link href="/tasks">
-                  <Button variant="outline" className="w-full mt-4">
-                    View All Tasks
-                  </Button>
-                </Link>
+                      {!notif.isRead && (
+                        <Badge variant="default" className="text-xs">
+                          ใหม่
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                  <Link href="/notifications">
+                    <span className="text-sm text-blue-600 hover:underline cursor-pointer block text-center">
+                      ดูทั้งหมด →
+                    </span>
+                  </Link>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Recent Notifications */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>Recent updates</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {notifications.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No new notifications</p>
-                ) : (
-                  notifications.slice(0, 5).map((notif) => (
-                    <div key={notif.id} className="text-sm border-l-2 border-blue-500 pl-3 py-2">
-                      <p className="font-medium text-xs text-gray-600">{notif.type.replace(/_/g, " ")}</p>
-                      <p className="text-gray-700 mt-1">{notif.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(notif.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
-      {/* Recent Projects */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Projects</CardTitle>
-          <CardDescription>Your active projects</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.length === 0 ? (
-              <p className="text-gray-500 text-sm col-span-full">No projects yet</p>
+      {/* Mobile: Quick Actions + Notifications at bottom */}
+      <div className="lg:hidden space-y-6">
+        <QuickActions />
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-lg">Notifications</CardTitle>
+            </div>
+            <CardDescription>การแจ้งเตือนล่าสุด</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">
+                ไม่มีการแจ้งเตือน
+              </p>
             ) : (
-              projects.slice(0, 6).map((project) => (
-                <Link key={project.id} href={`/projects/${project.id}`}>
-                  <div className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer">
-                    <h3 className="font-semibold text-sm">{project.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{project.location}</p>
-                    <div className="mt-3 flex items-center justify-between">
-                      <Badge variant="outline" className="text-xs">
-                        {project.status}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        {new Date(project.createdAt).toLocaleDateString()}
-                      </span>
+              <div className="space-y-3">
+                {notifications.slice(0, 5).map((notif: any) => (
+                  <div
+                    key={notif.id}
+                    className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 transition"
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{notif.title}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(notif.createdAt).toLocaleDateString("th-TH")}
+                      </p>
                     </div>
+                    {!notif.isRead && (
+                      <Badge variant="default" className="text-xs">
+                        ใหม่
+                      </Badge>
+                    )}
                   </div>
+                ))}
+                <Link href="/notifications">
+                  <span className="text-sm text-blue-600 hover:underline cursor-pointer block text-center">
+                    ดูทั้งหมด →
+                  </span>
                 </Link>
-              ))
+              </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
