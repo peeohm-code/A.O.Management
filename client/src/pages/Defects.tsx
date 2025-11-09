@@ -31,6 +31,8 @@ export default function Defects() {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [resolutionComment, setResolutionComment] = useState("");
   
@@ -75,6 +77,14 @@ export default function Defects() {
 
   if (statusFilter !== "all") {
     filteredDefects = filteredDefects.filter((d) => d.status === statusFilter);
+  }
+
+  if (typeFilter !== "all") {
+    filteredDefects = filteredDefects.filter((d) => d.type === typeFilter);
+  }
+
+  if (severityFilter !== "all") {
+    filteredDefects = filteredDefects.filter((d) => d.severity === severityFilter);
   }
 
   const getSeverityColor = (severity: string) => {
@@ -398,17 +408,40 @@ export default function Defects() {
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <Input
-          placeholder="Search defects..."
+          placeholder="ค้นหา Defects..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1"
         />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full md:w-48">
-            <SelectValue />
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-full md:w-40">
+            <SelectValue placeholder="ประเภท" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">ทั้งหมด</SelectItem>
+            <SelectItem value="all">ทุกประเภท</SelectItem>
+            <SelectItem value="CAR">CAR</SelectItem>
+            <SelectItem value="PAR">PAR</SelectItem>
+            <SelectItem value="NCR">NCR</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={severityFilter} onValueChange={setSeverityFilter}>
+          <SelectTrigger className="w-full md:w-48">
+            <SelectValue placeholder="ความรุนแรง" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">ทุกระดับ</SelectItem>
+            <SelectItem value="critical">วิกฤต</SelectItem>
+            <SelectItem value="high">สูง</SelectItem>
+            <SelectItem value="medium">ปานกลาง</SelectItem>
+            <SelectItem value="low">ต่ำ</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full md:w-48">
+            <SelectValue placeholder="สถานะ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">ทุกสถานะ</SelectItem>
             <SelectItem value="reported">รายงานแล้ว</SelectItem>
             <SelectItem value="action_plan">กำลังวางแผน</SelectItem>
             <SelectItem value="assigned">มอบหมายแล้ว</SelectItem>

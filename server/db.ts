@@ -1182,6 +1182,7 @@ export async function logActivity(data: {
   userId: number;
   projectId?: number;
   taskId?: number;
+  defectId?: number;
   action: string;
   details?: string;
 }) {
@@ -1199,6 +1200,17 @@ export async function getTaskActivityLog(taskId: number) {
     .select()
     .from(activityLog)
     .where(eq(activityLog.taskId, taskId))
+    .orderBy(desc(activityLog.createdAt));
+}
+
+export async function getDefectActivityLog(defectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(activityLog)
+    .where(eq(activityLog.defectId, defectId))
     .orderBy(desc(activityLog.createdAt));
 }
 

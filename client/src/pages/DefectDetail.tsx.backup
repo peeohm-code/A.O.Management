@@ -1,17 +1,16 @@
-import { useParams, useLocation, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -32,7 +31,6 @@ export default function DefectDetail() {
   const defectId = parseInt(params.id || "0");
 
   const defectQuery = trpc.defect.getById.useQuery({ id: defectId });
-  const activityQuery = trpc.activity.getByDefect.useQuery({ defectId });
   const updateDefectMutation = trpc.defect.update.useMutation();
   const canEdit = useCanEditDefect();
 
@@ -61,11 +59,10 @@ export default function DefectDetail() {
     }
 
     try {
-      // Note: The current defect.update mutation doesn't support title/description/severity
-      // We'll update status only for now
       await updateDefectMutation.mutateAsync({
         id: defectId,
-        // Add other fields when backend supports them
+        // Note: title, description, severity are not in the current schema
+        // We'll need to add them to the update mutation input
       });
       toast.success("อัปเดตข้อมูลสำเร็จ");
       setShowEditDialog(false);
@@ -88,13 +85,11 @@ export default function DefectDetail() {
       });
       toast.success("อัปเดตสถานะสำเร็จ");
       setShowStatusDialog(false);
-      setNewStatus("");
       defectQuery.refetch();
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
-
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       CAR: "bg-yellow-100 text-yellow-700 border-yellow-300",
@@ -203,7 +198,7 @@ export default function DefectDetail() {
               </div>
               <h1 className="text-3xl font-bold text-gray-900">{defect.title}</h1>
             </div>
-            {canEdit(defect) && (
+            {canEdit(defectQuery.data) && (
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleEdit}>
                   <Edit className="w-4 h-4 mr-2" />
@@ -277,7 +272,7 @@ export default function DefectDetail() {
           {defect.rootCause && (
             <Card>
               <CardHeader>
-                <CardTitle>การวิเคราะห์สาเหตุต้นตอ (RCA)</CardTitle>
+                <CardTitle>การวิเคราะห์สาเหตุ (Root Cause Analysis)</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 whitespace-pre-wrap">{defect.rootCause}</p>
@@ -285,38 +280,50 @@ export default function DefectDetail() {
             </Card>
           )}
 
-          {/* Corrective Action */}
-          {defect.correctiveAction && (
+          {/* Action Plan */}
+          {defect.actionPlan && (
             <Card>
               <CardHeader>
-                <CardTitle>การแก้ไข (Corrective Action)</CardTitle>
+                <CardTitle>แผนการแก้ไข</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.correctiveAction}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.actionPlan}</p>
               </CardContent>
             </Card>
           )}
 
-          {/* Preventive Action */}
-          {defect.preventiveAction && (
+          {/* Implementation */}
+          {defect.implementation && (
             <Card>
               <CardHeader>
-                <CardTitle>การป้องกัน (Preventive Action)</CardTitle>
+                <CardTitle>การดำเนินการแก้ไข</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.preventiveAction}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.implementation}</p>
               </CardContent>
             </Card>
           )}
 
-          {/* Verification Comment */}
-          {defect.verificationComment && (
+          {/* Verification */}
+          {defect.verification && (
             <Card>
               <CardHeader>
-                <CardTitle>ความคิดเห็นผู้ตรวจสอบ</CardTitle>
+                <CardTitle>การตรวจสอบผล</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.verificationComment}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.verification}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Effectiveness Check */}
+          {defect.effectivenessCheck && (
+            <Card>
+              <CardHeader>
+                <CardTitle>การตรวจสอบประสิทธิผล</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.effectivenessCheck}</p>
               </CardContent>
             </Card>
           )}
@@ -394,167 +401,8 @@ export default function DefectDetail() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Activity Log */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="w-5 h-5" />
-                ประวัติการเปลี่ยนแปลง
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {activityQuery.isLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-500">กำลังโหลด...</p>
-                </div>
-              ) : activityQuery.data && activityQuery.data.length > 0 ? (
-                <div className="space-y-4">
-                  {activityQuery.data.map((activity) => (
-                    <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0 last:pb-0">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <Clock className="w-4 h-4 text-blue-600" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900">
-                              {activity.action === "defect_created" && "สร้าง Defect"}
-                              {activity.action === "defect_status_changed" && "เปลี่ยนสถานะ"}
-                              {activity.action === "defect_updated" && "อัปเดตข้อมูล"}
-                              {activity.action === "defect_assigned" && "มอบหมายงาน"}
-                              {!activity.action.startsWith("defect_") && activity.action}
-                            </p>
-                            {activity.details && (
-                              <p className="text-sm text-gray-600 mt-1">{activity.details}</p>
-                            )}
-                          </div>
-                          <time className="text-xs text-gray-500 whitespace-nowrap">
-                            {new Date(activity.createdAt).toLocaleDateString("th-TH", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </time>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">โดย User #{activity.userId}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <History className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p>ยังไม่มีประวัติการเปลี่ยนแปลง</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
-
-      {/* Edit Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>แก้ไขข้อมูล {defect.type}</DialogTitle>
-            <DialogDescription>
-              แก้ไขข้อมูลพื้นฐานของ CAR/PAR/NCR
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="edit-title">หัวข้อ <span className="text-red-500">*</span></Label>
-              <Input
-                id="edit-title"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                placeholder="ระบุหัวข้อปัญหา"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-description">รายละเอียด</Label>
-              <Textarea
-                id="edit-description"
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                placeholder="ระบุรายละเอียดของปัญหา"
-                rows={4}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-severity">ระดับความรุนแรง</Label>
-              <Select value={editSeverity} onValueChange={setEditSeverity}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">ต่ำ</SelectItem>
-                  <SelectItem value="medium">ปานกลาง</SelectItem>
-                  <SelectItem value="high">สูง</SelectItem>
-                  <SelectItem value="critical">วิกฤต</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              ยกเลิก
-            </Button>
-            <Button onClick={handleSaveEdit} disabled={updateDefectMutation.isPending}>
-              {updateDefectMutation.isPending ? "กำลังบันทึก..." : "บันทึก"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Update Status Dialog */}
-      <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>อัปเดตสถานะ</DialogTitle>
-            <DialogDescription>
-              เปลี่ยนสถานะของ {defect.type}: {defect.title}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Label htmlFor="new-status">สถานะใหม่ <span className="text-red-500">*</span></Label>
-            <Select value={newStatus} onValueChange={setNewStatus}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="เลือกสถานะ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="reported">รายงานแล้ว</SelectItem>
-                <SelectItem value="action_plan">กำลังวางแผน</SelectItem>
-                <SelectItem value="assigned">มอบหมายแล้ว</SelectItem>
-                <SelectItem value="in_progress">กำลังดำเนินการ</SelectItem>
-                <SelectItem value="implemented">แก้ไขเสร็จแล้ว</SelectItem>
-                <SelectItem value="verification">รอตรวจสอบ</SelectItem>
-                <SelectItem value="effectiveness_check">ตรวจสอบประสิทธิผล</SelectItem>
-                <SelectItem value="closed">ปิดแล้ว</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-gray-500 mt-2">
-              สถานะปัจจุบัน: <span className="font-medium">{getStatusLabel(defect.status)}</span>
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowStatusDialog(false)}>
-              ยกเลิก
-            </Button>
-            <Button onClick={handleUpdateStatus} disabled={updateDefectMutation.isPending}>
-              {updateDefectMutation.isPending ? "กำลังอัปเดต..." : "อัปเดต"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

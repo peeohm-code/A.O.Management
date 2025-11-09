@@ -1244,6 +1244,11 @@ const activityRouter = router({
     .query(async ({ input }) => {
       return await db.getTaskActivityLog(input.taskId);
     }),
+  getByDefect: protectedProcedure
+    .input(z.object({ defectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getDefectActivityLog(input.defectId);
+    }),
 });
 
 /**

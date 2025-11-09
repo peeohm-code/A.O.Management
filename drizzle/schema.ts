@@ -394,13 +394,15 @@ export const activityLog = mysqlTable("activityLog", {
   userId: int("userId").notNull(),
   projectId: int("projectId"),
   taskId: int("taskId"),
-  action: varchar("action", { length: 100 }).notNull(), // e.g., "task_created", "status_changed", "inspection_completed"
+  defectId: int("defectId"),
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "task_created", "status_changed", "inspection_completed", "defect_created", "defect_status_changed"
   details: text("details"), // JSON object with additional details
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("userIdx").on(table.userId),
   projectIdx: index("projectIdx").on(table.projectId),
   taskIdx: index("taskIdx").on(table.taskId),
+  defectIdx: index("defectIdx").on(table.defectId),
 }));
 
 export type ActivityLog = typeof activityLog.$inferSelect;

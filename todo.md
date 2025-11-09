@@ -1140,3 +1140,35 @@
 ## Reorder Sidebar Menu (Nov 9, 2025)
 - [x] ปรับลำดับเมนู Sidebar ใน DashboardLayout ให้เป็น: Dashboard, Projects, Tasks, QC Inspection, Defects, Checklist Templates, Reports
 - [x] ทดสอบและบันทึก checkpoint
+
+## Defects Page Improvements (Nov 9, 2025)
+
+### 1. Add Filters and Search to Defects Page
+- [ ] เพิ่ม Dropdown กรองตามประเภท (CAR/PAR/NCR)
+- [ ] เพิ่ม Dropdown กรองตามสถานะ
+- [ ] เพิ่ม Dropdown กรองตามระดับความรุนแรง
+- [ ] เพิ่มช่องค้นหาตามหัวข้อ
+- [ ] ทดสอบการกรองและค้นหา
+
+### 2. Add Edit and Update Status Features to Defect Detail
+- [ ] เพิ่มปุ่ม "แก้ไข" ในหน้า Defect Detail
+- [ ] สร้าง Dialog สำหรับแก้ไขข้อมูล Defect
+- [ ] เพิ่มปุ่ม "อัปเดตสถานะ" พร้อม Dialog เลือกสถานะใหม่
+- [ ] สร้าง Backend API สำหรับอัปเดต Defect
+- [ ] ทดสอบการแก้ไขและอัปเดตสถานะ
+
+### 3. Add Timeline/Activity Log to Defect Detail
+- [ ] สร้างตาราง defectActivities ในฐานข้อมูล
+- [ ] สร้าง Backend API สำหรับบันทึกและดึง activity log
+- [ ] สร้าง Timeline component แสดงประวัติการเปลี่ยนแปลง
+- [ ] เพิ่ม Timeline เข้าหน้า Defect Detail
+- [ ] ทดสอบ Timeline/Activity Log
+
+### 4. Test and Save Checkpoint
+- [ ] ทดสอบฟีเจอร์ทั้งหมด
+- [ ] บันทึก checkpoint
+
+## Defects Page UI/UX Improvements
+- [x] เพิ่มตัวกรองและการค้นหาในหน้า Defects (dropdown ประเภท, ความรุนแรง, สถานะ + ช่องค้นหา)
+- [x] เพิ่มฟีเจอร์แก้ไขและอัปเดตสถานะใน DefectDetail page (ปุ่ม Edit, ปุ่ม Update Status, Dialog forms)
+- [x] เพิ่ม Timeline/Activity Log ใน DefectDetail page
