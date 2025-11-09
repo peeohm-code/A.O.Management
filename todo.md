@@ -1048,3 +1048,35 @@
 - [x] เพิ่ม projectName และ projectId ใน query result
 - [x] ปรับหน้า QC Inspection ให้แสดงชื่องานและชื่อโครงการ
 - [x] ทดสอบการแสดงผล
+
+## Task Detail Page Redesign - UX Improvements
+- [ ] ปรับโครงสร้าง Tabs เป็น 4 แท็บ: Checklists, Defects, Documents, Activity Log
+- [ ] ลบ Dependencies tab
+- [ ] รวมข้อมูลงานในการ์ดเดียวด้านบน (ชื่อ, โครงการ, วันที่, progress, สถานะ, ผู้รับผิดชอบ)
+- [ ] เพิ่มปุ่ม Quick Actions ในการ์ดงาน
+- [ ] แสดงจำนวน Defects ที่รอแก้ในการ์ดงาน
+- [ ] จัดเรียง Checklist ตามลำดับความสำคัญ (ไม่ผ่าน > รอตรวจ > กำลังตรวจ > ยังไม่เริ่ม > ผ่าน)
+- [ ] เปลี่ยนปุ่มเปลี่ยนสถานะเป็นปุ่ม "ขอตรวจ" (แสดงเฉพาะสถานะ ยังไม่เริ่ม)
+- [ ] เพิ่มสถิติ Checklist ด้านบน Tab
+- [ ] เพิ่มไอคอนสถานะใน Checklist Card
+- [ ] แสดงวันที่ตรวจสอบใน Checklist Card
+- [ ] ย้ายความเห็นไปรวมใน Documents tab
+- [ ] ทดสอบการทำงานทั้งหมด
+
+## Task Detail Page Redesign (Part 1: Tabs Structure)
+- [x] เปลี่ยน Tabs จาก 5 tabs เป็น 4 tabs
+- [x] ลบ Dependencies tab
+- [x] รวม Attachments + Comments ใน Documents tab
+- [x] เพิ่ม Defects tab
+
+## Task Detail Page Redesign (Part 2: ChecklistsTab Improvements)
+- [ ] เรียง Checklist ตามลำดับความสำคัญ (ไม่ผ่าน, รอตรวจ, กำลังตรวจ, ยังไม่เริ่ม, ผ่าน)
+- [ ] เพิ่มสถิติ Checklist ด้านบน Tab
+- [ ] เพิ่มไอคอนสถานะใน Checklist Card
+- [ ] เปลี่ยนปุ่มเปลี่ยนสถานะเป็นปุ่ม "ขอตรวจ" (แสดงเฉพาะเมื่อสถานะ = ยังไม่เริ่ม)
+- [ ] แสดงวันที่ตรวจสอบใน Checklist Card
+
+## Task Detail Page Redesign (Part 3: Task Info Card)
+- [ ] รวมข้อมูลงานทั้งหมดในการ์ดเดียว (ชื่อ, โครงการ, วันที่, progress, สถานะ, ผู้รับผิดชอบ)
+- [ ] เพิ่มปุ่ม Quick Actions (แก้ไข, ลบ, เพิ่ม Checklist, สร้าง Defect)
+- [ ] แสดงจำนวน Defects ที่รอแก้ในการ์ดงาน

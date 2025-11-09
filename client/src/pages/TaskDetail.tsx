@@ -8,12 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X, CheckSquare } from "lucide-react";
+import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X, CheckSquare, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
-import { DependenciesTab } from "@/components/DependenciesTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -407,27 +406,23 @@ export default function TaskDetail() {
         </CardContent>
       </Card>
 
-      {/* Tabs - Reordered: Checklists → Attachments → Comments → Activity Log */}
+      {/* Tabs - 4 tabs: Checklists | Defects | Documents | Activity Log */}
       <Tabs defaultValue="checklists" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="checklists">
             <CheckSquare className="w-4 h-4 mr-2" />
             Checklists
           </TabsTrigger>
-          <TabsTrigger value="dependencies">
-            <FileText className="w-4 h-4 mr-2" />
-            Dependencies
+          <TabsTrigger value="defects">
+            <AlertTriangle className="w-4 h-4 mr-2" />
+            Defects
           </TabsTrigger>
-          <TabsTrigger value="attachments">
+          <TabsTrigger value="documents">
             <FileText className="w-4 h-4 mr-2" />
-            ไฟล์แนบ
-          </TabsTrigger>
-          <TabsTrigger value="comments">
-            <MessageSquare className="w-4 h-4 mr-2" />
-            ความเห็น ({comments.length})
+            Documents
           </TabsTrigger>
           <TabsTrigger value="activity">
-            <FileText className="w-4 h-4 mr-2" />
+            <Clock className="w-4 h-4 mr-2" />
             Activity Log ({activities.length})
           </TabsTrigger>
         </TabsList>
@@ -437,13 +432,22 @@ export default function TaskDetail() {
           <ChecklistsTab taskId={taskId} />
         </TabsContent>
 
-        {/* Dependencies Tab */}
-        <TabsContent value="dependencies" className="space-y-4">
-          <DependenciesTab taskId={taskId} projectId={task.projectId} />
+        {/* Defects Tab */}
+        <TabsContent value="defects" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Defects ที่เกี่ยวข้อง</CardTitle>
+              <CardDescription>รายการ CAR/PAR/NCR ที่เกิดจากงานนี้</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500 text-center py-8">ยังไม่มี Defects ที่เกี่ยวข้อง</p>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        {/* Attachments Tab */}
-        <TabsContent value="attachments" className="space-y-4">
+        {/* Documents Tab - Combines Attachments + Comments */}
+        <TabsContent value="documents" className="space-y-4">
+          {/* Attachments Section */}
           <Card>
             <CardHeader>
               <CardTitle>อัปโหลดไฟล์</CardTitle>
@@ -525,10 +529,9 @@ export default function TaskDetail() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
 
-        {/* Comments Tab */}
-        <TabsContent value="comments" className="space-y-4">
+
+          {/* Comments Section */}
           <Card>
             <CardHeader>
               <CardTitle>เพิ่มความเห็น</CardTitle>
