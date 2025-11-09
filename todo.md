@@ -1321,3 +1321,8 @@
 - [x] สร้างหน้า Team Management UI
 - [x] เพิ่ม role-based access control
 - [x] ทดสอบและบันทึก checkpoint
+
+## Bug Fix - activityLog Insert Error
+- [x] ตรวจสอบ activityLog schema
+- [x] แก้ไข logActivity function ให้รองรับ nullable fields
+- [x] ทดสอบและบันทึก checkpoint

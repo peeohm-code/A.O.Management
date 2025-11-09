@@ -1189,7 +1189,18 @@ export async function logActivity(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.insert(activityLog).values(data);
+  // Filter out undefined values to avoid "default" keyword issues
+  const values: any = {
+    userId: data.userId,
+    action: data.action,
+  };
+  
+  if (data.projectId !== undefined) values.projectId = data.projectId;
+  if (data.taskId !== undefined) values.taskId = data.taskId;
+  if (data.defectId !== undefined) values.defectId = data.defectId;
+  if (data.details !== undefined) values.details = data.details;
+
+  return await db.insert(activityLog).values(values);
 }
 
 export async function getTaskActivityLog(taskId: number) {
