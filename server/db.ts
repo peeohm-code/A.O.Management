@@ -878,7 +878,12 @@ export async function getDefectById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
 
-  const result = await db.select().from(defects).where(eq(defects.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(defects)
+    .where(eq(defects.id, id))
+    .limit(1);
+
   return result.length > 0 ? result[0] : undefined;
 }
 

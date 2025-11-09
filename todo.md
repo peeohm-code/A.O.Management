@@ -1129,3 +1129,10 @@
 - [x] แก้ไข DialogDescription ใน QCInspection.tsx ที่มี div ซ้อนอยู่ใน p tag
 - [x] ทดสอบและตรวจสอบว่าไม่มี console errors
 - [x] บันทึก checkpoint
+
+## Defect Card Navigation in Task Detail (Nov 9, 2025)
+- [x] เพิ่ม navigation ให้การ์ด Defect ใน DefectsTab คลิกเพื่อเข้าหน้า Defect Detail
+- [x] สร้างหน้า DefectDetail component
+- [x] เพิ่ม route /defects/:id ใน App.tsx
+- [x] ทดสอบการคลิกการ์ด Defect
+- [x] บันทึก checkpoint

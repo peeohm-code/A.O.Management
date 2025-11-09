@@ -131,7 +131,7 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
       {/* Defects List */}
       <div className="space-y-3">
         {defects.map((defect) => (
-          <Link key={defect.id} href={`/defects`}>
+          <Link key={defect.id} href={`/defects/${defect.id}`}>
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between gap-4">

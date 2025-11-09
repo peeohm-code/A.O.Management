@@ -761,6 +761,13 @@ const checklistRouter = router({
  * Defect Router - Defect Management (CAR/PAR/NCR)
  */
 const defectRouter = router({
+  // Get defect by ID
+  getById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getDefectById(input.id);
+    }),
+
   // Get defects by task
   list: protectedProcedure
     .input(z.object({ taskId: z.number() }))

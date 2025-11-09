@@ -9,6 +9,7 @@ import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 import QCInspection from "./pages/QCInspection";
 import Defects from "./pages/Defects";
+import DefectDetail from "./pages/DefectDetail";
 import NotificationCenter from "./pages/NotificationCenter";
 import ProjectDetail from "./pages/ProjectDetail";
 import TaskDetail from "./pages/TaskDetail";
@@ -74,6 +75,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <ChecklistTemplates />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/defects/:id"}>
+        {() => (
+          <DashboardLayout>
+            <DefectDetail />
           </DashboardLayout>
         )}
       </Route>
