@@ -99,9 +99,11 @@ export default function ProjectDetail() {
     }
   };
 
-  const completedTasks = tasks.filter((t: any) => t.status === "completed").length;
-  const inProgressTasks = tasks.filter((t: any) => t.status === "in_progress").length;
   const totalTasks = tasks.length;
+  const notStartedTasks = tasks.filter((t: any) => t.displayStatus === "not_started").length;
+  const inProgressTasks = tasks.filter((t: any) => t.displayStatus === "in_progress").length;
+  const delayedTasks = tasks.filter((t: any) => t.displayStatus === "delayed").length;
+  const completedTasks = tasks.filter((t: any) => t.displayStatus === "completed").length;
 
   return (
     <div className="space-y-6">
@@ -162,10 +164,10 @@ export default function ProjectDetail() {
 
 
       {/* Tasks Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">งานทั้งหมด</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalTasks}</div>
@@ -173,7 +175,15 @@ export default function ProjectDetail() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">ยังไม่เริ่ม</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-600">{notStartedTasks}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">กำลังทำ</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{inProgressTasks}</div>
@@ -181,7 +191,15 @@ export default function ProjectDetail() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">ล่าช้า</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{delayedTasks}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">เสร็จสมบูรณ์</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -194,9 +212,10 @@ export default function ProjectDetail() {
       {/* Tabs */}
       <Tabs defaultValue="tasks" className="w-full">
         <TabsList>
-          <TabsTrigger value="tasks">Tasks ({totalTasks})</TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="qc">QC</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="team">Team</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tasks" className="space-y-4">
@@ -227,6 +246,30 @@ export default function ProjectDetail() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="qc">
+          <Card>
+            <CardHeader>
+              <CardTitle>QC & Inspection</CardTitle>
+              <CardDescription>Quality control and inspection records for this project</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">QC information coming soon</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="documents">
+          <Card>
+            <CardHeader>
+              <CardTitle>Project Documents</CardTitle>
+              <CardDescription>Files and documents related to this project</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">Document management coming soon</p>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="team">

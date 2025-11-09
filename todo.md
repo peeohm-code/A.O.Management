@@ -1021,3 +1021,9 @@
 - [x] ลบ Notifications, Settings, User Management ออกจาก sidebar
 - [x] เพิ่ม NotificationDropdown และ UserDropdown ใน header
 - [x] แก้ไข import ที่ขาดหายไป (UserCircle, LogOut icons)
+
+## Project Detail Page Dashboard Improvements
+- [x] เปลี่ยนการ์ดจาก 3 การ์ด (Total Tasks, In Progress, Completed) เป็น 5 การ์ด
+- [x] เพิ่มการ์ด: งานทั้งหมด, ยังไม่เริ่ม, กำลังทำ, ล่าช้า, เสร็จสมบูรณ์
+- [x] เปลี่ยน Tabs จาก Tasks (3) | Team | Documents เป็น Tasks | QC | Documents | Team
+- [x] ทดสอบหน้า Project Detail ให้แน่ใจว่าทุกอย่างทำงานถูกต้อง
