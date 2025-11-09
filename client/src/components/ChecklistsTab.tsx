@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, FileText } from "lucide-react";
+import { Plus, Trash2, FileText, CheckCircle, XCircle, Clock, AlertCircle, Pause } from "lucide-react";
 import { toast } from "sonner";
 
 interface ChecklistsTabProps {
@@ -148,8 +148,46 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
     );
   }
 
+  // Sort checklists by priority: failed > pending_inspection > in_progress > not_started > completed
+  const priorityOrder = { failed: 1, pending_inspection: 2, in_progress: 3, not_started: 4, completed: 5 };
+  const sortedChecklists = [...(taskChecklists || [])].sort((a, b) => {
+    return (priorityOrder[a.status as keyof typeof priorityOrder] || 99) - (priorityOrder[b.status as keyof typeof priorityOrder] || 99);
+  });
+
+  // Calculate statistics
+  const stats = {
+    total: taskChecklists?.length || 0,
+    not_started: taskChecklists?.filter(c => c.status === 'not_started').length || 0,
+    pending: taskChecklists?.filter(c => c.status === 'pending_inspection').length || 0,
+    in_progress: taskChecklists?.filter(c => c.status === 'in_progress').length || 0,
+    completed: taskChecklists?.filter(c => c.status === 'completed').length || 0,
+    failed: taskChecklists?.filter(c => c.status === 'failed').length || 0,
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckCircle className="w-4 h-4" />;
+      case 'failed': return <XCircle className="w-4 h-4" />;
+      case 'pending_inspection': return <Clock className="w-4 h-4" />;
+      case 'in_progress': return <AlertCircle className="w-4 h-4" />;
+      case 'not_started': return <Pause className="w-4 h-4" />;
+      default: return <FileText className="w-4 h-4" />;
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Statistics Summary */}
+      {stats.total > 0 && (
+        <div className="flex gap-2 flex-wrap text-sm">
+          <Badge variant="outline" className="bg-gray-50">ทั้งหมด: {stats.total}</Badge>
+          {stats.not_started > 0 && <Badge variant="outline" className="bg-gray-100">ยังไม่เริ่ม: {stats.not_started}</Badge>}
+          {stats.pending > 0 && <Badge variant="outline" className="bg-yellow-100 text-yellow-700">รอตรวจ: {stats.pending}</Badge>}
+          {stats.in_progress > 0 && <Badge variant="outline" className="bg-blue-100 text-blue-700">กำลังตรวจ: {stats.in_progress}</Badge>}
+          {stats.completed > 0 && <Badge variant="outline" className="bg-green-100 text-green-700">ผ่าน: {stats.completed}</Badge>}
+          {stats.failed > 0 && <Badge variant="outline" className="bg-red-100 text-red-700">ไม่ผ่าน: {stats.failed}</Badge>}
+        </div>
+      )}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -208,7 +246,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {taskChecklists.map((checklist: any) => (
+              {sortedChecklists.map((checklist: any) => (
                 <Card key={checklist.id} className="border-l-4 border-l-blue-500">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
@@ -218,7 +256,8 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                           <Badge variant="outline">
                             {getStageLabel(checklist.stage)}
                           </Badge>
-                          <Badge className={getStatusColor(checklist.status)}>
+                          <Badge className={`flex items-center gap-1 ${getStatusColor(checklist.status)}`}>
+                            {getStatusIcon(checklist.status)}
                             {getStatusLabel(checklist.status)}
                           </Badge>
                         </div>
@@ -228,52 +267,23 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                             {checklist.items?.length || 0} รายการ
                           </span>
                         </div>
-                        {/* Status Dropdown - Only show for not_started and pending_inspection */}
-                        {(checklist.status === "not_started" || checklist.status === "pending_inspection") && (
+                        {/* Request Inspection Button - Only show for not_started status */}
+                        {checklist.status === "not_started" && (
                           <div className="mt-2">
-                            {editingStatusId === checklist.id ? (
-                              <div className="flex gap-2">
-                                <Select value={newStatus} onValueChange={setNewStatus}>
-                                  <SelectTrigger className="h-8 text-sm">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
-                                    <SelectItem value="pending_inspection">รอการตรวจสอบ</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    updateStatusMutation.mutate({
-                                      id: checklist.id,
-                                      status: newStatus as any,
-                                    });
-                                  }}
-                                  disabled={updateStatusMutation.isPending}
-                                >
-                                  บันทึก
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEditingStatusId(null)}
-                                >
-                                  ยกเลิก
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setEditingStatusId(checklist.id);
-                                  setNewStatus(checklist.status);
-                                }}
-                              >
-                                เปลี่ยนสถานะ
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 text-sm"
+                              onClick={() => {
+                                updateStatusMutation.mutate({
+                                  id: checklist.id,
+                                  status: 'pending_inspection' as any,
+                                });
+                              }}
+                              disabled={updateStatusMutation.isPending}
+                            >
+                              {updateStatusMutation.isPending ? "กำลังบันทึก..." : "ขอตรวจ →"}
+                            </Button>
                           </div>
                         )}
                       </div>
