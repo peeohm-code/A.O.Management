@@ -666,6 +666,47 @@ export async function getTaskChecklistsByTemplateId(templateId: number) {
     .where(eq(taskChecklists.templateId, templateId));
 }
 
+export async function getTaskChecklistsByProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const checklists = await db
+    .select({
+      id: taskChecklists.id,
+      taskId: taskChecklists.taskId,
+      templateId: taskChecklists.templateId,
+      stage: taskChecklists.stage,
+      status: taskChecklists.status,
+      inspectedBy: taskChecklists.inspectedBy,
+      inspectedAt: taskChecklists.inspectedAt,
+      generalComments: taskChecklists.generalComments,
+      photoUrls: taskChecklists.photoUrls,
+      signature: taskChecklists.signature,
+      createdAt: taskChecklists.createdAt,
+      updatedAt: taskChecklists.updatedAt,
+      taskName: tasks.name,
+      templateName: checklistTemplates.name,
+      allowGeneralComments: checklistTemplates.allowGeneralComments,
+      allowPhotos: checklistTemplates.allowPhotos,
+    })
+    .from(taskChecklists)
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
+    .where(eq(tasks.projectId, projectId));
+
+  // Get items for each checklist
+  const result = [];
+  for (const checklist of checklists) {
+    const items = await db
+      .select()
+      .from(checklistTemplateItems)
+      .where(eq(checklistTemplateItems.templateId, checklist.templateId));
+    result.push({ ...checklist, items });
+  }
+
+  return result;
+}
+
 export async function getTaskChecklistById(id: number) {
   const db = await getDb();
   if (!db) return undefined;

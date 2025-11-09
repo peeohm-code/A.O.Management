@@ -544,6 +544,12 @@ const checklistRouter = router({
       return await db.getTaskChecklistsByTask(input.taskId);
     }),
 
+  getByProject: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getTaskChecklistsByProject(input.projectId);
+    }),
+
   getTaskChecklistsByTemplateId: protectedProcedure
     .input(z.object({ templateId: z.number() }))
     .query(async ({ input }) => {

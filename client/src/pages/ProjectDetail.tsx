@@ -9,6 +9,7 @@ import { Link, useLocation } from "wouter";
 import GanttChart from "@/components/GanttChart";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { CategoryColorPicker } from "@/components/CategoryColorPicker";
+import { QCTab } from "@/components/QCTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -316,7 +317,7 @@ export default function ProjectDetail() {
               <CardDescription>Quality control and inspection records for this project</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500">QC information coming soon</p>
+              <QCTab projectId={projectId} />
             </CardContent>
           </Card>
         </TabsContent>
