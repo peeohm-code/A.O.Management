@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, ClipboardList, AlertTriangle, FileText } from "lucide-react";
+import { Plus, ClipboardList, FileText } from "lucide-react";
 import { Link } from "wouter";
 
 export function QuickActions() {
@@ -21,12 +21,6 @@ export function QuickActions() {
           <Button className="w-full justify-start gap-2" variant="outline">
             <ClipboardList className="w-4 h-4" />
             New Task
-          </Button>
-        </Link>
-        <Link href="/defects/new">
-          <Button className="w-full justify-start gap-2" variant="outline">
-            <AlertTriangle className="w-4 h-4" />
-            New Defect
           </Button>
         </Link>
         <Link href="/reports">

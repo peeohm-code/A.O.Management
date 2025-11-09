@@ -1286,3 +1286,7 @@
 - [x] ปรับปรุง NotificationBell popover สำหรับมือถือ
 - [x] ทดสอบ responsive design บนหน้าจอขนาดต่างๆ
 - [x] ทดสอบและบันทึก checkpoint
+
+## Quick Actions Update
+- [x] ลบปุ่ม "New Defect" ออกจาก Quick Actions (defects สร้างได้เฉพาะเมื่อตรวจงานไม่ผ่าน)
+- [x] บันทึก checkpoint
