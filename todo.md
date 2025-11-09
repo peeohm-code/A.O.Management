@@ -1124,3 +1124,8 @@
 - [ ] ทำให้การ์ด inspection คลิกได้เพื่อดูรายละเอียด
 - [ ] ผสาน QCTab เข้ากับหน้า Project Detail
 - [ ] ทดสอบและบันทึก checkpoint
+
+## Fix HTML Nesting Errors in QCInspection (Nov 9, 2025)
+- [x] แก้ไข DialogDescription ใน QCInspection.tsx ที่มี div ซ้อนอยู่ใน p tag
+- [x] ทดสอบและตรวจสอบว่าไม่มี console errors
+- [x] บันทึก checkpoint

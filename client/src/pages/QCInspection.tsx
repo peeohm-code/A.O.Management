@@ -475,10 +475,10 @@ export default function QCInspection() {
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedChecklist?.templateName || selectedChecklist?.name}</DialogTitle>
-            <DialogDescription className="space-y-1">
+            <div className="text-sm text-muted-foreground space-y-1">
               <div>📋 งาน: {selectedChecklist?.taskName}</div>
               <div>🏗️ โครงการ: {selectedChecklist?.projectName || 'ไม่ระบุ'}</div>
-            </DialogDescription>
+            </div>
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
