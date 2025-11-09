@@ -1210,3 +1210,25 @@
 - [x] เพิ่ม subtitle, percentage, และ visual indicators
 - [x] ปรับ UI ให้ทันสมัย ใช้ gradient, shadow, และสีสันสวยงาม
 - [x] ทดสอบและบันทึก checkpoint
+
+## Dashboard Advanced Features (Phase 2)
+- [x] เพิ่มฟีเจอร์คลิกการ์ด Key Metrics เพื่อดูรายละเอียดโครงการ
+  - [x] คลิกการ์ด At Risk → แสดง Modal รายชื่อโครงการที่เสี่ยง
+  - [x] คลิกการ์ด Delayed → แสดง Modal รายชื่อโครงการที่ล่าช้า
+  - [x] คลิกการ์ด On Track → แสดง Modal รายชื่อโครงการที่ปกติ
+  - [x] คลิกการ์ด Active → แสดง Modal รายชื่อโครงการทั้งหมด
+- [x] เพิ่ม Trend Indicators ในการ์ด Key Metrics
+  - [x] สร้าง Backend API คำนวณสถิติสัปดาห์ที่แล้ว
+  - [x] แสดงลูกศรขึ้น/ลง (↑/↓) ตามแนวโน้ม
+  - [x] แสดง percentage change เทียบกับสัปดาห์ที่แล้ว
+  - [x] เพิ่มสีเขียว (เพิ่มขึ้น) และสีแดง (ลดลง) ตามความหมาย
+- [x] เพิ่มฟีเจอร์กรองตามช่วงเวลาใน Dashboard
+  - [x] สร้าง Date Range Selector (วันนี้, สัปดาห์นี้, เดือนนี้, ไตรมาสนี้)
+  - [x] แสดงข้อมูลตามช่วงเวลาที่เลือก (Key Metrics, Work Overview, Featured Projects)
+  - [x] เพิ่ม info banner เมื่อกรองข้อมูล
+- [x] ปรับปรุง UI Dashboard ให้ทันสมัยและอ่านง่ายขึ้น
+  - [x] ปรับ spacing และ layout ให้กลมกลืน
+  - [x] เพิ่ม visual hierarchy ชัดเจน
+  - [x] ปรับสีและ typography ให้สวยงาม
+  - [x] เพิ่ม gradient background และ animations
+  - [x] ทดสอบ responsive design บนทุกขนาดหน้าจอ

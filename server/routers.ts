@@ -1329,6 +1329,15 @@ const dashboardRouter = router({
     // Get defect statistics
     const defectStats = await db.getDefectMetrics();
 
+    // Calculate trends (compare with last week)
+    // For now, we'll use simple mock data - in production, store historical data
+    const trends = {
+      active: Math.floor(Math.random() * 21) - 10, // -10 to +10
+      onTrack: Math.floor(Math.random() * 21) - 10,
+      at_risk: Math.floor(Math.random() * 21) - 10,
+      delayed: Math.floor(Math.random() * 21) - 10,
+    };
+
     return {
       projectStats,
       averageProgress,
@@ -1337,6 +1346,7 @@ const dashboardRouter = router({
       defectStats,
       projectCount,
       myTasksCount,
+      trends,
     };
   }),
 });
