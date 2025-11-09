@@ -241,33 +241,36 @@ export default function TaskDetail() {
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{task.name}</h1>
-        
-        {project && (
-          <div className="flex items-center gap-2 text-gray-600 mb-4">
-            <Building2 className="w-4 h-4" />
-            <Link href={`/projects/${project.id}`}>
-              <span className="hover:text-blue-600 hover:underline cursor-pointer">
-                {project.name}
-              </span>
-            </Link>
-          </div>
-        )}
-
-        {task.description && (
-          <p className="text-gray-600 mt-2">{task.description}</p>
-        )}
       </div>
 
-      {/* Consolidated Task Info Card */}
+      {/* Consolidated Task & Project Info Card */}
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
-            {/* Project Name */}
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Building2 className="w-4 h-4" />
-              <span>โครงการ: {project?.name || "-"}</span>
-            </div>
+            {/* Task Name */}
+            <h2 className="text-2xl font-bold text-gray-900">{task.name}</h2>
+            
+            {/* Task Description */}
+            {task.description && (
+              <p className="text-gray-600 text-sm">{task.description}</p>
+            )}
+
+            {/* Project Info */}
+            {project && (
+              <div className="pt-2 border-t">
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <Building2 className="w-4 h-4" />
+                  <Link href={`/projects/${project.id}`}>
+                    <span className="font-semibold hover:text-blue-600 hover:underline cursor-pointer">
+                      โครงการ: {project.name}
+                    </span>
+                  </Link>
+                </div>
+                {project.description && (
+                  <p className="text-sm text-gray-500 ml-6">{project.description}</p>
+                )}
+              </div>
+            )}
 
             {/* Main Info Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">

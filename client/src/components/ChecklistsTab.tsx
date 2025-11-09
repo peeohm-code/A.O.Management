@@ -247,7 +247,11 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
           ) : (
             <div className="space-y-3">
               {sortedChecklists.map((checklist: any) => (
-                <Card key={checklist.id} className="border-l-4 border-l-blue-500">
+                <Card 
+                  key={checklist.id} 
+                  className="border-l-4 border-l-blue-500 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => window.location.href = `/qc?checklistId=${checklist.id}`}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
