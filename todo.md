@@ -1136,3 +1136,7 @@
 - [x] เพิ่ม route /defects/:id ใน App.tsx
 - [x] ทดสอบการคลิกการ์ด Defect
 - [x] บันทึก checkpoint
+
+## Reorder Sidebar Menu (Nov 9, 2025)
+- [x] ปรับลำดับเมนู Sidebar ใน DashboardLayout ให้เป็น: Dashboard, Projects, Tasks, QC Inspection, Defects, Checklist Templates, Reports
+- [x] ทดสอบและบันทึก checkpoint
