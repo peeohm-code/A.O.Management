@@ -57,6 +57,14 @@ export function roleBasedProcedure(
     t.middleware(async opts => {
       const { ctx, next } = opts;
 
+      // protectedProcedure already ensures user exists, but add safety check
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'กรุณาเข้าสู่ระบบ',
+        });
+      }
+
       if (!hasPermission(ctx.user.role, resource, action)) {
         throw new TRPCError({
           code: 'FORBIDDEN',

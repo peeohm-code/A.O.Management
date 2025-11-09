@@ -17,48 +17,49 @@ interface Project {
 interface KeyMetricsProps {
   stats: {
     projectStats: {
-      active: number;
-      onTrack: number;
-      at_risk: number;
-      delayed: number;
       total: number;
+      on_track: number;
+      delayed: number;
+      overdue: number;
+      active?: number; // Backward compatibility
+      onTrack?: number; // Backward compatibility
+      at_risk?: number; // Deprecated
     };
     trends?: {
-      active: number;
-      onTrack: number;
-      at_risk: number;
+      on_track: number;
       delayed: number;
+      overdue: number;
     };
   };
   projects?: Project[];
 }
 
 export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
-  // Safely destructure with fallback values
-  const { active = 0, onTrack = 0, at_risk = 0, delayed = 0, total = 0 } = stats?.projectStats || {};
-  const trends = stats?.trends || { active: 0, onTrack: 0, at_risk: 0, delayed: 0 };
+  // Safely destructure with fallback values - new 4-status logic
+  const { total = 0, on_track = 0, delayed = 0, overdue = 0 } = stats?.projectStats || {};
+  const trends = stats?.trends || { on_track: 0, delayed: 0, overdue: 0 };
   const [, navigate] = useLocation();
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
 
-  // Filter projects based on selected metric
+  // Filter projects based on selected metric - new 4-status logic
   const getFilteredProjects = (metricType: string): Project[] => {
     if (!projects || projects.length === 0) return [];
     
     switch (metricType) {
-      case "active":
-        return projects.filter(p => p.status === "active");
+      case "total":
+        return projects;
       case "onTrack":
-        return projects.filter(p => p.status === "active" && !p.status.includes("at_risk") && !p.status.includes("delayed"));
-      case "atRisk":
-        return projects.filter(p => p.status.includes("at_risk"));
+        return projects.filter(p => p.status === "on_track");
       case "delayed":
-        return projects.filter(p => p.status.includes("delayed"));
+        return projects.filter(p => p.status === "delayed");
+      case "overdue":
+        return projects.filter(p => p.status === "overdue");
       default:
         return projects;
     }
   };
 
-  // Get trend indicator component
+  // Get trend indicator component - new logic
   const getTrendIndicator = (trend: number, metricType: string) => {
     if (trend === 0) {
       return (
@@ -69,8 +70,8 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
       );
     }
 
-    // For "at_risk" and "delayed", negative trend is good (fewer problems)
-    const isGoodTrend = (metricType === "atRisk" || metricType === "delayed") 
+    // For "delayed" and "overdue", negative trend is good (fewer problems)
+    const isGoodTrend = (metricType === "delayed" || metricType === "overdue") 
       ? trend < 0 
       : trend > 0;
 
@@ -87,55 +88,55 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
 
   const metrics = [
     {
-      title: "Active Projects",
-      value: active,
-      subtitle: `จาก ${total} โครงการทั้งหมด`,
+      title: "โครงการทั้งหมด",
+      value: total,
+      subtitle: "โครงการทั้งหมดในระบบ",
       icon: Briefcase,
       color: "blue",
       bgGradient: "from-blue-50 to-blue-100/50",
       textColor: "text-[#00366D]",
       iconBg: "bg-[#00366D]",
-      metricType: "active",
-      trend: trends.active,
+      metricType: "total",
+      trend: 0,
     },
     {
-      title: "On Track Projects",
-      value: onTrack,
-      subtitle: active > 0 ? `${Math.round((onTrack / active) * 100)}% ของโครงการที่ทำงาน` : "ไม่มีโครงการ",
+      title: "กำลังดำเนินการ",
+      value: on_track,
+      subtitle: total > 0 ? `${Math.round((on_track / total) * 100)}% ของโครงการทั้งหมด` : "ไม่มีโครงการ",
       icon: CheckCircle2,
       color: "green",
       bgGradient: "from-green-50 to-green-100/50",
       textColor: "text-[#00CE81]",
       iconBg: "bg-[#00CE81]",
-      badge: "✅ ปกติ",
+      badge: on_track > 0 ? "✅ ปกติ" : undefined,
       metricType: "onTrack",
-      trend: trends.onTrack,
+      trend: trends.on_track,
     },
     {
-      title: "At Risk Projects",
-      value: at_risk,
-      subtitle: at_risk > 0 ? "ต้องติดตามใกล้ชิด" : "ไม่มีโครงการเสี่ยง",
-      icon: AlertTriangle,
-      color: "orange",
-      bgGradient: "from-orange-50 to-orange-100/50",
-      textColor: "text-orange-700",
-      iconBg: "bg-orange-500",
-      badge: at_risk > 0 ? "⚠️ ต้องดู" : undefined,
-      metricType: "atRisk",
-      trend: trends.at_risk,
-    },
-    {
-      title: "Delayed Projects",
+      title: "ล่าช้า",
       value: delayed,
-      subtitle: delayed > 0 ? "ต้องเร่งแก้ไข" : "ไม่มีโครงการล่าช้า",
+      subtitle: delayed > 0 ? "มี task ล่าช้า" : "ไม่มีโครงการล่าช้า",
+      icon: AlertTriangle,
+      color: "yellow",
+      bgGradient: "from-yellow-50 to-yellow-100/50",
+      textColor: "text-yellow-700",
+      iconBg: "bg-yellow-500",
+      badge: delayed > 0 ? "⚠️ ล่าช้า" : undefined,
+      metricType: "delayed",
+      trend: trends.delayed,
+    },
+    {
+      title: "เลยกำหนด",
+      value: overdue,
+      subtitle: overdue > 0 ? "เลยวันสิ้นสุดโครงการ" : "ไม่มีโครงการเลยกำหนด",
       icon: Clock,
       color: "red",
       bgGradient: "from-red-50 to-red-100/50",
       textColor: "text-red-700",
       iconBg: "bg-red-500",
-      badge: delayed > 0 ? "🔴 ล่าช้า" : undefined,
-      metricType: "delayed",
-      trend: trends.delayed,
+      badge: overdue > 0 ? "🔴 เลยกำหนด" : undefined,
+      metricType: "overdue",
+      trend: trends.overdue,
     },
   ];
 
@@ -150,14 +151,14 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
 
   const getModalTitle = (metricType: string | null): string => {
     switch (metricType) {
-      case "active":
-        return "โครงการที่ทำงานอยู่ทั้งหมด";
+      case "total":
+        return "โครงการทั้งหมด";
       case "onTrack":
-        return "โครงการที่ดำเนินการตามแผน";
-      case "atRisk":
-        return "โครงการที่มีความเสี่ยง";
+        return "โครงการที่กำลังดำเนินการ";
       case "delayed":
         return "โครงการที่ล่าช้า";
+      case "overdue":
+        return "โครงการที่เลยกำหนด";
       default:
         return "รายชื่อโครงการ";
     }

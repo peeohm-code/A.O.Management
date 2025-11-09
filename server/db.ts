@@ -194,12 +194,26 @@ export async function getProjectsByUser(userId: number) {
     .select()
     .from(projects)
     .innerJoin(projectMembers, eq(projects.id, projectMembers.projectId))
-    .where(eq(projectMembers.userId, userId));
+    .where(
+      and(
+        eq(projectMembers.userId, userId),
+        isNull(projects.archivedAt) // Filter out archived projects
+      )
+    );
 }
 
 export async function getProjectStats(projectId: number) {
   const db = await getDb();
   if (!db) return null;
+
+  // Get project info for endDate
+  const project = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId))
+    .limit(1);
+  
+  const projectData = project[0];
 
   // Get all tasks for this project
   const projectTasks = await db
@@ -232,22 +246,23 @@ export async function getProjectStats(projectId: number) {
   const totalProgress = projectTasks.reduce((sum, t) => sum + (t.progress || 0), 0);
   const progress = Math.round(totalProgress / totalTasks);
 
-  // Determine project status
-  let status: 'on_track' | 'at_risk' | 'delayed' | 'completed';
-  if (completedTasks === totalTasks) {
+  // Determine project status based on new logic:
+  // 1. overdue = project endDate passed and not completed
+  // 2. delayed = has at least one delayed task (overdue task)
+  // 3. on_track = no delayed tasks
+  let status: 'on_track' | 'delayed' | 'overdue' | 'completed';
+  
+  if (completedTasks === totalTasks || projectData?.status === 'completed') {
     status = 'completed';
+  } else if (projectData?.endDate && new Date(projectData.endDate) < now) {
+    // Project passed its end date and not completed = overdue
+    status = 'overdue';
   } else if (overdueTasks > 0) {
+    // Has at least one delayed task = delayed
     status = 'delayed';
-  } else if (overdueTasks === 0 && inProgressTasks > 0) {
-    status = 'on_track';
   } else {
-    // Check if any tasks are approaching deadline (within 3 days)
-    const approachingDeadline = projectTasks.some(t => {
-      if (!t.endDate || t.status === 'completed') return false;
-      const daysUntilDue = Math.ceil((new Date(t.endDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      return daysUntilDue <= 3 && daysUntilDue >= 0;
-    });
-    status = approachingDeadline ? 'at_risk' : 'on_track';
+    // No delayed tasks = on track
+    status = 'on_track';
   }
 
   return {
@@ -329,6 +344,68 @@ export async function deleteProject(id: number) {
   
   // 5. Finally delete the project
   await db.delete(projects).where(eq(projects.id, id));
+}
+
+export async function archiveProject(projectId: number, userId: number, reason?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(projects)
+    .set({
+      archivedAt: new Date(),
+      archivedBy: userId,
+      archivedReason: reason || null,
+    })
+    .where(eq(projects.id, projectId));
+}
+
+export async function unarchiveProject(projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(projects)
+    .set({
+      archivedAt: null,
+      archivedBy: null,
+      archivedReason: null,
+    })
+    .where(eq(projects.id, projectId));
+}
+
+export async function getArchivedProjects(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get user to check role
+  const user = await getUserById(userId);
+  if (!user) return [];
+
+  // Admin and owner can see all archived projects
+  if (user.role === 'admin' || user.role === 'owner') {
+    const result = await db
+      .select()
+      .from(projects)
+      .where(isNotNull(projects.archivedAt))
+      .orderBy(desc(projects.archivedAt));
+    return result;
+  }
+
+  // Other users only see projects they're members of
+  const result = await db
+    .select()
+    .from(projects)
+    .innerJoin(projectMembers, eq(projects.id, projectMembers.projectId))
+    .where(
+      and(
+        eq(projectMembers.userId, userId),
+        isNotNull(projects.archivedAt)
+      )
+    )
+    .orderBy(desc(projects.archivedAt));
+
+  return result.map((r) => r.projects);
 }
 
 export async function addProjectMember(data: {

@@ -5,9 +5,11 @@ import { COOKIE_NAME } from "@shared/const";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "./_core/trpc";
 import * as db from "./db";
+import { generateProjectExport, generateProjectReport } from "./downloadProject";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
 import { notifyOwner } from "./_core/notification";
+import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
 
 /**
@@ -24,6 +26,7 @@ const projectRouter = router({
           taskCount: stats?.totalTasks || 0,
           completedTasks: stats?.completedTasks || 0,
           progressPercentage: stats?.progressPercentage || 0,
+          projectStatus: stats?.projectStatus || 'on_track',
         };
       })
     );
@@ -113,6 +116,58 @@ const projectRouter = router({
       return result;
     }),
 
+  archive: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await db.archiveProject(input.id, ctx.user.id, input.reason);
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        projectId: input.id,
+        action: "project_archived",
+        details: input.reason || "Project archived",
+      });
+
+      return { success: true };
+    }),
+
+  unarchive: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      await db.unarchiveProject(input.id);
+
+      await db.logActivity({
+        userId: ctx.user.id,
+        projectId: input.id,
+        action: "project_unarchived",
+        details: "Project unarchived",
+      });
+
+      return { success: true };
+    }),
+
+  listArchived: protectedProcedure.query(async ({ ctx }) => {
+    const archivedProjects = await db.getArchivedProjects(ctx.user.id);
+    const projectsWithStats = await Promise.all(
+      archivedProjects.map(async (project) => {
+        const stats = await db.getProjectStats(project.id);
+        return {
+          ...project,
+          taskCount: stats?.totalTasks || 0,
+          completedTasks: stats?.completedTasks || 0,
+          progressPercentage: stats?.progressPercentage || 0,
+          projectStatus: stats?.projectStatus || 'on_track',
+        };
+      })
+    );
+    return projectsWithStats;
+  }),
+
   addMember: roleBasedProcedure('projects', 'assignMembers')
     .input(
       z.object({
@@ -144,6 +199,20 @@ const projectRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       return await db.getProjectStats(input.id);
+    }),
+
+  downloadData: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const exportData = await generateProjectExport(input.id);
+      const report = generateProjectReport(exportData);
+      
+      return {
+        exportData,
+        report,
+        fileName: `project_${exportData.project.code || exportData.project.id}_export_${Date.now()}.json`,
+        reportFileName: `project_${exportData.project.code || exportData.project.id}_report_${Date.now()}.md`,
+      };
     }),
 
   listWithStats: protectedProcedure.query(async ({ ctx }) => {
@@ -1324,20 +1393,26 @@ const dashboardRouter = router({
       })
     );
 
-    // Count projects by status
-    const activeProjects = projectsWithStats.filter(p => p.status === 'active');
-    const delayedProjects = activeProjects.filter(p => p.stats.projectStatus === 'delayed');
-    const atRiskProjects = activeProjects.filter(p => p.stats.projectStatus === 'at_risk');
-    const onTrackProjects = activeProjects.filter(p => p.stats.projectStatus !== 'delayed' && p.stats.projectStatus !== 'at_risk');
+    // Count projects by new 4-status logic:
+    // 1. total = all projects
+    // 2. on_track = no delayed tasks, not past endDate
+    // 3. delayed = has delayed tasks, not past endDate
+    // 4. overdue = past endDate and not completed
+    const onTrackProjects = projectsWithStats.filter(p => p.stats.projectStatus === 'on_track');
+    const delayedProjects = projectsWithStats.filter(p => p.stats.projectStatus === 'delayed');
+    const overdueProjects = projectsWithStats.filter(p => p.stats.projectStatus === 'overdue');
     
     const projectStats = {
-      active: activeProjects.length,
-      completed: projectsWithStats.filter(p => p.status === 'completed').length,
-      on_hold: projectsWithStats.filter(p => p.status === 'on_hold').length,
-      delayed: delayedProjects.length,
-      at_risk: atRiskProjects.length,
-      onTrack: onTrackProjects.length,
       total: projectsWithStats.length,
+      on_track: onTrackProjects.length,
+      delayed: delayedProjects.length,
+      overdue: overdueProjects.length,
+      completed: projectsWithStats.filter(p => p.status === 'completed').length,
+      // Keep old fields for backward compatibility
+      active: projectsWithStats.filter(p => p.status === 'active').length,
+      on_hold: projectsWithStats.filter(p => p.status === 'on_hold').length,
+      at_risk: 0, // Deprecated
+      onTrack: onTrackProjects.length, // Alias for on_track
     };
 
     // Calculate average progress across all projects
@@ -1439,6 +1514,12 @@ const categoryColorRouter = router({
 });
 
 export const appRouter = router({
+  // Archive notifications check endpoint
+  checkArchiveNotifications: protectedProcedure.mutation(async () => {
+    const result = await checkArchiveWarnings();
+    return result;
+  }),
+
   system: systemRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

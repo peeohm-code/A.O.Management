@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, MapPin, Calendar } from "lucide-react";
+import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Trash2, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
@@ -17,6 +17,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
@@ -24,16 +31,26 @@ export default function Projects() {
   const { canCreate } = usePermissions('projects');
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});
+  const [sortBy, setSortBy] = useState<string>("name");
   const [isOpen, setIsOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     code: "",
     location: "",
     budget: "",
   });
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    code: "",
+    location: "",
+    status: "active" as "planning" | "active" | "on_hold" | "completed" | "cancelled",
+  });
 
   const projectsQuery = trpc.project.list.useQuery();
   const createProjectMutation = trpc.project.create.useMutation();
+  const updateProjectMutation = trpc.project.update.useMutation();
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,65 +77,141 @@ export default function Projects() {
     }
   };
 
+  const handleEditClick = (project: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingProject(project);
+    setEditFormData({
+      name: project.name || "",
+      code: project.code || "",
+      location: project.location || "",
+      status: project.status || "active",
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editFormData.name.trim()) {
+      toast.error("Project name is required");
+      return;
+    }
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: editingProject.id,
+        name: editFormData.name,
+        status: editFormData.status,
+      });
+
+      toast.success("Project updated successfully");
+      setEditDialogOpen(false);
+      setEditingProject(null);
+      projectsQuery.refetch();
+    } catch (error) {
+      toast.error("Failed to update project");
+    }
+  };
+
   const projects = projectsQuery.data || [];
   
   // Apply search and filters
-  const filteredProjects = projects.filter((p) => {
-    // Search filter
+  let filteredProjects = projects.filter((p) => {
     const matchesSearch = !searchTerm || 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.code?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Status filter
     const matchesStatus = !filters.status || p.status === filters.status;
     
     return matchesSearch && matchesStatus;
   });
 
+  // Apply sorting
+  filteredProjects = [...filteredProjects].sort((a, b) => {
+    switch (sortBy) {
+      case "name":
+        return a.name.localeCompare(b.name);
+      case "date":
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      case "progress":
+        return (b.progressPercentage || 0) - (a.progressPercentage || 0);
+      case "status":
+        const statusOrder = { delayed: 0, at_risk: 1, on_track: 2, completed: 3 };
+        return (statusOrder[a.projectStatus as keyof typeof statusOrder] || 4) - 
+               (statusOrder[b.projectStatus as keyof typeof statusOrder] || 4);
+      default:
+        return 0;
+    }
+  });
+
+  // Calculate stats based on new 4-status logic
+  const stats = {
+    total: projects.length,
+    on_track: filteredProjects.filter(p => p.projectStatus === 'on_track').length,
+    delayed: filteredProjects.filter(p => p.projectStatus === 'delayed').length,
+    overdue: filteredProjects.filter(p => p.projectStatus === 'overdue').length,
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800";
+        return "bg-[#00CE81]/10 text-[#00CE81] border-[#00CE81]/20";
       case "planning":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#00366D]/10 text-[#00366D] border-[#00366D]/20";
       case "on_hold":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "completed":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border-gray-200";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getProjectStatusColor = (status: string) => {
     switch (status) {
       case "on_track":
-        return "bg-green-100 text-green-800";
+        return "bg-[#00CE81]/10 text-[#00CE81] border-[#00CE81]/30";
       case "at_risk":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-700 border-yellow-300";
       case "delayed":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-700 border-red-300";
       case "completed":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#00366D]/10 text-[#00366D] border-[#00366D]/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-600 border-gray-300";
     }
   };
 
   const getProjectStatusLabel = (status: string) => {
     switch (status) {
       case "on_track":
-        return "On Track";
+        return "ตามแผน";
       case "at_risk":
-        return "At Risk";
+        return "เสี่ยง";
       case "delayed":
-        return "Delayed";
+        return "ล่าช้า";
       case "completed":
-        return "Completed";
+        return "เสร็จสิ้น";
       default:
-        return "Unknown";
+        return "ไม่ทราบ";
+    }
+  };
+
+  const getProjectStatusIcon = (status: string) => {
+    switch (status) {
+      case "on_track":
+        return <CheckCircle2 className="w-4 h-4" />;
+      case "at_risk":
+        return <AlertTriangle className="w-4 h-4" />;
+      case "delayed":
+        return <Clock className="w-4 h-4" />;
+      case "completed":
+        return <CheckCircle2 className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
@@ -129,10 +222,18 @@ export default function Projects() {
     return "bg-gray-400";
   };
 
+  const calculateDaysRemaining = (endDate: string | Date | null) => {
+    if (!endDate) return null;
+    const end = new Date(endDate);
+    const now = new Date();
+    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+  };
+
   if (projectsQuery.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin w-8 h-8" />
+        <Loader2 className="animate-spin w-8 h-8 text-[#00CE81]" />
       </div>
     );
   }
@@ -140,65 +241,66 @@ export default function Projects() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-gray-600 mt-1">Manage all your construction projects</p>
+          <h1 className="text-3xl font-bold text-gray-900">โครงการทั้งหมด</h1>
+          <p className="text-gray-600 mt-1">จัดการและติดตามโครงการก่อสร้างของคุณ</p>
         </div>
         {canCreate && (
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 bg-[#00CE81] hover:bg-[#00CE81]/90 text-white shadow-md">
                 <Plus className="w-4 h-4" />
-                New Project
+                สร้างโครงการใหม่
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>Create New Project</DialogTitle>
-                <DialogDescription>Add a new construction project to manage</DialogDescription>
+                <DialogTitle>สร้างโครงการใหม่</DialogTitle>
+                <DialogDescription>กรอกข้อมูลโครงการก่อสร้างใหม่</DialogDescription>
               </DialogHeader>
               <form onSubmit={handleCreateProject} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Project Name *</Label>
+                  <Label htmlFor="name">ชื่อโครงการ *</Label>
                   <Input
                     id="name"
-                    placeholder="e.g., Office Building A"
+                    placeholder="เช่น โครงการบ้านพักอาศัย 2 ชั้น"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="code">Project Code</Label>
+                  <Label htmlFor="code">รหัสโครงการ</Label>
                   <Input
                     id="code"
-                    placeholder="e.g., PRJ-001"
+                    placeholder="เช่น HOUSE-2025-001"
                     value={formData.code}
                     onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">สถานที่</Label>
                   <Input
                     id="location"
-                    placeholder="e.g., Bangkok, Thailand"
+                    placeholder="เช่น ชลบุรี"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="budget">Budget (THB)</Label>
-                  <Input
-                    id="budget"
-                    type="number"
-                    placeholder="e.g., 5000000"
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={createProjectMutation.isPending}>
-                  {createProjectMutation.isPending ? "Creating..." : "Create Project"}
+                <Button 
+                  type="submit" 
+                  className="w-full bg-[#00CE81] hover:bg-[#00CE81]/90" 
+                  disabled={createProjectMutation.isPending}
+                >
+                  {createProjectMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      กำลังสร้าง...
+                    </>
+                  ) : (
+                    "สร้างโครงการ"
+                  )}
                 </Button>
               </form>
             </DialogContent>
@@ -206,93 +308,294 @@ export default function Projects() {
         )}
       </div>
 
-      {/* Search and Filter */}
-      <div className="space-y-4">
-        <SearchBar
-          placeholder="ค้นหาโครงการตามชื่อหรือรหัส..."
-          onSearch={setSearchTerm}
-          className="max-w-md"
-        />
-        <FilterBar
-          filters={filters}
-          onFilterChange={setFilters}
-          statusOptions={[
-            { value: "active", label: "กำลังดำเนินการ" },
-            { value: "planning", label: "วางแผน" },
-            { value: "on_hold", label: "พักไว้" },
-            { value: "completed", label: "เสร็จสิ้น" },
-            { value: "cancelled", label: "ยกเลิก" },
-          ]}
-          showAssignee={false}
-          showCategory={false}
-          showPriority={false}
-        />
+      {/* Quick Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-[#00366D] hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">โครงการทั้งหมด</p>
+                <p className="text-3xl font-bold text-[#00366D] mt-1">{stats.total}</p>
+              </div>
+              <div className="p-3 bg-[#00366D]/10 rounded-full">
+                <Building2 className="w-6 h-6 text-[#00366D]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-[#00CE81] hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">กำลังดำเนินการ</p>
+                <p className="text-3xl font-bold text-[#00CE81] mt-1">{stats.on_track}</p>
+              </div>
+              <div className="p-3 bg-[#00CE81]/10 rounded-full">
+                <TrendingUp className="w-6 h-6 text-[#00CE81]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">ล่าช้า</p>
+                <p className="text-3xl font-bold text-yellow-600 mt-1">{stats.delayed}</p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">เลยกำหนด</p>
+                <p className="text-3xl font-bold text-red-600 mt-1">{stats.overdue}</p>
+              </div>
+              <div className="p-3 bg-red-100 rounded-full">
+                <Clock className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project: any) => (
-          <Link key={project.id} href={`/projects/${project.id}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <CardTitle className="text-xl">{project.name}</CardTitle>
-                  <Badge className={getStatusColor(project.status)}>
-                    {project.status}
-                  </Badge>
-                </div>
-                {project.code && (
-                  <CardDescription className="flex items-center gap-1">
-                    <span className="font-mono">{project.code}</span>
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {project.location && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4" />
-                    {project.location}
-                  </div>
-                )}
-                {project.startDate && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(project.startDate).toLocaleDateString()}
-                  </div>
-                )}
-                
-                {/* Progress Section */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Progress</span>
-                    <span className="font-semibold">{project.progressPercentage}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all ${getProgressColor(project.progressPercentage)}`}
-                      style={{ width: `${project.progressPercentage}%` }}
-                    />
-                  </div>
-                </div>
+      {/* Search, Filter, and Sort - Same Row */}
+      <Card className="border-[#00366D]/20">
+        <CardContent className="p-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+            <SearchBar
+              placeholder="ค้นหาโครงการตามชื่อหรือรหัส..."
+              onSearch={setSearchTerm}
+              className="flex-1 w-full lg:w-auto"
+            />
+            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              <FilterBar
+                filters={filters}
+                onFilterChange={setFilters}
+                statusOptions={[
+                  { value: "active", label: "กำลังดำเนินการ" },
+                  { value: "planning", label: "วางแผน" },
+                  { value: "on_hold", label: "พักไว้" },
+                  { value: "completed", label: "เสร็จสิ้น" },
+                  { value: "cancelled", label: "ยกเลิก" },
+                ]}
+                showAssignee={false}
+                showCategory={false}
+                showPriority={false}
+              />
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="เรียงตาม" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">ชื่อโครงการ</SelectItem>
+                  <SelectItem value="date">วันที่สร้าง</SelectItem>
+                  <SelectItem value="progress">ความคืบหน้า</SelectItem>
+                  <SelectItem value="status">สถานะ</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-                {/* Task Stats */}
-                <div className="flex justify-between text-sm text-gray-600 pt-2 border-t">
-                  <span>{project.completedTasks || 0}/{project.taskCount || 0} tasks</span>
-                  <Badge className={getProjectStatusColor(project.projectStatus)} variant="outline">
-                    {getProjectStatusLabel(project.projectStatus)}
-                  </Badge>
+      {/* Projects List - Modern Horizontal Cards */}
+      <div className="space-y-4">
+        {filteredProjects.map((project: any) => {
+          const daysRemaining = calculateDaysRemaining(project.endDate);
+          
+          return (
+            <Card 
+              key={project.id} 
+              className="group hover:shadow-xl transition-all duration-300 border-l-4 border-l-[#00CE81] hover:border-l-[#00366D]"
+            >
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                  {/* Left: Project Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/projects/${project.id}`}>
+                          <h3 className="text-xl font-bold text-gray-900 hover:text-[#00CE81] transition-colors cursor-pointer truncate">
+                            {project.name}
+                          </h3>
+                        </Link>
+                        {project.code && (
+                          <p className="text-sm text-gray-600 font-mono mt-1">{project.code}</p>
+                        )}
+                      </div>
+                      <Badge className={`${getStatusColor(project.status)} border font-medium`}>
+                        {project.status === 'active' ? 'กำลังดำเนินการ' : 
+                         project.status === 'planning' ? 'วางแผน' :
+                         project.status === 'on_hold' ? 'พักไว้' :
+                         project.status === 'completed' ? 'เสร็จสิ้น' : 'ยกเลิก'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                      {project.location && (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-4 h-4 text-[#00CE81]" />
+                          <span>{project.location}</span>
+                        </div>
+                      )}
+                      {(project.startDate || project.endDate) && (
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-[#00366D]" />
+                          <span>
+                            {project.startDate && new Date(project.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            {project.startDate && project.endDate && ' - '}
+                            {project.endDate && new Date(project.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                          </span>
+                        </div>
+                      )}
+                      {daysRemaining !== null && (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className={`w-4 h-4 ${daysRemaining < 0 ? 'text-red-500' : daysRemaining < 7 ? 'text-yellow-500' : 'text-[#00CE81]'}`} />
+                          <span className={daysRemaining < 0 ? 'text-red-600 font-medium' : ''}>
+                            {daysRemaining < 0 ? `เกินกำหนด ${Math.abs(daysRemaining)} วัน` : `เหลือ ${daysRemaining} วัน`}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 font-medium">
+                        <span>{project.completedTasks || 0}/{project.taskCount || 0} งาน</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Progress & Status */}
+                  <div className="flex flex-col sm:flex-row lg:flex-col gap-4 lg:w-72">
+                    {/* Progress Bar */}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600 font-medium">ความคืบหน้า</span>
+                        <span className="font-bold text-[#00366D]">{project.progressPercentage}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          className={`h-3 rounded-full transition-all duration-500 ${getProgressColor(project.progressPercentage)}`}
+                          style={{ width: `${project.progressPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Status Badge & Actions */}
+                    <div className="flex items-center justify-between sm:justify-end lg:justify-between gap-3">
+                      <Badge className={`${getProjectStatusColor(project.projectStatus)} border font-medium px-3 py-1 flex items-center gap-1.5`}>
+                        {getProjectStatusIcon(project.projectStatus)}
+                        {getProjectStatusLabel(project.projectStatus)}
+                      </Badge>
+                      
+                      {/* Quick Actions */}
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link href={`/projects/${project.id}`}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0 hover:bg-[#00CE81]/10 hover:text-[#00CE81]"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 hover:bg-[#00366D]/10 hover:text-[#00366D]"
+                          onClick={(e) => handleEditClick(project, e)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </Link>
-        ))}
+          );
+        })}
       </div>
 
       {filteredProjects.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No projects found</p>
-        </div>
+        <Card className="border-dashed border-2">
+          <CardContent className="text-center py-12">
+            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg font-medium">ไม่พบโครงการ</p>
+            <p className="text-gray-400 text-sm mt-1">ลองค้นหาด้วยคำอื่นหรือสร้างโครงการใหม่</p>
+          </CardContent>
+        </Card>
       )}
+
+      {/* Edit Project Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>แก้ไขโครงการ</DialogTitle>
+            <DialogDescription>แก้ไขข้อมูลโครงการก่อสร้าง</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateProject} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">ชื่อโครงการ *</Label>
+              <Input
+                id="edit-name"
+                placeholder="เช่น โครงการบ้านพักอาศัย 2 ชั้น"
+                value={editFormData.name}
+                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-status">สถานะโครงการ</Label>
+              <Select 
+                value={editFormData.status} 
+                onValueChange={(value: any) => setEditFormData({ ...editFormData, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="planning">วางแผน</SelectItem>
+                  <SelectItem value="active">กำลังดำเนินการ</SelectItem>
+                  <SelectItem value="on_hold">พักไว้</SelectItem>
+                  <SelectItem value="completed">เสร็จสิ้น</SelectItem>
+                  <SelectItem value="cancelled">ยกเลิก</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setEditDialogOpen(false)}
+              >
+                ยกเลิก
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1 bg-[#00CE81] hover:bg-[#00CE81]/90" 
+                disabled={updateProjectMutation.isPending}
+              >
+                {updateProjectMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    กำลังบันทึก...
+                  </>
+                ) : (
+                  "บันทึกการแก้ไข"
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

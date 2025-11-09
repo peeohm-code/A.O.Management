@@ -1326,3 +1326,140 @@
 - [x] ตรวจสอบ activityLog schema
 - [x] แก้ไข logActivity function ให้รองรับ nullable fields
 - [x] ทดสอบและบันทึก checkpoint
+
+## Comprehensive System Testing
+### Dashboard & Key Metrics
+- [ ] ทดสอบ Key Metrics cards (Active, On Track, At Risk, Delayed)
+- [ ] ทดสอบคลิกการ์ดเพื่อดูรายละเอียดโครงการ
+- [ ] ทดสอบ Trend Indicators
+- [ ] ทดสอบ Date Range Filter
+- [ ] ทดสอบ Work Overview (Tasks, Checklists, Defects)
+- [ ] ทดสอบ Quick Actions
+- [ ] ทดสอบ Notification Center
+
+### Projects Workflow
+- [ ] ทดสอบสร้างโครงการใหม่
+- [ ] ทดสอบแก้ไขโครงการ
+- [ ] ทดสอบเปลี่ยนสถานะโครงการ
+- [ ] ทดสอบลบโครงการ
+- [ ] ทดสอบ Search & Filter โครงการ
+- [ ] ทดสอบดูรายละเอียดโครงการ
+
+### Tasks Workflow
+- [ ] ทดสอบสร้างงานใหม่
+- [ ] ทดสอบแก้ไขงาน
+- [ ] ทดสอบ assign งาน
+- [ ] ทดสอบเปลี่ยนสถานะงาน
+- [ ] ทดสอบลบงาน
+- [ ] ทดสอบ Search & Filter งาน
+- [ ] ทดสอบดูรายละเอียดงาน
+
+### QC Inspection Workflow
+- [ ] ทดสอบสร้าง inspection ใหม่
+- [ ] ทดสอบเลือก checklist template
+- [ ] ทดสอบทำ inspection (pass/fail)
+- [ ] ทดสอบสร้าง defect จาก inspection ที่ fail
+- [ ] ทดสอบดูรายละเอียด inspection
+
+### Defects Workflow
+- [ ] ทดสอบดูรายการ defects
+- [ ] ทดสอบ filter defects ตาม type (CAR/PAR/NCR)
+- [ ] ทดสอบ filter defects ตาม status
+- [ ] ทดสอบดูรายละเอียด defect
+- [ ] ทดสอบอัปเดตสถานะ defect
+
+### Team Management
+- [ ] ทดสอบดูรายชื่อสมาชิก
+- [ ] ทดสอบแก้ไข role สมาชิก
+- [ ] ทดสอบ role-based permissions
+
+### Real-time Notifications
+- [ ] ทดสอบ notification เมื่อเปลี่ยนสถานะโครงการ
+- [ ] ทดสอบ notification เมื่อ assign งาน
+- [ ] ทดสอบ notification เมื่อเปลี่ยนสถานะงาน
+- [ ] ทดสอบ notification เมื่อสร้าง defect
+
+### Search & Filter
+- [ ] ทดสอบ search โครงการ
+- [ ] ทดสอบ filter โครงการตามสถานะ
+- [ ] ทดสอบ search งาน
+- [ ] ทดสอบ filter งานตามสถานะ
+
+### สรุปผลการทดสอบ
+- [ ] รวบรวมปัญหาที่พบ
+- [ ] จัดลำดับความสำคัญของปัญหา
+- [ ] สร้างรายงานสรุป
+
+## Projects Page Improvements (Nov 9, 2025)
+- [x] Fix Unknown badge - เพิ่ม projectStatus ใน project.list API
+- [x] เพิ่มวันที่โครงการ (startDate, endDate) ในการ์ด
+- [x] คำนวณและแสดง days remaining
+- [x] เพิ่ม Sort/Order dropdown (ชื่อ, วันที่, progress, status)
+- [x] เพิ่ม Quick Stats Cards ด้านบน (Total, Active, Delayed, Completed)
+- [x] เพิ่ม Quick Actions บนการ์ด (Edit, View icons)
+
+## Projects Page Bug Fixes (Nov 9, 2025)
+- [x] แก้ไขปุ่ม Edit ใน project card ให้ทำงานได้ (เปิด dialog แก้ไขโครงการ)
+
+## Projects Page UI Improvements (Nov 9, 2025)
+- [x] แสดงทั้งวันเริ่มและวันสิ้นสุดในการ์ดโครงการ (ปัจจุบันแสดงแค่วันเริ่ม)
+
+## Projects Dashboard Stats Update (Nov 9, 2025)
+- [x] แก้ไข Stats Cards logic ให้เป็น: โครงการทั้งหมด, กำลังดำเนินการ (ไม่มี task ล่าช้า), ล่าช้า (มี task ล่าช้า), เลยกำหนด (เลยวันสิ้นสุดโครงการ)
+- [x] อัพเดท backend API เพื่อคำนวณสถานะโครงการจาก tasks
+- [x] อัพเดท frontend Dashboard และ Projects page ให้แสดง stats ใหม่
+
+## Archive System Development (Phase 1-3) - Nov 9, 2025
+- [x] เพิ่มฟิลด์ archivedAt, archivedBy, archivedReason ใน projects table
+- [x] สร้าง archiveProject() API function
+- [x] สร้าง unarchiveProject() API function
+- [x] แก้ไข getProjectsByUser() กรอง archived projects ออก
+- [x] สร้าง getArchivedProjects() API
+- [x] แก้ไข Dashboard กรอง archived projects ออก
+- [x] แก้ไข Projects page กรอง archived projects ออก
+- [x] สร้างหน้า Archive แสดงโครงการที่ archived
+- [x] เพิ่มปุ่ม Archive ในหน้า Project Detail
+- [x] เพิ่มปุ่ม Unarchive ในหน้า Archive
+- [x] เพิ่ม Delete confirmation dialog
+- [x] เพิ่ม notification badge สำหรับโครงการที่พร้อมลบ (> 5 ปี)
+- [x] เพิ่มเมนู Archive ใน Sidebar
+- [ ] เพิ่ม Download ข้อมูลโครงการ (PDF + SQL + Files)
+- [ ] ทดสอบ archive workflow ทั้งหมด
+
+## Archive System Complete Implementation (Nov 9, 2025 - Phase 2)
+- [x] ทดสอบ Archive workflow: archive โครงการ → ตรวจสอบหน้า Archive → unarchive → ตรวจสอบกลับมาที่ Projects (พบ Error 500 ต้องแก้ไข)
+- [ ] ทดสอบ Delete confirmation dialog สำหรับโครงการเก่ากว่า 5 ปี
+- [x] สร้างฟังก์ชัน downloadProjectData() สำหรับสร้าง PDF report
+- [x] เพิ่ม API endpoint /api/projects/:id/download
+- [x] เชื่อมต่อปุ่ม Download ในหน้า Archive กับ API
+- [x] สร้าง background job ตรวจสอบโครงการที่ archived ครบ 5 ปี
+- [x] ส่ง notification แจ้งเตือนให้ download ข้อมูลก่อนลบ
+- [ ] ทดสอบ notification system ทั้งหมด (Backend พร้อม, ต้อง fix Error 500 ก่อน)
+- [x] Save final checkpoint
+
+
+## Fix Archive System Issues (Nov 9, 2025 - Final Phase)
+- [ ] Debug Error 500 ใน archive API
+- [ ] Debug Error 500 ใน download API
+- [ ] ทดสอบ archive workflow สมบูรณ์
+- [ ] ทดสอบ download functionality
+- [x] สร้าง scheduled job สำหรับ checkArchiveNotifications
+- [x] เพิ่ม warning badge ในหน้า Archive
+- [x] เพิ่ม countdown วันที่เหลือก่อนลบได้
+- [ ] ทดสอบ notification system ทั้งหมด
+- [x] Save final checkpoint
+
+
+## Archive System - Phase 2 (Nov 9, 2025)
+- [ ] แก้ไข Error 500 ใน archive API
+- [ ] แก้ไข Error 500 ใน download API
+- [ ] ทดสอบ archive workflow สมบูรณ์
+- [ ] ทดสอบ download functionality
+- [ ] สร้าง bulk download API
+- [ ] สร้าง bulk delete API
+- [x] เพิ่ม UI สำหรับ bulk operations
+- [x] สร้าง Archive Analytics Dashboard
+- [x] แสดง storage usage statistics
+- [x] แสดง project age distribution chart
+- [x] แสดง deletion projection timeline
+- [x] Save final checkpoint

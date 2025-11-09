@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserDropdown } from "@/components/UserDropdown";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -50,6 +50,7 @@ const menuItems = [
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
   { icon: Users, label: "Team", path: "/team" },
+  { icon: Archive, label: "Archive", path: "/archive" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
 ];
 

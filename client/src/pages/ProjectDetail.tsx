@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2 } from "lucide-react";
+import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2, Archive } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import GanttChart from "@/components/GanttChart";
 import NewTaskDialog from "@/components/NewTaskDialog";
@@ -33,6 +33,20 @@ export default function ProjectDetail() {
   const projectQuery = trpc.project.get.useQuery({ id: projectId }, { enabled: !!projectId });
   const projectTasksQuery = trpc.task.list.useQuery({ projectId }, { enabled: !!projectId });
   const deleteProjectMutation = trpc.project.delete.useMutation();
+  const archiveProjectMutation = trpc.project.archive.useMutation();
+
+  const handleArchiveProject = async () => {
+    try {
+      await archiveProjectMutation.mutateAsync({ 
+        id: projectId,
+        reason: "Archived from project detail page"
+      });
+      toast.success("โครงการถูก archive เรียบร้อยแล้ว");
+      setLocation("/projects");
+    } catch (error: any) {
+      toast.error("ไม่สามารถ archive โครงการได้");
+    }
+  };
 
   const handleDeleteProject = async () => {
     try {
@@ -128,6 +142,32 @@ export default function ProjectDetail() {
         </div>
         <div className="flex items-center gap-2">
           <Badge className={`${getStatusColor(project.status)}`}>{project.status}</Badge>
+          {/* Archive Button */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Archive className="w-4 h-4" />
+                Archive
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Archive โครงการ</AlertDialogTitle>
+                <AlertDialogDescription>
+                  คุณต้องการ archive โครงการ "{project.name}" หรือไม่?
+                  <br />
+                  โครงการจะถูกซ่อนจากหน้า Dashboard และ Projects แต่ยังสามารถเข้าถึงได้จากหน้า Archive
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                <AlertDialogAction onClick={handleArchiveProject}>
+                  Archive โครงการ
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          {/* Delete Button (Admin only) */}
           {user?.role === "admin" && (
             <AlertDialog>
               <AlertDialogTrigger asChild>

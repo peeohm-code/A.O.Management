@@ -23,6 +23,7 @@ import ChecklistTemplates from "./pages/ChecklistTemplates";
 import UserManagement from "./pages/UserManagement";
 import UserProfile from "./pages/UserProfile";
 import TeamManagement from "./pages/TeamManagement";
+import Archive from "./pages/Archive";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -153,6 +154,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Reports />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/archive"}>
+        {() => (
+          <DashboardLayout>
+            <Archive />
           </DashboardLayout>
         )}
       </Route>

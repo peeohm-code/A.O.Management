@@ -34,8 +34,13 @@ export const projects = mysqlTable("projects", {
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  // Archive fields
+  archivedAt: timestamp("archivedAt"),
+  archivedBy: int("archivedBy"),
+  archivedReason: text("archivedReason"),
 }, (table) => ({
   createdByIdx: index("createdByIdx").on(table.createdBy),
+  archivedAtIdx: index("archivedAtIdx").on(table.archivedAt),
 }));
 
 export type Project = typeof projects.$inferSelect;
