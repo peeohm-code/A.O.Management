@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
+import { DefectsTab } from "@/components/DefectsTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -433,15 +434,7 @@ export default function TaskDetail() {
 
         {/* Defects Tab */}
         <TabsContent value="defects" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Defects ที่เกี่ยวข้อง</CardTitle>
-              <CardDescription>รายการ CAR/PAR/NCR ที่เกิดจากงานนี้</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500 text-center py-8">ยังไม่มี Defects ที่เกี่ยวข้อง</p>
-            </CardContent>
-          </Card>
+          <DefectsTab taskId={taskId} />
         </TabsContent>
 
         {/* Documents Tab - Combines Attachments + Comments */}
