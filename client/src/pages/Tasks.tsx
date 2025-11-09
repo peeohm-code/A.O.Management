@@ -4,40 +4,33 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Loader2, Search, Calendar, User } from "lucide-react";
+import { Loader2, Calendar, User, Building2 } from "lucide-react";
+import { SearchBar } from "@/components/SearchBar";
+import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
-import { Building2 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export default function Tasks() {
   const { canCreate } = usePermissions('tasks');
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [filters, setFilters] = useState<FilterOptions>({});
   const [displayStatusFilter, setDisplayStatusFilter] = useState<string>("all");
 
   const myTasksQuery = trpc.task.myTasks.useQuery();
 
   const tasks = myTasksQuery.data || [];
 
-  let filteredTasks = tasks.filter((t) =>
-    t.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Filter by displayStatus if set
-  if (displayStatusFilter !== "all") {
-    filteredTasks = filteredTasks.filter((t) => (t as any).displayStatus === displayStatusFilter);
-  }
-
-  if (statusFilter !== "all") {
-    filteredTasks = filteredTasks.filter((t) => t.status === statusFilter);
-  }
+  let filteredTasks = tasks.filter((t) => {
+    // Search filter
+    const matchesSearch = !searchTerm || t.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter from FilterBar
+    const matchesStatus = !filters.status || t.status === filters.status;
+    
+    // Display status filter from stats cards
+    const matchesDisplayStatus = displayStatusFilter === "all" || (t as any).displayStatus === displayStatusFilter;
+    
+    return matchesSearch && matchesStatus && matchesDisplayStatus;
+  });
 
   // Calculate statistics based on displayStatus
   const stats = {
@@ -88,31 +81,28 @@ export default function Tasks() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Search tasks..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="ready_to_start">Ready to Start</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="pending_pre_inspection">Pending Pre Inspection</SelectItem>
-            <SelectItem value="pending_final_inspection">Pending Final Inspection</SelectItem>
-            <SelectItem value="rectification_needed">Rectification Needed</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Search and Filter */}
+      <div className="space-y-4">
+        <SearchBar
+          placeholder="ค้นหางาน..."
+          onSearch={setSearchTerm}
+          className="max-w-md"
+        />
+        <FilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          statusOptions={[
+            { value: "ready_to_start", label: "พร้อมเริ่ม" },
+            { value: "in_progress", label: "กำลังดำเนินการ" },
+            { value: "pending_pre_inspection", label: "รอตรวจก่อน" },
+            { value: "pending_final_inspection", label: "รอตรวจสุดท้าย" },
+            { value: "rectification_needed", label: "ต้องแก้ไข" },
+            { value: "completed", label: "เสร็จสิ้น" },
+          ]}
+          showAssignee={false}
+          showCategory={false}
+          showPriority={false}
+        />
       </div>
 
       {/* Task Overview Cards */}

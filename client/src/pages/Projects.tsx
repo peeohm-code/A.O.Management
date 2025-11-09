@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, Search, MapPin, Calendar } from "lucide-react";
+import { Loader2, Plus, MapPin, Calendar } from "lucide-react";
+import { SearchBar } from "@/components/SearchBar";
+import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
 import {
   Dialog,
@@ -21,6 +23,7 @@ import { toast } from "sonner";
 export default function Projects() {
   const { canCreate } = usePermissions('projects');
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<FilterOptions>({});
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -58,11 +61,19 @@ export default function Projects() {
   };
 
   const projects = projectsQuery.data || [];
-  const filteredProjects = projects.filter(
-    (p) =>
+  
+  // Apply search and filters
+  const filteredProjects = projects.filter((p) => {
+    // Search filter
+    const matchesSearch = !searchTerm || 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.code?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      p.code?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter
+    const matchesStatus = !filters.status || p.status === filters.status;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -195,14 +206,26 @@ export default function Projects() {
         )}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <Input
-          placeholder="Search projects by name or code..."
-          className="pl-10"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+      {/* Search and Filter */}
+      <div className="space-y-4">
+        <SearchBar
+          placeholder="ค้นหาโครงการตามชื่อหรือรหัส..."
+          onSearch={setSearchTerm}
+          className="max-w-md"
+        />
+        <FilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          statusOptions={[
+            { value: "active", label: "กำลังดำเนินการ" },
+            { value: "planning", label: "วางแผน" },
+            { value: "on_hold", label: "พักไว้" },
+            { value: "completed", label: "เสร็จสิ้น" },
+            { value: "cancelled", label: "ยกเลิก" },
+          ]}
+          showAssignee={false}
+          showCategory={false}
+          showPriority={false}
         />
       </div>
 

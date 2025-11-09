@@ -24,7 +24,7 @@ import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
 import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut } from "lucide-react";
-import { NotificationDropdown } from "@/components/NotificationDropdown";
+import { NotificationBell } from "@/components/NotificationBell";
 import { UserDropdown } from "@/components/UserDropdown";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -329,7 +329,7 @@ function DashboardLayoutContent({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <NotificationDropdown />
+            <NotificationBell />
             <UserDropdown />
           </div>
         </div>
