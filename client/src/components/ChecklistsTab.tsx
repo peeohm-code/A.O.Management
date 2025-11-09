@@ -318,7 +318,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                         {checklist.items.map((item: any, index: number) => (
                           <div key={item.id} className="flex items-start gap-2 text-sm">
                             <span className="text-gray-500 min-w-[24px]">{index + 1}.</span>
-                            <span className="text-gray-700">{item.description}</span>
+                            <span className="text-gray-700">{item.itemText}</span>
                           </div>
                         ))}
                       </div>

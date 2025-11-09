@@ -200,49 +200,6 @@ export default function TaskDetail() {
         </Link>
       </div>
 
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2 items-center">
-            {user && (user.role === "admin" || user.role === "pm") && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" className="gap-2">
-                    <Trash2 className="w-4 h-4" />
-                    ลบงาน
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>ยืนยันการลบงาน</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      คุณแน่ใจหรือไม่ที่จะลบงาน "{task.name}" การดำเนินการนี้ไม่สามารถยกเลิกได้
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={async () => {
-                        try {
-                          await deleteTaskMutation.mutateAsync({ id: taskId });
-                          toast.success("ลบงานสำเร็จ");
-                          setLocation("/tasks");
-                        } catch (error) {
-                          toast.error("เกิดข้อผิดพลาดในการลบงาน");
-                        }
-                      }}
-                    >
-                      ลบงาน
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-        </div>
-
-      </div>
-
       {/* Consolidated Task & Project Info Card */}
       <Card>
         <CardContent className="pt-6">
