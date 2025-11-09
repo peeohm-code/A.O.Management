@@ -1270,12 +1270,18 @@ const dashboardRouter = router({
     );
 
     // Count projects by status
+    const activeProjects = projectsWithStats.filter(p => p.status === 'active');
+    const delayedProjects = activeProjects.filter(p => p.stats.projectStatus === 'delayed');
+    const atRiskProjects = activeProjects.filter(p => p.stats.projectStatus === 'at_risk');
+    const onTrackProjects = activeProjects.filter(p => p.stats.projectStatus !== 'delayed' && p.stats.projectStatus !== 'at_risk');
+    
     const projectStats = {
-      active: projectsWithStats.filter(p => p.status === 'active').length,
+      active: activeProjects.length,
       completed: projectsWithStats.filter(p => p.status === 'completed').length,
       on_hold: projectsWithStats.filter(p => p.status === 'on_hold').length,
-      delayed: projectsWithStats.filter(p => p.stats.projectStatus === 'delayed').length,
-      at_risk: projectsWithStats.filter(p => p.stats.projectStatus === 'at_risk').length,
+      delayed: delayedProjects.length,
+      at_risk: atRiskProjects.length,
+      onTrack: onTrackProjects.length,
       total: projectsWithStats.length,
     };
 
