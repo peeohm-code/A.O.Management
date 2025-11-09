@@ -1027,3 +1027,9 @@
 - [x] เพิ่มการ์ด: งานทั้งหมด, ยังไม่เริ่ม, กำลังทำ, ล่าช้า, เสร็จสมบูรณ์
 - [x] เปลี่ยน Tabs จาก Tasks (3) | Team | Documents เป็น Tasks | QC | Documents | Team
 - [x] ทดสอบหน้า Project Detail ให้แน่ใจว่าทุกอย่างทำงานถูกต้อง
+
+## Project Detail Tabs Reorganization (5 Tabs)
+- [x] เปลี่ยนชื่อ Tasks tab เป็น Gantt Chart
+- [x] เพิ่ม Tasks tab ใหม่ที่แสดงรายการงานแบบ list/table
+- [x] จัดเรียง tabs ใหม่: Gantt Chart | Tasks | QC | Documents | Team
+- [x] ทดสอบให้แน่ใจว่าทุก tab ทำงานถูกต้อง

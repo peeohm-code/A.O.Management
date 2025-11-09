@@ -210,15 +210,16 @@ export default function ProjectDetail() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="tasks" className="w-full">
+      <Tabs defaultValue="gantt" className="w-full">
         <TabsList>
+          <TabsTrigger value="gantt">Gantt Chart</TabsTrigger>
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
           <TabsTrigger value="qc">QC</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tasks" className="space-y-4">
+        <TabsContent value="gantt" className="space-y-4">
           <div className="flex justify-end gap-2 mb-4">
             <CategoryColorPicker projectId={projectId} />
             <NewTaskDialog projectId={projectId} />
@@ -246,6 +247,66 @@ export default function ProjectDetail() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="tasks">
+          <Card>
+            <CardHeader>
+              <CardTitle>รายการงาน</CardTitle>
+              <CardDescription>งานทั้งหมดในโครงการ</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {tasks.length > 0 ? (
+                <div className="space-y-2">
+                  {tasks.map((task: any) => (
+                    <Link key={task.id} href={`/tasks/${task.id}`}>
+                      <Card className="hover:bg-gray-50 cursor-pointer transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium">{task.name}</h3>
+                              {task.description && (
+                                <p className="text-sm text-gray-500 mt-1">{task.description}</p>
+                              )}
+                              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                {task.startDate && (
+                                  <span>
+                                    เริ่ม: {new Date(task.startDate).toLocaleDateString('th-TH')}
+                                  </span>
+                                )}
+                                {task.endDate && (
+                                  <span>
+                                    สิ้นสุด: {new Date(task.endDate).toLocaleDateString('th-TH')}
+                                  </span>
+                                )}
+                                {task.assigneeName && (
+                                  <span className="flex items-center gap-1">
+                                    <Users className="w-3 h-3" />
+                                    {task.assigneeName}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <div className="text-sm font-medium">{task.progress}%</div>
+                                <div className="text-xs text-gray-500">ความคืบหน้า</div>
+                              </div>
+                              <Badge className={task.displayStatusColor}>
+                                {task.displayStatusLabel}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 py-8">ไม่มีงานในโครงการนี้</p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="qc">
