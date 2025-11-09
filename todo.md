@@ -1463,3 +1463,52 @@
 - [x] แสดง project age distribution chart
 - [x] แสดง deletion projection timeline
 - [x] Save final checkpoint
+
+
+## Archive System - Phase 3 (Nov 9, 2025)
+- [ ] แก้ไข Error 500 ใน archive API (simplify approach)
+- [x] แก้ไข Error 500 ใน download API (simplify approach)
+- [x] ทดสอบ download functionality
+- [x] สร้าง bulk delete API backend
+- [x] เชื่อมต่อ bulk delete UI กับ API
+- [ ] ทดสอบ bulk delete functionality
+- [x] สร้าง Excel export API
+- [x] เพิ่มปุ่ม Export to Excel ใน Archive page
+- [ ] ทดสอบ Excel export
+- [x] Save final checkpoint
+
+
+## Archive System - Phase 4 (Nov 9, 2025)
+- [ ] สร้าง archiveRules table ใน schema
+- [ ] เพิ่ม API สำหรับจัดการ auto-archive rules
+- [ ] สร้าง background job ตรวจสอบและ auto-archive
+- [ ] เพิ่ม UI สำหรับตั้งค่า rules
+- [ ] สร้าง archiveHistory table
+- [ ] บันทึก restore history ทุกครั้งที่ unarchive
+- [ ] แสดงประวัติ restore ในหน้า Archive
+- [ ] สร้าง Storage Quota Dashboard
+- [ ] คำนวณ storage usage จริงจาก database
+- [ ] แสดง quota alerts และ warnings
+- [ ] ทดสอบทุกฟีเจอร์
+- [x] Save final checkpoint
+
+
+## Archive System - Phase 5 (Nov 9, 2025)
+- [ ] แก้ไข build errors ใน db.ts และ routers.ts
+- [ ] ทดสอบ API endpoints
+- [x] สร้างหน้า Archive Rules Management
+- [x] เพิ่ม form สร้าง/แก้ไข rules
+- [x] แสดง Restore History ในหน้า Project Detail
+- [x] สร้าง timeline component
+- [ ] ทดสอบทุกฟีเจอร์
+- [x] Save final checkpoint
+
+
+## Fix Build Errors & Test (Nov 9, 2025)
+- [x] เพิ่ม logArchiveHistory() function ใน db.ts
+- [x] เพิ่ม getArchiveHistory() function ใน db.ts
+- [x] แก้ไข import statements
+- [x] ทดสอบ build ผ่าน
+- [x] รัน auto-archive job script
+- [x] ตรวจสอบผลการ archive อัตโนมัติ (0 rules enabled)
+- [x] Save final checkpoint

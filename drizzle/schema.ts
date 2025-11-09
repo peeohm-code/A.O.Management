@@ -429,3 +429,44 @@ export const categoryColors = mysqlTable("categoryColors", {
 
 export type CategoryColor = typeof categoryColors.$inferSelect;
 export type InsertCategoryColor = typeof categoryColors.$inferInsert;
+
+/**
+ * Archive Rules - automatic archiving rules for projects
+ */
+export const archiveRules = mysqlTable("archiveRules", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  enabled: boolean("enabled").default(true).notNull(),
+  // Rule conditions
+  projectStatus: mysqlEnum("projectStatus", ["planning", "active", "on_hold", "completed", "cancelled"]),
+  daysAfterCompletion: int("daysAfterCompletion"), // Auto-archive X days after project completion
+  daysAfterEndDate: int("daysAfterEndDate"), // Auto-archive X days after end date
+  // Metadata
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastRunAt: timestamp("lastRunAt"),
+});
+
+export type ArchiveRule = typeof archiveRules.$inferSelect;
+export type InsertArchiveRule = typeof archiveRules.$inferInsert;
+
+/**
+ * Archive History - tracks archive/unarchive actions
+ */
+export const archiveHistory = mysqlTable("archiveHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  action: mysqlEnum("action", ["archived", "unarchived"]).notNull(),
+  performedBy: int("performedBy").notNull(),
+  reason: text("reason"),
+  ruleId: int("ruleId"), // If archived by auto-rule
+  performedAt: timestamp("performedAt").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectIdIdx").on(table.projectId),
+  performedAtIdx: index("performedAtIdx").on(table.performedAt),
+}));
+
+export type ArchiveHistory = typeof archiveHistory.$inferSelect;
+export type InsertArchiveHistory = typeof archiveHistory.$inferInsert;

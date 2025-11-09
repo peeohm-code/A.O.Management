@@ -1,4 +1,4 @@
-import { eq, and, or, desc, asc, isNull, isNotNull, inArray, sql } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, count, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -350,28 +350,37 @@ export async function archiveProject(projectId: number, userId: number, reason?:
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db
-    .update(projects)
-    .set({
-      archivedAt: new Date(),
-      archivedBy: userId,
-      archivedReason: reason || null,
-    })
-    .where(eq(projects.id, projectId));
+  await db.update(projects).set({
+    archivedAt: new Date(),
+    archivedBy: userId,
+    archivedReason: reason,
+  }).where(eq(projects.id, projectId));
+
+  // Log archive history
+  await logArchiveHistory({
+    projectId,
+    action: "archived",
+    performedBy: userId,
+    reason,
+  });
 }
 
-export async function unarchiveProject(projectId: number) {
+export async function unarchiveProject(projectId: number, userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db
-    .update(projects)
-    .set({
-      archivedAt: null,
-      archivedBy: null,
-      archivedReason: null,
-    })
-    .where(eq(projects.id, projectId));
+  await db.update(projects).set({
+    archivedAt: null,
+    archivedBy: null,
+    archivedReason: null,
+  }).where(eq(projects.id, projectId));
+
+  // Log archive history
+  await logArchiveHistory({
+    projectId,
+    action: "unarchived",
+    performedBy: userId,
+  });
 }
 
 export async function getArchivedProjects(userId: number) {
@@ -1870,3 +1879,101 @@ export async function getRecentDefects(limit: number = 10) {
     .orderBy(desc(defects.reportedAt))
     .limit(limit);
 }
+
+
+/**
+ * Archive Rules Management
+ */
+export async function getArchiveRules() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { archiveRules } = await import("../drizzle/schema");
+  return await db.select().from(archiveRules).orderBy(archiveRules.createdAt);
+}
+
+export async function createArchiveRule(data: {
+  name: string;
+  description?: string;
+  projectStatus?: "planning" | "active" | "on_hold" | "completed" | "cancelled";
+  daysAfterCompletion?: number;
+  daysAfterEndDate?: number;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archiveRules } = await import("../drizzle/schema");
+  const result = await db.insert(archiveRules).values(data);
+  return result;
+}
+
+export async function updateArchiveRule(
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    enabled?: boolean;
+    projectStatus?: "planning" | "active" | "on_hold" | "completed" | "cancelled";
+    daysAfterCompletion?: number;
+    daysAfterEndDate?: number;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archiveRules } = await import("../drizzle/schema");
+  await db.update(archiveRules).set(data).where(eq(archiveRules.id, id));
+}
+
+export async function deleteArchiveRule(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archiveRules } = await import("../drizzle/schema");
+  await db.delete(archiveRules).where(eq(archiveRules.id, id));
+}
+
+/**
+ * Archive History Management
+ */
+export async function logArchiveHistory(data: {
+  projectId: number;
+  action: "archived" | "unarchived";
+  performedBy: number;
+  reason?: string;
+  ruleId?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archiveHistory } = await import("../drizzle/schema");
+  await db.insert(archiveHistory).values({
+    ...data,
+    performedAt: new Date(),
+  });
+}
+
+export async function getArchiveHistory(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { archiveHistory, users } = await import("../drizzle/schema");
+  return await db
+    .select({
+      id: archiveHistory.id,
+      action: archiveHistory.action,
+      reason: archiveHistory.reason,
+      performedAt: archiveHistory.performedAt,
+      performedBy: {
+        id: users.id,
+        name: users.name,
+      },
+    })
+    .from(archiveHistory)
+    .leftJoin(users, eq(archiveHistory.performedBy, users.id))
+    .where(eq(archiveHistory.projectId, projectId))
+    .orderBy(desc(archiveHistory.performedAt));
+}
+
+

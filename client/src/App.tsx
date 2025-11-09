@@ -24,6 +24,7 @@ import UserManagement from "./pages/UserManagement";
 import UserProfile from "./pages/UserProfile";
 import TeamManagement from "./pages/TeamManagement";
 import Archive from "./pages/Archive";
+import ArchiveRules from "./pages/ArchiveRules";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -161,6 +162,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Archive />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/archive/rules"}>
+        {() => (
+          <DashboardLayout>
+            <ArchiveRules />
           </DashboardLayout>
         )}
       </Route>

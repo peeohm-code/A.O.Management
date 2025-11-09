@@ -10,6 +10,7 @@ import GanttChart from "@/components/GanttChart";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { CategoryColorPicker } from "@/components/CategoryColorPicker";
 import { QCTab } from "@/components/QCTab";
+import { ArchiveHistoryTimeline } from "@/components/ArchiveHistoryTimeline";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -258,6 +259,7 @@ export default function ProjectDetail() {
           <TabsTrigger value="qc">QC</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="history">Archive History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="gantt" className="space-y-4">
@@ -384,6 +386,10 @@ export default function ProjectDetail() {
               <p className="text-sm text-gray-500">Team information coming soon</p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <ArchiveHistoryTimeline projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="documents">

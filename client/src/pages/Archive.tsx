@@ -24,6 +24,8 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  FileSpreadsheet,
+  Settings,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -193,6 +195,14 @@ export default function Archive() {
             จัดการโครงการที่ถูก archive และดาวน์โหลดข้อมูล
           </p>
         </div>
+        {selectedProjects.size === 0 && (
+          <Link href="/archive/rules">
+            <Button variant="outline" className="gap-2">
+              <Settings className="h-4 w-4" />
+              จัดการกฎ Auto-Archive
+            </Button>
+          </Link>
+        )}
         {selectedProjects.size > 0 && (
           <div className="flex gap-2">
             <Button
@@ -200,6 +210,42 @@ export default function Archive() {
               onClick={() => setSelectedProjects(new Set())}
             >
               ยกเลิกการเลือก ({selectedProjects.size})
+            </Button>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  toast.info("กำลังสร้างไฟล์ Excel...");
+                  const result = await utils.project.exportArchiveExcel.fetch();
+                  
+                  // Convert base64 to blob
+                  const byteCharacters = atob(result.data);
+                  const byteNumbers = new Array(byteCharacters.length);
+                  for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                  }
+                  const byteArray = new Uint8Array(byteNumbers);
+                  const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                  
+                  // Download file
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = result.fileName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(url);
+                  
+                  toast.success("ส่งออก Excel สำเร็จ!");
+                } catch (error) {
+                  toast.error("เกิดข้อผิดพลาดในการส่งออก Excel");
+                }
+              }}
+              className="gap-2"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              ส่งออก Excel
             </Button>
             <Button
               variant="destructive"
@@ -489,10 +535,27 @@ export default function Archive() {
             <Button
               variant="destructive"
               onClick={async () => {
+                const projectIds = Array.from(selectedProjects);
                 toast.info("กำลังลบโครงการ...", {
-                  description: `กำลังลบ ${selectedProjects.size} โครงการ`,
+                  description: `กำลังลบ ${projectIds.length} โครงการ`,
                 });
-                // TODO: Implement bulk delete API
+                
+                try {
+                  const result = await utils.project.bulkDelete.fetch({ ids: projectIds });
+                  
+                  if (result.success.length > 0) {
+                    toast.success(`ลบสำเร็จ ${result.success.length} โครงการ`);
+                  }
+                  
+                  if (result.failed.length > 0) {
+                    toast.error(`ลบไม่สำเร็จ ${result.failed.length} โครงการ`);
+                  }
+                  
+                  await refetch();
+                } catch (error) {
+                  toast.error("เกิดข้อผิดพลาดในการลบโครงการ");
+                }
+                
                 setBulkDeleteDialogOpen(false);
                 setSelectedProjects(new Set());
               }}

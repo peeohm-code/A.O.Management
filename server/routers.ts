@@ -6,6 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { generateProjectExport, generateProjectReport } from "./downloadProject";
+import { generateArchiveExcel } from "./excelExport";
 import { storagePut } from "./storage";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
 import { notifyOwner } from "./_core/notification";
@@ -139,7 +140,7 @@ const projectRouter = router({
   unarchive: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      await db.unarchiveProject(input.id);
+      await db.unarchiveProject(input.id, ctx.user.id);
 
       await db.logActivity({
         userId: ctx.user.id,
@@ -161,12 +162,48 @@ const projectRouter = router({
           taskCount: stats?.totalTasks || 0,
           completedTasks: stats?.completedTasks || 0,
           progressPercentage: stats?.progressPercentage || 0,
-          projectStatus: stats?.projectStatus || 'on_track',
         };
       })
     );
     return projectsWithStats;
   }),
+
+  exportArchiveExcel: protectedProcedure.query(async ({ ctx }) => {
+    const archivedProjects = await db.getArchivedProjects(ctx.user.id);
+    
+    const exportData = archivedProjects.map((project) => {
+      const archivedYears = project.archivedAt
+        ? (Date.now() - new Date(project.archivedAt).getTime()) / (1000 * 60 * 60 * 24 * 365)
+        : 0;
+
+      return {
+        id: project.id,
+        name: project.name,
+        code: project.code,
+        location: project.location,
+        startDate: project.startDate,
+        endDate: project.endDate,
+        projectStatus: project.projectStatus,
+        archivedAt: project.archivedAt,
+        archivedReason: project.archivedReason,
+        archivedYears,
+      };
+    });
+
+    const excelBuffer = generateArchiveExcel(exportData);
+    const base64 = excelBuffer.toString('base64');
+    
+    return {
+      data: base64,
+      fileName: `archive_projects_${new Date().toISOString().split('T')[0]}.xlsx`,
+    };
+  }),
+
+  getArchiveHistory: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getArchiveHistory(input.id);
+    }),
 
   addMember: roleBasedProcedure('projects', 'assignMembers')
     .input(
@@ -195,6 +232,35 @@ const projectRouter = router({
       return { success: true };
     }),
 
+  bulkDelete: protectedProcedure
+    .input(z.object({ ids: z.array(z.number()) }))
+    .mutation(async ({ input, ctx }) => {
+      const results = {
+        success: [] as number[],
+        failed: [] as { id: number; error: string }[],
+      };
+
+      for (const id of input.ids) {
+        try {
+          await db.deleteProject(id);
+          await db.logActivity({
+            userId: ctx.user.id,
+            projectId: id,
+            action: "project_deleted",
+            details: JSON.stringify({ projectId: id, bulkOperation: true }),
+          });
+          results.success.push(id);
+        } catch (error) {
+          results.failed.push({
+            id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+
+      return results;
+    }),
+
   stats: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
@@ -204,14 +270,42 @@ const projectRouter = router({
   downloadData: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      const exportData = await generateProjectExport(input.id);
-      const report = generateProjectReport(exportData);
+      // Simplified version - just get basic project data
+      const project = await db.getProjectById(input.id);
+      if (!project) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+      }
+
+      // Create simple export data
+      const exportData = {
+        project: {
+          id: project.id,
+          name: project.name,
+          code: project.code,
+          location: project.location,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          budget: project.budget,
+          projectStatus: project.projectStatus,
+          archivedAt: project.archivedAt,
+          archivedReason: project.archivedReason,
+        },
+        exportedAt: new Date().toISOString(),
+      };
+
+      // Create simple report
+      const report = `# รายงานโครงการ: ${project.name}\n\n` +
+        `**รหัส:** ${project.code || 'N/A'}\n` +
+        `**สถานที่:** ${project.location || 'N/A'}\n` +
+        `**สถานะ:** ${project.projectStatus}\n` +
+        `**วันที่ Archive:** ${project.archivedAt ? new Date(project.archivedAt).toLocaleDateString('th-TH') : 'N/A'}\n` +
+        `**เหตุผล:** ${project.archivedReason || 'N/A'}\n`;
       
       return {
         exportData,
         report,
-        fileName: `project_${exportData.project.code || exportData.project.id}_export_${Date.now()}.json`,
-        reportFileName: `project_${exportData.project.code || exportData.project.id}_report_${Date.now()}.md`,
+        fileName: `project_${project.code || project.id}_export_${Date.now()}.json`,
+        reportFileName: `project_${project.code || project.id}_report_${Date.now()}.md`,
       };
     }),
 
@@ -1518,6 +1612,42 @@ export const appRouter = router({
   checkArchiveNotifications: protectedProcedure.mutation(async () => {
     const result = await checkArchiveWarnings();
     return result;
+  }),
+
+  archiveRules: router({
+    list: protectedProcedure.query(async () => {
+      return await db.getArchiveRules();
+    }),
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        projectStatus: z.enum(["planning", "active", "on_hold", "completed", "cancelled"]).optional(),
+        daysAfterCompletion: z.number().optional(),
+        daysAfterEndDate: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await db.createArchiveRule({ ...input, createdBy: ctx.user.id });
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        enabled: z.boolean().optional(),
+        projectStatus: z.enum(["planning", "active", "on_hold", "completed", "cancelled"]).optional(),
+        daysAfterCompletion: z.number().optional(),
+        daysAfterEndDate: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await db.updateArchiveRule(id, data);
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return await db.deleteArchiveRule(input.id);
+      }),
   }),
 
   system: systemRouter,
