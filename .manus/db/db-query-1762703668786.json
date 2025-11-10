@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, name, code, location, ownerName, DATE_FORMAT(startDate, '%Y-%m-%d') as startDate, DATE_FORMAT(endDate, '%Y-%m-%d') as endDate, status FROM projects ORDER BY id DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name, code, location, ownerName, DATE_FORMAT(startDate, '%Y-%m-%d') as startDate, DATE_FORMAT(endDate, '%Y-%m-%d') as endDate, status FROM projects ORDER BY id DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "30002",
+      "name": "โครงการบ้านพักอาศัย 2 ชั้น",
+      "code": "HOUSE-2025-001",
+      "location": "ชลบุรี",
+      "ownerName": "คุณสมชาย ใจดี",
+      "startDate": "2025-11-10",
+      "endDate": "2025-12-31",
+      "status": "planning"
+    },
+    {
+      "id": "30001",
+      "name": "บ้านพักอาศัย 2 ชั้น",
+      "code": "AO 2025-999",
+      "location": "จันทบุรี",
+      "ownerName": "NULL",
+      "startDate": "NULL",
+      "endDate": "NULL",
+      "status": "planning"
+    },
+    {
+      "id": "2",
+      "name": "โครงการทดสอบ Archive System",
+      "code": "TEST-ARCH-001",
+      "location": "กรุงเทพมหานคร",
+      "ownerName": "NULL",
+      "startDate": "2020-01-01",
+      "endDate": "2020-12-31",
+      "status": "completed"
+    },
+    {
+      "id": "1",
+      "name": "โครงการทดสอบ Archive",
+      "code": "TEST-ARCHIVE-001",
+      "location": "กรุงเทพ",
+      "ownerName": "NULL",
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "status": "active"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcode\tlocation\townerName\tstartDate\tendDate\tstatus\n30002\tโครงการบ้านพักอาศัย 2 ชั้น\tHOUSE-2025-001\tชลบุรี\tคุณสมชาย ใจดี\t2025-11-10\t2025-12-31\tplanning\n30001\tบ้านพักอาศัย 2 ชั้น\tAO 2025-999\tจันทบุรี\tNULL\tNULL\tNULL\tplanning\n2\tโครงการทดสอบ Archive System\tTEST-ARCH-001\tกรุงเทพมหานคร\tNULL\t2020-01-01\t2020-12-31\tcompleted\n1\tโครงการทดสอบ Archive\tTEST-ARCHIVE-001\tกรุงเทพ\tNULL\t2025-01-01\t2025-12-31\tactive\n",
+  "stderr": "",
+  "execution_time_ms": 1539
+}

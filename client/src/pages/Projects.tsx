@@ -40,11 +40,19 @@ export default function Projects() {
     code: "",
     location: "",
     budget: "",
+    startDate: "",
+    endDate: "",
+    ownerName: "",
+    color: "#3B82F6", // Default blue color
   });
   const [editFormData, setEditFormData] = useState({
     name: "",
     code: "",
     location: "",
+    color: "#3B82F6",
+    startDate: "",
+    endDate: "",
+    ownerName: "",
     status: "active" as "planning" | "active" | "on_hold" | "completed" | "cancelled",
   });
 
@@ -66,10 +74,14 @@ export default function Projects() {
         code: formData.code || undefined,
         location: formData.location || undefined,
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
+        startDate: formData.startDate || undefined,
+        endDate: formData.endDate || undefined,
+        ownerName: formData.ownerName || undefined,
+        color: formData.color || "#3B82F6",
       });
 
       toast.success("Project created successfully");
-      setFormData({ name: "", code: "", location: "", budget: "" });
+      setFormData({ name: "", code: "", location: "", budget: "", startDate: "", endDate: "", ownerName: "", color: "#3B82F6" });
       setIsOpen(false);
       projectsQuery.refetch();
     } catch (error) {
@@ -81,10 +93,22 @@ export default function Projects() {
     e.preventDefault();
     e.stopPropagation();
     setEditingProject(project);
+    
+    // Format dates for input fields
+    const formatDate = (date: any) => {
+      if (!date) return "";
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+    
     setEditFormData({
       name: project.name || "",
       code: project.code || "",
       location: project.location || "",
+      color: project.color || "#3B82F6",
+      startDate: formatDate(project.startDate),
+      endDate: formatDate(project.endDate),
+      ownerName: project.ownerName || "",
       status: project.status || "active",
     });
     setEditDialogOpen(true);
@@ -102,6 +126,12 @@ export default function Projects() {
       await updateProjectMutation.mutateAsync({
         id: editingProject.id,
         name: editFormData.name,
+        code: editFormData.code || undefined,
+        location: editFormData.location || undefined,
+        color: editFormData.color || "#3B82F6",
+        startDate: editFormData.startDate || undefined,
+        endDate: editFormData.endDate || undefined,
+        ownerName: editFormData.ownerName || undefined,
         status: editFormData.status,
       });
 
@@ -288,6 +318,46 @@ export default function Projects() {
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="startDate">วันเริ่มโครงการ</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="endDate">วันสิ้นสุดโครงการ</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ownerName">ชื่อเจ้าของโครงการ</Label>
+                  <Input
+                    id="ownerName"
+                    placeholder="เช่น คุณสมชาย ใจดี"
+                    value={formData.ownerName}
+                    onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="color">สีประจำโครงการ</Label>
+                  <div className="flex items-center gap-3">
+                    <Input
+                      id="color"
+                      type="color"
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                      className="w-20 h-10 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-600">{formData.color}</span>
+                  </div>
+                </div>
                 <Button 
                   type="submit" 
                   className="w-full bg-[#00CE81] hover:bg-[#00CE81]/90" 
@@ -415,7 +485,8 @@ export default function Projects() {
           return (
             <Card 
               key={project.id} 
-              className="group hover:shadow-xl transition-all duration-300 border-l-4 border-l-[#00CE81] hover:border-l-[#00366D]"
+              className="group hover:shadow-xl transition-all duration-300 border-l-4"
+              style={{ borderLeftColor: project.color || '#00CE81' }}
             >
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-6">
@@ -441,6 +512,12 @@ export default function Projects() {
                     </div>
                     
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                      {project.ownerName && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-[#00366D]">เจ้าของ:</span>
+                          <span>{project.ownerName}</span>
+                        </div>
+                      )}
                       {project.location && (
                         <div className="flex items-center gap-1.5">
                           <MapPin className="w-4 h-4 text-[#00CE81]" />
@@ -550,6 +627,64 @@ export default function Projects() {
                 onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                 required
               />
+            </div>
+            <div>
+              <Label htmlFor="edit-code">รหัสโครงการ</Label>
+              <Input
+                id="edit-code"
+                placeholder="เช่น HOUSE-2025-001"
+                value={editFormData.code}
+                onChange={(e) => setEditFormData({ ...editFormData, code: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-location">สถานที่</Label>
+              <Input
+                id="edit-location"
+                placeholder="เช่น ชลบุรี"
+                value={editFormData.location}
+                onChange={(e) => setEditFormData({ ...editFormData, location: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-startDate">วันเริ่มโครงการ</Label>
+              <Input
+                id="edit-startDate"
+                type="date"
+                value={editFormData.startDate}
+                onChange={(e) => setEditFormData({ ...editFormData, startDate: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-endDate">วันสิ้นสุดโครงการ</Label>
+              <Input
+                id="edit-endDate"
+                type="date"
+                value={editFormData.endDate}
+                onChange={(e) => setEditFormData({ ...editFormData, endDate: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-ownerName">ชื่อเจ้าของโครงการ</Label>
+              <Input
+                id="edit-ownerName"
+                placeholder="เช่น คุณสมชาย ใจดี"
+                value={editFormData.ownerName}
+                onChange={(e) => setEditFormData({ ...editFormData, ownerName: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-color">สีประจำโครงการ</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="edit-color"
+                  type="color"
+                  value={editFormData.color}
+                  onChange={(e) => setEditFormData({ ...editFormData, color: e.target.value })}
+                  className="w-20 h-10 cursor-pointer"
+                />
+                <span className="text-sm text-gray-600">{editFormData.color}</span>
+              </div>
             </div>
             <div>
               <Label htmlFor="edit-status">สถานะโครงการ</Label>

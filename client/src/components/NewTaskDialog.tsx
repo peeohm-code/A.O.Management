@@ -30,7 +30,7 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [category, setCategory] = useState("preparation");
-  const [status, setStatus] = useState("not_started");
+  const [status, setStatus] = useState("todo");
   const [priority, setPriority] = useState("medium");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -51,7 +51,7 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
   const resetForm = () => {
     setName("");
     setCategory("preparation");
-    setStatus("not_started");
+    setStatus("todo");
     setPriority("medium");
     setStartDate("");
     setEndDate("");
@@ -71,8 +71,8 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
       category,
       status,
       priority,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: startDate, // Already in YYYY-MM-DD format from input[type="date"]
+      endDate: endDate,
     });
   };
 
@@ -128,7 +128,8 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+                    <SelectItem value="todo">ยังไม่เริ่ม</SelectItem>
+                    <SelectItem value="ready_to_start">พร้อมเริ่ม</SelectItem>
                     <SelectItem value="in_progress">กำลังทำ</SelectItem>
                     <SelectItem value="completed">เสร็จสมบูรณ์</SelectItem>
                     <SelectItem value="delayed">ล่าช้า</SelectItem>
@@ -154,23 +155,27 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="startDate">วันเริ่มต้น *</Label>
+                <Label htmlFor="startDate">วันเริ่มต้น * (YYYY-MM-DD)</Label>
                 <Input
                   id="startDate"
-                  type="date"
+                  type="text"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
+                  placeholder="2025-11-15"
+                  pattern="\d{4}-\d{2}-\d{2}"
                   required
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="endDate">วันสิ้นสุด *</Label>
+                <Label htmlFor="endDate">วันสิ้นสุด * (YYYY-MM-DD)</Label>
                 <Input
                   id="endDate"
-                  type="date"
+                  type="text"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  placeholder="2025-12-31"
+                  pattern="\d{4}-\d{2}-\d{2}"
                   required
                 />
               </div>

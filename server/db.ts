@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, count, inArray } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -162,15 +162,40 @@ export async function createProject(data: {
   name: string;
   code?: string;
   location?: string;
-  startDate?: Date;
-  endDate?: Date;
+  ownerName?: string;
+  startDate?: string;
+  endDate?: string;
   budget?: number;
   createdBy: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(projects).values(data);
+  // Convert date strings to Date objects
+  const values: any = {
+    name: data.name,
+    createdBy: data.createdBy,
+  };
+  
+  if (data.code) values.code = data.code;
+  if (data.location) values.location = data.location;
+  if (data.ownerName) values.ownerName = data.ownerName;
+  if (data.startDate) values.startDate = new Date(data.startDate);
+  if (data.endDate) values.endDate = new Date(data.endDate);
+  if (data.budget !== undefined) values.budget = data.budget;
+
+  const result = await db.insert(projects).values(values);
+  
+  // Add creator as project member
+  const projectId = Number(result.insertId);
+  if (projectId) {
+    await db.insert(projectMembers).values({
+      projectId,
+      userId: data.createdBy,
+      role: 'project_manager',
+    });
+  }
+  
   return result;
 }
 
@@ -184,6 +209,16 @@ export async function getProjectById(id: number) {
     .where(eq(projects.id, id))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllProjects() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(projects)
+    .where(isNull(projects.archivedAt)); // Filter out archived projects
 }
 
 export async function getProjectsByUser(userId: number) {
@@ -280,6 +315,11 @@ export async function updateProject(
   id: number,
   data: Partial<{
     name: string;
+    code: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    ownerName: string;
     status: "planning" | "active" | "on_hold" | "completed" | "cancelled";
     progress: number;
   }>
@@ -289,6 +329,11 @@ export async function updateProject(
 
   const updateData: Record<string, any> = {};
   if (data.name !== undefined) updateData.name = data.name;
+  if (data.code !== undefined) updateData.code = data.code || null;
+  if (data.location !== undefined) updateData.location = data.location || null;
+  if (data.ownerName !== undefined) updateData.ownerName = data.ownerName || null;
+  if (data.startDate !== undefined) updateData.startDate = data.startDate ? new Date(data.startDate) : null;
+  if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
   if (data.status !== undefined) updateData.status = data.status;
   if (data.progress !== undefined) updateData.progress = data.progress;
 
@@ -440,17 +485,21 @@ export async function createTask(data: {
   parentTaskId?: number;
   name: string;
   description?: string;
-  startDate?: Date;
-  endDate?: Date;
+  category?: string;
+  status?: string;
+  priority?: string;
+  startDate?: string;
+  endDate?: string;
   assigneeId?: number;
   createdBy: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  const { createdBy, ...taskData } = data;
   return await db.insert(tasks).values({
-    ...data,
-    status: "todo",
+    ...taskData,
+    status: taskData.status || "todo",
     progress: 0,
   });
 }
@@ -1268,7 +1317,6 @@ export async function logActivity(data: {
   userId: number;
   projectId?: number;
   taskId?: number;
-  defectId?: number;
   action: string;
   details?: string;
 }) {
@@ -1283,7 +1331,6 @@ export async function logActivity(data: {
   
   if (data.projectId !== undefined) values.projectId = data.projectId;
   if (data.taskId !== undefined) values.taskId = data.taskId;
-  if (data.defectId !== undefined) values.defectId = data.defectId;
   if (data.details !== undefined) values.details = data.details;
 
   return await db.insert(activityLog).values(values);

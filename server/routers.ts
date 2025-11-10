@@ -18,12 +18,12 @@ import { emitNotification } from "./_core/socket";
  */
 const projectRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
-    const projects = await db.getProjectsByUser(ctx.user.id);
+    const projects = await db.getAllProjects();
     const projectsWithStats = await Promise.all(
       projects.map(async (p) => {
-        const stats = await db.getProjectStats(p.projects.id);
+        const stats = await db.getProjectStats(p.id);
         return {
-          ...p.projects,
+          ...p,
           taskCount: stats?.totalTasks || 0,
           completedTasks: stats?.completedTasks || 0,
           progressPercentage: stats?.progressPercentage || 0,
@@ -44,9 +44,11 @@ const projectRouter = router({
         name: z.string().min(1),
         code: z.string().optional(),
         location: z.string().optional(),
-        startDate: z.date().optional(),
-        endDate: z.date().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
         budget: z.number().optional(),
+        ownerName: z.string().optional(),
+        color: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -56,6 +58,7 @@ const projectRouter = router({
       });
 
       const projectId = (result as any).insertId as number;
+      
       await db.logActivity({
         userId: ctx.user.id,
         projectId,
@@ -71,6 +74,12 @@ const projectRouter = router({
       z.object({
         id: z.number(),
         name: z.string().optional(),
+        code: z.string().optional(),
+        location: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        ownerName: z.string().optional(),
+        color: z.string().optional(),
         status: z.enum(["planning", "active", "on_hold", "completed", "cancelled"]).optional(),
       })
     )
@@ -96,8 +105,7 @@ const projectRouter = router({
           cancelled: "ยกเลิก",
         };
         
-        // Get project members
-        const members = await db.getProjectMembers(id);
+        // Notify owner about status change
         const notification = {
           id: `project-status-${id}-${Date.now()}`,
           type: "project_status" as const,
@@ -409,16 +417,17 @@ const taskRouter = router({
           "delayed"
         ]).optional(),
         priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
-        startDate: z.date().optional(),
-        endDate: z.date().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
         assigneeId: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const result = await db.createTask({
-        ...input,
-        createdBy: ctx.user.id,
-      });
+      console.log('[DEBUG] Task create mutation called with input:', JSON.stringify(input, null, 2));
+      try {
+        const result = await db.createTask({
+          ...input,
+        });
 
       const taskId = (result as any).insertId as number;
 
@@ -443,6 +452,10 @@ const taskRouter = router({
       }
 
       return { success: true, id: taskId };
+      } catch (error) {
+        console.error('[ERROR] Task create failed:', error);
+        throw error;
+      }
     }),
 
   update: roleBasedProcedure('tasks', 'edit')
@@ -1542,9 +1555,8 @@ const dashboardRouter = router({
       total: allChecklists.length,
     };
 
-    // Get project count
-    const projects = await db.getProjectsByUser(ctx.user.id);
-    const projectCount = projects.length;
+    // Get project count (use already fetched data)
+    const projectCount = projectsWithStats.length;
 
     // Get user's assigned tasks
     const myTasks = tasksWithStatus.filter(t => t.assigneeId === ctx.user.id);

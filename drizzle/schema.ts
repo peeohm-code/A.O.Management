@@ -27,10 +27,12 @@ export const projects = mysqlTable("projects", {
   name: varchar("name", { length: 255 }).notNull(),
   code: varchar("code", { length: 100 }),
   location: text("location"),
+  ownerName: varchar("ownerName", { length: 255 }),
   startDate: timestamp("startDate"),
   endDate: timestamp("endDate"),
   budget: int("budget"), // Store as cents/smallest unit
   status: mysqlEnum("status", ["planning", "active", "on_hold", "completed", "cancelled"]).default("planning").notNull(),
+  color: varchar("color", { length: 7 }).default("#3B82F6"), // Project color in hex format (e.g., #3B82F6)
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -87,9 +89,9 @@ export const tasks = mysqlTable("tasks", {
   ]).default("todo").notNull(),
   assigneeId: int("assigneeId"),
   category: varchar("category", { length: 50 }), // e.g., "structure", "architecture", "mep", "finishing"
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
   order: int("order").default(0).notNull(), // For sorting
   photoUrls: text("photoUrls"), // JSON array of photo URLs
-  createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -399,7 +401,6 @@ export const activityLog = mysqlTable("activityLog", {
   userId: int("userId").notNull(),
   projectId: int("projectId"),
   taskId: int("taskId"),
-  defectId: int("defectId"),
   action: varchar("action", { length: 100 }).notNull(), // e.g., "task_created", "status_changed", "inspection_completed", "defect_created", "defect_status_changed"
   details: text("details"), // JSON object with additional details
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -407,7 +408,6 @@ export const activityLog = mysqlTable("activityLog", {
   userIdx: index("userIdx").on(table.userId),
   projectIdx: index("projectIdx").on(table.projectId),
   taskIdx: index("taskIdx").on(table.taskId),
-  defectIdx: index("defectIdx").on(table.defectId),
 }));
 
 export type ActivityLog = typeof activityLog.$inferSelect;

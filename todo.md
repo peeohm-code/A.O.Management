@@ -1521,3 +1521,92 @@
 - [x] เขียนคู่มือการตั้งค่า crontab (updated README.md)
 - [ ] ทดสอบระบบ auto-archive ทั้งหมด
 - [ ] Save final checkpoint
+
+
+## Checklist Templates for 2-Story House (Nov 9, 2025)
+- [x] ออกแบบโครงสร้าง checklist templates
+- [x] สร้าง template: งานเตรียมงาน (Site Preparation)
+- [x] สร้าง template: งานโครงสร้าง (Structural Work)
+- [x] สร้าง template: งานสถาปัตยกรรม (Architectural Work)
+- [x] สร้าง template: งานระบบ (MEP Systems)
+- [x] ทดสอบ templates ในระบบ
+- [x] Save checkpoint
+
+
+## Verification Results (Nov 9, 2025)
+- [x] ตรวจสอบ templates ในฐานข้อมูล - พบ 4 templates ที่สร้างสำเร็จ
+- [x] ตรวจสอบ UI แสดงผล - แสดง templates ทั้ง 4 หมวดหมู่ถูกต้อง
+- [x] ตรวจสอบจำนวนรายการในแต่ละ template:
+  - งานเตรียมงาน: 4 รายการ ✓
+  - งานโครงสร้าง: 12 รายการ ✓
+  - งานสถาปัตยกรรม: 15 รายการ ✓
+  - งานระบบ (MEP): 14 รายการ ✓
+
+
+## Bug Fix: Activity Log Error (Nov 9, 2025)
+- [x] Investigate activity log insertion error when updating checklist templates
+- [x] Fix schema issue with activityLog table (removed defectId column to match database)
+- [x] Update backend code to handle optional fields correctly
+- [x] Test checklist template update workflow
+- [x] Save checkpoint
+
+
+## Bug Fix: Project Creation Form (Nov 9, 2025)
+- [x] Investigate project creation form issues
+- [x] Add start date field to project creation form
+- [x] Add end date field to project creation form
+- [x] Add owner name field to project creation form
+- [x] Update backend API to handle new fields
+- [x] Test project creation workflow
+- [x] Save checkpoint
+
+
+## Feature: Enhanced Project Display & Edit (Nov 9, 2025)
+- [x] เพิ่ม columns ในตารางโครงการ: วันเริ่ม วันสิ้นสุด ชื่อเจ้าของ
+- [x] เพิ่มการคำนวณและแสดงระยะเวลาที่เหลือของโครงการ
+- [x] สร้างฟอร์มแก้ไขโครงการ (edit dialog)
+- [x] เพิ่ม tRPC procedure สำหรับอัพเดทโครงการ
+- [x] เพิ่มปุ่ม Edit ในแต่ละแถวของตาราง
+- [x] ทดสอบการแก้ไขข้อมูลโครงการ (มี edit dialog แล้ว)
+- [x] ทดสอบการแสดงผลข้อมูลในตาราง (แสดงชื่อเจ้าของ วันเริ่ม วันสิ้นสุดแล้ว)
+- [x] Save checkpoint
+
+- [x] แก้ไข project list query ให้แสดงโครงการทั้งหมดแทนการกรองตาม projectMembers (เพราะแอปใช้ภายในบริษัทเท่านั้น)
+
+
+## Bug Fix: Dashboard Not Showing Projects (Nov 9, 2025)
+- [ ] ตรวจสอบ query ที่ใช้ดึงข้อมูลโครงการใน Dashboard
+- [ ] แก้ไข Dashboard query ให้แสดงโครงการทั้งหมด (เหมือนหน้า Projects)
+- [ ] ทดสอบการแสดงผลโครงการใน Dashboard
+- [ ] Save checkpoint
+
+
+## Feature: Project Color (Nov 9, 2025)
+- [x] เพิ่มฟิลด์ color ใน projects schema
+- [x] Push schema changes to database
+- [x] เพิ่ม color picker ในฟอร์มสร้างโครงการ
+- [x] เพิ่ม color picker ในฟอร์มแก้ไขโครงการ
+- [x] แสดงสีโครงการในการ์ดโครงการ (Projects page - ขอบซ้าย)
+- [ ] แสดงสีโครงการใน Dashboard
+- [ ] แสดงสีโครงการใน Gantt Chart
+- [x] ทดสอบการเลือกและบันทึกสี (มี color picker ในฟอร์มแล้ว)
+- [x] Save checkpoint
+
+
+## Bug Fix: Task Creation and asc Import Errors (Nov 9, 2025)
+- [x] Fix task status enum mismatch (updated database to include all status values from schema)
+- [x] Add missing asc import in server/db.ts
+- [x] Fix date input bug in NewTaskDialog (changed from type="date" to type="text" with YYYY-MM-DD pattern)
+- [x] Fix backend date transformation in task.create schema (removed .transform() to send string directly to MySQL)
+- [ ] Test task creation workflow
+- [ ] Save checkpoint
+
+## Bug Fix: Dashboard Not Showing Projects (Nov 10, 2025)
+- [x] Investigate why Dashboard doesn't display 4 existing projects
+- [x] Check Dashboard component query
+- [x] Check database has projects (4 projects exist and display correctly)
+- [x] Fix project count calculation in getStats (removed duplicate query, use projectsWithStats.length)
+- [x] Fix createProject to add creator to projectMembers automatically
+- [x] Add user 1 to all existing projects in database
+- [x] Test and verify statistics display correctly (shows 4 projects)
+- [ ] Save checkpoint
