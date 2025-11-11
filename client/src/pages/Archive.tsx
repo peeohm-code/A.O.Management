@@ -42,6 +42,7 @@ export default function Archive() {
 
   const { data: archivedProjects = [], isLoading, refetch } = trpc.project.listArchived.useQuery();
   const unarchiveMutation = trpc.project.unarchive.useMutation();
+  const bulkDeleteMutation = trpc.project.bulkDelete.useMutation();
   const utils = trpc.useUtils();
 
   // Filter projects based on search
@@ -346,7 +347,7 @@ export default function Archive() {
                               {project.name}
                             </h3>
                           </Link>
-                          {getStatusBadge(project.projectStatus)}
+                          {getStatusBadge(project.status)}
                           {/* Warning badges based on archive duration */}
                           {yearsArchived >= 5 ? (
                             <Badge variant="destructive" className="gap-1">
@@ -541,7 +542,7 @@ export default function Archive() {
                 });
                 
                 try {
-                  const result = await utils.project.bulkDelete.fetch({ ids: projectIds });
+                  const result = await bulkDeleteMutation.mutateAsync({ ids: projectIds });
                   
                   if (result.success.length > 0) {
                     toast.success(`ลบสำเร็จ ${result.success.length} โครงการ`);

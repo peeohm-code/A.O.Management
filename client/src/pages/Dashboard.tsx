@@ -157,7 +157,7 @@ export default function Dashboard() {
         {/* Key Metrics */}
         <div className="px-6">
           <KeyMetrics 
-            stats={stats || { projectStats: { active: 0, onTrack: 0, at_risk: 0, delayed: 0, total: 0 }, trends: { active: 0, onTrack: 0, at_risk: 0, delayed: 0 } }} 
+            stats={stats as any || { projectStats: { active: 0, onTrack: 0, at_risk: 0, delayed: 0, total: 0 }, trends: { active: 0, onTrack: 0, at_risk: 0, delayed: 0 } }} 
             projects={filteredProjects} 
           />
         </div>

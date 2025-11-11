@@ -60,8 +60,8 @@ export default function NewTask() {
       description: descriptionInput.value || undefined,
       projectId: parseInt(formData.projectId),
       parentTaskId: formData.parentTaskId ? parseInt(formData.parentTaskId) : undefined,
-      startDate: formData.startDate ? new Date(formData.startDate) : undefined,
-      endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+      startDate: formData.startDate || undefined,
+      endDate: formData.endDate || undefined,
     });
   };
 

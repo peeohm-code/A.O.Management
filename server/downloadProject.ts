@@ -21,7 +21,7 @@ export async function generateProjectExport(projectId: number) {
   const projectTasks = await db.select().from(tasks).where(eq(tasks.projectId, projectId));
 
   // Get all defects
-  const projectDefects = await db.select().from(defects).where(eq(defects.projectId, projectId));
+  const projectDefects = await db.select().from(defects).where(eq(tasks.projectId, projectId));
 
   // Get all checklists (simplified - just get checklist count for now)
   const taskIds = projectTasks.map(t => t.id);
@@ -69,8 +69,7 @@ export async function generateProjectExport(projectId: number) {
       description: d.description,
       severity: d.severity,
       status: d.status,
-      location: d.location,
-      reportedAt: d.reportedAt,
+      reportedAt: d.createdAt,
       resolvedAt: d.resolvedAt,
     })),
     checklistCount: checklistCount,

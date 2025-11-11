@@ -98,8 +98,7 @@ export default function TaskDetail() {
         await uploadAttachmentMutation.mutateAsync({
           taskId,
           fileName: selectedFile.name,
-          fileData: base64,
-          fileSize: selectedFile.size,
+          fileContent: base64,
           mimeType: selectedFile.type,
         });
         setSelectedFile(null);
@@ -224,9 +223,7 @@ export default function TaskDetail() {
                     </span>
                   </Link>
                 </div>
-                {project.description && (
-                  <p className="text-sm text-gray-500 ml-6">{project.description}</p>
-                )}
+                {/* Note: description field doesn't exist in projects schema */}
               </div>
             )}
 
@@ -457,11 +454,11 @@ export default function TaskDetail() {
                           </a>
                           <p className="text-xs text-gray-500">
                             {new Date(attachment.createdAt).toLocaleDateString("th-TH")} •{" "}
-                            {(attachment.fileSize / 1024).toFixed(1)} KB
+                            {attachment.fileSize ? (attachment.fileSize / 1024).toFixed(1) : '0'} KB
                           </p>
                         </div>
                       </div>
-                      {user && (user.role === "admin" || user.role === "pm" || attachment.uploadedBy === user.id) && (
+                      {user && (user.role === "admin" || user.role === "project_manager" || attachment.uploadedBy === user.id) && (
                         <Button
                           variant="ghost"
                           size="sm"

@@ -43,8 +43,8 @@ export default function NewProject() {
       name: nameInput.value,
       code: codeInput.value || undefined,
       location: locationInput.value || undefined,
-      startDate: formData.startDate ? new Date(formData.startDate) : undefined,
-      endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+      startDate: formData.startDate || undefined,
+      endDate: formData.endDate || undefined,
     });
   };
 

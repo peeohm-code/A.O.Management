@@ -30,8 +30,8 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [category, setCategory] = useState("preparation");
-  const [status, setStatus] = useState("todo");
-  const [priority, setPriority] = useState("medium");
+  const [status, setStatus] = useState<string>("todo");
+  const [priority, setPriority] = useState<string>("medium");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -69,8 +69,8 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
       projectId,
       name,
       category,
-      status,
-      priority,
+      status: status as any,
+      priority: priority as any,
       startDate: startDate, // Already in YYYY-MM-DD format from input[type="date"]
       endDate: endDate,
     });

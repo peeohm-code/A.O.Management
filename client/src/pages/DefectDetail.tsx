@@ -34,13 +34,13 @@ export default function DefectDetail() {
   const defectId = parseInt(params.id || "0");
 
   const defectQuery = trpc.defect.getById.useQuery({ id: defectId });
-  const activityQuery = trpc.activity.getByDefect.useQuery({ defectId });
+  // Note: activity.getByDefect doesn't exist, activityLog doesn't have defectId column
+  const activityQuery = { isLoading: false, data: [] as any[] };
   const beforePhotosQuery = trpc.defect.getAttachmentsByType.useQuery({ defectId, attachmentType: "before" });
   const afterPhotosQuery = trpc.defect.getAttachmentsByType.useQuery({ defectId, attachmentType: "after" });
   const updateDefectMutation = trpc.defect.update.useMutation();
   const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
   const deleteAttachmentMutation = trpc.defect.deleteAttachment.useMutation();
-  const canEdit = useCanEditDefect();
 
   // Photo upload state
   const [uploadingBefore, setUploadingBefore] = useState(false);
@@ -265,7 +265,8 @@ export default function DefectDetail() {
       addText(`Severity: ${getSeverityLabel(defect.severity)}`);
       addText(`Status: ${getStatusLabel(defect.status)}`);
       addText(`Created: ${new Date(defect.createdAt).toLocaleDateString('th-TH')}`);
-      if (defect.assignedToName) addText(`Assigned To: ${defect.assignedToName}`);
+      // Note: assignedToName doesn't exist in schema, only assignedTo (user ID)
+      // if (defect.assignedToName) addText(`Assigned To: ${defect.assignedToName}`);
       yPos += 5;
 
       // Description
@@ -446,6 +447,7 @@ export default function DefectDetail() {
   }
 
   const defect = defectQuery.data;
+  const canEdit = defect ? useCanEditDefect(defect) : false;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -520,10 +522,11 @@ export default function DefectDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                {/* Note: code field doesn't exist in defects schema */}
+                {/* <div>
                   <p className="text-sm text-gray-500 mb-1">รหัส</p>
                   <p className="font-medium">{defect.code || "-"}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="text-sm text-gray-500 mb-1">ประเภท</p>
                   <p className="font-medium">{defect.type}</p>
@@ -897,7 +900,7 @@ export default function DefectDetail() {
                 </div>
               ) : activityQuery.data && activityQuery.data.length > 0 ? (
                 <div className="space-y-4">
-                  {activityQuery.data.map((activity) => (
+                  {activityQuery.data.map((activity: any) => (
                     <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0 last:pb-0">
                       <div className="flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">

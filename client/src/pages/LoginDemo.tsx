@@ -22,7 +22,7 @@ export default function LoginDemo() {
           </div>
           <div className="text-center space-y-3">
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#1e3a5f] to-[#2d7a7a] bg-clip-text text-transparent">
-              {APP_TITLE.split('\n').map((line, i) => (
+              {APP_TITLE.split('\n').map((line: string, i: number) => (
                 <div key={i}>{line}</div>
               ))}
             </h1>

@@ -52,7 +52,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
     { enabled: !!taskId }
   );
 
-  const { data: templates } = trpc.checklist.listTemplates.useQuery({});
+  const { data: templates } = trpc.checklist.listTemplates.useQuery();
 
   // Mutations
   const assignChecklistMutation = trpc.checklist.assignToTask.useMutation({

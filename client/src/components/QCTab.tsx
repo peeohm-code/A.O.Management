@@ -35,7 +35,7 @@ export function QCTab({ projectId }: QCTabProps) {
   };
 
   const getStatusIcon = (status: string) => {
-    const icons: Record<string, JSX.Element> = {
+    const icons: Record<string, React.ReactElement> = {
       not_started: <Clock className="w-3 h-3" />,
       pending_inspection: <AlertCircle className="w-3 h-3" />,
       in_progress: <FileText className="w-3 h-3" />,
