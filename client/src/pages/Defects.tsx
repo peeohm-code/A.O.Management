@@ -117,23 +117,15 @@ export default function Defects() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "reported":
-        return "bg-yellow-100 text-yellow-800";
-      case "action_plan":
-        return "bg-blue-100 text-blue-800";
-      case "assigned":
-        return "bg-purple-100 text-purple-800";
-      case "in_progress":
         return "bg-orange-100 text-orange-800";
-      case "implemented":
-        return "bg-cyan-100 text-cyan-800";
-      case "verification":
-        return "bg-indigo-100 text-indigo-800";
-      case "effectiveness_check":
-        return "bg-pink-100 text-pink-800";
-      case "closed":
+      case "analysis":
+        return "bg-yellow-100 text-yellow-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "resolved":
         return "bg-green-100 text-green-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
+      case "closed":
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -141,17 +133,11 @@ export default function Defects() {
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      reported: "รายงานแล้ว",
-      action_plan: "กำลังวางแผน",
-      assigned: "มอบหมายแล้ว",
-      in_progress: "กำลังดำเนินการ",
-      implemented: "แก้ไขเสร็จแล้ว",
-      verification: "รอตรวจสอบ",
-      effectiveness_check: "ตรวจสอบประสิทธิผล",
-      closed: "ปิดแล้ว",
-      rejected: "ปฏิเสธ",
-      analysis: "กำลังวิเคราะห์",
+      reported: "รายงานปัญหา",
+      analysis: "วิเคราะห์สาเหตุ",
+      in_progress: "กำลังแก้ไข",
       resolved: "แก้ไขเสร็จ",
+      closed: "ปิดงาน",
     };
     return labels[status] || status;
   };
@@ -523,16 +509,11 @@ export default function Defects() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">ทุกสถานะ</SelectItem>
-            <SelectItem value="reported">รายงานแล้ว</SelectItem>
-            <SelectItem value="action_plan">กำลังวางแผน</SelectItem>
-            <SelectItem value="assigned">มอบหมายแล้ว</SelectItem>
-            <SelectItem value="in_progress">กำลังดำเนินการ</SelectItem>
-            <SelectItem value="implemented">แก้ไขเสร็จแล้ว</SelectItem>
-            <SelectItem value="verification">รอตรวจสอบ</SelectItem>
-            <SelectItem value="effectiveness_check">ตรวจสอบประสิทธิผล</SelectItem>
-            <SelectItem value="analysis">กำลังวิเคราะห์</SelectItem>
+            <SelectItem value="reported">รายงานปัญหา</SelectItem>
+            <SelectItem value="analysis">วิเคราะห์สาเหตุ</SelectItem>
+            <SelectItem value="in_progress">กำลังแก้ไข</SelectItem>
             <SelectItem value="resolved">แก้ไขเสร็จ</SelectItem>
-            <SelectItem value="closed">ปิดแล้ว</SelectItem>
+            <SelectItem value="closed">ปิดงาน</SelectItem>
           </SelectContent>
         </Select>
       </div>

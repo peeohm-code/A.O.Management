@@ -1648,3 +1648,17 @@
 - [x] Add photo count validation (10 photos max) - Already implemented in ImageUpload component
 - [x] Create PDF export feature for Before-After comparison reports - Implemented in DefectDetail component with handleExportPDF function
 - [ ] Test PDF export with sample data - Blocked by defect detail page access issue
+
+## Workflow Simplification Review
+- [ ] Review current CAR/NCR workflow implementation (database, backend, frontend)
+- [ ] Compare with agreed simplified 5-step workflow
+- [ ] Identify and document workflow complexity issues
+- [ ] Simplify workflow to match agreed process
+- [ ] Test simplified workflow end-to-end
+
+## Clean Up and Create Sample Data
+- [x] Delete all old defects from database
+- [x] Create 2-3 new sample defects demonstrating simplified 5-step workflow
+- [x] Update Defects.tsx status filter select items
+- [ ] Update DefectDetail.tsx workflow buttons and forms
+- [ ] Test the simplified workflow end-to-end

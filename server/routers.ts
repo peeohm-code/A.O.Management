@@ -1099,7 +1099,7 @@ const defectRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected", "analysis", "resolved"]).optional(),
+        status: z.enum(["reported", "analysis", "in_progress", "resolved", "closed"]).optional(),
         assignedTo: z.number().optional(),
         resolutionComment: z.string().optional(),
         resolutionPhotoUrls: z.string().optional(),
@@ -1135,8 +1135,8 @@ const defectRouter = router({
 
         const dataToUpdate = {
         ...updateData,
-        resolvedBy: updateData.status === "implemented" ? ctx.user.id : undefined,
-        resolvedAt: updateData.status === "implemented" ? new Date() : undefined,
+        resolvedBy: updateData.status === "resolved" ? ctx.user.id : undefined,
+        resolvedAt: updateData.status === "resolved" ? new Date() : undefined,
         verifiedBy: updateData.status === "closed" ? ctx.user.id : undefined,
         verifiedAt: updateData.status === "closed" ? new Date() : undefined,
       };
@@ -1183,11 +1183,11 @@ const defectRouter = router({
         });
       }
 
-      // Notify owner/admin when verification is requested
-      if (updateData.status === "verification") {
+      // Notify owner/admin when defect is resolved
+      if (updateData.status === "resolved") {
         await notifyOwner({
-          title: `${defect.type} รอการตรวจสอบ`,
-          content: `${defect.title} - ขอตรวจสอบผลการแก้ไข`,
+          title: `${defect.type} แก้ไขเสร็จแล้ว`,
+          content: `${defect.title} - รอตรวจสอบผลการแก้ไข`,
         });
       }
 

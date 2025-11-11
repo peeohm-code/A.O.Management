@@ -1091,7 +1091,7 @@ export async function getAllDefects() {
 export async function updateDefect(
   id: number,
   data: Partial<{
-    status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected" | "analysis" | "resolved";
+    status: "reported" | "analysis" | "in_progress" | "resolved" | "closed";
     assignedTo: number;
     resolvedBy: number;
     resolvedAt: Date;
@@ -1680,7 +1680,7 @@ export async function getDefectsByChecklist(checklistId: number) {
  * Get defects by status
  */
 export async function getDefectsByStatus(
-  status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected" | "analysis" | "resolved"
+  status: "reported" | "analysis" | "in_progress" | "resolved" | "closed"
 ) {
   const db = await getDb();
   if (!db) return [];
@@ -1881,17 +1881,17 @@ export async function getDefectMetrics() {
     const [openResult] = await db
       .select({ count: sql<number>`COUNT(*)`.as('count') })
       .from(defects)
-      .where(sql`${defects.status} IN ('reported', 'action_plan', 'assigned', 'in_progress', 'implemented')`);
+      .where(sql`${defects.status} IN ('reported', 'analysis', 'in_progress')`);
     
     const [closedResult] = await db
       .select({ count: sql<number>`COUNT(*)`.as('count') })
       .from(defects)
       .where(eq(defects.status, 'closed'));
     
-    const [verificationResult] = await db
+    const [resolvedResult] = await db
       .select({ count: sql<number>`COUNT(*)`.as('count') })
       .from(defects)
-      .where(eq(defects.status, 'verification'));
+      .where(eq(defects.status, 'resolved'));
     
     const [overdueResult] = await db
       .select({ count: sql<number>`COUNT(*)`.as('count') })
@@ -1908,7 +1908,7 @@ export async function getDefectMetrics() {
       total: totalResult?.count || 0,
       open: openResult?.count || 0,
       closed: closedResult?.count || 0,
-      pendingVerification: verificationResult?.count || 0,
+      pendingVerification: resolvedResult?.count || 0,
       overdue: overdueResult?.count || 0
     };
   } catch (error) {

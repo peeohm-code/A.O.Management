@@ -22,14 +22,11 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      reported: "รายงานแล้ว",
-      action_plan: "กำลังวางแผน",
-      assigned: "มอบหมายแล้ว",
-      in_progress: "กำลังดำเนินการ",
-      implemented: "แก้ไขเสร็จแล้ว",
-      verification: "รอตรวจสอบ",
-      effectiveness_check: "ตรวจสอบประสิทธิผล",
-      closed: "ปิดแล้ว",
+      reported: "รายงานปัญหา",
+      analysis: "วิเคราะห์สาเหตุ",
+      in_progress: "กำลังแก้ไข",
+      resolved: "แก้ไขเสร็จ",
+      closed: "ปิดงาน",
     };
     return labels[status] || status;
   };
@@ -37,12 +34,9 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       reported: "bg-orange-100 text-orange-700 border-orange-300",
-      action_plan: "bg-yellow-100 text-yellow-700 border-yellow-300",
-      assigned: "bg-blue-100 text-blue-700 border-blue-300",
+      analysis: "bg-yellow-100 text-yellow-700 border-yellow-300",
       in_progress: "bg-blue-100 text-blue-700 border-blue-300",
-      implemented: "bg-green-100 text-green-700 border-green-300",
-      verification: "bg-purple-100 text-purple-700 border-purple-300",
-      effectiveness_check: "bg-indigo-100 text-indigo-700 border-indigo-300",
+      resolved: "bg-green-100 text-green-700 border-green-300",
       closed: "bg-gray-100 text-gray-700 border-gray-300",
     };
     return colors[status] || "bg-gray-100 text-gray-700 border-gray-300";

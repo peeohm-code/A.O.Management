@@ -211,10 +211,11 @@ export const defects = mysqlTable("defects", {
   description: text("description"),
   photoUrls: text("photoUrls"), // JSON array of photo URLs
   status: mysqlEnum("status", [
-    "reported", "rca_pending", "action_plan", "assigned", 
-    "in_progress", "implemented", "verification", "effectiveness_check", 
-    "closed", "rejected",
-    "analysis", "resolved" // New simplified workflow statuses
+    "reported",    // รายงานปัญหา (พร้อม Before photos)
+    "analysis",    // วิเคราะห์สาเหตุ (RCA)
+    "in_progress",  // กำลังแก้ไข
+    "resolved",     // แก้ไขเสร็จ (พร้อม After photos)
+    "closed"        // ปิดงาน
   ]).default("reported").notNull(),
   severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
   assignedTo: int("assignedTo"),
