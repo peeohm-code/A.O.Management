@@ -12,6 +12,7 @@ import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusCo
 import { notifyOwner } from "./_core/notification";
 import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
+import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
 
 /**
  * Project Router - Project Management
@@ -39,18 +40,7 @@ const projectRouter = router({
   }),
 
   create: roleBasedProcedure('projects', 'create')
-    .input(
-      z.object({
-        name: z.string().min(1),
-        code: z.string().optional(),
-        location: z.string().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        budget: z.number().optional(),
-        ownerName: z.string().optional(),
-        color: z.string().optional(),
-      })
-    )
+    .input(projectSchema)
     .mutation(async ({ input, ctx }) => {
       const result = await db.createProject({
         ...input,
@@ -402,30 +392,7 @@ const taskRouter = router({
   }),
 
   create: roleBasedProcedure('tasks', 'create')
-    .input(
-      z.object({
-        projectId: z.number(),
-        parentTaskId: z.number().optional(),
-        name: z.string().min(1),
-        description: z.string().optional(),
-        category: z.string().optional(),
-        status: z.enum([
-          "todo",
-          "pending_pre_inspection",
-          "ready_to_start",
-          "in_progress",
-          "pending_final_inspection",
-          "rectification_needed",
-          "completed",
-          "not_started",
-          "delayed"
-        ]).optional(),
-        priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        assigneeId: z.number().optional(),
-      })
-    )
+    .input(taskSchema)
     .mutation(async ({ input, ctx }) => {
       console.log('[DEBUG] Task create mutation called with input:', JSON.stringify(input, null, 2));
       try {

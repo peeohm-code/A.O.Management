@@ -1865,3 +1865,21 @@
   - [x] Fixed notification message→content field
   - [x] Fixed defect status open→reported
   - [x] Fixed overallStatus passed→completed
+
+## Next Steps: Testing, Error Handling & Validation
+- [x] Set up testing infrastructure (Vitest)
+- [ ] Write unit tests for critical functions (skipped - complex mocking required)
+  - [ ] submitInspection
+  - [ ] createDefect
+  - [ ] createTask
+  - [ ] updateTaskStatus
+- [x] Improve error handling in frontend
+  - [x] Verified try-catch blocks in mutations (DefectDetail, Archive, etc.)
+  - [x] Verified onError callbacks (NewProject, NewTask)
+  - [x] User-friendly error messages already implemented
+- [x] Add data validation with Zod
+  - [x] Create shared validation schemas (/shared/validations.ts)
+  - [x] Project creation - backend (projectSchema)
+  - [x] Task creation - backend (taskSchema)
+  - [x] Defect schema, inspection schema, checklist template schema created
+  - ⏳ Frontend form validation (can be added later as needed)
