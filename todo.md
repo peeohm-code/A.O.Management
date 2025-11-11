@@ -1677,3 +1677,9 @@
 - [x] Fix the "Failed to save RCA" error - Updated all status transitions to use simplified 5-step workflow
 - [ ] Test RCA save with sample data - Unable to test due to dialog not opening
 - [x] Verify all RCA fields are saved correctly - Backend API supports all RCA fields (rootCause, correctiveAction, preventiveAction)
+
+## CAR/NCR System Improvements
+- [ ] Fix dialog opening issue when clicking defect cards
+- [ ] Add status change confirmation dialogs
+- [ ] Add required fields validation for each status transition
+- [ ] Test all improvements thoroughly

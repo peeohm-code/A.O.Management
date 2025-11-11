@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +28,9 @@ import { usePermissions, useCanDeleteDefect } from "@/hooks/usePermissions";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 
 export default function Defects() {
+  const [, setLocation] = useLocation();
   // Permission checks
-  const permissions = usePermissions('defects');
+  const permissions = usePermissions();
   const canDeleteDefect = useCanDeleteDefect();
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -533,7 +536,7 @@ export default function Defects() {
             <Card
               key={defect.id}
               className="hover:shadow-md transition cursor-pointer"
-              onClick={() => setSelectedDefect(defect)}
+              onClick={() => setLocation(`/defects/${defect.id}`)}
             >
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
@@ -571,7 +574,7 @@ export default function Defects() {
       </div>
 
       {/* Defect Detail Dialog */}
-      <Dialog open={!!selectedDefect && !showRCAForm && !showActionPlanForm && !showVerificationForm && !showEffectivenessForm} onOpenChange={(open) => !open && setSelectedDefect(null)}>
+      <Dialog open={!!selectedDefect && !showRCAForm && !showActionPlanForm && !showImplementationForm} onOpenChange={(open) => !open && setSelectedDefect(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
