@@ -184,7 +184,7 @@ export default function Defects() {
       await updateDefectMutation.mutateAsync({
         id: selectedDefect.id,
         rootCause,
-        status: "action_plan" as any,
+        status: "analysis" as any,
       });
 
       toast.success("RCA saved successfully");
@@ -226,7 +226,7 @@ export default function Defects() {
         preventiveAction: preventiveAction || undefined,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         assignedTo: assignedTo || undefined,
-        status: "assigned" as any,
+        status: "in_progress" as any,
       });
 
       // Upload after photos if any
@@ -331,7 +331,7 @@ export default function Defects() {
         implementationMethod,
         afterPhotos: photoUrls.length > 0 ? JSON.stringify(photoUrls) : undefined,
         resolutionNotes,
-        status: "implemented" as any,
+        status: "resolved" as any,
       });
 
       toast.success("บันทึกการแก้ไขสำเร็จ");
@@ -435,7 +435,7 @@ export default function Defects() {
             <div
               className="p-4 rounded-lg border-2 border-yellow-200 cursor-pointer hover:shadow-md transition"
               onClick={() => {
-                setStatusFilter("verification");
+                setStatusFilter("resolved");
                 setOverdueFilter(false);
               }}
             >
@@ -678,7 +678,7 @@ export default function Defects() {
                     วิเคราะห์สาเหตุต้นตอ
                   </Button>
                 )}
-                {selectedDefect.status === "action_plan" && !selectedDefect.correctiveAction && (
+                {selectedDefect.status === "analysis" && !selectedDefect.correctiveAction && (
                   <Button
                     onClick={() => setShowActionPlanForm(true)}
                     className="flex-1 bg-green-600 hover:bg-green-700"
@@ -686,7 +686,7 @@ export default function Defects() {
                     สร้างแผนการแก้ไข
                   </Button>
                 )}
-                {(selectedDefect.status === "assigned" || (selectedDefect.status === "action_plan" && selectedDefect.correctiveAction)) && (
+                {(selectedDefect.status === "in_progress" || (selectedDefect.status === "analysis" && selectedDefect.correctiveAction)) && (
                   <Button
                     onClick={() => handleUpdateDefect("in_progress")}
                     disabled={updateDefectMutation.isPending}
@@ -704,16 +704,16 @@ export default function Defects() {
                     แก้ไขเสร็จแล้ว
                   </Button>
                 )}
-                {selectedDefect.status === "implemented" && (
+                {selectedDefect.status === "resolved" && (
                   <Button
-                    onClick={() => handleUpdateDefect("verification")}
+                    onClick={() => handleUpdateDefect("closed")}
                     disabled={updateDefectMutation.isPending}
                     className="flex-1 bg-[#00366D] hover:bg-blue-700"
                   >
                     ขอตรวจสอบ
                   </Button>
                 )}
-                {selectedDefect.status === "verification" && (
+                {selectedDefect.status === "resolved" && false && (
                   <Button
                     onClick={() => setShowVerificationForm(true)}
                     disabled={updateDefectMutation.isPending}
@@ -722,7 +722,7 @@ export default function Defects() {
                     ตรวจสอบผลการแก้ไข
                   </Button>
                 )}
-                {selectedDefect.status === "effectiveness_check" && (
+                {selectedDefect.status === "resolved" && false && (
                   <Button
                     onClick={() => setShowEffectivenessForm(true)}
                     disabled={updateDefectMutation.isPending}
@@ -1126,7 +1126,7 @@ export default function Defects() {
                   try {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
-                      status: "action_plan" as any,
+                      status: "analysis" as any,
                       verificationComment: verificationComment,
                     });
                     toast.success("ไม่อนุมัติ - ส่งกลับไปแก้ไขใหม่");
@@ -1160,7 +1160,7 @@ export default function Defects() {
                   try {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
-                      status: "effectiveness_check" as any,
+                      status: "closed" as any,
                       verificationComment: verificationComment,
                     });
                     toast.success("อนุมัติสำเร็จ - ไปยังขั้นตอน Effectiveness Check");
@@ -1268,7 +1268,7 @@ export default function Defects() {
                   try {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
-                      status: "action_plan" as any,
+                      status: "analysis" as any,
                       effectivenessComment: effectivenessComment || undefined,
                     });
                     toast.success("ไม่มีประสิทธิผล - ส่งกลับไปแก้ไขใหม่");

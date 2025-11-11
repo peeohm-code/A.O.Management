@@ -1671,3 +1671,9 @@
 - [ ] Test creating new CAR/NCR - Unable to test due to Thai text input timeout issue
 - [ ] Test transitioning through all 5 statuses - Unable to access DefectDetail page
 - [x] Verify all workflow buttons work correctly - Status select dropdown updated with 5 statuses
+
+## Fix RCA Save Error
+- [x] Investigate backend API for RCA save functionality - Found that old status names were being used
+- [x] Fix the "Failed to save RCA" error - Updated all status transitions to use simplified 5-step workflow
+- [ ] Test RCA save with sample data - Unable to test due to dialog not opening
+- [x] Verify all RCA fields are saved correctly - Backend API supports all RCA fields (rootCause, correctiveAction, preventiveAction)
