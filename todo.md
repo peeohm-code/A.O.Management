@@ -1904,3 +1904,19 @@
   - [x] Bulk delete archived projects (project.bulkDelete) Bulk assign tasks
   - [ ] Bulk archive projects
   - [ ] Bulk delete archived projects
+
+### Phase 4: UI Improvements & Integration
+- [ ] Bulk operations UI
+  - [x] Tasks page: checkbox selection + bulk action toolbar
+  - [x] Bulk update task status dialog
+  - [x] Bulk assign tasks dialog
+  - [x] Select all/deselect all functionality
+  - ⏳ Projects page: checkbox selection + bulk action toolbar (can be added later)
+  - ⏳ Bulk archive/delete confirmation (can be added later)
+- [ ] FileUpload component integration
+  - [ ] Defect creation form (in progress)
+  - [ ] QC inspection form
+  - [ ] Replace existing upload implementations
+- [ ] Form validation integration
+  - [ ] Defect creation with React Hook Form + Zod
+  - [ ] QC inspection with React Hook Form + ZodForm + Zod)

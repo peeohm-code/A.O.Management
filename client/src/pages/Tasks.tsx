@@ -4,35 +4,84 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calendar, User, Building2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2, Calendar, User, Building2, CheckSquare, X } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
+import { toast } from "sonner";
 
 export default function Tasks() {
-  const { canCreate } = usePermissions('tasks');
+  const { canCreate, canEdit } = usePermissions('tasks');
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});
   const [displayStatusFilter, setDisplayStatusFilter] = useState<string>("all");
+  const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set());
+  const [showBulkStatusDialog, setShowBulkStatusDialog] = useState(false);
+  const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState<string>("");
+  const [bulkAssignee, setBulkAssignee] = useState<string>("");
 
   const myTasksQuery = trpc.task.myTasks.useQuery();
+  const utils = trpc.useUtils();
+
+  const bulkUpdateStatusMutation = trpc.task.bulkUpdateStatus.useMutation({
+    onSuccess: (data) => {
+      toast.success(`อัปเดตสถานะสำเร็จ ${data.updated}/${data.total} งาน`);
+      setSelectedTasks(new Set());
+      setShowBulkStatusDialog(false);
+      utils.task.myTasks.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  const bulkAssignMutation = trpc.task.bulkAssign.useMutation({
+    onSuccess: (data) => {
+      toast.success(`มอบหมายงานสำเร็จ ${data.assigned}/${data.total} งาน`);
+      setSelectedTasks(new Set());
+      setShowBulkAssignDialog(false);
+      utils.task.myTasks.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
 
   const tasks = myTasksQuery.data || [];
+  
+  // Extract unique assignees from tasks
+  const members = Array.from(
+    new Map(
+      tasks
+        .filter((t: any) => t.assigneeId && t.assigneeName)
+        .map((t: any) => [t.assigneeId, { userId: t.assigneeId, userName: t.assigneeName }])
+    ).values()
+  );
 
   let filteredTasks = tasks.filter((t) => {
-    // Search filter
     const matchesSearch = !searchTerm || t.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Status filter from FilterBar
     const matchesStatus = !filters.status || t.status === filters.status;
-    
-    // Display status filter from stats cards
     const matchesDisplayStatus = displayStatusFilter === "all" || (t as any).displayStatus === displayStatusFilter;
-    
     return matchesSearch && matchesStatus && matchesDisplayStatus;
   });
 
-  // Calculate statistics based on displayStatus
   const stats = {
     total: tasks.length,
     not_started: tasks.filter((t) => (t as any).displayStatus === "not_started").length,
@@ -63,6 +112,46 @@ export default function Tasks() {
     return status.split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   };
 
+  const toggleTaskSelection = (taskId: number) => {
+    const newSelection = new Set(selectedTasks);
+    if (newSelection.has(taskId)) {
+      newSelection.delete(taskId);
+    } else {
+      newSelection.add(taskId);
+    }
+    setSelectedTasks(newSelection);
+  };
+
+  const selectAllTasks = () => {
+    if (selectedTasks.size === filteredTasks.length) {
+      setSelectedTasks(new Set());
+    } else {
+      setSelectedTasks(new Set(filteredTasks.map((t) => t.id)));
+    }
+  };
+
+  const handleBulkUpdateStatus = () => {
+    if (!bulkStatus) {
+      toast.error("กรุณาเลือกสถานะ");
+      return;
+    }
+    bulkUpdateStatusMutation.mutate({
+      taskIds: Array.from(selectedTasks),
+      status: bulkStatus as any,
+    });
+  };
+
+  const handleBulkAssign = () => {
+    if (!bulkAssignee) {
+      toast.error("กรุณาเลือกผู้รับผิดชอบ");
+      return;
+    }
+    bulkAssignMutation.mutate({
+      taskIds: Array.from(selectedTasks),
+      assigneeId: parseInt(bulkAssignee),
+    });
+  };
+
   if (myTasksQuery.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -81,13 +170,61 @@ export default function Tasks() {
         </div>
       </div>
 
+      {/* Bulk Action Toolbar */}
+      {selectedTasks.size > 0 && canEdit && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <CheckSquare className="w-5 h-5 text-blue-600" />
+              <span className="font-medium text-blue-900">
+                เลือกแล้ว {selectedTasks.size} งาน
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBulkStatusDialog(true)}
+              >
+                อัปเดตสถานะ
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBulkAssignDialog(true)}
+              >
+                มอบหมายงาน
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedTasks(new Set())}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Search and Filter */}
       <div className="space-y-4">
-        <SearchBar
-          placeholder="ค้นหางาน..."
-          onSearch={setSearchTerm}
-          className="max-w-md"
-        />
+        <div className="flex items-center gap-4">
+          <SearchBar
+            placeholder="ค้นหางาน..."
+            onSearch={setSearchTerm}
+            className="max-w-md flex-1"
+          />
+          {canEdit && filteredTasks.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={selectAllTasks}
+            >
+              {selectedTasks.size === filteredTasks.length ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด"}
+            </Button>
+          )}
+        </div>
         <FilterBar
           filters={filters}
           onFilterChange={setFilters}
@@ -109,9 +246,7 @@ export default function Tasks() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => {
-            setDisplayStatusFilter("all");
-          }}
+          onClick={() => setDisplayStatusFilter("all")}
         >
           <CardHeader className="pb-3">
             <CardDescription>งานทั้งหมด</CardDescription>
@@ -119,19 +254,14 @@ export default function Tasks() {
           </CardHeader>
           <CardContent>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-gray-500 h-2 rounded-full transition-all"
-                style={{ width: "100%" }}
-              />
+              <div className="bg-gray-500 h-2 rounded-full transition-all" style={{ width: "100%" }} />
             </div>
           </CardContent>
         </Card>
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => {
-            setDisplayStatusFilter("not_started");
-          }}
+          onClick={() => setDisplayStatusFilter("not_started")}
         >
           <CardHeader className="pb-3">
             <CardDescription>ยังไม่เริ่ม</CardDescription>
@@ -149,9 +279,7 @@ export default function Tasks() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => {
-            setDisplayStatusFilter("in_progress");
-          }}
+          onClick={() => setDisplayStatusFilter("in_progress")}
         >
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-1">
@@ -171,9 +299,7 @@ export default function Tasks() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => {
-            setDisplayStatusFilter("delayed");
-          }}
+          onClick={() => setDisplayStatusFilter("delayed")}
         >
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-1">
@@ -193,9 +319,7 @@ export default function Tasks() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => {
-            setDisplayStatusFilter("completed");
-          }}
+          onClick={() => setDisplayStatusFilter("completed")}
         >
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-1">
@@ -226,62 +350,70 @@ export default function Tasks() {
       {/* Tasks List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTasks.map((task: any) => (
-          <Link key={task.id} href={`/tasks/${task.id}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <CardTitle className="text-lg">{task.name}</CardTitle>
-                  <Badge className={`${(task as any).displayStatusColor || 'bg-gray-100 text-gray-800'}`}>
-                    {(task as any).displayStatusLabel || getStatusLabel(task.status)}
-                  </Badge>
-                </div>
-                {task.description && (
-                  <CardDescription className="line-clamp-2">{task.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {/* Project Name */}
-                {task.projectName && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Building2 className="w-4 h-4" />
-                    <span className="truncate">{task.projectName}</span>
+          <div key={task.id} className="relative">
+            {canEdit && (
+              <div className="absolute top-3 left-3 z-10">
+                <Checkbox
+                  checked={selectedTasks.has(task.id)}
+                  onCheckedChange={() => toggleTaskSelection(task.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white border-2"
+                />
+              </div>
+            )}
+            <Link href={`/tasks/${task.id}`}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <CardTitle className={`text-lg ${canEdit ? 'ml-8' : ''}`}>{task.name}</CardTitle>
+                    <Badge className={`${(task as any).displayStatusColor || 'bg-gray-100 text-gray-800'}`}>
+                      {(task as any).displayStatusLabel || getStatusLabel(task.status)}
+                    </Badge>
                   </div>
-                )}
+                  {task.description && (
+                    <CardDescription className="line-clamp-2">{task.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {task.projectName && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Building2 className="w-4 h-4" />
+                      <span className="truncate">{task.projectName}</span>
+                    </div>
+                  )}
 
-                {/* Progress Bar */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Progress</span>
-                    <span className="font-semibold">{task.progress}%</span>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Progress</span>
+                      <span className="font-semibold">{task.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-[#00366D] h-2 rounded-full transition-all"
+                        style={{ width: `${task.progress}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-[#00366D] h-2 rounded-full transition-all"
-                      style={{ width: `${task.progress}%` }}
-                    />
-                  </div>
-                </div>
 
-                {/* Dates */}
-                {task.startDate && task.endDate && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
+                  {task.startDate && task.endDate && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Assignee */}
-                {task.assigneeName && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <User className="w-4 h-4" />
-                    <span>{task.assigneeName}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </Link>
+                  {task.assigneeName && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <User className="w-4 h-4" />
+                      <span>{task.assigneeName}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
         ))}
       </div>
 
@@ -290,6 +422,84 @@ export default function Tasks() {
           <p className="text-gray-500">No tasks found</p>
         </div>
       )}
+
+      {/* Bulk Update Status Dialog */}
+      <Dialog open={showBulkStatusDialog} onOpenChange={setShowBulkStatusDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>อัปเดตสถานะงาน</DialogTitle>
+            <DialogDescription>
+              เลือกสถานะใหม่สำหรับงานที่เลือก ({selectedTasks.size} งาน)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select value={bulkStatus} onValueChange={setBulkStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="เลือกสถานะ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todo">ยังไม่เริ่ม</SelectItem>
+                <SelectItem value="ready_to_start">พร้อมเริ่ม</SelectItem>
+                <SelectItem value="in_progress">กำลังดำเนินการ</SelectItem>
+                <SelectItem value="pending_pre_inspection">รอตรวจก่อน</SelectItem>
+                <SelectItem value="pending_final_inspection">รอตรวจสุดท้าย</SelectItem>
+                <SelectItem value="rectification_needed">ต้องแก้ไข</SelectItem>
+                <SelectItem value="completed">เสร็จสิ้น</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkStatusDialog(false)}>
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleBulkUpdateStatus}
+              disabled={bulkUpdateStatusMutation.isPending}
+            >
+              {bulkUpdateStatusMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              อัปเดต
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Assign Dialog */}
+      <Dialog open={showBulkAssignDialog} onOpenChange={setShowBulkAssignDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>มอบหมายงาน</DialogTitle>
+            <DialogDescription>
+              เลือกผู้รับผิดชอบสำหรับงานที่เลือก ({selectedTasks.size} งาน)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select value={bulkAssignee} onValueChange={setBulkAssignee}>
+              <SelectTrigger>
+                <SelectValue placeholder="เลือกผู้รับผิดชอบ" />
+              </SelectTrigger>
+              <SelectContent>
+                {members.map((member: any) => (
+                  <SelectItem key={member.userId} value={member.userId.toString()}>
+                    {member.userName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkAssignDialog(false)}>
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleBulkAssign}
+              disabled={bulkAssignMutation.isPending}
+            >
+              {bulkAssignMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              มอบหมาย
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
