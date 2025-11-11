@@ -1927,3 +1927,9 @@
   - [x] Implementation form (After Photos upload)
 - [x] QC Inspection page already uses ImageUpload component (better for this use case)
 - [x] Form validation skipped (basic validation already exists, React Hook Form + Zod deferred to future iteration based on user feedback)
+
+## Critical Bug Fixes
+- [x] Fix React Hooks error in Defects page: "Rendered more hooks than during the previous render"
+  - [x] Fixed useCanEditDefect to accept optional parameter
+  - [x] Moved useCanEditDefect call before early returns in DefectDetail
+  - [x] Ensured hooks are called in consistent order every render

@@ -41,6 +41,9 @@ export default function DefectDetail() {
   const updateDefectMutation = trpc.defect.update.useMutation();
   const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
   const deleteAttachmentMutation = trpc.defect.deleteAttachment.useMutation();
+  
+  // Permission check - MUST be called before any early returns
+  const canEdit = useCanEditDefect(defectQuery.data);
 
   // Photo upload state
   const [uploadingBefore, setUploadingBefore] = useState(false);
@@ -447,7 +450,6 @@ export default function DefectDetail() {
   }
 
   const defect = defectQuery.data;
-  const canEdit = defect ? useCanEditDefect(defect) : false;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

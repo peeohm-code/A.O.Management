@@ -49,9 +49,9 @@ export function usePermissions(resource: keyof typeof PERMISSIONS) {
 /**
  * Hook to check if user can edit a specific defect
  */
-export function useCanEditDefect(defect: { reportedBy: number; assignedTo?: number | null }) {
+export function useCanEditDefect(defect?: { reportedBy: number; assignedTo?: number | null } | null) {
   const { user } = useAuth();
-  if (!user) return false;
+  if (!user || !defect) return false;
   
   return canEditDefect(user.role, user.id, defect);
 }
