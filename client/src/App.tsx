@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import DefectDetailErrorBoundary from "./components/DefectDetailErrorBoundary";
+import PageErrorBoundary from "./components/PageErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
@@ -57,28 +58,48 @@ function Router() {
       <Route path={"/projects"}>
         {() => (
           <DashboardLayout>
-            <Projects />
+            <PageErrorBoundary
+              pageName="Projects"
+              fallbackPath="/dashboard"
+            >
+              <Projects />
+            </PageErrorBoundary>
           </DashboardLayout>
         )}
       </Route>
       <Route path={"/tasks"}>
         {() => (
           <DashboardLayout>
-            <Tasks />
+            <PageErrorBoundary
+              pageName="Tasks"
+              fallbackPath="/dashboard"
+            >
+              <Tasks />
+            </PageErrorBoundary>
           </DashboardLayout>
         )}
       </Route>
       <Route path={"/qc"}>
         {() => (
           <DashboardLayout>
-            <QCInspection />
+            <PageErrorBoundary
+              pageName="QCInspection"
+              fallbackPath="/dashboard"
+            >
+              <QCInspection />
+            </PageErrorBoundary>
           </DashboardLayout>
         )}
       </Route>
       <Route path={"/qc-inspection"}>
         {() => (
           <DashboardLayout>
-            <QCInspection />
+            <PageErrorBoundary
+              pageName="QCInspection"
+              fallbackPath="/dashboard"
+            >
+              <QCInspection />
+            </PageErrorBoundary>
           </DashboardLayout>
         )}
       </Route>

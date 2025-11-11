@@ -6,6 +6,8 @@ import { logError } from "@/lib/errorLogger";
 
 interface Props {
   children: ReactNode;
+  pageName: string;
+  fallbackPath?: string;
   onReset?: () => void;
   onGoBack?: () => void;
 }
@@ -19,7 +21,7 @@ interface State {
 
 type ErrorType = "network" | "permission" | "validation" | "file_upload" | "unknown";
 
-class DefectDetailErrorBoundary extends Component<Props, State> {
+class PageErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -31,7 +33,7 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
-    const errorType = DefectDetailErrorBoundary.categorizeError(error);
+    const errorType = PageErrorBoundary.categorizeError(error);
     return {
       hasError: true,
       error,
@@ -42,7 +44,7 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error using centralized error logger
     logError(error, errorInfo, {
-      component: "DefectDetail",
+      component: this.props.pageName,
       errorType: this.state.errorType,
     });
     
@@ -89,6 +91,8 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
   handleGoBack = () => {
     if (this.props.onGoBack) {
       this.props.onGoBack();
+    } else if (this.props.fallbackPath) {
+      window.location.href = this.props.fallbackPath;
     } else {
       window.history.back();
     }
@@ -265,4 +269,4 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default DefectDetailErrorBoundary;
+export default PageErrorBoundary;
