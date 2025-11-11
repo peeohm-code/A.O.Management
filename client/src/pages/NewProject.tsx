@@ -1,24 +1,32 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { projectSchema, type ProjectInput } from "@shared/validations";
 
 export default function NewProject() {
   const [, setLocation] = useLocation();
-  const nameInput = useThaiTextInput("");
-  const codeInput = useThaiTextInput("");
-  const locationInput = useThaiTextInput("");
-  const [formData, setFormData] = useState({
-    startDate: "",
-    endDate: "",
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ProjectInput>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      name: "",
+      code: "",
+      location: "",
+      startDate: "",
+      endDate: "",
+    },
   });
 
   const createProject = trpc.project.create.useMutation({
@@ -31,20 +39,13 @@ export default function NewProject() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!nameInput.value.trim()) {
-      toast.error("กรุณากรอกชื่อโครงการ");
-      return;
-    }
-
+  const onSubmit = (data: ProjectInput) => {
     createProject.mutate({
-      name: nameInput.value,
-      code: codeInput.value || undefined,
-      location: locationInput.value || undefined,
-      startDate: formData.startDate || undefined,
-      endDate: formData.endDate || undefined,
+      ...data,
+      code: data.code || undefined,
+      location: data.location || undefined,
+      startDate: data.startDate || undefined,
+      endDate: data.endDate || undefined,
     });
   };
 
@@ -67,33 +68,40 @@ export default function NewProject() {
           <CardDescription>กรอกข้อมูลพื้นฐานของโครงการ</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">
                 ชื่อโครงการ <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
-                {...nameInput.props}
+                {...register("name")}
                 placeholder="เช่น อาคารสำนักงาน ABC Tower"
-                required
+                className={errors.name ? "border-red-500" : ""}
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="code">รหัสโครงการ</Label>
               <Input
                 id="code"
-                {...codeInput.props}
+                {...register("code")}
                 placeholder="เช่น PRJ-2024-001"
+                className={errors.code ? "border-red-500" : ""}
               />
+              {errors.code && (
+                <p className="text-sm text-red-500">{errors.code.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="location">สถานที่</Label>
               <Input
                 id="location"
-                {...locationInput.props}
+                {...register("location")}
                 placeholder="เช่น กรุงเทพมหานคร"
               />
             </div>
@@ -104,8 +112,7 @@ export default function NewProject() {
                 <Input
                   id="startDate"
                   type="date"
-                  value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  {...register("startDate")}
                 />
               </div>
 
@@ -114,15 +121,20 @@ export default function NewProject() {
                 <Input
                   id="endDate"
                   type="date"
-                  value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  {...register("endDate")}
                 />
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={createProject.isPending} className="flex-1">
-                {createProject.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || createProject.isPending} 
+                className="flex-1"
+              >
+                {(isSubmitting || createProject.isPending) && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 สร้างโครงการ
               </Button>
               <Link href="/projects">

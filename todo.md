@@ -1883,3 +1883,24 @@
   - [x] Task creation - backend (taskSchema)
   - [x] Defect schema, inspection schema, checklist template schema created
   - ⏳ Frontend form validation (can be added later as needed)
+
+## New Feat## New Features: Form Validation, File Upload & Bulk Operations
+- [x] Frontend form validation (React Hook Form + Zod)
+  - [x] NewProject form validation
+  - [x] NewTask form validation
+  - ⏳ Defect creation form validation (can be added later)
+  - ⏳ QC inspection form validation (can be added later)
+- [x] File upload validation
+  - [x] Image file type validation (jpg, png, webp)
+  - [x] File size limit validation (max 5MB)
+  - [x] Multiple file upload support
+  - [x] Preview before upload
+  - [x] Drag & drop support
+  - [x] Created reusable FileUpload component
+- [x] Bulk operations
+  - [x] Bulk update task status (task.bulkUpdateStatus)
+  - [x] Bulk assign tasks (task.bulkAssign)
+  - [x] Bulk archive projects (project.bulkArchive)
+  - [x] Bulk delete archived projects (project.bulkDelete) Bulk assign tasks
+  - [ ] Bulk archive projects
+  - [ ] Bulk delete archived projects

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import {
@@ -17,20 +15,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { taskSchema, type TaskInput } from "@shared/validations";
 
 export default function NewTask() {
   const [, setLocation] = useLocation();
-  const nameInput = useThaiTextInput("");
-  const descriptionInput = useThaiTextInput("");
-  const [formData, setFormData] = useState({
-    projectId: "",
-    parentTaskId: "",
-    startDate: "",
-    endDate: "",
-  });
 
   const projectsQuery = trpc.project.list.useQuery();
   const projects = projectsQuery.data || [];
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<TaskInput>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      projectId: 0,
+      startDate: "",
+      endDate: "",
+    },
+  });
 
   const createTask = trpc.task.create.useMutation({
     onSuccess: (data) => {
@@ -42,26 +51,12 @@ export default function NewTask() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!nameInput.value.trim()) {
-      toast.error("กรุณากรอกชื่องาน");
-      return;
-    }
-
-    if (!formData.projectId) {
-      toast.error("กรุณาเลือกโครงการ");
-      return;
-    }
-
+  const onSubmit = (data: TaskInput) => {
     createTask.mutate({
-      name: nameInput.value,
-      description: descriptionInput.value || undefined,
-      projectId: parseInt(formData.projectId),
-      parentTaskId: formData.parentTaskId ? parseInt(formData.parentTaskId) : undefined,
-      startDate: formData.startDate || undefined,
-      endDate: formData.endDate || undefined,
+      ...data,
+      description: data.description || undefined,
+      startDate: data.startDate || undefined,
+      endDate: data.endDate || undefined,
     });
   };
 
@@ -84,26 +79,35 @@ export default function NewTask() {
           <CardDescription>กรอกข้อมูลพื้นฐานของงาน</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="projectId">
                 โครงการ <span className="text-red-500">*</span>
               </Label>
-              <Select
-                value={formData.projectId}
-                onValueChange={(value) => setFormData({ ...formData, projectId: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="เลือกโครงการ" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id.toString()}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="projectId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                  >
+                    <SelectTrigger className={errors.projectId ? "border-red-500" : ""}>
+                      <SelectValue placeholder="เลือกโครงการ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id.toString()}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.projectId && (
+                <p className="text-sm text-red-500">{errors.projectId.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -112,17 +116,20 @@ export default function NewTask() {
               </Label>
               <Input
                 id="name"
-                {...nameInput.props}
+                {...register("name")}
                 placeholder="เช่น งานฐานราก"
-                required
+                className={errors.name ? "border-red-500" : ""}
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">รายละเอียด</Label>
               <Textarea
                 id="description"
-                {...descriptionInput.props}
+                {...register("description")}
                 placeholder="อธิบายรายละเอียดของงาน"
                 rows={4}
               />
@@ -134,8 +141,7 @@ export default function NewTask() {
                 <Input
                   id="startDate"
                   type="date"
-                  value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  {...register("startDate")}
                 />
               </div>
 
@@ -144,15 +150,20 @@ export default function NewTask() {
                 <Input
                   id="endDate"
                   type="date"
-                  value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  {...register("endDate")}
                 />
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={createTask.isPending} className="flex-1">
-                {createTask.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || createTask.isPending} 
+                className="flex-1"
+              >
+                {(isSubmitting || createTask.isPending) && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 สร้างงาน
               </Button>
               <Link href="/tasks">

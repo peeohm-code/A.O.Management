@@ -576,7 +576,92 @@ const taskRouter = router({
 
       return { success: true };
     }),
+
+  bulkUpdateStatus: roleBasedProcedure('tasks', 'edit')
+    .input(
+      z.object({
+        taskIds: z.array(z.number()).min(1),
+        status: z.enum([
+          "todo",
+          "pending_pre_inspection",
+          "ready_to_start",
+          "in_progress",
+          "pending_final_inspection",
+          "rectification_needed",
+          "completed",
+        ]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { taskIds, status } = input;
+      let successCount = 0;
+
+      for (const taskId of taskIds) {
+        try {
+          const task = await db.getTaskById(taskId);
+          if (!task) continue;
+
+          await db.updateTask(taskId, { status: status as any });
+          await db.logActivity({
+            userId: ctx.user!.id,
+            taskId,
+            projectId: task.projectId,
+            action: "task_updated",
+            details: JSON.stringify({ status, bulkUpdate: true }),
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to update task ${taskId}:`, error);
+        }
+      }
+
+      return { success: true, updated: successCount, total: taskIds.length };
+    }),
+
+  bulkAssign: roleBasedProcedure('tasks', 'edit')
+    .input(
+      z.object({
+        taskIds: z.array(z.number()).min(1),
+        assigneeId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { taskIds, assigneeId } = input;
+      let successCount = 0;
+
+      for (const taskId of taskIds) {
+        try {
+          const task = await db.getTaskById(taskId);
+          if (!task) continue;
+
+          await db.updateTask(taskId, { assigneeId });
+          await db.logActivity({
+            userId: ctx.user!.id,
+            taskId,
+            projectId: task.projectId,
+            action: "task_updated",
+            details: JSON.stringify({ assigneeId, bulkAssign: true }),
+          });
+
+          // Create notification for assignee
+          await db.createNotification({
+            userId: assigneeId,
+            type: "task_assigned",
+            title: "New Task Assigned",
+            content: task.name,
+            relatedTaskId: taskId,
+            relatedProjectId: task.projectId,
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to assign task ${taskId}:`, error);
+        }
+      }
+
+      return { success: true, assigned: successCount, total: taskIds.length };
+    }),
 });
+
 
 /**
  * Checklist Router - QC Management
