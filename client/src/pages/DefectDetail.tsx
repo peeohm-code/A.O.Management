@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useCanEditDefect } from "@/hooks/usePermissions";
+import { WorkflowGuide } from "@/components/WorkflowGuide";
 
 export default function DefectDetail() {
   const params = useParams();
@@ -350,14 +351,11 @@ export default function DefectDetail() {
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      reported: "รายงานแล้ว",
-      action_plan: "กำลังวางแผน",
-      assigned: "มอบหมายแล้ว",
-      in_progress: "กำลังดำเนินการ",
-      implemented: "แก้ไขเสร็จแล้ว",
-      verification: "รอตรวจสอบ",
-      effectiveness_check: "ตรวจสอบประสิทธิผล",
-      closed: "ปิดแล้ว",
+      reported: "รายงานปัญหา",
+      analysis: "วิเคราะห์สาเหตุ",
+      in_progress: "กำลังแก้ไข",
+      resolved: "แก้ไขเสร็จ",
+      closed: "ปิดงาน",
     };
     return labels[status] || status;
   };
@@ -365,12 +363,9 @@ export default function DefectDetail() {
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       reported: "bg-orange-100 text-orange-700 border-orange-300",
-      action_plan: "bg-yellow-100 text-yellow-700 border-yellow-300",
-      assigned: "bg-blue-100 text-[#00366D] border-blue-300",
+      analysis: "bg-yellow-100 text-yellow-700 border-yellow-300",
       in_progress: "bg-blue-100 text-[#00366D] border-blue-300",
-      implemented: "bg-green-100 text-[#00CE81] border-green-300",
-      verification: "bg-purple-100 text-purple-700 border-purple-300",
-      effectiveness_check: "bg-indigo-100 text-indigo-700 border-indigo-300",
+      resolved: "bg-green-100 text-[#00CE81] border-green-300",
       closed: "bg-gray-100 text-gray-700 border-gray-300",
     };
     return colors[status] || "bg-gray-100 text-gray-700 border-gray-300";
@@ -510,6 +505,9 @@ export default function DefectDetail() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Workflow Guide */}
+          <WorkflowGuide currentStatus={defect.status} type={defect.type} />
 
           {/* Description */}
           {defect.description && (
@@ -969,14 +967,11 @@ export default function DefectDetail() {
                 <SelectValue placeholder="เลือกสถานะ" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="reported">รายงานแล้ว</SelectItem>
-                <SelectItem value="action_plan">กำลังวางแผน</SelectItem>
-                <SelectItem value="assigned">มอบหมายแล้ว</SelectItem>
-                <SelectItem value="in_progress">กำลังดำเนินการ</SelectItem>
-                <SelectItem value="implemented">แก้ไขเสร็จแล้ว</SelectItem>
-                <SelectItem value="verification">รอตรวจสอบ</SelectItem>
-                <SelectItem value="effectiveness_check">ตรวจสอบประสิทธิผล</SelectItem>
-                <SelectItem value="closed">ปิดแล้ว</SelectItem>
+                <SelectItem value="reported">รายงานปัญหา</SelectItem>
+                <SelectItem value="analysis">วิเคราะห์สาเหตุ</SelectItem>
+                <SelectItem value="in_progress">กำลังแก้ไข</SelectItem>
+                <SelectItem value="resolved">แก้ไขเสร็จ</SelectItem>
+                <SelectItem value="closed">ปิดงาน</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-sm text-gray-500 mt-2">

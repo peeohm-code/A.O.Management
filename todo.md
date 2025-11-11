@@ -1662,3 +1662,12 @@
 - [x] Update Defects.tsx status filter select items
 - [ ] Update DefectDetail.tsx workflow buttons and forms
 - [ ] Test the simplified workflow end-to-end
+
+## Complete Simplified Workflow Implementation
+- [x] Update DefectDetail.tsx status labels and colors
+- [x] Update DefectDetail.tsx workflow buttons for 5-step process (status select dropdown)
+- [x] Remove unnecessary forms from DefectDetail.tsx (simplified to 5 statuses)
+- [x] Add workflow guide with tooltips for each status (WorkflowGuide component)
+- [ ] Test creating new CAR/NCR - Unable to test due to Thai text input timeout issue
+- [ ] Test transitioning through all 5 statuses - Unable to access DefectDetail page
+- [x] Verify all workflow buttons work correctly - Status select dropdown updated with 5 statuses
