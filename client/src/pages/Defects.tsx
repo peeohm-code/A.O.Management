@@ -149,6 +149,8 @@ export default function Defects() {
       effectiveness_check: "ตรวจสอบประสิทธิผล",
       closed: "ปิดแล้ว",
       rejected: "ปฏิเสธ",
+      analysis: "กำลังวิเคราะห์",
+      resolved: "แก้ไขเสร็จ",
     };
     return labels[status] || status;
   };
@@ -527,6 +529,8 @@ export default function Defects() {
             <SelectItem value="implemented">แก้ไขเสร็จแล้ว</SelectItem>
             <SelectItem value="verification">รอตรวจสอบ</SelectItem>
             <SelectItem value="effectiveness_check">ตรวจสอบประสิทธิผล</SelectItem>
+            <SelectItem value="analysis">กำลังวิเคราะห์</SelectItem>
+            <SelectItem value="resolved">แก้ไขเสร็จ</SelectItem>
             <SelectItem value="closed">ปิดแล้ว</SelectItem>
           </SelectContent>
         </Select>

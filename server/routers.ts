@@ -1013,7 +1013,7 @@ const defectRouter = router({
   // Get defects by status
   listByStatus: protectedProcedure
     .input(z.object({ 
-      status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected"]) 
+      status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected", "analysis", "resolved"]) 
     }))
     .query(async ({ input }) => {
       return await db.getDefectsByStatus(input.status);
@@ -1098,7 +1098,7 @@ const defectRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected"]).optional(),
+        status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected", "analysis", "resolved"]).optional(),
         assignedTo: z.number().optional(),
         resolutionComment: z.string().optional(),
         resolutionPhotoUrls: z.string().optional(),
@@ -1111,6 +1111,7 @@ const defectRouter = router({
         verificationComment: z.string().optional(),
         resolutionNotes: z.string().optional(),
         implementationMethod: z.string().optional(),
+        beforePhotos: z.string().optional(),
         afterPhotos: z.string().optional(),
         closureNotes: z.string().optional(),
       })
@@ -1138,6 +1139,34 @@ const defectRouter = router({
         verifiedBy: updateData.status === "closed" ? ctx.user.id : undefined,
         verifiedAt: updateData.status === "closed" ? new Date() : undefined,
       };
+      // Validation: If beforePhotos exists, afterPhotos is required when status is resolved
+      if (updateData.status === "resolved") {
+        const defect = await db.getDefectById(id);
+        if (defect && defect.beforePhotos) {
+          try {
+            const beforePhotosArray = JSON.parse(defect.beforePhotos);
+            if (beforePhotosArray && beforePhotosArray.length > 0) {
+              if (!input.afterPhotos) {
+                throw new TRPCError({
+                  code: "BAD_REQUEST",
+                  message: "After photos are required when before photos exist",
+                });
+              }
+              const afterPhotosArray = JSON.parse(input.afterPhotos);
+              if (!afterPhotosArray || afterPhotosArray.length === 0) {
+                throw new TRPCError({
+                  code: "BAD_REQUEST",
+                  message: "After photos are required when before photos exist",
+                });
+              }
+            }
+          } catch (e) {
+            if (e instanceof TRPCError) throw e;
+            // If JSON parse fails, ignore validation
+          }
+        }
+      }
+      
       console.log("[defect.update] Calling updateDefect with:", JSON.stringify(dataToUpdate, null, 2));
       const result = await db.updateDefect(id, dataToUpdate);
       console.log("[defect.update] Update successful");

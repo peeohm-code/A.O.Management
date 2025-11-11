@@ -213,7 +213,8 @@ export const defects = mysqlTable("defects", {
   status: mysqlEnum("status", [
     "reported", "rca_pending", "action_plan", "assigned", 
     "in_progress", "implemented", "verification", "effectiveness_check", 
-    "closed", "rejected"
+    "closed", "rejected",
+    "analysis", "resolved" // New simplified workflow statuses
   ]).default("reported").notNull(),
   severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
   assignedTo: int("assignedTo"),
@@ -236,7 +237,8 @@ export const defects = mysqlTable("defects", {
   // Resolution and Closure fields
   resolutionNotes: text("resolutionNotes"), // Notes when changing status to resolved
   implementationMethod: text("implementationMethod"), // How the fix was implemented
-  afterPhotos: text("afterPhotos"), // JSON array of after-fix photo URLs
+  beforePhotos: text("beforePhotos"), // JSON array of photo URLs before fix
+  afterPhotos: text("afterPhotos"), // JSON array of photo URLs after fix
   closureNotes: text("closureNotes"), // Notes when changing status to closed
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

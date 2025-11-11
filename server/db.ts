@@ -1091,7 +1091,7 @@ export async function getAllDefects() {
 export async function updateDefect(
   id: number,
   data: Partial<{
-    status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected";
+    status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected" | "analysis" | "resolved";
     assignedTo: number;
     resolvedBy: number;
     resolvedAt: Date;
@@ -1108,6 +1108,7 @@ export async function updateDefect(
     verificationComment: string;
     resolutionNotes: string;
     implementationMethod: string;
+    beforePhotos: string;
     afterPhotos: string;
     closureNotes: string;
   }>
@@ -1133,6 +1134,7 @@ export async function updateDefect(
   if (data.verificationComment !== undefined) updateData.verificationComment = data.verificationComment;
   if (data.resolutionNotes !== undefined) updateData.resolutionNotes = data.resolutionNotes;
   if (data.implementationMethod !== undefined) updateData.implementationMethod = data.implementationMethod;
+  if (data.beforePhotos !== undefined) updateData.beforePhotos = data.beforePhotos;
   if (data.afterPhotos !== undefined) updateData.afterPhotos = data.afterPhotos;
   if (data.closureNotes !== undefined) updateData.closureNotes = data.closureNotes;
 
@@ -1678,7 +1680,7 @@ export async function getDefectsByChecklist(checklistId: number) {
  * Get defects by status
  */
 export async function getDefectsByStatus(
-  status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected"
+  status: "reported" | "rca_pending" | "action_plan" | "assigned" | "in_progress" | "implemented" | "verification" | "effectiveness_check" | "closed" | "rejected" | "analysis" | "resolved"
 ) {
   const db = await getDb();
   if (!db) return [];
