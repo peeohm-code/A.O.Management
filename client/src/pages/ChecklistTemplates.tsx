@@ -23,6 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { Plus, Trash2, Edit } from "lucide-react";
 
 export default function ChecklistTemplates() {
@@ -37,10 +38,10 @@ export default function ChecklistTemplates() {
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
   
-  const [templateName, setTemplateName] = useState("");
+  const templateNameInput = useThaiTextInput("");
   const [templateCategory, setTemplateCategory] = useState("");
   const [templateStage, setTemplateStage] = useState<"pre_execution" | "in_progress" | "post_execution">("pre_execution");
-  const [templateDescription, setTemplateDescription] = useState("");
+  const templateDescriptionInput = useThaiTextInput("");
   const [allowGeneralComments, setAllowGeneralComments] = useState(true);
   const [allowPhotos, setAllowPhotos] = useState(true);
   const [items, setItems] = useState<Array<{ itemText: string; order: number }>>([
@@ -118,10 +119,10 @@ export default function ChecklistTemplates() {
   };
 
   const resetForm = () => {
-    setTemplateName("");
+    templateNameInput.reset("");
     setTemplateCategory("");
     setTemplateStage("pre_execution");
-    setTemplateDescription("");
+    templateDescriptionInput.reset("");
     setAllowGeneralComments(true);
     setAllowPhotos(true);
     setItems([{ itemText: "", order: 0 }]);
@@ -129,7 +130,7 @@ export default function ChecklistTemplates() {
   };
 
   const handleCreateTemplate = async () => {
-    if (!templateName.trim()) {
+    if (!templateNameInput.value.trim()) {
       toast.error("กรุณากรอกชื่อ Template");
       return;
     }
@@ -142,10 +143,10 @@ export default function ChecklistTemplates() {
 
     try {
       await createTemplateMutation.mutateAsync({
-        name: templateName,
+        name: templateNameInput.value,
         category: templateCategory || undefined,
         stage: templateStage,
-        description: templateDescription || undefined,
+        description: templateDescriptionInput.value || undefined,
         allowGeneralComments,
         allowPhotos,
         items: validItems.map((item, index) => ({
@@ -166,10 +167,10 @@ export default function ChecklistTemplates() {
 
   const handleEditClick = (template: any) => {
     setEditingTemplate(template);
-    setTemplateName(template.name);
+    templateNameInput.reset(template.name);
     setTemplateCategory(template.category || "");
     setTemplateStage(template.stage);
-    setTemplateDescription(template.description || "");
+    templateDescriptionInput.reset(template.description || "");
     setAllowGeneralComments(template.allowGeneralComments ?? true);
     setAllowPhotos(template.allowPhotos ?? true);
     setItems(
@@ -206,7 +207,7 @@ export default function ChecklistTemplates() {
   };
 
   const handleUpdateTemplate = async () => {
-    if (!templateName.trim()) {
+    if (!templateNameInput.value.trim()) {
       toast.error("กรุณากรอกชื่อ Template");
       return;
     }
@@ -220,10 +221,10 @@ export default function ChecklistTemplates() {
     try {
       await updateTemplateMutation.mutateAsync({
         id: editingTemplate.id,
-        name: templateName,
+        name: templateNameInput.value,
         category: templateCategory || undefined,
         stage: templateStage,
-        description: templateDescription || undefined,
+        description: templateDescriptionInput.value || undefined,
         allowGeneralComments,
         allowPhotos,
         items: validItems.map((item, index) => ({
@@ -249,8 +250,7 @@ export default function ChecklistTemplates() {
         <Input
           id="name"
           placeholder="เช่น การตรวจสอบงานคอนกรีต"
-          value={templateName}
-          onChange={(e) => setTemplateName(e.target.value)}
+          {...templateNameInput.props}
         />
       </div>
 
@@ -289,8 +289,7 @@ export default function ChecklistTemplates() {
         <Textarea
           id="description"
           placeholder="รายละเอียดเพิ่มเติม..."
-          value={templateDescription}
-          onChange={(e) => setTemplateDescription(e.target.value)}
+          {...templateDescriptionInput.props}
           rows={3}
         />
       </div>

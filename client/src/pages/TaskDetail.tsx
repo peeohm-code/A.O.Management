@@ -12,6 +12,7 @@ import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Bu
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
 import { DefectsTab } from "@/components/DefectsTab";
 import {
@@ -29,7 +30,7 @@ import {
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
   const taskId = parseInt(id || "0");
-  const [commentText, setCommentText] = useState("");
+  const commentTextInput = useThaiTextInput("");
   const [newProgress, setNewProgress] = useState("");
   const [showProgressForm, setShowProgressForm] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -70,14 +71,14 @@ export default function TaskDetail() {
   const duration = calculateDuration();
 
   const handleAddComment = async () => {
-    if (!commentText.trim()) return;
+    if (!commentTextInput.value.trim()) return;
 
     try {
       await addCommentMutation.mutateAsync({
         taskId,
-        content: commentText,
+        content: commentTextInput.value,
       });
-      setCommentText("");
+      commentTextInput.reset("");
       commentsQuery.refetch();
       activityQuery.refetch();
       toast.success("เพิ่มความเห็นสำเร็จ");
@@ -485,11 +486,10 @@ export default function TaskDetail() {
             <CardContent className="space-y-4">
               <Textarea
                 placeholder="เขียนความเห็น..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
+                {...commentTextInput.props}
                 rows={4}
               />
-              <Button onClick={handleAddComment} disabled={!commentText.trim()}>
+              <Button onClick={handleAddComment} disabled={!commentTextInput.value.trim()}>
                 <MessageSquare className="w-4 h-4 mr-2" />
                 เพิ่มความเห็น
               </Button>

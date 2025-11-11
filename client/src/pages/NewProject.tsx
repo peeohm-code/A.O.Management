@@ -7,15 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 
 export default function NewProject() {
   const [, setLocation] = useLocation();
+  const nameInput = useThaiTextInput("");
+  const codeInput = useThaiTextInput("");
+  const locationInput = useThaiTextInput("");
   const [formData, setFormData] = useState({
-    name: "",
-    code: "",
-    location: "",
     startDate: "",
     endDate: "",
   });
@@ -33,15 +34,15 @@ export default function NewProject() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name) {
+    if (!nameInput.value.trim()) {
       toast.error("กรุณากรอกชื่อโครงการ");
       return;
     }
 
     createProject.mutate({
-      name: formData.name,
-      code: formData.code || undefined,
-      location: formData.location || undefined,
+      name: nameInput.value,
+      code: codeInput.value || undefined,
+      location: locationInput.value || undefined,
       startDate: formData.startDate ? new Date(formData.startDate) : undefined,
       endDate: formData.endDate ? new Date(formData.endDate) : undefined,
     });
@@ -73,8 +74,7 @@ export default function NewProject() {
               </Label>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                {...nameInput.props}
                 placeholder="เช่น อาคารสำนักงาน ABC Tower"
                 required
               />
@@ -84,8 +84,7 @@ export default function NewProject() {
               <Label htmlFor="code">รหัสโครงการ</Label>
               <Input
                 id="code"
-                value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                {...codeInput.props}
                 placeholder="เช่น PRJ-2024-001"
               />
             </div>
@@ -94,8 +93,7 @@ export default function NewProject() {
               <Label htmlFor="location">สถานที่</Label>
               <Input
                 id="location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                {...locationInput.props}
                 placeholder="เช่น กรุงเทพมหานคร"
               />
             </div>

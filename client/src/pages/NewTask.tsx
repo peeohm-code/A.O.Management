@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import {
@@ -19,9 +20,9 @@ import {
 
 export default function NewTask() {
   const [, setLocation] = useLocation();
+  const nameInput = useThaiTextInput("");
+  const descriptionInput = useThaiTextInput("");
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
     projectId: "",
     parentTaskId: "",
     startDate: "",
@@ -44,7 +45,7 @@ export default function NewTask() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name) {
+    if (!nameInput.value.trim()) {
       toast.error("กรุณากรอกชื่องาน");
       return;
     }
@@ -55,8 +56,8 @@ export default function NewTask() {
     }
 
     createTask.mutate({
-      name: formData.name,
-      description: formData.description || undefined,
+      name: nameInput.value,
+      description: descriptionInput.value || undefined,
       projectId: parseInt(formData.projectId),
       parentTaskId: formData.parentTaskId ? parseInt(formData.parentTaskId) : undefined,
       startDate: formData.startDate ? new Date(formData.startDate) : undefined,
@@ -111,8 +112,7 @@ export default function NewTask() {
               </Label>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                {...nameInput.props}
                 placeholder="เช่น งานฐานราก"
                 required
               />
@@ -122,8 +122,7 @@ export default function NewTask() {
               <Label htmlFor="description">รายละเอียด</Label>
               <Textarea
                 id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                {...descriptionInput.props}
                 placeholder="อธิบายรายละเอียดของงาน"
                 rows={4}
               />

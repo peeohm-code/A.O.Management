@@ -1824,3 +1824,15 @@
 - [x] Add toast success message for inline status change in Defects page (already exists)
 - [x] Add toast success message for status change in DefectDetail page (already exists in handleSaveEdit)
 - [ ] Test toast messages appear correctly (manual testing required)
+
+## Apply useThaiTextInput to All Forms (Nov 11, 2025)
+- [x] Identify all forms with text input (15 pages with Input/Textarea)
+- [x] Apply useThaiTextInput to TaskDetail comment form
+- [ ] Apply useThaiTextInput to DefectDetail comment form (N/A - no comment form exists)
+- [x] Apply useThaiTextInput to Task creation form (NewTask.tsx - name, description)
+- [ ] Apply useThaiTextInput to Task edit form (pending - need to find edit form)
+- [x] Apply useThaiTextInput to Project creation form (NewProject.tsx - name, code, location)
+- [ ] Apply useThaiTextInput to Project edit form (pending - need to find edit form)
+- [x] Apply useThaiTextInput to Checklist Template creation/edit forms (name, description)
+- [ ] Test all forms with Thai text input (manual testing required in production)
+- [ ] Verify no regression in existing functionality (manual testing required)
