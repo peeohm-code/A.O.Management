@@ -215,6 +215,7 @@ export const defects = mysqlTable("defects", {
     "analysis",    // วิเคราะห์สาเหตุ (RCA)
     "in_progress",  // กำลังแก้ไข
     "resolved",     // แก้ไขเสร็จ (พร้อม After photos)
+    "pending_reinspection", // รอตรวจสอบซ้ำ
     "closed"        // ปิดงาน
   ]).default("reported").notNull(),
   severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
@@ -280,6 +281,28 @@ export const defectAttachments = mysqlTable("defectAttachments", {
 
 export type DefectAttachment = typeof defectAttachments.$inferSelect;
 export type InsertDefectAttachment = typeof defectAttachments.$inferInsert;
+
+/**
+ * Defect Inspections - stores inspection history for defects (initial and re-inspections)
+ */
+export const defectInspections = mysqlTable("defect_inspections", {
+  id: int("id").autoincrement().primaryKey(),
+  defectId: int("defectId").notNull(),
+  inspectorId: int("inspectorId").notNull(),
+  inspectionType: varchar("inspectionType", { length: 20 }).notNull(),
+  result: varchar("result", { length: 20 }).default("pending").notNull(),
+  comments: text("comments"),
+  photoUrls: text("photoUrls"), // JSON array of inspection photo URLs
+  inspectedAt: timestamp("inspectedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  defectIdx: index("defectIdx").on(table.defectId),
+  inspectorIdx: index("inspectorIdx").on(table.inspectorId),
+  typeIdx: index("typeIdx").on(table.inspectionType),
+}));
+
+export type DefectInspection = typeof defectInspections.$inferSelect;
+export type InsertDefectInspection = typeof defectInspections.$inferInsert;
 
 /**
  * Checklist Results - stores individual item inspection results
@@ -379,6 +402,7 @@ export const notifications = mysqlTable("notifications", {
     "defect_created",
     "defect_status_changed",
     "defect_resolved",
+    "defect_reinspected",
     "defect_deadline_approaching",
     "project_member_added",
     "project_milestone_reached",

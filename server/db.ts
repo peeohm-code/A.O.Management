@@ -14,6 +14,8 @@ import {
   defects,
   defectAttachments,
   InsertDefectAttachment,
+  defectInspections,
+  InsertDefectInspection,
   taskComments,
   taskAttachments,
   taskFollowers,
@@ -1094,7 +1096,7 @@ export async function getAllDefects() {
 export async function updateDefect(
   id: number,
   data: Partial<{
-    status: "reported" | "analysis" | "in_progress" | "resolved" | "closed";
+    status: "reported" | "analysis" | "in_progress" | "resolved" | "pending_reinspection" | "closed";
     assignedTo: number;
     resolvedBy: number;
     resolvedAt: Date;
@@ -1257,7 +1259,7 @@ export async function getTaskFollowers(taskId: number) {
  */
 export async function createNotification(data: {
   userId: number;
-  type: "task_assigned" | "inspection_requested" | "inspection_completed" | "defect_assigned" | "defect_resolved" | "comment_mention" | "task_updated" | "deadline_reminder";
+  type: "task_assigned" | "inspection_requested" | "inspection_completed" | "defect_assigned" | "defect_resolved" | "defect_reinspected" | "comment_mention" | "task_updated" | "deadline_reminder";
   title: string;
   content?: string;
   relatedTaskId?: number;
@@ -2056,6 +2058,70 @@ export async function getArchiveHistory(projectId: number) {
     .leftJoin(users, eq(archiveHistory.performedBy, users.id))
     .where(eq(archiveHistory.projectId, projectId))
     .orderBy(desc(archiveHistory.performedAt));
+}
+
+/**
+ * Defect Inspections Management
+ */
+export async function createDefectInspection(data: InsertDefectInspection) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(defectInspections).values(data);
+  return result;
+}
+
+export async function getDefectInspections(defectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select({
+      id: defectInspections.id,
+      defectId: defectInspections.defectId,
+      inspectionType: defectInspections.inspectionType,
+      result: defectInspections.result,
+      comments: defectInspections.comments,
+      photoUrls: defectInspections.photoUrls,
+      inspectedAt: defectInspections.inspectedAt,
+      inspector: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+    })
+    .from(defectInspections)
+    .leftJoin(users, eq(defectInspections.inspectorId, users.id))
+    .where(eq(defectInspections.defectId, defectId))
+    .orderBy(desc(defectInspections.inspectedAt));
+}
+
+export async function getLatestInspection(defectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select({
+      id: defectInspections.id,
+      defectId: defectInspections.defectId,
+      inspectionType: defectInspections.inspectionType,
+      result: defectInspections.result,
+      comments: defectInspections.comments,
+      photoUrls: defectInspections.photoUrls,
+      inspectedAt: defectInspections.inspectedAt,
+      inspector: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+    })
+    .from(defectInspections)
+    .leftJoin(users, eq(defectInspections.inspectorId, users.id))
+    .where(eq(defectInspections.defectId, defectId))
+    .orderBy(desc(defectInspections.inspectedAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
 }
 
 

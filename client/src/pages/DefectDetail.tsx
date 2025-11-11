@@ -41,6 +41,9 @@ export default function DefectDetail() {
   const updateDefectMutation = trpc.defect.update.useMutation();
   const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
   const deleteAttachmentMutation = trpc.defect.deleteAttachment.useMutation();
+  const requestReinspectionMutation = trpc.defect.requestReinspection.useMutation();
+  const submitReinspectionMutation = trpc.defect.submitReinspection.useMutation();
+  const inspectionHistoryQuery = trpc.defect.getInspectionHistory.useQuery({ defectId });
   
   // Permission check - MUST be called before any early returns
   const canEdit = useCanEditDefect(defectQuery.data);
@@ -83,6 +86,14 @@ export default function DefectDetail() {
   const [closureVerified, setClosureVerified] = useState(false);
   const [closureLessonsLearned, setClosureLessonsLearned] = useState("");
   const [closureApproved, setClosureApproved] = useState(false);
+
+  // Re-inspection state
+  const [showReinspectionDialog, setShowReinspectionDialog] = useState(false);
+  const [reinspectionComments, setReinspectionComments] = useState("");
+  const [showReinspectionForm, setShowReinspectionForm] = useState(false);
+  const [reinspectionResult, setReinspectionResult] = useState<"passed" | "failed">("passed");
+  const [reinspectionResultComments, setReinspectionResultComments] = useState("");
+  const [showInspectionHistory, setShowInspectionHistory] = useState(false);
 
   const handleEdit = () => {
     if (!defectQuery.data) return;
@@ -220,6 +231,47 @@ export default function DefectDetail() {
       setClosureLessonsLearned("");
       setClosureApproved(false);
       defectQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
+  const handleRequestReinspection = async () => {
+    try {
+      await requestReinspectionMutation.mutateAsync({
+        defectId,
+        comments: reinspectionComments.trim() || undefined,
+      });
+      toast.success("ขอตรวจสอบซ้ำสำเร็จ");
+      setShowReinspectionDialog(false);
+      setReinspectionComments("");
+      defectQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
+  const handleSubmitReinspection = async () => {
+    if (!reinspectionResultComments.trim()) {
+      toast.error("กรุณากรอกความคิดเห็น");
+      return;
+    }
+
+    try {
+      await submitReinspectionMutation.mutateAsync({
+        defectId,
+        result: reinspectionResult,
+        comments: reinspectionResultComments,
+      });
+      const message = reinspectionResult === "passed" 
+        ? "ตรวจสอบผ่าน - ปิดงานแล้ว"
+        : "ตรวจสอบไม่ผ่าน - ต้องแก้ไขใหม่";
+      toast.success(message);
+      setShowReinspectionForm(false);
+      setReinspectionResult("passed");
+      setReinspectionResultComments("");
+      defectQuery.refetch();
+      inspectionHistoryQuery.refetch();
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
@@ -624,9 +676,21 @@ export default function DefectDetail() {
                     </Button>
                   )}
                   {defect.status === 'resolved' && (
-                    <Button size="sm" onClick={() => handleWorkflowTransition('closed')}>
-                      <XCircle className="w-4 h-4 mr-2" />
-                      ปิดงาน
+                    <>
+                      <Button size="sm" variant="outline" onClick={() => setShowReinspectionDialog(true)}>
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        ขอตรวจสอบซ้ำ
+                      </Button>
+                      <Button size="sm" onClick={() => handleWorkflowTransition('closed')}>
+                        <XCircle className="w-4 h-4 mr-2" />
+                        ปิดงาน
+                      </Button>
+                    </>
+                  )}
+                  {defect.status === 'pending_reinspection' && (
+                    <Button size="sm" onClick={() => setShowReinspectionForm(true)}>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      บันทึกผลการตรวจสอบ
                     </Button>
                   )}
                 </>
@@ -1207,6 +1271,74 @@ export default function DefectDetail() {
             </CardContent>
           </Card>
 
+          {/* Inspection History */}
+          {inspectionHistoryQuery.data && inspectionHistoryQuery.data.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5" />
+                  ประวัติการตรวจสอบ
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {inspectionHistoryQuery.data.map((inspection: any) => (
+                    <div key={inspection.id} className="flex gap-3 pb-4 border-b last:border-0 last:pb-0">
+                      <div className="flex-shrink-0">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          inspection.result === 'passed' ? 'bg-green-100' :
+                          inspection.result === 'failed' ? 'bg-red-100' :
+                          'bg-yellow-100'
+                        }`}>
+                          {inspection.result === 'passed' && <CheckCircle2 className="w-5 h-5 text-green-600" />}
+                          {inspection.result === 'failed' && <XCircle className="w-5 h-5 text-red-600" />}
+                          {inspection.result === 'pending' && <Clock className="w-5 h-5 text-yellow-600" />}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {inspection.inspectionType === 'initial' ? 'ตรวจสอบครั้งแรก' : 'ตรวจสอบซ้ำ'}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {inspection.inspector?.name || 'ไม่ระบุ'}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant={
+                              inspection.result === 'passed' ? 'default' :
+                              inspection.result === 'failed' ? 'destructive' :
+                              'secondary'
+                            }>
+                              {inspection.result === 'passed' && '✅ ผ่าน'}
+                              {inspection.result === 'failed' && '❌ ไม่ผ่าน'}
+                              {inspection.result === 'pending' && '⏳ รอตรวจสอบ'}
+                            </Badge>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(inspection.inspectedAt).toLocaleDateString('th-TH', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        {inspection.comments && (
+                          <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-700">{inspection.comments}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Activity Log */}
           <Card>
             <CardHeader>
@@ -1491,6 +1623,83 @@ export default function DefectDetail() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowComparison(false)}>
               ปิด
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request Re-inspection Dialog */}
+      <Dialog open={showReinspectionDialog} onOpenChange={setShowReinspectionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>ขอตรวจสอบซ้ำ</DialogTitle>
+            <DialogDescription>
+              ขอให้ QC Inspector ตรวจสอบผลการแก้ไขอีกครั้ง
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="reinspection-comments">ความคิดเห็นเพิ่มเติม (ถ้ามี)</Label>
+              <Textarea
+                id="reinspection-comments"
+                value={reinspectionComments}
+                onChange={(e) => setReinspectionComments(e.target.value)}
+                placeholder="ระบุจุดที่ต้องการตรวจสอบเพิ่มเติม..."
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReinspectionDialog(false)}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleRequestReinspection}>
+              ยืนยันขอตรวจสอบ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Submit Re-inspection Result Dialog */}
+      <Dialog open={showReinspectionForm} onOpenChange={setShowReinspectionForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>บันทึกผลการตรวจสอบซ้ำ</DialogTitle>
+            <DialogDescription>
+              บันทึกผลการตรวจสอบการแก้ไข - ผ่านหรือไม่ผ่าน
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="reinspection-result">ผลการตรวจสอบ</Label>
+              <Select value={reinspectionResult} onValueChange={(v) => setReinspectionResult(v as "passed" | "failed")}>
+                <SelectTrigger id="reinspection-result">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="passed">✅ ผ่าน - อนุมัติปิดงาน</SelectItem>
+                  <SelectItem value="failed">❌ ไม่ผ่าน - ต้องแก้ไขใหม่</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="reinspection-result-comments">ความคิดเห็น *</Label>
+              <Textarea
+                id="reinspection-result-comments"
+                value={reinspectionResultComments}
+                onChange={(e) => setReinspectionResultComments(e.target.value)}
+                placeholder="ระบุผลการตรวจสอบและข้อสังเกต..."
+                rows={4}
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReinspectionForm(false)}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleSubmitReinspection}>
+              ยืนยันผลการตรวจสอบ
             </Button>
           </DialogFooter>
         </DialogContent>

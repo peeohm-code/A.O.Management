@@ -1161,7 +1161,7 @@ const defectRouter = router({
         title: z.string().optional(),
         description: z.string().optional(),
         severity: z.enum(["low", "medium", "high", "critical"]).optional(),
-        status: z.enum(["reported", "analysis", "in_progress", "resolved", "closed"]).optional(),
+        status: z.enum(["reported", "analysis", "in_progress", "resolved", "pending_reinspection", "closed"]).optional(),
         assignedTo: z.number().optional(),
         resolutionComment: z.string().optional(),
         resolutionPhotoUrls: z.string().optional(),
@@ -1379,6 +1379,126 @@ const defectRouter = router({
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ input }) => {
       return await db.getRecentDefects(input.limit);
+    }),
+
+  // Re-inspection workflow
+  requestReinspection: protectedProcedure
+    .input(z.object({ 
+      defectId: z.number(),
+      comments: z.string().optional()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log('[requestReinspection] Starting with input:', input);
+        console.log('[requestReinspection] User ID:', ctx.user.id);
+        
+        const defect = await db.getDefectById(input.defectId);
+        if (!defect) throw new Error("Defect not found");
+        console.log('[requestReinspection] Defect found:', defect.id, defect.status);
+        
+        if (defect.status !== "resolved") {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'เฉพาะ defect ที่มีสถานะ resolved เท่านั้นที่สามารถขอตรวจสอบซ้ำได้',
+          });
+        }
+
+        // Update defect status to pending_reinspection
+        console.log('[requestReinspection] Updating defect status...');
+        await db.updateDefect(input.defectId, {
+          status: "pending_reinspection",
+        });
+
+        // Create inspection record
+        console.log('[requestReinspection] Creating inspection record...');
+        const inspectionData = {
+          defectId: input.defectId,
+          inspectorId: ctx.user.id,
+          inspectionType: "reinspection" as const,
+          result: "pending" as const,
+          comments: input.comments,
+        };
+        console.log('[requestReinspection] Inspection data:', inspectionData);
+        await db.createDefectInspection(inspectionData);
+
+        // Notify QC inspectors
+        console.log('[requestReinspection] Sending notification...');
+        await notifyOwner({
+          title: `มีการขอตรวจสอบซ้ำ ${defect.type}`,
+          content: `${defect.title} - รอการตรวจสอบซ้ำ`,
+        });
+
+        console.log('[requestReinspection] Success!');
+        return { success: true };
+      } catch (error) {
+        console.error('[requestReinspection] Error:', error);
+        throw error;
+      }
+    }),
+
+  submitReinspection: protectedProcedure
+    .input(z.object({
+      defectId: z.number(),
+      result: z.enum(["passed", "failed"]),
+      comments: z.string().optional(),
+      photoUrls: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const defect = await db.getDefectById(input.defectId);
+      if (!defect) throw new Error("Defect not found");
+      if (defect.status !== "pending_reinspection") {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Defect ต้องอยู่ในสถานะ pending_reinspection',
+        });
+      }
+
+      // Create inspection record
+      await db.createDefectInspection({
+        defectId: input.defectId,
+        inspectorId: ctx.user!.id,
+        inspectionType: "reinspection",
+        result: input.result,
+        comments: input.comments,
+        photoUrls: input.photoUrls,
+      });
+
+      // Update defect status based on result
+      const newStatus = input.result === "passed" ? "closed" : "in_progress";
+      await db.updateDefect(input.defectId, {
+        status: newStatus,
+        verifiedBy: input.result === "passed" ? ctx.user!.id : undefined,
+        verifiedAt: input.result === "passed" ? new Date() : undefined,
+      });
+
+      // Notify assignee
+      if (defect.assignedTo) {
+        const message = input.result === "passed" 
+          ? `${defect.type} ผ่านการตรวจสอบซ้ำแล้ว`
+          : `${defect.type} ไม่ผ่านการตรวจสอบซ้ำ - ต้องแก้ไขใหม่`;
+        
+        await db.createNotification({
+          userId: defect.assignedTo,
+          type: "defect_reinspected",
+          title: `ผลการตรวจสอบซ้ำ ${defect.type}`,
+          content: message,
+          relatedTaskId: defect.taskId,
+        });
+      }
+
+      return { success: true, newStatus };
+    }),
+
+  getInspectionHistory: protectedProcedure
+    .input(z.object({ defectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getDefectInspections(input.defectId);
+    }),
+
+  getLatestInspection: protectedProcedure
+    .input(z.object({ defectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getLatestInspection(input.defectId);
     }),
 });
 

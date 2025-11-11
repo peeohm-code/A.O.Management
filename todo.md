@@ -2013,3 +2013,37 @@
   - [x] Test analysis → in_progress (Action Plan form)
   - [x] Test in_progress → resolved (Implementation + photos)
   - [x] Test resolved → closed (Closure form)
+
+## Re-inspection Workflow Implementation
+- [x] Design Re-inspection workflow logic
+  - [x] Define status flow: resolved → pending_reinspection → closed (pass) or in_progress (fail)
+  - [x] Design inspection history data structure
+  - [x] Plan UI for requesting and performing re-inspection
+- [x] Update database schema
+  - [x] Add defect_inspections table (id, defectId, inspectorId, inspectionType, result, comments, photoUrls, inspectedAt)
+  - [x] Add inspectionType VARCHAR: initial, reinspection
+  - [x] Add result VARCHAR: passed, failed, pending
+  - [x] Update defects table status ENUM to include pending_reinspection
+- [x] Create backend APIs
+  - [x] requestReinspection mutation (changes status to pending_reinspection)
+  - [x] submitReinspection mutation (records inspection result, updates status based on pass/fail)
+  - [x] getInspectionHistory query (returns all inspections for a defect)
+  - [x] getLatestInspection query (returns most recent inspection)
+- [x] Build Re-inspection UI
+  - [x] Add "Request Re-inspection" button in DefectDetail (for resolved status)
+  - [x] Add Request Re-inspection dialog (comments field)
+  - [x] Add Submit Re-inspection Result dialog (result: pass/fail, comments required)
+  - [x] Add status badge for pending_reinspection (สีม่วง)
+  - [x] Update Workflow Guide to show re-inspection flow
+- [x] Add Inspection History Display
+  - [x] Create timeline view showing all inspections
+  - [x] Display: inspection type, date, inspector, result, comments
+  - [x] Show badge colors (green for passed, red for failed, yellow for pending)
+  - [x] Show icons for each inspection type
+- [x] Test complete workflow
+  - [x] Test request re-inspection from resolved status (✅ status changed to pending_reinspection)
+  - [x] Test submit re-inspection with pass result (✅ status changed to closed)
+  - [x] Inspection history displays correctly with timeline view
+- [x] Bug fixes
+  - [x] Fixed defects.status ENUM to include pending_reinspection
+  - [x] Changed defect_inspections columns from ENUM to VARCHAR to avoid caching issues
