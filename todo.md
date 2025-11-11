@@ -1794,3 +1794,18 @@
   - Toast error message implemented ✅
 
 **Overall Result:** ✅ All conditional rendering and workflow logic working as designed
+
+## Inline Status Change Buttons Feature (Nov 11, 2025)
+- [x] Add hasAfterPhotos tRPC procedure in server/routers.ts
+- [x] Add inline status buttons in client/src/pages/Defects.tsx
+- [x] Implement getNextStatus helper function
+- [x] Implement getStatusButtonContent helper function
+- [x] Implement handleQuickStatusChange with validation
+- [x] Update card rendering to include inline buttons
+- [x] Test button appearance for all statuses (reported, analysis, in_progress, resolved)
+- [x] Test button hidden for closed status
+- [x] Test status transition: analysis → in_progress
+- [x] Test status transition: resolved → closed
+- [x] Test permissions (canEdit required)
+- [x] Test UI/UX (button doesn't interfere with card click, good styling)
+- [ ] Test validation: in_progress → resolved requires After photos (needs photo upload)

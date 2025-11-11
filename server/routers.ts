@@ -1214,6 +1214,13 @@ const defectRouter = router({
       return await db.getDefectAttachmentsByType(input.defectId, input.attachmentType);
     }),
 
+  hasAfterPhotos: protectedProcedure
+    .input(z.object({ defectId: z.number() }))
+    .query(async ({ input }) => {
+      const photos = await db.getDefectAttachmentsByType(input.defectId, 'after');
+      return photos.length > 0;
+    }),
+
   uploadAttachment: protectedProcedure
     .input(z.object({
       defectId: z.number(),

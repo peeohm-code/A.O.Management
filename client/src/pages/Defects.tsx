@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -30,7 +30,7 @@ import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 export default function Defects() {
   const [, setLocation] = useLocation();
   // Permission checks
-  const permissions = usePermissions();
+  const permissions = usePermissions('defects');
   const canDeleteDefect = useCanDeleteDefect();
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -77,6 +77,9 @@ export default function Defects() {
   // Closure states (for "closed" status)
   const [showClosureForm, setShowClosureForm] = useState(false);
   const [closureNotes, setClosureNotes] = useState("");
+  
+  // Inline status change state
+  const [updatingDefectId, setUpdatingDefectId] = useState<number | null>(null);
 
   const allDefectsQuery = trpc.defect.allDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
@@ -155,6 +158,84 @@ export default function Defects() {
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Helper functions for inline status buttons
+  const getNextStatus = (currentStatus: string): string | null => {
+    const statusFlow: Record<string, string> = {
+      reported: 'analysis',
+      analysis: 'in_progress',
+      in_progress: 'resolved',
+      resolved: 'closed',
+    };
+    return statusFlow[currentStatus] || null;
+  };
+
+  const getStatusButtonContent = (status: string) => {
+    switch (status) {
+      case 'reported':
+        return (
+          <>
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            วิเคราะห์สาเหตุ
+          </>
+        );
+      case 'analysis':
+        return (
+          <>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            เริ่มแก้ไข
+          </>
+        );
+      case 'in_progress':
+        return (
+          <>
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            บันทึกการแก้ไข
+          </>
+        );
+      case 'resolved':
+        return (
+          <>
+            <XCircle className="w-4 h-4 mr-2" />
+            ปิดงาน
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const handleQuickStatusChange = async (defectId: number, currentStatus: string) => {
+    const nextStatus = getNextStatus(currentStatus);
+    if (!nextStatus) return;
+
+    setUpdatingDefectId(defectId);
+
+    try {
+      // Validation: in_progress → resolved requires After photos
+      if (currentStatus === 'in_progress' && nextStatus === 'resolved') {
+        const hasPhotos = await trpc.defect.hasAfterPhotos.query({ defectId });
+        if (!hasPhotos) {
+          toast.error("กรุณาอัปโหลดรูปหลังแก้ไข (After photos) ก่อนบันทึกการแก้ไข");
+          setUpdatingDefectId(null);
+          return;
+        }
+      }
+
+      // Update status
+      await updateDefectMutation.mutateAsync({
+        id: defectId,
+        status: nextStatus as any,
+      });
+
+      toast.success("อัปเดตสถานะสำเร็จ");
+      allDefectsQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    } finally {
+      setUpdatingDefectId(null);
     }
   };
 
@@ -532,44 +613,71 @@ export default function Defects() {
             </CardContent>
           </Card>
         ) : (
-          filteredDefects.map((defect) => (
-            <Link key={defect.id} href={`/defects/${defect.id}`}>
-            <Card
-              className="hover:shadow-md transition cursor-pointer"
-            >
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-red-600" />
-                      <h3 className="font-semibold text-lg">{defect.title}</h3>
-                    </div>
-                    {defect.description && (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">{defect.description}</p>
-                    )}
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <Badge className={`${getTypeColor(defect.type)}`}>
-                        {defect.type}
-                      </Badge>
-                      <Badge className={`${getSeverityColor(defect.severity)}`}>
-                        {defect.severity.toUpperCase()}
-                      </Badge>
-                      <Badge className={`${getStatusColor(defect.status)}`}>
-                        {getStatusLabel(defect.status)}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Checklist: {defect.checklistTemplateName || 'N/A'} • งาน: {defect.taskName || 'Unknown Task'}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Reported: {new Date(defect.createdAt).toLocaleDateString('th-TH')}
-                    </p>
+          filteredDefects.map((defect) => {
+            const nextStatus = getNextStatus(defect.status);
+            const canEdit = permissions.canEdit;
+            
+            return (
+              <div key={defect.id} className="relative">
+                <Link href={`/defects/${defect.id}`}>
+                  <Card className="hover:shadow-md transition cursor-pointer">
+                    <CardContent className="pt-6 pb-16">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-5 h-5 text-red-600" />
+                            <h3 className="font-semibold text-lg">{defect.title}</h3>
+                          </div>
+                          {defect.description && (
+                            <p className="text-sm text-gray-600 mt-2 line-clamp-2">{defect.description}</p>
+                          )}
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            <Badge className={`${getTypeColor(defect.type)}`}>
+                              {defect.type}
+                            </Badge>
+                            <Badge className={`${getSeverityColor(defect.severity)}`}>
+                              {defect.severity.toUpperCase()}
+                            </Badge>
+                            <Badge className={`${getStatusColor(defect.status)}`}>
+                              {getStatusLabel(defect.status)}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Checklist: {defect.checklistTemplateName || 'N/A'} • งาน: {defect.taskName || 'Unknown Task'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Reported: {new Date(defect.createdAt).toLocaleDateString('th-TH')}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                
+                {/* Inline status change button */}
+                {canEdit && nextStatus && (
+                  <div className="absolute bottom-4 right-4 z-10">
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuickStatusChange(defect.id, defect.status);
+                      }}
+                      disabled={updatingDefectId === defect.id}
+                      className="shadow-md"
+                    >
+                      {updatingDefectId === defect.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        getStatusButtonContent(defect.status)
+                      )}
+                    </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            </Link>
-          ))
+                )}
+              </div>
+            );
+          })
         )}
       </div>
 
