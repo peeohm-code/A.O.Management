@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -533,10 +533,9 @@ export default function Defects() {
           </Card>
         ) : (
           filteredDefects.map((defect) => (
+            <Link key={defect.id} href={`/defects/${defect.id}`}>
             <Card
-              key={defect.id}
               className="hover:shadow-md transition cursor-pointer"
-              onClick={() => setLocation(`/defects/${defect.id}`)}
             >
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
@@ -569,6 +568,7 @@ export default function Defects() {
                 </div>
               </CardContent>
             </Card>
+            </Link>
           ))
         )}
       </div>

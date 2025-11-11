@@ -1683,3 +1683,9 @@
 - [ ] Add status change confirmation dialogs
 - [ ] Add required fields validation for each status transition
 - [ ] Test all improvements thoroughly
+
+## Final CAR/NCR Workflow Improvements
+- [x] Fix card navigation to DefectDetail page - Used Link component from wouter, navigation works perfectly
+- [ ] Add inline status change buttons in Defects page for quick workflow
+- [ ] Fix Thai text input timeout issue in textareas and inputs
+- [ ] Test complete workflow end-to-end
