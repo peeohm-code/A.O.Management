@@ -1170,6 +1170,11 @@ const defectRouter = router({
         correctiveAction: z.string().optional(),
         preventiveAction: z.string().optional(),
         dueDate: z.date().optional(),
+        // Action Plan fields (in_progress status)
+        actionMethod: z.string().optional(),
+        actionResponsible: z.string().optional(),
+        actionDeadline: z.date().optional(),
+        actionNotes: z.string().optional(),
         ncrLevel: z.enum(["major", "minor"]).optional(),
         verificationComment: z.string().optional(),
         resolutionNotes: z.string().optional(),

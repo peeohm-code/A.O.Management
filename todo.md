@@ -1991,3 +1991,25 @@
   - [x] Submit changes status to "in_progress" automatically
 - [x] Ensure RCA form appears when defect status is appropriate (tested successfully)
 - [x] Test RCA form submission and workflow progression (tested: form submits, data saves, status changes to in_progress, workflow guide updates)
+
+## DefectDetail Workflow Forms Completion
+- [x] Action Plan Form
+  - [x] No existing Action Plan form found
+  - [x] Added Action Plan form for in_progress status
+  - [x] Form fields: วิธีการแก้ไข*, ผู้รับผิดชอบ*, กำหนดเสร็จ*, หมายเหตุ
+  - [x] Added database columns (actionMethod, actionResponsible, actionDeadline, actionNotes)
+  - [x] Added backend mutation input schema
+  - [x] Submit changes status to "resolved"
+- [x] Implementation Photos Upload (already done in checkpoint f744b7dc)
+  - [x] FileUpload component already integrated
+  - [x] Supports multiple photos with preview
+  - [x] Validation (type, size, count)
+- [x] Closure Form
+  - [x] Add Closure form for resolved status
+  - [x] Form fields: verification checklist, lessons learned, final approval
+  - [x] Submit changes status to "closed"
+- [x] Test Complete Workflow
+  - [x] Test reported → analysis (RCA form)
+  - [x] Test analysis → in_progress (Action Plan form)
+  - [x] Test in_progress → resolved (Implementation + photos)
+  - [x] Test resolved → closed (Closure form)

@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock, Image, Upload, Trash2, X, ChevronLeft, ChevronRight, Maximize2, GitCompare, Download } from "lucide-react";
+import { ArrowLeft, Calendar, User, FileText, AlertTriangle, CheckCircle2, XCircle, Edit, RefreshCw, History, Clock, Image, Upload, Trash2, X, ChevronLeft, ChevronRight, Maximize2, GitCompare, Download, Wrench } from "lucide-react";
 import jsPDF from "jspdf";
 import {
   Dialog,
@@ -72,6 +72,17 @@ export default function DefectDetail() {
   const [rcaRootCause, setRcaRootCause] = useState("");
   const [rcaCorrectiveAction, setRcaCorrectiveAction] = useState("");
   const [rcaPreventiveAction, setRcaPreventiveAction] = useState("");
+
+  // Action Plan form state
+  const [actionMethod, setActionMethod] = useState("");
+  const [actionResponsible, setActionResponsible] = useState("");
+  const [actionDeadline, setActionDeadline] = useState("");
+  const [actionNotes, setActionNotes] = useState("");
+
+  // Closure form state
+  const [closureVerified, setClosureVerified] = useState(false);
+  const [closureLessonsLearned, setClosureLessonsLearned] = useState("");
+  const [closureApproved, setClosureApproved] = useState(false);
 
   const handleEdit = () => {
     if (!defectQuery.data) return;
@@ -148,6 +159,66 @@ export default function DefectDetail() {
       setRcaRootCause("");
       setRcaCorrectiveAction("");
       setRcaPreventiveAction("");
+      defectQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
+  const handleSubmitActionPlan = async () => {
+    if (!actionMethod.trim()) {
+      toast.error("กรุณากรอกวิธีการแก้ไข");
+      return;
+    }
+    if (!actionResponsible.trim()) {
+      toast.error("กรุณากรอกผู้รับผิดชอบ");
+      return;
+    }
+    if (!actionDeadline) {
+      toast.error("กรุณาเลือกกำหนดเสร็จ");
+      return;
+    }
+
+    try {
+      await updateDefectMutation.mutateAsync({
+        id: defectId,
+        actionMethod,
+        actionResponsible,
+        actionDeadline: new Date(actionDeadline),
+        actionNotes,
+        status: "resolved", // Move to next step: แก้ไขเสร็จ
+      });
+      toast.success("บันทึกแผนการแก้ไขสำเร็จ");
+      setActionMethod("");
+      setActionResponsible("");
+      setActionDeadline("");
+      setActionNotes("");
+      defectQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
+  const handleSubmitClosure = async () => {
+    if (!closureVerified) {
+      toast.error("กรุณายืนยันว่าได้ตรวจสอบการแก้ไขแล้ว");
+      return;
+    }
+    if (!closureApproved) {
+      toast.error("กรุณาอนุมัติการปิดงาน");
+      return;
+    }
+
+    try {
+      await updateDefectMutation.mutateAsync({
+        id: defectId,
+        closureNotes: closureLessonsLearned.trim() || undefined,
+        status: "closed",
+      });
+      toast.success("ปิดงานสำเร็จ");
+      setClosureVerified(false);
+      setClosureLessonsLearned("");
+      setClosureApproved(false);
       defectQuery.refetch();
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
@@ -717,6 +788,145 @@ export default function DefectDetail() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 whitespace-pre-wrap">{defect.preventiveAction}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Action Plan Form - Show when status is in_progress and no actionMethod yet */}
+          {defect.status === "in_progress" && !defect.actionMethod && (
+            <Card className="border-blue-300 bg-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wrench className="w-5 h-5" />
+                  วางแผนการแก้ไข
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  กรอกรายละเอียดวิธีการแก้ไข ผู้รับผิดชอบ และกำหนดเสร็จ
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    วิธีการแก้ไข (Action Method) <span className="text-red-500">*</span>
+                  </label>
+                  <Textarea
+                    value={actionMethod}
+                    onChange={(e) => setActionMethod(e.target.value)}
+                    placeholder="ระบุวิธีการแก้ไขปัญหาอย่างละเอียด..."
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    ผู้รับผิดชอบ (Responsible Person) <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={actionResponsible}
+                    onChange={(e) => setActionResponsible(e.target.value)}
+                    placeholder="ชื่อผู้รับผิดชอบหรือทีมงาน..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    กำหนดเสร็จ (Deadline) <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="date"
+                    value={actionDeadline}
+                    onChange={(e) => setActionDeadline(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    หมายเหตุ (Notes)
+                  </label>
+                  <Textarea
+                    value={actionNotes}
+                    onChange={(e) => setActionNotes(e.target.value)}
+                    placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)..."
+                    rows={3}
+                  />
+                </div>
+                <Button
+                  onClick={handleSubmitActionPlan}
+                  disabled={updateDefectMutation.isPending}
+                  className="w-full"
+                >
+                  {updateDefectMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      กำลังบันทึก...
+                    </>
+                  ) : (
+                    "บันทึกและไปขั้นตอนต่อไป"
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Closure Form - Show when status is resolved and no closureNotes yet */}
+          {defect.status === "resolved" && !defect.closureNotes && (
+            <Card className="border-green-300 bg-green-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" />
+                  ปิดงาน (Closure)
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  ตรวจสอบการแก้ไข บันทึกบทเรียน และอนุมัติปิดงาน
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="closureVerified"
+                    checked={closureVerified}
+                    onChange={(e) => setClosureVerified(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="closureVerified" className="text-sm font-medium">
+                    ยืนยันว่าได้ตรวจสอบการแก้ไขแล้ว <span className="text-red-500">*</span>
+                  </label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    บทเรียนที่ได้รับ (Lessons Learned)
+                  </label>
+                  <Textarea
+                    value={closureLessonsLearned}
+                    onChange={(e) => setClosureLessonsLearned(e.target.value)}
+                    placeholder="บันทึกบทเรียนและข้อควรประบปรุงในอนาคต (ถ้ามี)..."
+                    rows={4}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="closureApproved"
+                    checked={closureApproved}
+                    onChange={(e) => setClosureApproved(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="closureApproved" className="text-sm font-medium">
+                    อนุมัติการปิดงาน <span className="text-red-500">*</span>
+                  </label>
+                </div>
+                <Button
+                  onClick={handleSubmitClosure}
+                  disabled={updateDefectMutation.isPending}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {updateDefectMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      กำลังปิดงาน...
+                    </>
+                  ) : (
+                    "ปิดงาน"
+                  )}
+                </Button>
               </CardContent>
             </Card>
           )}

@@ -92,6 +92,13 @@
       "when": 1762860903569,
       "tag": "0012_free_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1762872791348,
+      "tag": "0013_bright_cable",
+      "breakpoints": true
     }
   ]
 }

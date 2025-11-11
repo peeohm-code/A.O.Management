@@ -231,6 +231,11 @@ export const defects = mysqlTable("defects", {
   correctiveAction: text("correctiveAction"), // Corrective action plan
   preventiveAction: text("preventiveAction"), // Preventive action plan
   dueDate: timestamp("dueDate"), // Due date for resolution
+  // Action Plan fields (in_progress status)
+  actionMethod: text("actionMethod"), // วิธีการแก้ไข
+  actionResponsible: varchar("actionResponsible", { length: 255 }), // ผู้รับผิดชอบ
+  actionDeadline: timestamp("actionDeadline"), // กำหนดเสร็จ
+  actionNotes: text("actionNotes"), // หมายเหตุ
   ncrLevel: mysqlEnum("ncrLevel", ["major", "minor"]), // NCR severity level
   verifiedBy: int("verifiedBy"), // User who verified the fix
   verifiedAt: timestamp("verifiedAt"), // Verification timestamp
