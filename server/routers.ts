@@ -1109,28 +1109,38 @@ const defectRouter = router({
         dueDate: z.date().optional(),
         ncrLevel: z.enum(["major", "minor"]).optional(),
         verificationComment: z.string().optional(),
+        resolutionNotes: z.string().optional(),
+        implementationMethod: z.string().optional(),
+        afterPhotos: z.string().optional(),
+        closureNotes: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { id, ...updateData } = input;
-      const defect = await db.getDefectById(id);
-      if (!defect) throw new Error("Defect not found");
-      
-      // Check edit permission
-      if (!canEditDefect(ctx.user.role, ctx.user.id, defect)) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'คุณไม่มีสิทธิ์แก้ไข defect นี้',
-        });
-      }
+      try {
+        console.log("[defect.update] Received input:", JSON.stringify(input, null, 2));
+        const { id, ...updateData } = input;
+        const defect = await db.getDefectById(id);
+        if (!defect) throw new Error("Defect not found");
+        console.log("[defect.update] Found defect:", defect.id, defect.title);
+        
+        // Check edit permission
+        if (!canEditDefect(ctx.user.role, ctx.user.id, defect)) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'คุณไม่มีสิทธิ์แก้ไข defect นี้',
+          });
+        }
 
-      const result = await db.updateDefect(id, {
+        const dataToUpdate = {
         ...updateData,
         resolvedBy: updateData.status === "implemented" ? ctx.user.id : undefined,
         resolvedAt: updateData.status === "implemented" ? new Date() : undefined,
         verifiedBy: updateData.status === "closed" ? ctx.user.id : undefined,
         verifiedAt: updateData.status === "closed" ? new Date() : undefined,
-      });
+      };
+      console.log("[defect.update] Calling updateDefect with:", JSON.stringify(dataToUpdate, null, 2));
+      const result = await db.updateDefect(id, dataToUpdate);
+      console.log("[defect.update] Update successful");
 
       // Notify assignee if assigned
       if (updateData.assignedTo) {
@@ -1151,7 +1161,11 @@ const defectRouter = router({
         });
       }
 
-      return result;
+        return result;
+      } catch (error) {
+        console.error("[defect.update] Error:", error);
+        throw error;
+      }
     }),
 
   // Defect Attachments

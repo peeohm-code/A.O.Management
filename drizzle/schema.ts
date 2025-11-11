@@ -233,6 +233,11 @@ export const defects = mysqlTable("defects", {
   verifiedBy: int("verifiedBy"), // User who verified the fix
   verifiedAt: timestamp("verifiedAt"), // Verification timestamp
   verificationComment: text("verificationComment"), // Verification notes
+  // Resolution and Closure fields
+  resolutionNotes: text("resolutionNotes"), // Notes when changing status to resolved
+  implementationMethod: text("implementationMethod"), // How the fix was implemented
+  afterPhotos: text("afterPhotos"), // JSON array of after-fix photo URLs
+  closureNotes: text("closureNotes"), // Notes when changing status to closed
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

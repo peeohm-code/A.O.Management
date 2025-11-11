@@ -1106,6 +1106,10 @@ export async function updateDefect(
     verifiedBy: number;
     verifiedAt: Date;
     verificationComment: string;
+    resolutionNotes: string;
+    implementationMethod: string;
+    afterPhotos: string;
+    closureNotes: string;
   }>
 ) {
   const db = await getDb();
@@ -1127,6 +1131,10 @@ export async function updateDefect(
   if (data.verifiedBy !== undefined) updateData.verifiedBy = data.verifiedBy;
   if (data.verifiedAt !== undefined) updateData.verifiedAt = data.verifiedAt;
   if (data.verificationComment !== undefined) updateData.verificationComment = data.verificationComment;
+  if (data.resolutionNotes !== undefined) updateData.resolutionNotes = data.resolutionNotes;
+  if (data.implementationMethod !== undefined) updateData.implementationMethod = data.implementationMethod;
+  if (data.afterPhotos !== undefined) updateData.afterPhotos = data.afterPhotos;
+  if (data.closureNotes !== undefined) updateData.closureNotes = data.closureNotes;
 
   return await db.update(defects).set(updateData).where(eq(defects.id, id));
 }

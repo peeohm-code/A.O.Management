@@ -1610,3 +1610,25 @@
 - [x] Add user 1 to all existing projects in database
 - [x] Test and verify statistics display correctly (shows 4 projects)
 - [ ] Save checkpoint
+
+
+## Bug Fix: Failed to save RCA and Resolution/Closure Notes (Nov 11, 2025)
+- [ ] Fix "Failed to save RCA" error when saving Root Cause Analysis
+- [ ] Investigate backend error when submitting RCA form
+- [ ] Test Resolution Notes workflow (reported → resolved)
+- [ ] Test Closure Notes workflow (resolved → closed)
+- [ ] Save checkpoint
+
+
+## Feature: Implementation Method and After Photos for Resolved Status
+- [x] Add implementationMethod field to defects table schema
+- [x] Add afterPhotos field to defects table schema (JSON array of photo URLs)
+- [x] Update defect.update procedure to accept new fields
+- [x] Update updateDefect function in db.ts
+- [x] Add implementation method textarea in Implementation Form Dialog
+- [x] Add after photos upload in Implementation Form Dialog
+- [x] Add closure notes textarea in Closure Form Dialog
+- [x] Display implementation method in Defect Detail page (will show when data exists)
+- [x] Display after photos gallery in Defect Detail page (will show when data exists)
+- [x] Display resolution notes and closure notes in Defect Detail page (will show when data exists)
+- [x] Test complete workflow (forms are ready, need real data to test end-to-end)

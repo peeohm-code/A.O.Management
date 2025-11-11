@@ -62,6 +62,17 @@ export default function Defects() {
   // Effectiveness Check states
   const [showEffectivenessForm, setShowEffectivenessForm] = useState(false);
   const [effectivenessComment, setEffectivenessComment] = useState("");
+  
+  // Implementation states (for "implemented" status)
+  const [showImplementationForm, setShowImplementationForm] = useState(false);
+  const [implementationMethod, setImplementationMethod] = useState("");
+  const [implementationPhotos, setImplementationPhotos] = useState<File[]>([]);
+  const [uploadingImplementationPhotos, setUploadingImplementationPhotos] = useState(false);
+  const [resolutionNotes, setResolutionNotes] = useState("");
+  
+  // Closure states (for "closed" status)
+  const [showClosureForm, setShowClosureForm] = useState(false);
+  const [closureNotes, setClosureNotes] = useState("");
 
   const allDefectsQuery = trpc.defect.allDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
@@ -279,6 +290,73 @@ export default function Defects() {
       setUploadingAfterPhotos(false);
       console.error('Error saving Action Plan:', error);
       toast.error("Failed to save Action Plan: " + (error as Error).message);
+    }
+  };
+
+  const handleSaveImplementation = async () => {
+    if (!selectedDefect || !implementationMethod.trim() || !resolutionNotes.trim()) {
+      toast.error("กรุณากรอกวิธีการดำเนินการแก้ไขและหมายเหตุการแก้ไข");
+      return;
+    }
+
+    try {
+      // Upload implementation photos first if any
+      let photoUrls: string[] = [];
+      if (implementationPhotos.length > 0) {
+        setUploadingImplementationPhotos(true);
+        
+        for (const photo of implementationPhotos) {
+          const formData = new FormData();
+          formData.append('file', photo);
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!uploadResponse.ok) {
+            throw new Error(`Failed to upload ${photo.name}`);
+          }
+          
+          const { url, key } = await uploadResponse.json();
+          photoUrls.push(url);
+          
+          // Save attachment record
+          await uploadAttachmentMutation.mutateAsync({
+            defectId: selectedDefect.id,
+            fileUrl: url,
+            fileKey: key,
+            fileName: photo.name,
+            fileType: photo.type,
+            fileSize: photo.size,
+            attachmentType: 'implementation' as const,
+          });
+        }
+        
+        setUploadingImplementationPhotos(false);
+      }
+
+      // Update defect with implementation details
+      await updateDefectMutation.mutateAsync({
+        id: selectedDefect.id,
+        implementationMethod,
+        afterPhotos: photoUrls.length > 0 ? JSON.stringify(photoUrls) : undefined,
+        resolutionNotes,
+        status: "implemented" as any,
+      });
+
+      toast.success("บันทึกการแก้ไขสำเร็จ");
+      setShowImplementationForm(false);
+      setSelectedDefect(null);
+      // Reset form
+      setImplementationMethod("");
+      setImplementationPhotos([]);
+      setResolutionNotes("");
+      allDefectsQuery.refetch();
+    } catch (error) {
+      setUploadingImplementationPhotos(false);
+      console.error('Error saving Implementation:', error);
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
 
@@ -612,7 +690,7 @@ export default function Defects() {
                 )}
                 {selectedDefect.status === "in_progress" && (
                   <Button
-                    onClick={() => handleUpdateDefect("implemented")}
+                    onClick={() => setShowImplementationForm(true)}
                     disabled={updateDefectMutation.isPending}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                   >
@@ -1208,24 +1286,175 @@ export default function Defects() {
                 )}
               </Button>
               <Button
+                onClick={() => {
+                  setShowEffectivenessForm(false);
+                  setShowClosureForm(true);
+                }}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                มีประสิทธิผล - ปิด CAR/NCR (Effective)
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Implementation Form Dialog */}
+      <Dialog open={showImplementationForm} onOpenChange={setShowImplementationForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              บันทึกการแก้ไข - {selectedDefect?.type}
+            </DialogTitle>
+            <DialogDescription>
+              กรอกวิธีการดำเนินการแก้ไขและอัปโหลดรูปภาพหลังการแก้ไข
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="implementationMethod" className="text-sm font-semibold">
+                วิธีการดำเนินการแก้ไข <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="implementationMethod"
+                placeholder="ระบุวิธีการและขั้นตอนการดำเนินการแก้ไข..."
+                value={implementationMethod}
+                onChange={(e) => setImplementationMethod(e.target.value)}
+                rows={4}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="resolutionNotes" className="text-sm font-semibold">
+                หมายเหตุการแก้ไข <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="resolutionNotes"
+                placeholder="บันทึกหมายเหตุ ข้อสังเกต และผลการแก้ไข..."
+                value={resolutionNotes}
+                onChange={(e) => setResolutionNotes(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">
+                รูปภาพหลังการแก้ไข (After Photos)
+              </Label>
+              <div className="border-2 border-dashed rounded-lg p-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setImplementationPhotos(Array.from(e.target.files));
+                    }
+                  }}
+                  className="w-full"
+                />
+                {implementationPhotos.length > 0 && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    เลือกไฟล์ {implementationPhotos.length} ไฟล์
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowImplementationForm(false);
+                  setImplementationMethod("");
+                  setImplementationPhotos([]);
+                  setResolutionNotes("");
+                }}
+                className="flex-1"
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                onClick={handleSaveImplementation}
+                disabled={!implementationMethod.trim() || !resolutionNotes.trim() || updateDefectMutation.isPending || uploadingImplementationPhotos}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {(updateDefectMutation.isPending || uploadingImplementationPhotos) ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {uploadingImplementationPhotos ? 'กำลังอัปโหลดรูป...' : 'กำลังบันทึก...'}
+                  </>
+                ) : (
+                  "บันทึกการแก้ไข"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Closure Form Dialog */}
+      <Dialog open={showClosureForm} onOpenChange={setShowClosureForm}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-[#00CE81]" />
+              ปิด {selectedDefect?.type}
+            </DialogTitle>
+            <DialogDescription>
+              กรอกหมายเหตุการอนุมัติและปิดเคส
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="closureNotes" className="text-sm font-semibold">
+                หมายเหตุการอนุมัติ <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="closureNotes"
+                placeholder="บันทึกหมายเหตุการอนุมัติและปิดเคส..."
+                value={closureNotes}
+                onChange={(e) => setClosureNotes(e.target.value)}
+                rows={4}
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowClosureForm(false);
+                  setClosureNotes("");
+                }}
+                className="flex-1"
+              >
+                ยกเลิก
+              </Button>
+              <Button
                 onClick={async () => {
-                  if (!selectedDefect) return;
+                  if (!selectedDefect || !closureNotes.trim()) {
+                    toast.error("กรุณากรอกหมายเหตุการอนุมัติ");
+                    return;
+                  }
                   try {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
                       status: "closed" as any,
-                      effectivenessComment: effectivenessComment || undefined,
+                      closureNotes: closureNotes,
                     });
-                    toast.success("มีประสิทธิผล - ปิด CAR/NCR สำเร็จ");
-                    setShowEffectivenessForm(false);
+                    toast.success("ปิด CAR/NCR สำเร็จ");
+                    setShowClosureForm(false);
                     setSelectedDefect(null);
-                    setEffectivenessComment("");
+                    setClosureNotes("");
                     allDefectsQuery.refetch();
                   } catch (error) {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}
-                disabled={updateDefectMutation.isPending}
+                disabled={!closureNotes.trim() || updateDefectMutation.isPending}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 {updateDefectMutation.isPending ? (
@@ -1234,7 +1463,7 @@ export default function Defects() {
                     กำลังบันทึก...
                   </>
                 ) : (
-                  "มีประสิทธิผล - ปิด CAR/NCR (Effective)"
+                  "ปิด CAR/NCR"
                 )}
               </Button>
             </div>
