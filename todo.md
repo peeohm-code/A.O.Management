@@ -1632,3 +1632,10 @@
 - [x] Display after photos gallery in Defect Detail page (will show when data exists)
 - [x] Display resolution notes and closure notes in Defect Detail page (will show when data exists)
 - [x] Test complete workflow (forms are ready, need real data to test end-to-end)
+
+
+## UX Improvements: Photo Display
+- [x] Show Before photos in Implementation Form so users can see the problem before uploading After photos
+- [x] Create photo gallery lightbox component for viewing full-size images
+- [x] Integrate lightbox into BeforeAfterComparison component
+- [x] Add click handlers to open lightbox when clicking on photos

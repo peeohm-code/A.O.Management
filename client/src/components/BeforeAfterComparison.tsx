@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { PhotoGalleryLightbox } from "@/components/PhotoGalleryLightbox";
 
 interface BeforeAfterComparisonProps {
   beforePhotos: string[];
@@ -15,6 +17,15 @@ export function BeforeAfterComparison({
   afterPhotos,
   title = "ภาพเปรียบเทียบ Before - After"
 }: BeforeAfterComparisonProps) {
+  const [lightboxPhotos, setLightboxPhotos] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const openLightbox = (photos: string[], index: number) => {
+    setLightboxPhotos(photos);
+    setLightboxIndex(index);
+    setIsLightboxOpen(true);
+  };
   // Auto-pair photos by index
   const pairs = beforePhotos.map((before, index) => ({
     before: before,
@@ -38,7 +49,8 @@ export function BeforeAfterComparison({
                   <img
                     src={pair.before}
                     alt={`Before ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => openLightbox(beforePhotos, index)}
                   />
                 </div>
               </div>
@@ -53,7 +65,8 @@ export function BeforeAfterComparison({
                     <img
                       src={pair.after}
                       alt={`After ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => openLightbox(afterPhotos, index)}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -77,13 +90,21 @@ export function BeforeAfterComparison({
                 <img
                   src={photo}
                   alt={`Additional after ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => openLightbox(afterPhotos.slice(beforePhotos.length), index)}
                 />
               </div>
             ))}
           </div>
         </div>
       )}
+
+      <PhotoGalleryLightbox
+        photos={lightboxPhotos}
+        initialIndex={lightboxIndex}
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+      />
     </div>
   );
 }

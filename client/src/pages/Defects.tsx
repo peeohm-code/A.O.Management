@@ -1339,6 +1339,35 @@ export default function Defects() {
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Display Before Photos if they exist */}
+            {selectedDefect?.beforePhotos && (() => {
+              try {
+                const beforePhotos = JSON.parse(selectedDefect.beforePhotos);
+                if (Array.isArray(beforePhotos) && beforePhotos.length > 0) {
+                  return (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <Label className="text-sm font-semibold text-blue-900 mb-2 block">
+                        รูปภาพปัญหา (Before Photos)
+                      </Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {beforePhotos.map((url: string, index: number) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Before ${index + 1}`}
+                            className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80 transition-opacity"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+              } catch (e) {
+                console.error('Error parsing before photos:', e);
+              }
+              return null;
+            })()}
+
             <div className="space-y-2">
               <Label htmlFor="implementationMethod" className="text-sm font-semibold">
                 วิธีการดำเนินการแก้ไข <span className="text-red-500">*</span>
