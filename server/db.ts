@@ -497,13 +497,14 @@ export async function createTask(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // @ts-ignore
-    // @ts-ignore
-  const { createdBy, ...taskData } = data;
+  const { createdBy, startDate, endDate, ...taskData } = data;
   return await db.insert(tasks).values({
     ...taskData,
     status: (taskData.status as any) || "todo",
+    priority: (taskData.priority as any) || "medium",
     progress: 0,
+    startDate: startDate ? new Date(startDate) : null,
+    endDate: endDate ? new Date(endDate) : null,
   });
 }
 
@@ -1416,7 +1417,7 @@ export async function submitInspection(data: {
     // 2. Calculate overall status
     const failedCount = data.itemResults.filter((r) => r.result === "fail").length;
     const passedCount = data.itemResults.filter((r) => r.result === "pass").length;
-    const overallStatus = failedCount > 0 ? "failed" : "passed";
+    const overallStatus = failedCount > 0 ? "failed" : "completed";
 
   // @ts-ignore
     // 3. Update task checklist
@@ -1448,7 +1449,7 @@ export async function submitInspection(data: {
           photoUrls: data.photoUrls && data.photoUrls.length > 0 ? JSON.stringify(data.photoUrls) : null,
           severity: "medium",
           reportedBy: data.inspectedBy,
-          status: "open",
+          status: "reported",
         });
       });
       await Promise.all(defectPromises);
@@ -1481,7 +1482,7 @@ export async function submitInspection(data: {
           userId: task[0].assigneeId,
           type: failedCount > 0 ? "inspection_failed" : "inspection_passed",
           title: failedCount > 0 ? "การตรวจสอบไม่ผ่าน" : "การตรวจสอบผ่าน",
-          message: failedCount > 0
+          content: failedCount > 0
             ? `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ กรุณาแก้ไข`
             : `งาน "${task[0].name}" ผ่านการตรวจสอบคุณภาพแล้ว`,
           relatedTaskId: data.taskId,
@@ -1512,7 +1513,7 @@ export async function submitInspection(data: {
             userId: pm.userId,
             type: "inspection_failed",
             title: "การตรวจสอบไม่ผ่าน",
-            message: `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ`,
+            content: `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ`,
             relatedTaskId: data.taskId,
             isRead: false,
           })
@@ -1747,8 +1748,8 @@ export async function getChecklistResults(checklistId: number) {
     // @ts-ignore
     // @ts-ignore
     .from(checklistItemResults)
-    .where(eq(checklistItemResults.checklistId, checklistId))
-    .orderBy(checklistItemResults.itemId);
+    .where(eq(checklistItemResults.taskChecklistId, checklistId))
+    .orderBy(checklistItemResults.templateItemId);
 }
 
 
