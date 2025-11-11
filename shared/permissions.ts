@@ -114,7 +114,7 @@ export function canAccessProject(
   projectMembers: Array<{ userId: number; role: string }>
 ): boolean {
   // Owner and Admin can access all projects
-  if ([ROLES.OWNER, ROLES.ADMIN].includes(userRole as Role)) {
+  if (userRole === ROLES.OWNER || userRole === ROLES.ADMIN) {
     return true;
   }
   
@@ -134,7 +134,7 @@ export function canEditDefect(
   defect: { assignedTo?: number | null; reportedBy: number }
 ): boolean {
   // Owner, Admin, PM can edit any defect
-  if ([ROLES.OWNER, ROLES.ADMIN, ROLES.PM].includes(userRole as Role)) {
+  if (userRole === ROLES.OWNER || userRole === ROLES.ADMIN || userRole === ROLES.PM) {
     return true;
   }
   
@@ -156,7 +156,7 @@ export function canEditDefect(
  * Only Owner, Admin, and PM can delete defects
  */
 export function canDeleteDefect(userRole: Role | string): boolean {
-  return [ROLES.OWNER, ROLES.ADMIN, ROLES.PM].includes(userRole as Role);
+  return userRole === ROLES.OWNER || userRole === ROLES.ADMIN || userRole === ROLES.PM;
 }
 
 /**

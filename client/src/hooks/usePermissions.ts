@@ -30,7 +30,7 @@ export function usePermissions(resource: keyof typeof PERMISSIONS) {
     };
   }
 
-  const role = user.role as keyof typeof ROLES;
+  const role = user.role;
 
   return {
     canView: hasPermission(role, resource, 'view'),
@@ -49,11 +49,11 @@ export function usePermissions(resource: keyof typeof PERMISSIONS) {
 /**
  * Hook to check if user can edit a specific defect
  */
-export function useCanEditDefect(defect: { createdBy: number; assignedTo?: number | null }) {
+export function useCanEditDefect(defect: { reportedBy: number; assignedTo?: number | null }) {
   const { user } = useAuth();
   if (!user) return false;
   
-  return canEditDefect(user.role as keyof typeof ROLES, user.id, defect);
+  return canEditDefect(user.role, user.id, defect);
 }
 
 /**
@@ -63,7 +63,7 @@ export function useCanDeleteDefect() {
   const { user } = useAuth();
   if (!user) return false;
   
-  return canDeleteDefect(user.role as keyof typeof ROLES);
+  return canDeleteDefect(user.role);
 }
 
 /**

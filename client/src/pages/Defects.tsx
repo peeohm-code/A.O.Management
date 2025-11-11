@@ -402,7 +402,7 @@ export default function Defects() {
             fileName: photo.name,
             fileType: photo.type,
             fileSize: photo.size,
-            attachmentType: 'implementation' as const,
+            attachmentType: 'supporting' as const,
           });
         }
         
@@ -437,7 +437,7 @@ export default function Defects() {
     total: defects.length,
     critical: defects.filter((d) => d.severity === "critical").length,
     high: defects.filter((d) => d.severity === "high").length,
-    open: defects.filter((d) => d.status === "open").length,
+    open: defects.filter((d) => d.status === "reported").length,
   };
 
   if (allDefectsQuery.isLoading) {
@@ -469,7 +469,7 @@ export default function Defects() {
               className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
               onClick={() => {
                 setStatusFilter("all");
-                setOverdueFilter(false);
+                // setOverdueFilter(false);
               }}
             >
               <div className="text-sm text-gray-600 mb-1">ทั้งหมด</div>
@@ -484,7 +484,7 @@ export default function Defects() {
               className="p-4 rounded-lg border-2 border-orange-200 cursor-pointer hover:shadow-md transition"
               onClick={() => {
                 setStatusFilter("all");
-                setOverdueFilter(false);
+                // setOverdueFilter(false);
               }}
             >
               <div className="text-sm text-gray-600 mb-1">เปิดอยู่</div>
@@ -502,7 +502,7 @@ export default function Defects() {
               className="p-4 rounded-lg border-2 border-green-200 cursor-pointer hover:shadow-md transition"
               onClick={() => {
                 setStatusFilter("closed");
-                setOverdueFilter(false);
+                // setOverdueFilter(false);
               }}
             >
               <div className="text-sm text-gray-600 mb-1">ปิดแล้ว</div>
@@ -520,7 +520,7 @@ export default function Defects() {
               className="p-4 rounded-lg border-2 border-yellow-200 cursor-pointer hover:shadow-md transition"
               onClick={() => {
                 setStatusFilter("resolved");
-                setOverdueFilter(false);
+                // setOverdueFilter(false);
               }}
             >
               <div className="text-sm text-gray-600 mb-1">รอตรวจสอบ</div>
@@ -537,10 +537,10 @@ export default function Defects() {
             <div
               className="p-4 rounded-lg border-2 border-red-200 cursor-pointer hover:shadow-md transition"
               onClick={() => {
-                setOverdueFilter(!overdueFilter);
+                // setOverdueFilter(false);
                 setStatusFilter("all");
                 setSeverityFilter("all");
-                toast.info(overdueFilter ? "แสดง Defect ทั้งหมด" : "กรองแสดง Defect ที่เกินกำหนด");
+                toast.info(false ? "แสดง Defect ทั้งหมด" : "กรองแสดง Defect ที่เกินกำหนด");
               }}
             >
               <div className="text-sm text-gray-600 mb-1">เกินกำหนด</div>
@@ -1380,7 +1380,6 @@ export default function Defects() {
                     await updateDefectMutation.mutateAsync({
                       id: selectedDefect.id,
                       status: "analysis" as any,
-                      effectivenessComment: effectivenessComment || undefined,
                     });
                     toast.success("ไม่มีประสิทธิผล - ส่งกลับไปแก้ไขใหม่");
                     setShowEffectivenessForm(false);

@@ -73,7 +73,7 @@ export default function DefectDetail() {
   };
 
   const handleSaveEdit = async () => {
-    if (!editTitleInput.value.trim()) {
+    if (!editTitle.trim()) {
       toast.error("กรุณากรอกหัวข้อ");
       return;
     }
@@ -81,8 +81,8 @@ export default function DefectDetail() {
     try {
       await updateDefectMutation.mutateAsync({
         id: defectId,
-        title: editTitleInput.value,
-        description: editDescriptionInput.value,
+        title: editTitle,
+        description: editDescription,
         severity: editSeverity as "low" | "medium" | "high" | "critical",
       });
       toast.success("อัปเดตข้อมูลสำเร็จ");
@@ -94,21 +94,25 @@ export default function DefectDetail() {
   };
 
   const handleUpdateStatus = async () => {
+    console.log('[handleUpdateStatus] Called with newStatus:', newStatus);
     if (!newStatus) {
       toast.error("กรุณาเลือกสถานะ");
       return;
     }
 
     try {
-      await updateDefectMutation.mutateAsync({
+      console.log('[handleUpdateStatus] Calling mutation with:', { id: defectId, status: newStatus });
+      const result = await updateDefectMutation.mutateAsync({
         id: defectId,
         status: newStatus as any,
       });
+      console.log('[handleUpdateStatus] Mutation result:', result);
       toast.success("อัปเดตสถานะสำเร็จ");
       setShowStatusDialog(false);
       setNewStatus("");
       defectQuery.refetch();
     } catch (error) {
+      console.error('[handleUpdateStatus] Error:', error);
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -629,13 +633,13 @@ export default function DefectDetail() {
                     </div>
                   </div>
                 )}
-                {defect.reportedAt && (
+                {defect.createdAt && (
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-500">วันที่รายงาน</p>
                       <p className="font-medium">
-                        {new Date(defect.reportedAt).toLocaleDateString("th-TH", {
+                        {new Date(defect.createdAt).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -668,13 +672,13 @@ export default function DefectDetail() {
                     </div>
                   </div>
                 )}
-                {defect.closedAt && (
+                {defect.verifiedAt && (
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-[#00CE81]" />
                     <div>
                       <p className="text-sm text-gray-500">ปิดเมื่อ</p>
                       <p className="font-medium">
-                        {new Date(defect.closedAt).toLocaleDateString("th-TH", {
+                        {new Date(defect.verifiedAt).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",

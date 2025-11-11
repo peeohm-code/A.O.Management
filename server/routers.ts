@@ -54,13 +54,13 @@ const projectRouter = router({
     .mutation(async ({ input, ctx }) => {
       const result = await db.createProject({
         ...input,
-        createdBy: ctx.user.id,
+        createdBy: ctx.user!.id,
       });
 
       const projectId = (result as any).insertId as number;
       
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId,
         action: "project_created",
         details: JSON.stringify({ name: input.name }),
@@ -89,7 +89,7 @@ const projectRouter = router({
       const result = await db.updateProject(id, updateData);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: id,
         action: "project_updated",
         details: JSON.stringify(updateData),
@@ -97,6 +97,7 @@ const projectRouter = router({
 
       // Send notification if status changed
       if (updateData.status && project) {
+        const members = await db.getProjectMembers(id);
         const statusLabels: Record<string, string> = {
           planning: "วางแผน",
           active: "กำลังดำเนินการ",
@@ -117,9 +118,11 @@ const projectRouter = router({
         };
         
         // Notify all project members
-        members.forEach((member) => {
-          emitNotification(member.userId, notification);
-        });
+        if (members && members.length > 0) {
+          members.forEach((member) => {
+            emitNotification(member.userId, notification);
+          });
+        }
       }
 
       return result;
@@ -133,10 +136,10 @@ const projectRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await db.archiveProject(input.id, ctx.user.id, input.reason);
+      await db.archiveProject(input.id, ctx.user!.id, input.reason);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: input.id,
         action: "project_archived",
         details: input.reason || "Project archived",
@@ -148,10 +151,10 @@ const projectRouter = router({
   unarchive: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      await db.unarchiveProject(input.id, ctx.user.id);
+      await db.unarchiveProject(input.id, ctx.user!.id);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: input.id,
         action: "project_unarchived",
         details: "Project unarchived",
@@ -161,7 +164,7 @@ const projectRouter = router({
     }),
 
   listArchived: protectedProcedure.query(async ({ ctx }) => {
-    const archivedProjects = await db.getArchivedProjects(ctx.user.id);
+    const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
     const projectsWithStats = await Promise.all(
       archivedProjects.map(async (project) => {
         const stats = await db.getProjectStats(project.id);
@@ -177,7 +180,7 @@ const projectRouter = router({
   }),
 
   exportArchiveExcel: protectedProcedure.query(async ({ ctx }) => {
-    const archivedProjects = await db.getArchivedProjects(ctx.user.id);
+    const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
     
     const exportData = archivedProjects.map((project) => {
       const archivedYears = project.archivedAt
@@ -191,7 +194,7 @@ const projectRouter = router({
         location: project.location,
         startDate: project.startDate,
         endDate: project.endDate,
-        projectStatus: project.projectStatus,
+        projectStatus: project.status,
         archivedAt: project.archivedAt,
         archivedReason: project.archivedReason,
         archivedYears,
@@ -231,7 +234,7 @@ const projectRouter = router({
       await db.deleteProject(input.id);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: input.id,
         action: "project_deleted",
         details: JSON.stringify({ projectId: input.id }),
@@ -252,7 +255,7 @@ const projectRouter = router({
         try {
           await db.deleteProject(id);
           await db.logActivity({
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             projectId: id,
             action: "project_deleted",
             details: JSON.stringify({ projectId: id, bulkOperation: true }),
@@ -294,7 +297,7 @@ const projectRouter = router({
           startDate: project.startDate,
           endDate: project.endDate,
           budget: project.budget,
-          projectStatus: project.projectStatus,
+          projectStatus: project.status,
           archivedAt: project.archivedAt,
           archivedReason: project.archivedReason,
         },
@@ -305,7 +308,7 @@ const projectRouter = router({
       const report = `# รายงานโครงการ: ${project.name}\n\n` +
         `**รหัส:** ${project.code || 'N/A'}\n` +
         `**สถานที่:** ${project.location || 'N/A'}\n` +
-        `**สถานะ:** ${project.projectStatus}\n` +
+        `**สถานะ:** ${project.status}\n` +
         `**วันที่ Archive:** ${project.archivedAt ? new Date(project.archivedAt).toLocaleDateString('th-TH') : 'N/A'}\n` +
         `**เหตุผล:** ${project.archivedReason || 'N/A'}\n`;
       
@@ -318,7 +321,7 @@ const projectRouter = router({
     }),
 
   listWithStats: protectedProcedure.query(async ({ ctx }) => {
-    const projects = await db.getProjectsByUser(ctx.user.id);
+    const projects = await db.getProjectsByUser(ctx.user!.id);
     const projectsWithStats = await Promise.all(
       projects.map(async (p) => {
         const stats = await db.getProjectStats(p.projects.id);
@@ -344,7 +347,7 @@ const taskRouter = router({
         tasks = await db.getTasksByProject(input.projectId);
       } else {
         // Return all tasks for user if no projectId specified
-        tasks = await db.getTasksByAssignee(ctx.user.id);
+        tasks = await db.getTasksByAssignee(ctx.user!.id);
       }
       
       // Add computed display status to each task
@@ -375,7 +378,7 @@ const taskRouter = router({
 
   myTasks: protectedProcedure.query(async ({ ctx }) => {
     // Get all projects where user is a member
-    const userProjects = await db.getProjectsByUser(ctx.user.id);
+    const userProjects = await db.getProjectsByUser(ctx.user!.id);
     const projectIds = userProjects.map(p => p.projects.id);
     
     // Get all tasks from those projects
@@ -427,12 +430,13 @@ const taskRouter = router({
       try {
         const result = await db.createTask({
           ...input,
+          createdBy: ctx.user!.id,
         });
 
       const taskId = (result as any).insertId as number;
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: input.projectId,
         taskId,
         action: "task_created",
@@ -487,7 +491,7 @@ const taskRouter = router({
       const result = await db.updateTask(id, updateData);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         taskId: id,
         projectId: task.projectId,
         action: "task_updated",
@@ -510,7 +514,7 @@ const taskRouter = router({
         // Notify task followers
         const followers = await db.getTaskFollowers(id);
         followers.forEach((follower) => {
-          if (follower.userId !== ctx.user.id) {
+          if (follower.userId !== ctx.user!.id) {
             emitNotification(follower.userId, notification);
           }
         });
@@ -595,7 +599,7 @@ const taskRouter = router({
       await db.deleteTask(input.id);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: task.projectId,
         taskId: input.id,
         action: "task_deleted",
@@ -649,7 +653,7 @@ const checklistRouter = router({
           description: input.description,
           allowGeneralComments: input.allowGeneralComments,
           allowPhotos: input.allowPhotos,
-          createdBy: ctx.user.id,
+          createdBy: ctx.user!.id,
         });
 
         const templateId = templateResult.insertId;
@@ -720,7 +724,7 @@ const checklistRouter = router({
       }
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         action: "checklist_template_updated",
         details: JSON.stringify({ templateId: id }),
       });
@@ -746,7 +750,7 @@ const checklistRouter = router({
         await db.deleteChecklistTemplate(input.id);
 
         await db.logActivity({
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           action: "checklist_template_deleted",
           details: JSON.stringify({ templateId: input.id }),
         });
@@ -818,7 +822,7 @@ const checklistRouter = router({
       });
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         taskId: input.taskId,
         action: "checklist_assigned",
         details: JSON.stringify({ templateName: template.name }),
@@ -836,7 +840,7 @@ const checklistRouter = router({
       await db.deleteTaskChecklist(input.id);
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         taskId: checklist.taskId,
         action: "checklist_removed",
         details: JSON.stringify({ checklistId: input.id }),
@@ -867,7 +871,7 @@ const checklistRouter = router({
         status: input.status,
         generalComments: input.generalComments,
         photoUrls: input.photoUrls,
-        inspectedBy: ctx.user.id,
+        inspectedBy: ctx.user!.id,
         inspectedAt: new Date(),
       });
 
@@ -883,7 +887,7 @@ const checklistRouter = router({
       }
 
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         taskId: checklist.taskId,
         action: "checklist_status_updated",
         details: JSON.stringify({ checklistId: input.id, status: input.status }),
@@ -911,7 +915,7 @@ const checklistRouter = router({
 
         // Notify QC team
         await db.createNotification({
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           type: "inspection_requested",
           title: "Inspection Requested",
           relatedTaskId: input.taskId,
@@ -942,7 +946,7 @@ const checklistRouter = router({
       const result = await db.submitInspection({
         taskChecklistId: input.taskChecklistId,
         taskId: input.taskId,
-        inspectedBy: ctx.user.id,
+        inspectedBy: ctx.user!.id,
         itemResults: input.items,
         generalComments: input.generalComments,
         photoUrls: input.photoUrls,
@@ -1074,7 +1078,7 @@ const defectRouter = router({
     .mutation(async ({ input, ctx }) => {
       const result = await db.createDefect({
         ...input,
-        reportedBy: ctx.user.id,
+        reportedBy: ctx.user!.id,
       });
 
       // Send real-time notification to assignee
@@ -1130,7 +1134,7 @@ const defectRouter = router({
         console.log("[defect.update] Found defect:", defect.id, defect.title);
         
         // Check edit permission
-        if (!canEditDefect(ctx.user.role, ctx.user.id, defect)) {
+        if (!canEditDefect(ctx.user.role, ctx.user!.id, defect)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'คุณไม่มีสิทธิ์แก้ไข defect นี้',
@@ -1139,9 +1143,9 @@ const defectRouter = router({
 
         const dataToUpdate = {
         ...updateData,
-        resolvedBy: updateData.status === "resolved" ? ctx.user.id : undefined,
+        resolvedBy: updateData.status === "resolved" ? ctx.user!.id : undefined,
         resolvedAt: updateData.status === "resolved" ? new Date() : undefined,
-        verifiedBy: updateData.status === "closed" ? ctx.user.id : undefined,
+        verifiedBy: updateData.status === "closed" ? ctx.user!.id : undefined,
         verifiedAt: updateData.status === "closed" ? new Date() : undefined,
       };
       // Validation: If beforePhotos exists, afterPhotos is required when status is resolved
@@ -1238,7 +1242,7 @@ const defectRouter = router({
     .mutation(async ({ input, ctx }) => {
       const attachmentId = await db.createDefectAttachment({
         ...input,
-        uploadedBy: ctx.user.id,
+        uploadedBy: ctx.user!.id,
       });
       return { id: attachmentId };
     }),
@@ -1255,7 +1259,7 @@ const defectRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       // Check delete permission
-      if (!canDeleteDefect(ctx.user.role)) {
+      if (!canDeleteDefect(ctx.user!.role)) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้',
@@ -1340,7 +1344,7 @@ const commentRouter = router({
     .mutation(async ({ input, ctx }) => {
       const result = await db.addTaskComment({
         taskId: input.taskId,
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         content: input.content,
         mentions: input.mentions ? JSON.stringify(input.mentions) : undefined,
       });
@@ -1402,14 +1406,14 @@ const attachmentRouter = router({
         fileKey,
         fileSize,
         mimeType: input.mimeType,
-        uploadedBy: ctx.user.id,
+        uploadedBy: ctx.user!.id,
       });
       
       // Log activity
       const task = await db.getTaskById(input.taskId);
       if (task) {
         await db.logActivity({
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           projectId: task.projectId,
           taskId: input.taskId,
           action: "attachment_added",
@@ -1434,7 +1438,7 @@ const attachmentRouter = router({
     .mutation(async ({ input, ctx }) => {
       return await db.addTaskAttachment({
         ...input,
-        uploadedBy: ctx.user.id,
+        uploadedBy: ctx.user!.id,
       });
     }),
     
@@ -1449,9 +1453,9 @@ const attachmentRouter = router({
       
       // Check permission: only uploader, admin, or PM can delete
       const canDelete =
-        attachment.uploadedBy === ctx.user.id ||
-        ctx.user.role === "admin" ||
-        ctx.user.role === "pm";
+        attachment.uploadedBy === ctx.user!.id ||
+        ctx.user!.role === "admin" ||
+        ctx.user!.role === "project_manager";
       
       if (!canDelete) {
         throw new Error("Permission denied");
@@ -1462,7 +1466,7 @@ const attachmentRouter = router({
       
       // Log activity
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         taskId: attachment.taskId,
         action: "attachment_deleted",
         details: JSON.stringify({ fileName: attachment.fileName }),
@@ -1478,7 +1482,7 @@ const attachmentRouter = router({
 const notificationRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const notifications = await db.getUserNotifications(ctx.user.id);
+      const notifications = await db.getUserNotifications(ctx.user!.id);
       // Ensure we always return an array
       return Array.isArray(notifications) ? notifications : [];
     } catch (error) {
@@ -1505,7 +1509,7 @@ const notificationRouter = router({
   markAllAsRead: protectedProcedure
     .mutation(async ({ ctx }) => {
       try {
-        return await db.markAllNotificationsAsRead(ctx.user.id);
+        return await db.markAllNotificationsAsRead(ctx.user!.id);
       } catch (error) {
         console.error('[notificationRouter.markAllAsRead] Error:', error);
         throw new TRPCError({
@@ -1530,11 +1534,12 @@ const activityRouter = router({
     .query(async ({ input }) => {
       return await db.getTaskActivityLog(input.taskId);
     }),
-  getByDefect: protectedProcedure
-    .input(z.object({ defectId: z.number() }))
-    .query(async ({ input }) => {
-      return await db.getDefectActivityLog(input.defectId);
-    }),
+  // Note: activityLog doesn't have defectId column
+  // getByDefect: protectedProcedure
+  //   .input(z.object({ defectId: z.number() }))
+  //   .query(async ({ input }) => {
+  //     return await db.getDefectActivityLog(input.defectId);
+  //   }),
 });
 
 /**
@@ -1546,7 +1551,7 @@ const activityRouter = router({
 const dashboardRouter = router({
   getStats: protectedProcedure.query(async ({ ctx }) => {
     // Get user's projects with stats
-    const userProjectsData = await db.getProjectsByUser(ctx.user.id);
+    const userProjectsData = await db.getProjectsByUser(ctx.user!.id);
     const allProjects = userProjectsData.map(p => p.projects);
     const projectsWithStats = await Promise.all(
       allProjects.map(async (project) => {
@@ -1614,7 +1619,7 @@ const dashboardRouter = router({
     const projectCount = projectsWithStats.length;
 
     // Get user's assigned tasks
-    const myTasks = tasksWithStatus.filter(t => t.assigneeId === ctx.user.id);
+    const myTasks = tasksWithStatus.filter(t => t.assigneeId === ctx.user!.id);
     const myTasksCount = myTasks.length;
 
     // Get defect statistics
@@ -1664,7 +1669,7 @@ const categoryColorRouter = router({
       await db.updateCategoryColor(input.projectId, input.category, input.color);
       
       await db.logActivity({
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         projectId: input.projectId,
         action: "category_color_updated",
         details: JSON.stringify({ category: input.category, color: input.color }),
@@ -1694,7 +1699,7 @@ export const appRouter = router({
         daysAfterEndDate: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        return await db.createArchiveRule({ ...input, createdBy: ctx.user.id });
+        return await db.createArchiveRule({ ...input, createdBy: ctx.user!.id });
       }),
     update: protectedProcedure
       .input(z.object({
@@ -1745,7 +1750,7 @@ export const appRouter = router({
         await db.updateUserRole(input.userId, input.role);
 
         await db.logActivity({
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           action: "user_role_updated",
           details: JSON.stringify({ targetUserId: input.userId, newRole: input.role }),
         });
@@ -1761,10 +1766,10 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input, ctx }) => {
-        await db.updateUserProfile(ctx.user.id, input);
+        await db.updateUserProfile(ctx.user!.id, input);
 
         await db.logActivity({
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           action: "profile_updated",
           details: JSON.stringify({ name: input.name, email: input.email }),
         });

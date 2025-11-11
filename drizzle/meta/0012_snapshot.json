@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "fc1c0857-b98d-4779-ab1a-8fba8fcca85c",
+  "id": "1df621f9-c88b-4753-8c15-aa8dc3e25784",
   "prevId": "c6c1b17e-b1d5-47e3-ae65-ab9f74f184dd",
   "tables": {
     "activityLog": {
@@ -829,7 +829,7 @@
         },
         "status": {
           "name": "status",
-          "type": "enum('reported','rca_pending','action_plan','assigned','in_progress','implemented','verification','effectiveness_check','closed','rejected')",
+          "type": "enum('reported','analysis','in_progress','resolved','closed')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -965,6 +965,13 @@
         },
         "implementationMethod": {
           "name": "implementationMethod",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "beforePhotos": {
+          "name": "beforePhotos",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

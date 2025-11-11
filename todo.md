@@ -1836,3 +1836,9 @@
 - [x] Apply useThaiTextInput to Checklist Template creation/edit forms (name, description)
 - [ ] Test all forms with Thai text input (manual testing required in production)
 - [ ] Verify no regression in existing functionality (manual testing required)
+
+## Fix TypeScript Errors (Nov 11, 2025)
+- [ ] Fix role enum mismatch errors ("pm" → "project_manager")
+- [ ] Fix missing properties errors (notifications schema)
+- [ ] Fix Date | null type errors
+- [ ] Test defect update functionality
