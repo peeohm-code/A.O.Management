@@ -178,6 +178,7 @@ export default function QCInspection() {
         ncrLevel: defectForm.ncrLevel,
         assignedTo: defectForm.assignedTo,
         photoUrls: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
+        beforePhotos: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
       });
       
       toast.success("สร้าง " + defectForm.type + " สำเร็จ");

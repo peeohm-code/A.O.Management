@@ -1058,6 +1058,7 @@ const defectRouter = router({
         title: z.string().min(1),
         description: z.string().optional(),
         photoUrls: z.string().optional(),
+        beforePhotos: z.string().optional(),
         severity: z.enum(["low", "medium", "high", "critical"]),
         assignedTo: z.number().optional(),
         // CAR/PAR/NCR specific fields

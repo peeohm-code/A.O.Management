@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { usePermissions, useCanDeleteDefect } from "@/hooks/usePermissions";
+import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 
 export default function Defects() {
   // Permission checks
@@ -664,6 +665,27 @@ export default function Defects() {
                   )}
                 </div>
               )}
+
+              {/* Before-After Photos Comparison */}
+              {selectedDefect.beforePhotos && selectedDefect.afterPhotos && (() => {
+                try {
+                  const beforePhotos = JSON.parse(selectedDefect.beforePhotos);
+                  const afterPhotos = JSON.parse(selectedDefect.afterPhotos);
+                  if (Array.isArray(beforePhotos) && beforePhotos.length > 0 && Array.isArray(afterPhotos) && afterPhotos.length > 0) {
+                    return (
+                      <div className="border-t pt-4">
+                        <BeforeAfterComparison
+                          beforePhotos={beforePhotos}
+                          afterPhotos={afterPhotos}
+                        />
+                      </div>
+                    );
+                  }
+                } catch (e) {
+                  console.error('Error parsing photos:', e);
+                }
+                return null;
+              })()}
 
               {/* Action Buttons based on status */}
               <div className="flex gap-2">
