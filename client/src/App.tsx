@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import DefectDetailErrorBoundary from "./components/DefectDetailErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
@@ -91,7 +92,12 @@ function Router() {
       <Route path={"/defects/:id"}>
         {() => (
           <DashboardLayout>
-            <DefectDetail />
+            <DefectDetailErrorBoundary
+              onGoBack={() => window.location.href = "/defects"}
+              onReset={() => window.location.reload()}
+            >
+              <DefectDetail />
+            </DefectDetailErrorBoundary>
           </DashboardLayout>
         )}
       </Route>

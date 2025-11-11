@@ -188,7 +188,18 @@ export default function DefectDetail() {
       beforePhotosQuery.refetch();
       afterPhotosQuery.refetch();
     } catch (error) {
-      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+      const errorMessage = (error as Error).message;
+      // Categorize file upload errors for better error messages
+      if (errorMessage.includes('size') || errorMessage.includes('large')) {
+        toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ที่เล็กกว่า");
+      } else if (errorMessage.includes('type') || errorMessage.includes('format')) {
+        toast.error("ประเภทไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์รูปภาพ");
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+        toast.error("เกิดปัญหาการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
+      } else {
+        toast.error("เกิดข้อผิดพลาด: " + errorMessage);
+      }
+      // Don't throw - let user retry without breaking the page
     } finally {
       if (type === "before") setUploadingBefore(false);
       else setUploadingAfter(false);
@@ -433,20 +444,24 @@ export default function DefectDetail() {
     );
   }
 
-  if (defectQuery.error || !defectQuery.data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="w-16 h-16 text-red-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">ไม่พบข้อมูล</h2>
-          <p className="text-gray-500 mb-6">ไม่พบรายการ CAR/PAR/NCR ที่คุณต้องการ</p>
-          <Button onClick={() => setLocation("/defects")}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับไปหน้า Defects
-          </Button>
-        </div>
-      </div>
-    );
+  // Throw errors to be caught by DefectDetailErrorBoundary
+  if (defectQuery.error) {
+    // Categorize error for better error messages
+    const error = defectQuery.error as any;
+    if (error.message?.includes('FORBIDDEN') || error.data?.code === 'FORBIDDEN') {
+      throw new Error('Permission denied: You do not have access to this defect');
+    }
+    if (error.message?.includes('NOT_FOUND') || error.data?.code === 'NOT_FOUND') {
+      throw new Error('Validation error: Defect not found');
+    }
+    if (error.message?.includes('Network') || error.message?.includes('fetch')) {
+      throw new Error('Network error: Failed to load defect data');
+    }
+    throw new Error(error.message || 'Failed to load defect data');
+  }
+
+  if (!defectQuery.data) {
+    throw new Error('Validation error: Defect data is missing');
   }
 
   const defect = defectQuery.data;

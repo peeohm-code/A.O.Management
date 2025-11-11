@@ -1933,3 +1933,15 @@
   - [x] Fixed useCanEditDefect to accept optional parameter
   - [x] Moved useCanEditDefect call before early returns in DefectDetail
   - [x] Ensured hooks are called in consistent order every render
+
+## Error Boundary Enhancement
+- [x] Review existing ErrorBoundary component
+- [x] Create DefectDetailErrorBoundary component
+- [x] Add error handling for:
+  - [x] Network errors (API failures)
+  - [x] Data validation errors
+  - [x] File upload errors
+  - [x] Permission errors
+- [x] Add user-friendly error messages (Thai)
+- [x] Add recovery options (retry, go back, reload, contact support)
+- [x] Test error scenarios (tested with non-existent defect ID)
