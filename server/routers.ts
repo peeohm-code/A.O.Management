@@ -1099,6 +1099,10 @@ const defectRouter = router({
     .input(
       z.object({
         id: z.number(),
+        // Basic fields
+        title: z.string().optional(),
+        description: z.string().optional(),
+        severity: z.enum(["low", "medium", "high", "critical"]).optional(),
         status: z.enum(["reported", "analysis", "in_progress", "resolved", "closed"]).optional(),
         assignedTo: z.number().optional(),
         resolutionComment: z.string().optional(),

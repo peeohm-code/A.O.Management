@@ -73,17 +73,17 @@ export default function DefectDetail() {
   };
 
   const handleSaveEdit = async () => {
-    if (!editTitle.trim()) {
+    if (!editTitleInput.value.trim()) {
       toast.error("กรุณากรอกหัวข้อ");
       return;
     }
 
     try {
-      // Note: The current defect.update mutation doesn't support title/description/severity
-      // We'll update status only for now
       await updateDefectMutation.mutateAsync({
         id: defectId,
-        // Add other fields when backend supports them
+        title: editTitleInput.value,
+        description: editDescriptionInput.value,
+        severity: editSeverity as "low" | "medium" | "high" | "critical",
       });
       toast.success("อัปเดตข้อมูลสำเร็จ");
       setShowEditDialog(false);

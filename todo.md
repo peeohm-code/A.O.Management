@@ -1809,3 +1809,18 @@
 - [x] Test permissions (canEdit required)
 - [x] Test UI/UX (button doesn't interfere with card click, good styling)
 - [ ] Test validation: in_progress → resolved requires After photos (needs photo upload)
+
+## Fix Thai Text Input Timeout Issue (Nov 11, 2025)
+- [x] Identify forms with Thai text input problems (DefectDetail edit form)
+- [x] Implement composition event handling (created useThaiTextInput hook)
+- [x] Apply useThaiTextInput to DefectDetail title and description fields
+- [x] Add title, description, severity fields to backend defect.update API
+- [ ] Test Thai text input in DefectDetail title/description fields (manual testing required)
+- [ ] Apply useThaiTextInput to comment forms (if needed)
+- [ ] Apply useThaiTextInput to task creation/edit forms (if needed)
+- [ ] Verify no regression in English text input
+
+## Add Toast Success Messages
+- [x] Add toast success message for inline status change in Defects page (already exists)
+- [x] Add toast success message for status change in DefectDetail page (already exists in handleSaveEdit)
+- [ ] Test toast messages appear correctly (manual testing required)
