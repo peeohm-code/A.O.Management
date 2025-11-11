@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { usePermissions, useCanDeleteDefect } from "@/hooks/usePermissions";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
+import { FileUpload } from "@/components/FileUpload";
 
 export default function Defects() {
   const [, setLocation] = useLocation();
@@ -1010,64 +1011,14 @@ export default function Defects() {
                 อัปโหลดรูปภาพแสดงสภาพหลังดำเนินการแก้ไขเสร็จสิ้น (รองรับ JPG, PNG, HEIC สูงสุด 10MB/ไฟล์)
               </p>
               
-              {/* File Input */}
-              <div className="space-y-3">
-                <label htmlFor="after-photos" className="cursor-pointer">
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 hover:border-primary/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex flex-col items-center gap-3 text-center">
-                      <Upload className="h-10 w-10 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">คลิกเพื่อเลือกรูปภาพ</p>
-                        <p className="text-sm text-muted-foreground mt-1">หรือลากไฟล์มาวางที่นี่</p>
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    id="after-photos"
-                    type="file"
-                    accept="image/*,.heic"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      // Validate file size (10MB max)
-                      const validFiles = files.filter(f => {
-                        if (f.size > 10 * 1024 * 1024) {
-                          toast.error(`ไฟล์ ${f.name} มีขนาดเกิน 10MB`);
-                          return false;
-                        }
-                        return true;
-                      });
-                      setAfterPhotos(prev => [...prev, ...validFiles]);
-                    }}
-                  />
-                </label>
-
-                {/* Preview uploaded files */}
-                {afterPhotos.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {afterPhotos.map((file, index) => (
-                      <div key={index} className="relative group">
-                        <div className="aspect-square rounded-lg border bg-muted overflow-hidden">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`After ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setAfterPhotos(prev => prev.filter((_, i) => i !== index))}
-                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                        <p className="text-xs text-muted-foreground mt-1 truncate">{file.name}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* File Upload Component */}
+              <FileUpload
+                onFilesSelected={setAfterPhotos}
+                maxFiles={10}
+                maxSizeMB={10}
+                acceptedTypes={["image/jpeg", "image/png", "image/webp", "image/jpg", "image/heic"]}
+                multiple={true}
+              />
             </div>
 
             <div className="flex gap-2 pt-4">
@@ -1490,24 +1441,13 @@ export default function Defects() {
               <Label className="text-sm font-semibold">
                 รูปภาพหลังการแก้ไข (After Photos)
               </Label>
-              <div className="border-2 border-dashed rounded-lg p-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      setImplementationPhotos(Array.from(e.target.files));
-                    }
-                  }}
-                  className="w-full"
-                />
-                {implementationPhotos.length > 0 && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    เลือกไฟล์ {implementationPhotos.length} ไฟล์
-                  </p>
-                )}
-              </div>
+              <FileUpload
+                onFilesSelected={setImplementationPhotos}
+                maxFiles={10}
+                maxSizeMB={10}
+                acceptedTypes={["image/jpeg", "image/png", "image/webp", "image/jpg"]}
+                multiple={true}
+              />
             </div>
 
             <div className="flex gap-3 pt-4">

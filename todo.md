@@ -1920,3 +1920,10 @@
 - [ ] Form validation integration
   - [ ] Defect creation with React Hook Form + Zod
   - [ ] QC inspection with React Hook Form + ZodForm + Zod)
+
+## FileUpload Component Integration
+- [x] Integrate FileUpload component into Defects page
+  - [x] Action Plan form (After Photos upload)
+  - [x] Implementation form (After Photos upload)
+- [x] QC Inspection page already uses ImageUpload component (better for this use case)
+- [x] Form validation skipped (basic validation already exists, React Hook Form + Zod deferred to future iteration based on user feedback)
