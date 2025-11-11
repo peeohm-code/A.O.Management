@@ -1962,3 +1962,21 @@
   - [x] Add Error Boundary to Tasks page
   - [x] Add Error Boundary to QC Inspection page (both /qc and /qc-inspection routes)
 - [x] Test all error boundaries (verified imports, props, and compilation)
+
+## User Feedback Widget
+- [x] Create FeedbackDialog component
+  - [x] Form fields (description, steps to reproduce, expected behavior)
+  - [x] Screenshot preview
+  - [x] Submit button with loading state
+- [x] Implement screenshot capture functionality
+  - [x] Capture current page screenshot with html2canvas
+  - [x] Upload to S3 automatically
+  - [x] Show preview in dialog with remove option
+- [x] Integrate FeedbackDialog into Error Boundary components
+  - [x] Add "Report Bug" button to DefectDetailErrorBoundary
+  - [x] Add "Report Bug" button to PageErrorBoundary
+- [x] Create backend tRPC mutation
+  - [x] submitErrorFeedback mutation in systemRouter
+  - [x] Upload screenshot to S3 (error-screenshots folder)
+  - [x] Send email notification to owner with bug details
+- [x] Test feedback widget (tested Error Boundary → Report Bug button → FeedbackDialog opens → Form fields work → Dialog closes)

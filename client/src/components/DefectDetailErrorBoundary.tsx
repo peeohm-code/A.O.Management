@@ -1,8 +1,9 @@
 import { Component, ReactNode } from "react";
-import { AlertTriangle, ArrowLeft, RotateCcw, Mail, WifiOff, ShieldAlert, FileWarning } from "lucide-react";
+import { AlertTriangle, ArrowLeft, RotateCcw, Mail, WifiOff, ShieldAlert, FileWarning, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { logError } from "@/lib/errorLogger";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 
 interface Props {
   children: ReactNode;
@@ -15,6 +16,7 @@ interface State {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
   errorType: ErrorType;
+  showFeedbackDialog: boolean;
 }
 
 type ErrorType = "network" | "permission" | "validation" | "file_upload" | "unknown";
@@ -27,6 +29,7 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       errorType: "unknown",
+      showFeedbackDialog: false,
     };
   }
 
@@ -96,6 +99,14 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
 
   handleReload = () => {
     window.location.reload();
+  };
+
+  handleOpenFeedback = () => {
+    this.setState({ showFeedbackDialog: true });
+  };
+
+  handleCloseFeedback = () => {
+    this.setState({ showFeedbackDialog: false });
   };
 
   getErrorContent() {
@@ -229,6 +240,19 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
                 {content.actions}
               </div>
 
+              {/* Report Bug Button */}
+              <div className="flex justify-center pt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-gray-600 hover:text-gray-900"
+                  onClick={this.handleOpenFeedback}
+                >
+                  <Bug className="w-4 h-4" />
+                  รายงานปัญหานี้
+                </Button>
+              </div>
+
               {/* Error Details (for debugging) */}
               {process.env.NODE_ENV === "development" && this.state.error && (
                 <details className="mt-6">
@@ -257,6 +281,15 @@ class DefectDetailErrorBoundary extends Component<Props, State> {
               )}
             </CardContent>
           </Card>
+
+          {/* Feedback Dialog */}
+          <FeedbackDialog
+            open={this.state.showFeedbackDialog}
+            onOpenChange={this.handleCloseFeedback}
+            errorMessage={this.state.error?.message}
+            errorStack={this.state.error?.stack}
+            pageName="DefectDetail"
+          />
         </div>
       );
     }
