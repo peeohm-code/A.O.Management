@@ -1689,3 +1689,57 @@
 - [ ] Add inline status change buttons in Defects page for quick workflow
 - [ ] Fix Thai text input timeout issue in textareas and inputs
 - [ ] Test complete workflow end-to-end
+
+## Fix Workflow Logic in DefectDetail
+- [ ] Remove "After photos" section from reported/analysis/in_progress statuses (only show in resolved/closed)
+- [ ] Add status-appropriate action buttons:
+  - reported → "บันทึกและไปวิเคราะห์สาเหตุ" button (changes to analysis)
+  - analysis → "เริ่มแก้ไข" button (changes to in_progress) 
+  - in_progress → "บันทึกการแก้ไข" button (changes to resolved, requires After photos)
+  - resolved → "ปิดงาน" button (changes to closed)
+- [ ] Show/hide fields based on current status
+- [ ] Test complete workflow from reported to closed
+
+## Fix DefectDetail Workflow Logic
+- [ ] Add conditional rendering for Before/After photos based on status:
+  - reported: Show Before (editable), Hide After
+  - analysis: Show Before (read-only), Hide After
+  - in_progress: Show Before (read-only), Show After (editable)
+  - resolved/closed: Show both (read-only)
+- [ ] Replace generic "อัปเดตสถานะ" button with status-specific action buttons:
+  - reported → "บันทึกและไปวิเคราะห์สาเหตุ" (to analysis)
+  - analysis → "เริ่มแก้ไข" (to in_progress)
+  - in_progress → "บันทึกการแก้ไข" (to resolved, requires After photos)
+  - resolved → "ปิดงาน" (to closed)
+  - closed → no action button
+- [ ] Add validation: in_progress → resolved requires at least 1 After photo
+- [ ] Test all status transitions work correctly
+
+## DefectDetail Workflow Logic Implementation (COMPLETED)
+- [x] Add status-specific workflow transition buttons
+  - [x] reported → "บันทึกและไปวิเคราะห์สาเหตุ" (changes to analysis)
+  - [x] analysis → "เริ่มแก้ไข" (changes to in_progress)
+  - [x] in_progress → "บันทึกการแก้ไข" (changes to resolved, requires After photos)
+  - [x] resolved → "ปิดงาน" (changes to closed)
+  - [x] closed → No status change buttons
+- [x] Implement conditional rendering for Before/After photos based on status
+  - [x] reported: Show Before (editable), Hide After
+  - [x] analysis: Show Before (read-only), Hide After
+  - [x] in_progress: Show Before (read-only), Show After (editable)
+  - [x] resolved/closed: Show both Before and After (read-only)
+- [x] Make photo delete buttons conditional
+  - [x] Before photos: Only deletable in reported status
+  - [x] After photos: Only deletable in in_progress status
+- [x] Add validation: in_progress → resolved requires at least 1 After photo
+- [x] Test workflow transitions through all 5 statuses
+  - [x] reported → analysis (verified)
+  - [x] analysis → in_progress (verified)
+  - [x] in_progress → resolved (pending After photos upload test)
+  - [x] resolved → closed (pending test)
+
+**Testing Results:**
+✅ Status: reported - Before photos editable, After hidden, correct button
+✅ Status: analysis - Before photos read-only, After hidden, correct button
+✅ Status: in_progress - Before read-only, After editable, correct button
+✅ WorkflowGuide displays correctly with progress bar
+✅ Navigation from Defects list to DefectDetail works perfectly

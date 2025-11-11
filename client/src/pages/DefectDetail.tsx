@@ -113,6 +113,29 @@ export default function DefectDetail() {
     }
   };
 
+  const handleWorkflowTransition = async (newStatus: string) => {
+    // Validation: in_progress -> resolved requires After photos
+    if (defectQuery.data?.status === 'in_progress' && newStatus === 'resolved') {
+      if (!afterPhotosQuery.data || afterPhotosQuery.data.length === 0) {
+        toast.error("กรุณาอัปโหลดรูปหลังแก้ไข (After photos) อย่างน้อย 1 รูป");
+        return;
+      }
+    }
+
+    try {
+      await updateDefectMutation.mutateAsync({
+        id: defectId,
+        status: newStatus as any,
+      });
+      toast.success("อัปเดตสถานะสำเร็จ");
+      defectQuery.refetch();
+      afterPhotosQuery.refetch();
+      beforePhotosQuery.refetch();
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
   const handlePhotoUpload = async (file: File, type: "before" | "after") => {
     if (!file.type.startsWith("image/")) {
       toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
@@ -453,10 +476,31 @@ export default function DefectDetail() {
                     <Edit className="w-4 h-4 mr-2" />
                     แก้ไข
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowStatusDialog(true)}>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    อัปเดตสถานะ
-                  </Button>
+                  {/* Status-specific workflow buttons */}
+                  {defect.status === 'reported' && (
+                    <Button size="sm" onClick={() => handleWorkflowTransition('analysis')}>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      บันทึกและไปวิเคราะห์สาเหตุ
+                    </Button>
+                  )}
+                  {defect.status === 'analysis' && (
+                    <Button size="sm" onClick={() => handleWorkflowTransition('in_progress')}>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      เริ่มแก้ไข
+                    </Button>
+                  )}
+                  {defect.status === 'in_progress' && (
+                    <Button size="sm" onClick={() => handleWorkflowTransition('resolved')}>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      บันทึกการแก้ไข
+                    </Button>
+                  )}
+                  {defect.status === 'resolved' && (
+                    <Button size="sm" onClick={() => handleWorkflowTransition('closed')}>
+                      <XCircle className="w-4 h-4 mr-2" />
+                      ปิดงาน
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -665,12 +709,12 @@ export default function DefectDetail() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Before Photos */}
+              <div className={`grid grid-cols-1 ${(defect.status === 'in_progress' || defect.status === 'resolved' || defect.status === 'closed') ? 'md:grid-cols-2' : ''} gap-6`}>
+                {/* Before Photos - Show in all statuses */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-gray-900">รูปก่อนแก้ไข (Before)</h3>
-                    {canEdit && (
+                    {canEdit && defect.status === 'reported' && (
                       <label className="cursor-pointer">
                         <input
                           type="file"
@@ -727,7 +771,7 @@ export default function DefectDetail() {
                           >
                             <Maximize2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                           </button>
-                          {canEdit && (
+                          {canEdit && defect.status === 'reported' && (
                             <button
                               onClick={() => handleDeletePhoto(photo.id, "before")}
                               className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -747,11 +791,12 @@ export default function DefectDetail() {
                   )}
                 </div>
 
-                {/* After Photos */}
+                {/* After Photos - Only show in in_progress, resolved, closed statuses */}
+                {(defect.status === 'in_progress' || defect.status === 'resolved' || defect.status === 'closed') && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-gray-900">รูปหลังแก้ไข (After)</h3>
-                    {canEdit && (
+                    {canEdit && defect.status === 'in_progress' && (
                       <label className="cursor-pointer">
                         <input
                           type="file"
@@ -808,7 +853,7 @@ export default function DefectDetail() {
                           >
                             <Maximize2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                           </button>
-                          {canEdit && (
+                          {canEdit && defect.status === 'in_progress' && (
                             <button
                               onClick={() => handleDeletePhoto(photo.id, "after")}
                               className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -827,6 +872,7 @@ export default function DefectDetail() {
                     </div>
                   )}
                 </div>
+                )}
               </div>
             </CardContent>
           </Card>
