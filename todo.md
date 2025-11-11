@@ -1980,3 +1980,14 @@
   - [x] Upload screenshot to S3 (error-screenshots folder)
   - [x] Send email notification to owner with bug details
 - [x] Test feedback widget (tested Error Boundary → Report Bug button → FeedbackDialog opens → Form fields work → Dialog closes)
+
+## Bug Fixes - DefectDetail RCA Form
+- [x] Investigate why RCA form is not showing in DefectDetail page (no form existed)
+- [x] Fix RCA form display logic for "วิเคราะห์สาเหตุ" workflow step
+  - [x] Added RCA form state variables (rcaRootCause, rcaCorrectiveAction, rcaPreventiveAction)
+  - [x] Created handleSubmitRCA function
+  - [x] Added RCA form UI that shows when status === "analysis" && !defect.rootCause
+  - [x] Form includes 3 fields: Root Cause*, Corrective Action*, Preventive Action
+  - [x] Submit changes status to "in_progress" automatically
+- [x] Ensure RCA form appears when defect status is appropriate (tested successfully)
+- [x] Test RCA form submission and workflow progression (tested: form submits, data saves, status changes to in_progress, workflow guide updates)

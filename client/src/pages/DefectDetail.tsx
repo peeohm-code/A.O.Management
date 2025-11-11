@@ -67,6 +67,12 @@ export default function DefectDetail() {
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [newStatus, setNewStatus] = useState("");
 
+  // RCA form state
+  const [showRCAForm, setShowRCAForm] = useState(false);
+  const [rcaRootCause, setRcaRootCause] = useState("");
+  const [rcaCorrectiveAction, setRcaCorrectiveAction] = useState("");
+  const [rcaPreventiveAction, setRcaPreventiveAction] = useState("");
+
   const handleEdit = () => {
     if (!defectQuery.data) return;
     setEditTitle(defectQuery.data.title);
@@ -112,10 +118,38 @@ export default function DefectDetail() {
       console.log('[handleUpdateStatus] Mutation result:', result);
       toast.success("อัปเดตสถานะสำเร็จ");
       setShowStatusDialog(false);
-      setNewStatus("");
       defectQuery.refetch();
     } catch (error) {
       console.error('[handleUpdateStatus] Error:', error);
+      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
+    }
+  };
+
+  const handleSubmitRCA = async () => {
+    if (!rcaRootCause.trim()) {
+      toast.error("กรุณากรอกสาเหตุต้นตอ (Root Cause)");
+      return;
+    }
+    if (!rcaCorrectiveAction.trim()) {
+      toast.error("กรุณากรอกการแก้ไข (Corrective Action)");
+      return;
+    }
+
+    try {
+      await updateDefectMutation.mutateAsync({
+        id: defectId,
+        rootCause: rcaRootCause,
+        correctiveAction: rcaCorrectiveAction,
+        preventiveAction: rcaPreventiveAction,
+        status: "in_progress", // Move to next step: กำลังแก้ไข
+      });
+      toast.success("บันทึกการวิเคราะห์สาเหตุสำเร็จ");
+      setShowRCAForm(false);
+      setRcaRootCause("");
+      setRcaCorrectiveAction("");
+      setRcaPreventiveAction("");
+      defectQuery.refetch();
+    } catch (error) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -589,7 +623,69 @@ export default function DefectDetail() {
             </Card>
           )}
 
-          {/* Root Cause Analysis */}
+          {/* RCA Form - Show when status is analysis and no rootCause yet */}
+          {defect.status === "analysis" && !defect.rootCause && (
+            <Card className="border-yellow-200 bg-yellow-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                  วิเคราะห์สาเหตุต้นตอ
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">
+                  ทำ Root Cause Analysis และแนวทางแก้ไขเพื่อไปขั้นตอนต่อไป
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="rcaRootCause">สาเหตุต้นตอ (Root Cause) *</Label>
+                  <Textarea
+                    id="rcaRootCause"
+                    value={rcaRootCause}
+                    onChange={(e) => setRcaRootCause(e.target.value)}
+                    placeholder="อธิบายสาเหตุต้นตอของปัญหา..."
+                    rows={4}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="rcaCorrectiveAction">การแก้ไข (Corrective Action) *</Label>
+                  <Textarea
+                    id="rcaCorrectiveAction"
+                    value={rcaCorrectiveAction}
+                    onChange={(e) => setRcaCorrectiveAction(e.target.value)}
+                    placeholder="อธิบายวิธีการแก้ไขปัญหา..."
+                    rows={4}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="rcaPreventiveAction">การป้องกัน (Preventive Action)</Label>
+                  <Textarea
+                    id="rcaPreventiveAction"
+                    value={rcaPreventiveAction}
+                    onChange={(e) => setRcaPreventiveAction(e.target.value)}
+                    placeholder="อธิบายวิธีการป้องกันไม่ให้เกิดซ้ำ... (ถ้ามี)"
+                    rows={4}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleSubmitRCA}
+                    disabled={updateDefectMutation.isPending}
+                    className="flex-1"
+                  >
+                    {updateDefectMutation.isPending ? "กำลังบันทึก..." : "บันทึกและไปขั้นตอนต่อไป"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Root Cause Analysis - Display when completed */}
           {defect.rootCause && (
             <Card>
               <CardHeader>
