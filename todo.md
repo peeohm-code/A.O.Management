@@ -1639,3 +1639,12 @@
 - [x] Create photo gallery lightbox component for viewing full-size images
 - [x] Integrate lightbox into BeforeAfterComparison component
 - [x] Add click handlers to open lightbox when clicking on photos
+
+
+## Final Improvements: Testing & Features
+- [ ] Test complete CAR workflow end-to-end (create defect with Before photos → RCA → implementation with After photos)
+- [ ] Verify Before-After comparison displays correctly
+- [x] Add photo file size validation (5MB max per photo) - Already implemented in ImageUpload component
+- [x] Add photo count validation (10 photos max) - Already implemented in ImageUpload component
+- [x] Create PDF export feature for Before-After comparison reports - Implemented in DefectDetail component with handleExportPDF function
+- [ ] Test PDF export with sample data - Blocked by defect detail page access issue
