@@ -621,8 +621,10 @@ export default function Defects() {
             
             return (
               <div key={defect.id} className="relative">
-                <Link href={`/defects/${defect.id}`}>
-                  <Card className="hover:shadow-md transition cursor-pointer">
+                <Card 
+                  className="hover:shadow-md transition cursor-pointer"
+                  onClick={() => setLocation(`/defects/${defect.id}`)}
+                >
                     <CardContent className="pt-6 pb-16">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -653,8 +655,7 @@ export default function Defects() {
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
-                </Link>
+                </Card>
                 
                 {/* Inline status change button */}
                 {canEdit && nextStatus && (
