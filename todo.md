@@ -2222,3 +2222,8 @@
 - [x] Create stat cards for each status (similar to QC and Defects pages)
 - [x] Reorganize layout: Overview section at top, task list below
 - [x] Test new dashboard layout and verify all functionality works
+
+## Tasks Page Layout Adjustment
+- [x] Move search bar and filter bar to the same row
+- [x] Adjust spacing and alignment for better visual balance
+- [x] Test responsive layout on different screen sizes

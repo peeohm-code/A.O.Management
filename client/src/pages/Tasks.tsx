@@ -209,38 +209,39 @@ export default function Tasks() {
       )}
 
       {/* Search and Filter */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <SearchBar
-            placeholder="ค้นหางาน..."
-            onSearch={setSearchTerm}
-            className="max-w-md flex-1"
-          />
-          {canEdit && filteredTasks.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={selectAllTasks}
-            >
-              {selectedTasks.size === filteredTasks.length ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด"}
-            </Button>
-          )}
-        </div>
-        <FilterBar
-          filters={filters}
-          onFilterChange={setFilters}
-          statusOptions={[
-            { value: "ready_to_start", label: "พร้อมเริ่ม" },
-            { value: "in_progress", label: "กำลังดำเนินการ" },
-            { value: "pending_pre_inspection", label: "รอตรวจก่อน" },
-            { value: "pending_final_inspection", label: "รอตรวจสุดท้าย" },
-            { value: "rectification_needed", label: "ต้องแก้ไข" },
-            { value: "completed", label: "เสร็จสิ้น" },
-          ]}
-          showAssignee={false}
-          showCategory={false}
-          showPriority={false}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+        <SearchBar
+          placeholder="ค้นหางาน..."
+          onSearch={setSearchTerm}
+          className="w-full md:max-w-md"
         />
+        <div className="flex-1">
+          <FilterBar
+            filters={filters}
+            onFilterChange={setFilters}
+            statusOptions={[
+              { value: "ready_to_start", label: "พร้อมเริ่ม" },
+              { value: "in_progress", label: "กำลังดำเนินการ" },
+              { value: "pending_pre_inspection", label: "รอตรวจก่อน" },
+              { value: "pending_final_inspection", label: "รอตรวจสุดท้าย" },
+              { value: "rectification_needed", label: "ต้องแก้ไข" },
+              { value: "completed", label: "เสร็จสิ้น" },
+            ]}
+            showAssignee={false}
+            showCategory={false}
+            showPriority={false}
+          />
+        </div>
+        {canEdit && filteredTasks.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={selectAllTasks}
+            className="whitespace-nowrap"
+          >
+            {selectedTasks.size === filteredTasks.length ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด"}
+          </Button>
+        )}
       </div>
 
       {/* Task Overview Dashboard */}
