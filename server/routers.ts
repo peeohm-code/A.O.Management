@@ -2046,6 +2046,31 @@ export const appRouter = router({
       }),
   }),
 
+  signature: router({
+    create: protectedProcedure
+      .input(
+        z.object({
+          checklistId: z.number(),
+          signatureData: z.string(),
+          signedBy: z.number(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const signature = await db.createSignature({
+          checklistId: input.checklistId,
+          signatureData: input.signatureData,
+          signedBy: input.signedBy,
+        });
+        return signature;
+      }),
+
+    getByChecklist: protectedProcedure
+      .input(z.object({ checklistId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getSignaturesByChecklistId(input.checklistId);
+      }),
+  }),
+
   dashboard: dashboardRouter,
   project: projectRouter,
   task: taskRouter,

@@ -15,6 +15,7 @@ import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calend
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/ImageUpload";
+import { SignatureCanvas } from "@/components/SignatureCanvas";
 
 type InspectionResult = "pass" | "fail" | "na";
 
@@ -48,6 +49,7 @@ export default function QCInspection() {
   });
   const [beforePhotos, setBeforePhotos] = useState<string[]>([]);
   const [defectPhotos, setDefectPhotos] = useState<string[]>([]);
+  const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
 
   
   // Read status from URL parameter
@@ -118,13 +120,29 @@ export default function QCInspection() {
 
   const selectedChecklist = allChecklists.find(c => c.id === selectedChecklistId);
 
+  const createSignatureMutation = trpc.signature.create.useMutation();
+
   const updateChecklistMutation = trpc.checklist.updateChecklistStatus.useMutation({
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
+      // Save signature after checklist update
+      if (inspectorSignature) {
+        try {
+          await createSignatureMutation.mutateAsync({
+            checklistId: variables.id,
+            signatureData: inspectorSignature,
+            signedBy: 1, // TODO: Use actual user ID from context
+          });
+        } catch (error) {
+          console.error("Failed to save signature:", error);
+        }
+      }
+
       toast.success("บันทึกผลการตรวจสอบสำเร็จ");
       setIsInspecting(false);
       setSelectedChecklistId(null);
       setItemResults({});
       setGeneralComments("");
+      setInspectorSignature(null);
       // Refetch checklists
       refetchChecklists();
     },
@@ -215,6 +233,11 @@ export default function QCInspection() {
 
     if (!allItemsChecked) {
       toast.error("กรุณาตรวจสอบรายการให้ครบทุกข้อ");
+      return;
+    }
+
+    if (!inspectorSignature) {
+      toast.error("กรุณาเซ็นลายเซ็นผู้ตรวจสอบ");
       return;
     }
 
@@ -548,6 +571,12 @@ export default function QCInspection() {
                 rows={4}
               />
             </div>
+
+            {/* Inspector Signature */}
+            <SignatureCanvas
+              onSignatureChange={setInspectorSignature}
+              label="ลายเซ็นผู้ตรวจสอบ"
+            />
 
             {/* Action Buttons */}
             <div className="flex gap-2 justify-end">

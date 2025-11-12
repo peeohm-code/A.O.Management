@@ -22,9 +22,10 @@ import {
   notifications,
   activityLog,
   categoryColors,
+  signatures,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
-import { createNotification } from "./notificationService";
+import { createNotification as sendNotification } from "./notificationService";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -1483,10 +1484,8 @@ export async function submitInspection(data: {
         content: failedCount > 0
           ? `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ กรุณาแก้ไข`
           : `งาน "${task[0].name}" ผ่านการตรวจสอบคุณภาพแล้ว`,
-        priority: failedCount > 0 ? "high" : "normal",
         relatedTaskId: data.taskId,
         relatedProjectId: task[0].projectId,
-        sendEmail: failedCount > 0, // Send email only if inspection failed
       });
     }
 
@@ -1499,7 +1498,7 @@ export async function submitInspection(data: {
         .from(pmMembersTable)
         .where(and(
           eq(pmMembersTable.projectId, task[0].projectId),
-          eq(pmMembersTable.role, "pm")
+          eq(pmMembersTable.role, "project_manager")
         ));
 
       for (const pm of pmMembers) {
@@ -1508,10 +1507,8 @@ export async function submitInspection(data: {
           type: "inspection_completed",
           title: "การตรวจสอบไม่ผ่าน",
           content: `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ`,
-          priority: "high",
           relatedTaskId: data.taskId,
           relatedProjectId: task[0].projectId,
-          sendEmail: true, // Always send email to PM for failed inspections
         });
       }
     }
@@ -2116,3 +2113,50 @@ export async function getLatestInspection(defectId: number) {
 }
 
 
+
+// ==================== Signature Functions ====================
+
+export async function createSignature(data: {
+  checklistId: number;
+  signatureData: string;
+  signedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(signatures).values({
+    checklistId: data.checklistId,
+    signatureData: data.signatureData,
+    signedBy: data.signedBy,
+    signedAt: new Date(),
+  });
+
+  const insertId = (result as any).insertId || (result as any)[0]?.insertId || 0;
+
+  return {
+    id: Number(insertId),
+    ...data,
+    signedAt: new Date(),
+  };
+}
+
+export async function getSignaturesByChecklistId(checklistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      id: signatures.id,
+      checklistId: signatures.checklistId,
+      signatureData: signatures.signatureData,
+      signedAt: signatures.signedAt,
+      signer: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+    })
+    .from(signatures)
+    .leftJoin(users, eq(signatures.signedBy, users.id))
+    .where(eq(signatures.checklistId, checklistId));
+}

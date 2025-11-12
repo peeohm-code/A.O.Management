@@ -507,3 +507,58 @@ export const archiveHistory = mysqlTable("archiveHistory", {
 
 export type ArchiveHistory = typeof archiveHistory.$inferSelect;
 export type InsertArchiveHistory = typeof archiveHistory.$inferInsert;
+
+/**
+ * Signatures - digital signatures for QC inspections and approvals
+ */
+export const signatures = mysqlTable("signatures", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistId: int("checklistId").notNull(),
+  signatureData: text("signatureData").notNull(), // Base64 encoded signature image
+  signedBy: int("signedBy").notNull(),
+  signedAt: timestamp("signedAt").defaultNow().notNull(),
+}, (table) => ({
+  checklistIdx: index("checklistIdx").on(table.checklistId),
+  signedByIdx: index("signedByIdx").on(table.signedBy),
+}));
+
+export type Signature = typeof signatures.$inferSelect;
+export type InsertSignature = typeof signatures.$inferInsert;
+
+/**
+ * Approvals - approval workflows for defects and checklists
+ */
+export const approvals = mysqlTable("approvals", {
+  id: int("id").autoincrement().primaryKey(),
+  entityType: mysqlEnum("entityType", ["defect", "checklist"]).notNull(),
+  entityId: int("entityId").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  entityIdx: index("entityIdx").on(table.entityType, table.entityId),
+}));
+
+export type Approval = typeof approvals.$inferSelect;
+export type InsertApproval = typeof approvals.$inferInsert;
+
+/**
+ * Approval Steps - individual approval steps in a workflow
+ */
+export const approvalSteps = mysqlTable("approvalSteps", {
+  id: int("id").autoincrement().primaryKey(),
+  approvalId: int("approvalId").notNull(),
+  approverId: int("approverId").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  comments: text("comments"),
+  signatureData: text("signatureData"), // Base64 encoded signature image
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  approvalIdx: index("approvalIdx").on(table.approvalId),
+  approverIdx: index("approverIdx").on(table.approverId),
+}));
+
+export type ApprovalStep = typeof approvalSteps.$inferSelect;
+export type InsertApprovalStep = typeof approvalSteps.$inferInsert;
