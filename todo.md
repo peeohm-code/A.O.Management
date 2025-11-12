@@ -2156,3 +2156,36 @@
 - [x] สร้างคู่มือ SendGrid Email Notifications Setup
 - [x] สร้าง Final System Test Report
 - [x] ระบบพร้อมใช้งาน Production 100%
+
+
+## Pre-Deploy Feature Additions (November 12, 2025)
+- [ ] เพิ่ม Photo Upload functionality ใน QC Inspection
+  - [ ] เพิ่ม S3 upload สำหรับรูปภาพ
+  - [ ] เพิ่ม camera capture บนมือถือ
+  - [ ] เพิ่ม image preview และ delete
+  - [ ] บันทึก image URLs ลงฐานข้อมูล
+  - [ ] แสดงรูปภาพใน Inspection history
+- [ ] ปรับ Mobile-First UI สำหรับ QC Inspection
+  - [ ] ปรับขนาดปุ่ม ผ่าน/ไม่ผ่าน/N/A ให้ใหญ่ขึ้น
+  - [ ] ปรับ Signature Canvas ให้เต็มจอบนมือถือ
+  - [ ] ปรับ layout ให้ใช้นิ้วโป้งข้างเดียวได้
+  - [ ] เพิ่ม responsive breakpoints สำหรับมือถือ
+- [ ] ทดสอบ Photo Upload และ Mobile UI ใน browser จริง
+- [ ] ตรวจสอบ TypeScript errors (ต้องเป็น 0)
+- [ ] ทดสอบฟีเจอร์เดิม (Dashboard, Projects, Tasks, Defects) ยังทำงานได้
+- [ ] บันทึก checkpoint สุดท้าย
+
+
+## Pre-Deploy Feature Addition (Nov 12, 2025) - COMPLETED
+- [x] Photo Upload in QC Inspection
+  - [x] Backend: Add image compression with sharp (85% quality, max 1920px)
+  - [x] Backend: Implement /api/upload endpoint with S3 integration
+  - [x] Frontend: Add camera capture attribute (capture="environment")
+  - [x] Frontend: Test upload functionality - WORKING
+- [x] Mobile-First UI for QC Inspection
+  - [x] Optimize ผ่าน/ไม่ผ่าน buttons for mobile (padding 12px, icon 24x24px)
+  - [x] Increase Signature Canvas size (h-48 sm:h-56 = 192px/224px)
+  - [x] Make action buttons full-width on mobile (h-12 = 48px)
+  - [x] Test responsive layout - WORKING
+- [x] TypeScript errors: 0
+- [x] Existing features still work (Dashboard, Projects, Tasks, QC, Defects)

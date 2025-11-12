@@ -92,11 +92,11 @@ export function SignatureCanvas({ onSignatureChange, label = "ลายเซ็
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-white">
+      {label && <Label className="text-base font-medium">{label}</Label>}
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 sm:p-4 bg-gray-50">
         <canvas
           ref={canvasRef}
-          className="w-full h-40 touch-none cursor-crosshair"
+          className="w-full h-48 sm:h-56 touch-none cursor-crosshair bg-white rounded border-2 border-gray-200"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -105,21 +105,23 @@ export function SignatureCanvas({ onSignatureChange, label = "ลายเซ็
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
         />
+        <div className="flex justify-between items-center mt-3">
+          <p className="text-xs sm:text-sm text-gray-600">
+            วาดลายเซ็นของคุณในกรอบด้านบน
+          </p>
+          {hasSignature && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={clearSignature}
+              className="h-10 px-4 text-base"
+            >
+              ล้าง
+            </Button>
+          )}
+        </div>
       </div>
-      {hasSignature && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={clearSignature}
-          className="w-full"
-        >
-          ล้างลายเซ็น
-        </Button>
-      )}
-      <p className="text-xs text-muted-foreground">
-        วาดลายเซ็นของคุณในกรอบด้านบน
-      </p>
     </div>
   );
 }

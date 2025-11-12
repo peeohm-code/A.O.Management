@@ -78,6 +78,7 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
           <input
             type="file"
             accept="image/*"
+            capture="environment"
             multiple
             onChange={handleFileSelect}
             disabled={disabled || uploading}

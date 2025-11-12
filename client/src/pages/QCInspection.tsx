@@ -496,7 +496,7 @@ export default function QCInspection() {
 
       {/* Inspection Dialog */}
       <Dialog open={isInspecting} onOpenChange={setIsInspecting}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto sm:max-w-[90vw]">
           <DialogHeader>
             <DialogTitle>{selectedChecklist?.templateName || selectedChecklist?.name}</DialogTitle>
             <div className="text-sm text-muted-foreground space-y-1">
@@ -526,18 +526,18 @@ export default function QCInspection() {
                           value={itemResults[item.id]?.result || ""}
                           onValueChange={(value) => handleItemResult(item.id, value as InspectionResult)}
                         >
-                          <div className="flex gap-4">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="pass" id={`pass-${item.id}`} />
-                              <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                                <CheckCircle2 className="h-4 w-4 text-[#00CE81]" />
+                          <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
+                            <div className="flex items-center space-x-2 p-3 border-2 rounded-lg cursor-pointer hover:bg-green-50 transition-colors" onClick={() => handleItemResult(item.id, 'pass')}>
+                              <RadioGroupItem value="pass" id={`pass-${item.id}`} className="w-5 h-5" />
+                              <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-base">
+                                <CheckCircle2 className="h-6 w-6 text-[#00CE81]" />
                                 ผ่าน
                               </Label>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="fail" id={`fail-${item.id}`} />
-                              <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-1 cursor-pointer">
-                                <XCircle className="h-4 w-4 text-red-600" />
+                            <div className="flex items-center space-x-2 p-3 border-2 rounded-lg cursor-pointer hover:bg-red-50 transition-colors" onClick={() => handleItemResult(item.id, 'fail')}>
+                              <RadioGroupItem value="fail" id={`fail-${item.id}`} className="w-5 h-5" />
+                              <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-base">
+                                <XCircle className="h-6 w-6 text-red-600" />
                                 ไม่ผ่าน
                               </Label>
                             </div>
@@ -573,18 +573,21 @@ export default function QCInspection() {
             </div>
 
             {/* Inspector Signature */}
-            <SignatureCanvas
-              onSignatureChange={setInspectorSignature}
-              label="ลายเซ็นผู้ตรวจสอบ"
-            />
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">ลายเซ็นผู้ตรวจสอบ *</Label>
+              <SignatureCanvas
+                onSignatureChange={setInspectorSignature}
+                label=""
+              />
+            </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setIsInspecting(false)}>
+            <div className="flex flex-col sm:flex-row gap-3 justify-end">
+              <Button variant="outline" onClick={() => setIsInspecting(false)} className="w-full sm:w-auto h-12 text-base">
                 ยกเลิก
               </Button>
-              <Button onClick={handleSubmitInspection} disabled={updateChecklistMutation.isPending}>
-                {updateChecklistMutation.isPending ? "กำลังบันทึก..." : "บันทึกผลการตรวจสอบ"}
+              <Button onClick={handleSubmitInspection} disabled={updateChecklistMutation.isPending} className="w-full sm:w-auto h-12 text-base font-semibold">
+                {updateChecklistMutation.isPending ? "กำลังบันทึก..." : "✓ บันทึกผลการตรวจสอบ"}
               </Button>
             </div>
           </div>

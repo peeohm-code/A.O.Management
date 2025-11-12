@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import multer from "multer";
+import sharp from "sharp";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -47,24 +48,47 @@ async function startServer() {
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
   });
   
-  // File upload endpoint
+  // File upload endpoint with image compression
   app.post("/api/upload", upload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
       
+      let fileBuffer = req.file.buffer;
+      let contentType = req.file.mimetype;
+      
+      // If it's an image, compress and resize it
+      if (req.file.mimetype.startsWith('image/')) {
+        try {
+          fileBuffer = await sharp(req.file.buffer)
+            .resize(1920, 1920, {
+              fit: 'inside',
+              withoutEnlargement: true,
+            })
+            .jpeg({
+              quality: 85,
+              progressive: true,
+            })
+            .toBuffer();
+          contentType = 'image/jpeg';
+        } catch (sharpError) {
+          console.warn('Image compression failed, uploading original:', sharpError);
+          // If compression fails, upload original
+        }
+      }
+      
       // Generate unique file key
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(7);
-      const fileExt = req.file.originalname.split('.').pop();
-      const fileKey = `defect-attachments/${timestamp}-${randomStr}.${fileExt}`;
+      const fileExt = contentType === 'image/jpeg' ? 'jpg' : req.file.originalname.split('.').pop();
+      const fileKey = `inspections/${timestamp}-${randomStr}.${fileExt}`;
       
       // Upload to S3
       const { url } = await storagePut(
         fileKey,
-        req.file.buffer,
-        req.file.mimetype
+        fileBuffer,
+        contentType
       );
       
       res.json({ url, key: fileKey });
