@@ -493,16 +493,47 @@ const taskRouter = router({
       
       // Send notification if task is assigned to someone
       if (updateData.assigneeId && updateData.assigneeId !== task.assigneeId) {
-        const notification = {
-          id: `task-assigned-${id}-${Date.now()}`,
-          type: "task_assigned" as const,
+        await createNotification({
+          userId: updateData.assigneeId,
+          type: "task_assigned",
           title: "มีงานใหม่มอบหมาย",
-          message: `คุณได้รับมอบหมายงาน "${task.name}"`,
-          link: `/tasks/${id}`,
-          timestamp: new Date(),
-          read: false,
-        };
-        emitNotification(updateData.assigneeId, notification);
+          content: `คุณได้รับมอบหมายงาน "${task.name}"`,
+          priority: "normal",
+          relatedTaskId: id,
+          relatedProjectId: task.projectId,
+          sendEmail: true,
+        });
+      }
+
+      // Send notification if progress is updated significantly (25%, 50%, 75%, 100%)
+      if (updateData.progress !== undefined && task.progress !== updateData.progress) {
+        const milestones = [25, 50, 75, 100];
+        const oldProgress = task.progress || 0;
+        const newProgress = updateData.progress;
+        
+        // Check if we crossed a milestone
+        const crossedMilestone = milestones.find(
+          (milestone) => oldProgress < milestone && newProgress >= milestone
+        );
+        
+        if (crossedMilestone && task.assigneeId) {
+          // Notify task followers about progress milestone
+          const followers = await db.getTaskFollowers(id);
+          for (const follower of followers) {
+            if (follower.userId !== ctx.user!.id) {
+              await createNotification({
+                userId: follower.userId,
+                type: "task_progress_updated",
+                title: "ความคืบหน้างานอัปเดต",
+                content: `งาน "${task.name}" คืบหน้าไป ${crossedMilestone}% แล้ว`,
+                priority: "normal",
+                relatedTaskId: id,
+                relatedProjectId: task.projectId,
+                sendEmail: false, // Don't send email for progress updates
+              });
+            }
+          }
+        }
       }
 
       return result;
@@ -1258,22 +1289,51 @@ const defectRouter = router({
       console.log("[defect.update] Update successful");
 
       // Notify assignee if assigned
-      if (updateData.assignedTo) {
-        await db.createNotification({
+      if (updateData.assignedTo && updateData.assignedTo !== defect.assignedTo) {
+        await createNotification({
           userId: updateData.assignedTo,
-          type: "defect_assigned",
-          title: `${defect.type} Assigned`,
-          content: defect.title,
+          type: "defect_created",
+          title: `${defect.type} มอบหมายให้คุณ`,
+          content: `คุณได้รับมอบหมาย ${defect.type}: "${defect.title}"`,
+          priority: defect.severity === "critical" ? "urgent" : defect.severity === "high" ? "high" : "normal",
+          relatedDefectId: defect.id,
           relatedTaskId: defect.taskId,
+          sendEmail: true,
         });
       }
 
-      // Notify owner/admin when defect is resolved
-      if (updateData.status === "resolved") {
-        await notifyOwner({
-          title: `${defect.type} แก้ไขเสร็จแล้ว`,
-          content: `${defect.title} - รอตรวจสอบผลการแก้ไข`,
-        });
+      // Notify when status changes
+      if (updateData.status && updateData.status !== defect.status) {
+        const statusLabels: Record<string, string> = {
+          reported: "รายงานแล้ว",
+          analysis: "กำลังวิเคราะห์",
+          in_progress: "กำลังดำเนินการ",
+          resolved: "แก้ไขเสร็จแล้ว",
+          pending_reinspection: "รอตรวจสอบซ้ำ",
+          closed: "ปิดแล้ว",
+        };
+
+        // Notify assignee about status change
+        if (defect.assignedTo) {
+          await createNotification({
+            userId: defect.assignedTo,
+            type: "defect_status_changed",
+            title: `${defect.type} เปลี่ยนสถานะ`,
+            content: `${defect.type} "${defect.title}" เปลี่ยนสถานะเป็น: ${statusLabels[updateData.status]}`,
+            priority: "normal",
+            relatedDefectId: defect.id,
+            relatedTaskId: defect.taskId,
+            sendEmail: false,
+          });
+        }
+
+        // Notify owner/admin when defect is resolved
+        if (updateData.status === "resolved") {
+          await notifyOwner({
+            title: `${defect.type} แก้ไขเสร็จแล้ว`,
+            content: `${defect.title} - รอตรวจสอบผลการแก้ไข`,
+          });
+        }
       }
 
         return result;
@@ -1546,14 +1606,24 @@ const commentRouter = router({
         mentions: input.mentions ? JSON.stringify(input.mentions) : undefined,
       });
 
-      // Notify mentioned users
+      // Notify mentioned users using notification service
       if (input.mentions && input.mentions.length > 0) {
+        const task = await db.getTaskById(input.taskId);
+        const commenter = ctx.user!;
+        
         for (const userId of input.mentions) {
-          await db.createNotification({
+          // Don't notify the commenter themselves
+          if (userId === ctx.user!.id) continue;
+          
+          await createNotification({
             userId,
             type: "comment_mention",
-            title: "You were mentioned in a comment",
+            title: "มีคน mention คุณใน comment",
+            content: `${commenter.name || "ผู้ใช้"} ได้ mention คุณใน comment${task ? ` ของงาน "${task.name}"` : ""}`,
+            priority: "normal",
             relatedTaskId: input.taskId,
+            relatedProjectId: task?.projectId,
+            sendEmail: false, // Don't send email for mentions (low priority)
           });
         }
       }

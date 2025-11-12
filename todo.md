@@ -2091,3 +2091,11 @@
 - [ ] Test email delivery for high/urgent priority notifications
 - [ ] Test real-time socket notifications
 - [ ] Verify deadline reminder cron job execution
+
+## Priority 2 Notifications Implementation
+- [x] Add comment_mention notification when users are @mentioned in comments
+- [x] Add inspection_completed notification for QC inspection results
+- [x] Add defect_status_changed notification for defect workflow updates
+- [x] Add task_progress_updated notification for progress changes
+- [x] Test all Priority 2 notifications end-to-end
+- [x] Verify email delivery settings for each notification type

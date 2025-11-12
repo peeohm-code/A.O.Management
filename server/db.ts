@@ -24,6 +24,7 @@ import {
   categoryColors,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import { createNotification } from "./notificationService";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -1472,58 +1473,48 @@ export async function submitInspection(data: {
     const task = await db.select().from(tasks).where(eq(tasks.id, data.taskId)).limit(1);
     if (task.length === 0) throw new Error("Task not found");
 
-    // 7. Create notifications
-    const notificationPromises = [];
-  // @ts-ignore
-
-    // @ts-ignore
+    // 7. Create notifications using notification service
     // Notify task assignee
     if (task[0].assigneeId) {
-      notificationPromises.push(
-        db.insert(notifications).values({
-          userId: task[0].assigneeId,
-          type: failedCount > 0 ? "inspection_failed" : "inspection_passed",
-          title: failedCount > 0 ? "การตรวจสอบไม่ผ่าน" : "การตรวจสอบผ่าน",
-          content: failedCount > 0
-            ? `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ กรุณาแก้ไข`
-            : `งาน "${task[0].name}" ผ่านการตรวจสอบคุณภาพแล้ว`,
-          relatedTaskId: data.taskId,
-          isRead: false,
-        })
-      );
+      await createNotification({
+        userId: task[0].assigneeId,
+        type: "inspection_completed",
+        title: failedCount > 0 ? "การตรวจสอบไม่ผ่าน" : "การตรวจสอบผ่าน",
+        content: failedCount > 0
+          ? `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ กรุณาแก้ไข`
+          : `งาน "${task[0].name}" ผ่านการตรวจสอบคุณภาพแล้ว`,
+        priority: failedCount > 0 ? "high" : "normal",
+        relatedTaskId: data.taskId,
+        relatedProjectId: task[0].projectId,
+        sendEmail: failedCount > 0, // Send email only if inspection failed
+      });
     }
 
     // Notify project manager if there are failed items
     if (failedCount > 0 && task[0].projectId) {
       // Get project members with PM role
       const pmMembersTable = projectMembers;
-  // @ts-ignore
       const pmMembers = await db
         .select()
-    // @ts-ignore
         .from(pmMembersTable)
         .where(and(
-  // @ts-ignore
           eq(pmMembersTable.projectId, task[0].projectId),
-    // @ts-ignore
           eq(pmMembersTable.role, "pm")
         ));
 
       for (const pm of pmMembers) {
-        notificationPromises.push(
-          db.insert(notifications).values({
-            userId: pm.userId,
-            type: "inspection_failed",
-            title: "การตรวจสอบไม่ผ่าน",
-            content: `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ`,
-            relatedTaskId: data.taskId,
-            isRead: false,
-          })
-        );
+        await createNotification({
+          userId: pm.userId,
+          type: "inspection_completed",
+          title: "การตรวจสอบไม่ผ่าน",
+          content: `งาน "${task[0].name}" มีรายการตรวจสอบไม่ผ่าน ${failedCount} รายการ`,
+          priority: "high",
+          relatedTaskId: data.taskId,
+          relatedProjectId: task[0].projectId,
+          sendEmail: true, // Always send email to PM for failed inspections
+        });
       }
     }
-
-    await Promise.all(notificationPromises);
 
     // 8. Log activity
     await logActivity({
