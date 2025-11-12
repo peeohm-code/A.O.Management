@@ -2195,3 +2195,9 @@
 - [x] Fix Defect card click handler - requires 2 clicks to navigate
 - [x] Test navigation in browser
 - [x] Verify no breaking changes
+
+## UX Bug Fix - Defects Page Inline Status Button
+- [x] Fix inline status change button behavior in Defects page
+- [x] Change "บันทึกการแก้ไข" button from immediate status change to navigation to DefectDetail page
+- [x] Remove validation check for After photos from inline button (validation should only be in DefectDetail page)
+- [x] Ensure users can navigate to DefectDetail page to fill in implementation details and upload After photos before saving

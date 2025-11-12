@@ -209,36 +209,9 @@ export default function Defects() {
   };
 
   const handleQuickStatusChange = async (defectId: number, currentStatus: string) => {
-    const nextStatus = getNextStatus(currentStatus);
-    if (!nextStatus) return;
-
-    setUpdatingDefectId(defectId);
-
-    try {
-      // Validation: in_progress → resolved requires After photos
-      if (currentStatus === 'in_progress' && nextStatus === 'resolved') {
-        // Note: Cannot use query directly, need to use mutation or fetch
-        const hasPhotos = false; // TODO: Implement proper check
-        if (!hasPhotos) {
-          toast.error("กรุณาอัปโหลดรูปหลังแก้ไข (After photos) ก่อนบันทึกการแก้ไข");
-          setUpdatingDefectId(null);
-          return;
-        }
-      }
-
-      // Update status
-      await updateDefectMutation.mutateAsync({
-        id: defectId,
-        status: nextStatus as any,
-      });
-
-      toast.success("อัปเดตสถานะสำเร็จ");
-      allDefectsQuery.refetch();
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
-    } finally {
-      setUpdatingDefectId(null);
-    }
+    // Instead of immediate status change, navigate to DefectDetail page
+    // where users can fill in all required information before saving
+    setLocation(`/defects/${defectId}`);
   };
 
   const handleUpdateDefect = async (newStatus: string) => {
