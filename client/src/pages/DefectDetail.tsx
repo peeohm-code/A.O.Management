@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useCanEditDefect } from "@/hooks/usePermissions";
 import { WorkflowGuide } from "@/components/WorkflowGuide";
+import { SignatureCanvas } from "@/components/SignatureCanvas";
 
 export default function DefectDetail() {
   const params = useParams();
@@ -86,6 +87,7 @@ export default function DefectDetail() {
   const [closureVerified, setClosureVerified] = useState(false);
   const [closureLessonsLearned, setClosureLessonsLearned] = useState("");
   const [closureApproved, setClosureApproved] = useState(false);
+  const [closureSignature, setClosureSignature] = useState<string | null>(null);
 
   // Re-inspection state
   const [showReinspectionDialog, setShowReinspectionDialog] = useState(false);
@@ -217,6 +219,10 @@ export default function DefectDetail() {
     }
     if (!closureApproved) {
       toast.error("กรุณาอนุมัติการปิดงาน");
+      return;
+    }
+    if (!closureSignature) {
+      toast.error("กรุณาเซ็นชื่อเพื่อยืนยันการปิดงาน");
       return;
     }
 
@@ -964,6 +970,17 @@ export default function DefectDetail() {
                     placeholder="บันทึกบทเรียนและข้อควรประบปรุงในอนาคต (ถ้ามี)..."
                     rows={4}
                   />
+                </div>
+                <div>
+                  <SignatureCanvas
+                    onSignatureChange={setClosureSignature}
+                    label="ลายเซ็นผู้อนุมัติปิดงาน"
+                  />
+                  {!closureSignature && (
+                    <p className="text-sm text-red-500 mt-1">
+                      กรุณาเซ็นชื่อเพื่อยืนยันการปิดงาน <span className="text-red-500">*</span>
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
