@@ -2227,3 +2227,11 @@
 - [x] Move search bar and filter bar to the same row
 - [x] Adjust spacing and alignment for better visual balance
 - [x] Test responsive layout on different screen sizes
+
+## Checklist Templates Dashboard Redesign
+- [x] Review current Checklist Templates page layout
+- [x] Add dashboard overview section with statistics
+- [x] Group templates by categories (งานโครงสร้าง, งานสถาปัตยกรรม, งานระบบ, งาน QC ทั่วไป)
+- [x] Add category cards showing template count per category
+- [x] Implement category filtering/navigation
+- [x] Test new dashboard layout and category grouping
