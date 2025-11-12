@@ -2235,3 +2235,14 @@
 - [x] Add category cards showing template count per category
 - [x] Implement category filtering/navigation
 - [x] Test new dashboard layout and category grouping
+
+## Checklist Templates Dashboard Reorganization
+- [x] Update category grouping to show only 5 main categories
+- [x] Map templates to main categories: งานเตรียมงาน, งานโครงสร้าง, งานสถาปัตย์, งานระบบ, งานอื่นๆ
+- [x] Remove subcategory cards (foundation, structure, wall, roof, finishing, electrical, plumbing) from dashboard
+- [x] Test updated dashboard with new category structure
+
+## Remove Stage Statistics from Checklist Templates Dashboard
+- [x] Remove stage cards (ก่อนเริ่มงาน, ระหว่างทำงาน, หลังเสร็จงาน) from Template Overview
+- [x] Keep only the 5 main work category cards
+- [x] Test updated dashboard layout
