@@ -2201,3 +2201,24 @@
 - [x] Change "บันทึกการแก้ไข" button from immediate status change to navigation to DefectDetail page
 - [x] Remove validation check for After photos from inline button (validation should only be in DefectDetail page)
 - [x] Ensure users can navigate to DefectDetail page to fill in implementation details and upload After photos before saving
+
+## Critical Bug - Defects Page Not Loading
+- [ ] Investigate why Defects page fails to load
+- [ ] Check server logs for errors
+- [ ] Check browser console for JavaScript errors
+- [ ] Fix the root cause of the loading failure
+- [ ] Test and verify Defects page loads correctly
+
+## Defects Page Dashboard Redesign
+- [x] Review QC Inspection page design and extract reusable patterns
+- [x] Add pie chart showing defect distribution by status
+- [x] Create stat cards for each status (รอตรวจสอบ, เปิดอยู่, ปิดแล้ว, เกินกำหนด)
+- [x] Reorganize layout: Overview section at top with pie chart and cards, defect list below
+- [x] Test new dashboard layout and verify all functionality works
+
+## Tasks Page Dashboard Redesign
+- [x] Review current Tasks page layout and stats
+- [x] Add pie chart showing task distribution by status
+- [x] Create stat cards for each status (similar to QC and Defects pages)
+- [x] Reorganize layout: Overview section at top, task list below
+- [x] Test new dashboard layout and verify all functionality works

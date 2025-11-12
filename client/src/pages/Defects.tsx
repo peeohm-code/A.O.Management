@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import {
   Select,
   SelectContent,
@@ -431,101 +432,94 @@ export default function Defects() {
         <p className="text-gray-600 mt-1">Monitor and manage construction defects</p>
       </div>
 
-      {/* Dashboard Metrics */}
+      {/* Dashboard Metrics with Pie Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Defect Tracking Overview</CardTitle>
+          <div className="flex items-center gap-2">
+            <PieChartIcon className="h-5 w-5" />
+            <CardTitle>Defect Tracking Overview</CardTitle>
+          </div>
           <CardDescription>สถิติ Defect ทั้งหมดแบ่งตามสถานะ</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {/* Total */}
-            <div
-              className="p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition"
-              onClick={() => {
-                setStatusFilter("all");
-                // setOverdueFilter(false);
-              }}
-            >
-              <div className="text-sm text-gray-600 mb-1">ทั้งหมด</div>
-              <div className="text-3xl font-bold mb-2">{metrics.total}</div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-gray-400" style={{ width: "100%" }} />
-              </div>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Pie Chart */}
+            <div className="w-full md:w-1/2 h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'รอตรวจสอบ', value: metrics.pendingVerification, color: '#FBBF24' },
+                      { name: 'เปิดอยู่', value: metrics.open, color: '#F97316' },
+                      { name: 'ปิดแล้ว', value: metrics.closed, color: '#10B981' },
+                      { name: 'เกินกำหนด', value: metrics.overdue, color: '#EF4444' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={(entry) => `${entry.name} ${((entry.value / metrics.total) * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {[
+                      { name: 'รอตรวจสอบ', value: metrics.pendingVerification, color: '#FBBF24' },
+                      { name: 'เปิดอยู่', value: metrics.open, color: '#F97316' },
+                      { name: 'ปิดแล้ว', value: metrics.closed, color: '#10B981' },
+                      { name: 'เกินกำหนด', value: metrics.overdue, color: '#EF4444' },
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-
-            {/* Open */}
-            <div
-              className="p-4 rounded-lg border-2 border-orange-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => {
-                setStatusFilter("all");
-                // setOverdueFilter(false);
-              }}
-            >
-              <div className="text-sm text-gray-600 mb-1">เปิดอยู่</div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">{metrics.open}</div>
-              <div className="h-2 bg-orange-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-orange-500" 
-                  style={{ width: metrics.total > 0 ? `${(metrics.open / metrics.total) * 100}%` : "0%" }} 
-                />
-              </div>
-            </div>
-
-            {/* Closed */}
-            <div
-              className="p-4 rounded-lg border-2 border-green-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => {
-                setStatusFilter("closed");
-                // setOverdueFilter(false);
-              }}
-            >
-              <div className="text-sm text-gray-600 mb-1">ปิดแล้ว</div>
-              <div className="text-3xl font-bold text-[#00CE81] mb-2">{metrics.closed}</div>
-              <div className="h-2 bg-green-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-[#00CE81]" 
-                  style={{ width: metrics.total > 0 ? `${(metrics.closed / metrics.total) * 100}%` : "0%" }} 
-                />
-              </div>
-            </div>
-
-            {/* Pending Verification */}
-            <div
-              className="p-4 rounded-lg border-2 border-yellow-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => {
-                setStatusFilter("resolved");
-                // setOverdueFilter(false);
-              }}
-            >
-              <div className="text-sm text-gray-600 mb-1">รอตรวจสอบ</div>
-              <div className="text-3xl font-bold text-yellow-600 mb-2">{metrics.pendingVerification}</div>
-              <div className="h-2 bg-yellow-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-yellow-500" 
-                  style={{ width: metrics.total > 0 ? `${(metrics.pendingVerification / metrics.total) * 100}%` : "0%" }} 
-                />
-              </div>
-            </div>
-
-            {/* Overdue */}
-            <div
-              className="p-4 rounded-lg border-2 border-red-200 cursor-pointer hover:shadow-md transition"
-              onClick={() => {
-                // setOverdueFilter(false);
-                setStatusFilter("all");
-                setSeverityFilter("all");
-                toast.info(false ? "แสดง Defect ทั้งหมด" : "กรองแสดง Defect ที่เกินกำหนด");
-              }}
-            >
-              <div className="text-sm text-gray-600 mb-1">เกินกำหนด</div>
-              <div className="text-3xl font-bold text-red-600 mb-2">{metrics.overdue}</div>
-              <div className="h-2 bg-red-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-red-500" 
-                  style={{ width: metrics.total > 0 ? `${(metrics.overdue / metrics.total) * 100}%` : "0%" }} 
-                />
-              </div>
+            
+            {/* Stat Cards */}
+            <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'resolved' ? 'all' : 'resolved')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
+                  <div className="text-sm text-muted-foreground">รอตรวจสอบ</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'all' ? 'all' : 'all')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-orange-600">{metrics.open}</div>
+                  <div className="text-sm text-muted-foreground">เปิดอยู่</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setStatusFilter(statusFilter === 'closed' ? 'all' : 'closed')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-green-600">{metrics.closed}</div>
+                  <div className="text-sm text-muted-foreground">ปิดแล้ว</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setStatusFilter('all');
+                  toast.info('กรองแสดง Defect ที่เกินกำหนด');
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-red-600">{metrics.overdue}</div>
+                  <div className="text-sm text-muted-foreground">เกินกำหนด</div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </CardContent>

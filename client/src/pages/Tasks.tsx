@@ -20,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Calendar, User, Building2, CheckSquare, X } from "lucide-react";
+import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
@@ -242,8 +243,98 @@ export default function Tasks() {
         />
       </div>
 
-      {/* Task Overview Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {/* Task Overview Dashboard */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <PieChartIcon className="h-5 w-5" />
+            <CardTitle>Task Overview</CardTitle>
+          </div>
+          <CardDescription>สถิติงานทั้งหมดแบ่งตามสถานะ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Pie Chart */}
+            <div className="w-full md:w-1/2 h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'ยังไม่เริ่ม', value: stats.not_started, color: '#9CA3AF' },
+                      { name: 'กำลังทำ', value: stats.in_progress, color: '#00366D' },
+                      { name: 'ล่าช้า', value: stats.delayed, color: '#EF4444' },
+                      { name: 'เสร็จสมบูรณ์', value: stats.completed, color: '#00CE81' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={(entry) => entry.value > 0 ? `${entry.name} ${((entry.value / stats.total) * 100).toFixed(0)}%` : ''}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {[
+                      { name: 'ยังไม่เริ่ม', value: stats.not_started, color: '#9CA3AF' },
+                      { name: 'กำลังทำ', value: stats.in_progress, color: '#00366D' },
+                      { name: 'ล่าช้า', value: stats.delayed, color: '#EF4444' },
+                      { name: 'เสร็จสมบูรณ์', value: stats.completed, color: '#00CE81' },
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Stat Cards */}
+            <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'not_started' ? 'all' : 'not_started')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-gray-600">{stats.not_started}</div>
+                  <div className="text-sm text-muted-foreground">ยังไม่เริ่ม</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'in_progress' ? 'all' : 'in_progress')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold" style={{ color: '#00366D' }}>{stats.in_progress}</div>
+                  <div className="text-sm text-muted-foreground">กำลังทำ</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'delayed' ? 'all' : 'delayed')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-red-600">{stats.delayed}</div>
+                  <div className="text-sm text-muted-foreground">ล่าช้า</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'completed' ? 'all' : 'completed')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold" style={{ color: '#00CE81' }}>{stats.completed}</div>
+                  <div className="text-sm text-muted-foreground">เสร็จสมบูรณ์</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Old Task Overview Cards - Keep for backward compatibility but hide */}
+      <div className="hidden grid-cols-2 md:grid-cols-5 gap-4">
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => setDisplayStatusFilter("all")}
