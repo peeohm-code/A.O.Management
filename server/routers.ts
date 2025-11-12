@@ -12,6 +12,7 @@ import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusCo
 import { notifyOwner } from "./_core/notification";
 import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
+import { createNotification } from "./notificationService";
 import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
 
 /**
@@ -411,15 +412,17 @@ const taskRouter = router({
         details: JSON.stringify({ name: input.name }),
       });
 
-      // Create notification for assignee
+      // Create notification for assignee using notification service
       if (input.assigneeId) {
-        await db.createNotification({
+        await createNotification({
           userId: input.assigneeId,
           type: "task_assigned",
-          title: "New Task Assigned",
-          content: input.name,
+          title: "มอบหมายงานใหม่",
+          content: `คุณได้รับมอบหมายงาน: "${input.name}"`,
+          priority: "normal",
           relatedTaskId: taskId,
           relatedProjectId: input.projectId,
+          sendEmail: true, // Send email for task assignments
         });
       }
 
@@ -881,6 +884,21 @@ const checklistRouter = router({
         details: JSON.stringify({ templateName: template.name }),
       });
 
+      // Send notification to task assignee about new checklist
+      const task = await db.getTaskById(input.taskId);
+      if (task && task.assigneeId) {
+        await createNotification({
+          userId: task.assigneeId,
+          type: "checklist_assigned",
+          title: "มอบหมาย Checklist ใหม่",
+          content: `ได้รับมอบหมาย checklist "${template.name}" สำหรับงาน "${task.name}"`,
+          priority: "normal",
+          relatedTaskId: input.taskId,
+          relatedProjectId: task.projectId,
+          sendEmail: false, // Don't send email for checklist assignments (low priority)
+        });
+      }
+
       return { success: true, id: (result as any).insertId };
     }),
 
@@ -1135,18 +1153,18 @@ const defectRouter = router({
         reportedBy: ctx.user!.id,
       });
 
-      // Send real-time notification to assignee
+      // Send notification to assignee using notification service
       if (input.assignedTo) {
-        const notification = {
-          id: `defect-reported-${Date.now()}`,
-          type: "defect_reported" as const,
+        await createNotification({
+          userId: input.assignedTo,
+          type: "defect_created",
           title: `มี ${input.type} ใหม่มอบหมาย`,
-          message: `คุณได้รับมอบหมาย ${input.type}: "${input.title}"`,
-          link: `/defects`,
-          timestamp: new Date(),
-          read: false,
-        };
-        emitNotification(input.assignedTo, notification);
+          content: `คุณได้รับมอบหมาย ${input.type}: "${input.title}" ระดับความรุนแรง: ${input.severity}`,
+          priority: input.severity === "critical" ? "urgent" : input.severity === "high" ? "high" : "normal",
+          relatedDefectId: (result as any).insertId,
+          relatedTaskId: input.taskId,
+          sendEmail: true, // Always send email for defect assignments
+        });
       }
 
       return result;

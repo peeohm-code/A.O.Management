@@ -2047,3 +2047,47 @@
 - [x] Bug fixes
   - [x] Fixed defects.status ENUM to include pending_reinspection
   - [x] Changed defect_inspections columns from ENUM to VARCHAR to avoid caching issues
+
+## Notification System Implementation
+- [ ] Phase 1: Create Service Foundations
+  - [ ] Create notificationService.ts with type-safe helper functions
+  - [ ] Create emailService.ts for email delivery
+  - [ ] Fix type safety issues in db.ts createNotification
+  - [ ] Add error handling wrapper for notification creation
+- [ ] Phase 2: Priority 1 Critical Notifications
+  - [ ] task_deadline_approaching (3 days before due)
+  - [ ] task_overdue (when task passes deadline)
+  - [ ] defect_created (when new defect is created)
+  - [ ] defect_deadline_approaching (3 days before defect due)
+  - [ ] checklist_assigned (when checklist assigned to task)
+- [ ] Phase 3: Scheduled Jobs for Deadline Reminders
+  - [ ] Create deadlineReminderJob.ts
+  - [ ] Schedule daily check for approaching deadlines
+  - [ ] Schedule daily check for overdue tasks
+- [ ] Phase 4: Priority 2 Important Notifications
+  - [ ] task_status_changed
+  - [ ] defect_status_changed
+  - [ ] comment_added
+  - [ ] file_uploaded
+- [ ] Phase 5: Testing
+  - [ ] Test each notification type (in-app + email)
+  - [ ] Test scheduled jobs
+  - [ ] Verify notification links work correctly
+
+## Notification System Implementation
+- [x] Create notification service layer (notificationService.ts)
+- [x] Create email service for notification delivery (emailService.ts)
+- [x] Add notification triggers for defect creation (defect_created)
+- [x] Add notification triggers for task assignment (task_assigned)
+- [x] Add notification triggers for checklist assignment (checklist_assigned)
+- [x] Create deadline reminder cron job (deadlineReminders.ts)
+- [x] Implement task_deadline_approaching notification (3 days before)
+- [x] Implement task_overdue notification
+- [x] Implement defect_deadline_approaching notification (3 days before)
+- [x] Create cron scheduler (scheduler.ts) - runs daily at 8:00 AM
+- [x] Initialize cron jobs on server startup
+- [x] Install node-cron package
+- [ ] Test notification delivery end-to-end
+- [ ] Test email delivery for high/urgent priority notifications
+- [ ] Test real-time socket notifications
+- [ ] Verify deadline reminder cron job execution
