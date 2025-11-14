@@ -20,6 +20,10 @@ import { inspectionRequestRouter } from "./inspectionRequestRouter";
  * Project Router - Project Management
  */
 const projectRouter = router({
+  getNextProjectCode: protectedProcedure.query(async () => {
+    return await db.generateProjectCode();
+  }),
+
   list: protectedProcedure.query(async ({ ctx }) => {
     const projects = await db.getAllProjects();
     const projectsWithStats = await Promise.all(
@@ -49,7 +53,14 @@ const projectRouter = router({
         createdBy: ctx.user!.id,
       });
 
-      const projectId = (result as any).insertId as number;
+      const projectId = result.id;
+      
+      if (!projectId || isNaN(projectId)) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `Failed to create project: invalid project ID (${projectId})`,
+        });
+      }
       
       await db.logActivity({
         userId: ctx.user!.id,
@@ -68,11 +79,14 @@ const projectRouter = router({
         name: z.string().optional(),
         code: z.string().optional(),
         location: z.string().optional(),
+        latitude: z.string().optional(),
+        longitude: z.string().optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         ownerName: z.string().optional(),
         color: z.string().optional(),
-        status: z.enum(["planning", "active", "on_hold", "completed", "cancelled"]).optional(),
+        status: z.enum(["draft", "planning", "active", "on_hold", "completed", "cancelled"]).optional(),
+        completionPercentage: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {

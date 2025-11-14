@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -162,10 +162,51 @@ export async function updateUserProfile(userId: number, data: { name: string; em
 /**
  * Project Management
  */
+
+/**
+ * Generate next available project code in format AO-YYYY-XXX
+ */
+export async function generateProjectCode(): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const currentYear = new Date().getFullYear();
+  const prefix = `AO-${currentYear}-`;
+
+  // Get the latest project code for this year
+  const latestProjects = await db
+    .select({ code: projects.code })
+    .from(projects)
+    .where(like(projects.code, `${prefix}%`))
+    .orderBy(desc(projects.code))
+    .limit(1);
+
+  if (latestProjects.length === 0) {
+    // First project of the year
+    return `${prefix}001`;
+  }
+
+  const latestCode = latestProjects[0].code;
+  if (!latestCode) {
+    return `${prefix}001`;
+  }
+
+  // Extract the number part and increment
+  const match = latestCode.match(/AO-(\d{4})-(\d{3})/);
+  if (!match) {
+    return `${prefix}001`;
+  }
+
+  const number = parseInt(match[2], 10) + 1;
+  return `${prefix}${number.toString().padStart(3, '0')}`;
+}
+
 export async function createProject(data: {
   name: string;
   code?: string;
   location?: string;
+  latitude?: string;
+  longitude?: string;
   ownerName?: string;
   startDate?: string;
   endDate?: string;
@@ -181,19 +222,27 @@ export async function createProject(data: {
     createdBy: data.createdBy,
   };
   
-  if (data.code) values.code = data.code;
+  // Auto-generate code if not provided
+  if (data.code) {
+    values.code = data.code;
+  } else {
+    values.code = await generateProjectCode();
+  }
+  
   if (data.location) values.location = data.location;
+  if (data.latitude) values.latitude = data.latitude;
+  if (data.longitude) values.longitude = data.longitude;
   if (data.ownerName) values.ownerName = data.ownerName;
   if (data.startDate) values.startDate = data.startDate;
   if (data.endDate) values.endDate = data.endDate;
   if (data.budget !== undefined) values.budget = data.budget;
 
-  const result = await db.insert(projects).values(values);
+  const [result] = await db.insert(projects).values(values);
   
-  // @ts-ignore
-  // Add creator as project member
-  const projectId = Number(result.insertId);
-  if (projectId) {
+  // @ts-ignore - Handle BigInt conversion properly
+  const projectId = parseInt(String(result.insertId));
+  
+  if (projectId && !isNaN(projectId)) {
     await db.insert(projectMembers).values({
       projectId,
       userId: data.createdBy,
@@ -201,7 +250,7 @@ export async function createProject(data: {
     });
   }
   
-  return result;
+  return { insertId: projectId, id: projectId };
 }
 
 export async function getProjectById(id: number) {
@@ -322,10 +371,13 @@ export async function updateProject(
     name: string;
     code: string;
     location: string;
+    latitude: string;
+    longitude: string;
     startDate: string;
     endDate: string;
     ownerName: string;
-    status: "planning" | "active" | "on_hold" | "completed" | "cancelled";
+    status: "draft" | "planning" | "active" | "on_hold" | "completed" | "cancelled";
+    completionPercentage: number;
     progress: number;
   }>
 ) {
@@ -336,7 +388,10 @@ export async function updateProject(
   if (data.name !== undefined) updateData.name = data.name;
   if (data.code !== undefined) updateData.code = data.code || null;
   if (data.location !== undefined) updateData.location = data.location || null;
+  if (data.latitude !== undefined) updateData.latitude = data.latitude || null;
+  if (data.longitude !== undefined) updateData.longitude = data.longitude || null;
   if (data.ownerName !== undefined) updateData.ownerName = data.ownerName || null;
+  if (data.completionPercentage !== undefined) updateData.completionPercentage = data.completionPercentage;
   if (data.startDate !== undefined) updateData.startDate = data.startDate ? new Date(data.startDate) : null;
   if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
   if (data.status !== undefined) updateData.status = data.status;

@@ -12,14 +12,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { projectSchema, type ProjectInput } from "@shared/validations";
 import { DatePicker } from "@/components/ui/date-picker";
 import { format } from "date-fns";
+import { LocationPicker } from "@/components/LocationPicker";
+import { useState, useEffect } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function NewProject() {
   const [, setLocation] = useLocation();
+  const [suggestedCode, setSuggestedCode] = useState<string>("");
+  const [useCustomCode, setUseCustomCode] = useState(false);
   
   const {
     register,
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProjectInput>({
     resolver: zodResolver(projectSchema),
@@ -27,10 +34,28 @@ export default function NewProject() {
       name: "",
       code: "",
       location: "",
+      latitude: "",
+      longitude: "",
       startDate: "",
       endDate: "",
+      status: "draft",
     },
   });
+
+  const watchedLocation = watch("location");
+  const watchedLatitude = watch("latitude");
+  const watchedLongitude = watch("longitude");
+  const watchedStatus = watch("status");
+
+  // Fetch suggested project code
+  const { data: nextCode } = trpc.project.getNextProjectCode.useQuery();
+
+  useEffect(() => {
+    if (nextCode && !useCustomCode) {
+      setSuggestedCode(nextCode);
+      setValue("code", nextCode);
+    }
+  }, [nextCode, useCustomCode, setValue]);
 
   const createProject = trpc.project.create.useMutation({
     onSuccess: (data) => {
@@ -69,8 +94,11 @@ export default function NewProject() {
       ...data,
       code: data.code || undefined,
       location: data.location || undefined,
+      latitude: data.latitude || undefined,
+      longitude: data.longitude || undefined,
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
+      status: data.status || "draft",
     });
   };
 
@@ -111,24 +139,77 @@ export default function NewProject() {
 
             <div className="space-y-2">
               <Label htmlFor="code">รหัสโครงการ</Label>
-              <Input
-                id="code"
-                {...register("code")}
-                placeholder="เช่น PRJ-2024-001"
-                className={errors.code ? "border-red-500" : ""}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="code"
+                  {...register("code")}
+                  placeholder={suggestedCode || "เช่น AO-2025-001"}
+                  disabled={!useCustomCode}
+                  className={errors.code ? "border-red-500" : ""}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setUseCustomCode(!useCustomCode);
+                    if (useCustomCode && suggestedCode) {
+                      setValue("code", suggestedCode);
+                    }
+                  }}
+                >
+                  {useCustomCode ? "ใช้รหัสอัตโนมัติ" : "กำหนดเอง"}
+                </Button>
+              </div>
+              {!useCustomCode && suggestedCode && (
+                <p className="text-sm text-muted-foreground">
+                  รหัสที่แนะนำ: {suggestedCode}
+                </p>
+              )}
               {errors.code && (
                 <p className="text-sm text-red-500">{errors.code.message}</p>
               )}
             </div>
 
+            <Controller
+              name="location"
+              control={control}
+              render={({ field }) => (
+                <LocationPicker
+                  location={watchedLocation}
+                  latitude={watchedLatitude}
+                  longitude={watchedLongitude}
+                  onLocationChange={(loc) => setValue("location", loc)}
+                  onCoordinatesChange={(lat, lng) => {
+                    setValue("latitude", lat);
+                    setValue("longitude", lng);
+                  }}
+                />
+              )}
+            />
+
             <div className="space-y-2">
-              <Label htmlFor="location">สถานที่</Label>
-              <Input
-                id="location"
-                {...register("location")}
-                placeholder="เช่น กรุงเทพมหานคร"
+              <Label htmlFor="status">สถานะโครงการ</Label>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="เลือกสถานะ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft (ร่าง)</SelectItem>
+                      <SelectItem value="planning">Planning (วางแผน)</SelectItem>
+                      <SelectItem value="active">Active (กำลังดำเนินการ)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
+              <p className="text-sm text-muted-foreground">
+                {watchedStatus === "draft" && "สร้างเป็นร่างก่อน เพื่อวางแผนงานและ checklist"}
+                {watchedStatus === "planning" && "โครงการอยู่ในระหว่างการวางแผน"}
+                {watchedStatus === "active" && "โครงการเริ่มดำเนินการทันที"}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

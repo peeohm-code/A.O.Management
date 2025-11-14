@@ -27,11 +27,14 @@ export const projects = mysqlTable("projects", {
   name: varchar("name", { length: 255 }).notNull(),
   code: varchar("code", { length: 100 }),
   location: text("location"),
+  latitude: varchar("latitude", { length: 50 }),
+  longitude: varchar("longitude", { length: 50 }),
   ownerName: varchar("ownerName", { length: 255 }),
   startDate: varchar("startDate", { length: 10 }),
   endDate: varchar("endDate", { length: 10 }),
   budget: int("budget"), // Store as cents/smallest unit
   status: mysqlEnum("status", ["draft", "planning", "active", "on_hold", "completed", "cancelled"]).default("draft").notNull(),
+  completionPercentage: int("completionPercentage").default(0),
   color: varchar("color", { length: 7 }).default("#3B82F6"), // Project color in hex format (e.g., #3B82F6)
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

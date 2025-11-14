@@ -2412,3 +2412,60 @@
 - [x] Check Projects page API (list) query logic
 - [x] Fix backend to ensure consistent project counting across all pages (changed from getProjectsByUser to getAllProjects)
 - [x] Test and verify project count matches on both Dashboard and Projects page
+
+## New Feature: Draft Mode for Projects
+- [x] Update projects schema to support draft status
+- [x] Add completion percentage field for draft projects
+- [ ] Create validation rules for opening draft projects
+- [ ] Add "Open Project" workflow (draft → planning/active)
+- [ ] Separate draft projects from active projects in Dashboard
+- [ ] Add "Preview Gantt Chart" button in draft mode
+- [ ] Add "Clone Project" feature for template creation
+- [ ] Update Projects page to show draft/active tabs
+- [ ] Add permission check (only PM/Admin can open projects)
+
+## New Feature: Auto Project Code Generation
+- [x] Create generateProjectCode() function in backend
+- [x] Format: AO-YYYY-XXX (e.g., AO-2025-001)
+- [x] Auto-increment based on year
+- [x] Display "Next Available Code" in form
+- [x] Allow manual override for special cases
+- [x] Add validation to prevent duplicate codes
+- [x] Update NewProject form to show auto-generated code
+- [ ] Add option to customize code format (optional)
+
+## New Feature: Location Picker (Hybrid Mode)
+- [x] Add latitude/longitude fields to projects schema
+- [x] Create LocationPicker component with Google Maps integration
+- [x] Add text input for manual address entry
+- [x] Add map picker for selecting location
+- [ ] Display distance from office (optional)
+- [ ] Add "Map View" to show all projects on map (optional)
+- [x] Update NewProject form with LocationPicker
+- [ ] Display map in Project Detail page
+- [ ] Test location picker on mobile devices
+
+## New Features Implementation - Auto Code, Draft Mode, Location Picker
+- [x] Update projects schema to support draft status
+- [x] Add completion percentage field for draft projects
+- [x] Add latitude/longitude fields to projects schema
+- [x] Create generateProjectCode() function in backend (format: AO-YYYY-XXX)
+- [x] Create getNextProjectCode API procedure
+- [x] Update createProject() to support auto code generation
+- [x] Update createProject() to support latitude/longitude
+- [x] Update updateProject() to support new fields
+- [x] Fix createProject() to return proper project ID (use array destructuring)
+- [x] Create LocationPicker component with Google Maps integration
+- [x] Add text input for manual address entry in LocationPicker
+- [x] Add map picker for selecting location in LocationPicker
+- [x] Update NewProject form to show auto-generated code
+- [x] Add "กำหนดเอง" button for manual code override
+- [x] Add draft status dropdown in NewProject form
+- [x] Integrate LocationPicker into NewProject form
+- [x] Update projectSchema validation to support new fields
+- [x] Test complete workflow: create project with auto code + draft status + location
+- [ ] Display distance from office (optional)
+- [ ] Add "Map View" to show all projects on map (optional)
+- [ ] Display map in Project Detail page
+- [ ] Test location picker with actual location data
+- [ ] Test location picker on mobile devices
