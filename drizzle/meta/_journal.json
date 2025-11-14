@@ -113,13 +113,6 @@
       "when": 1762875785862,
       "tag": "0015_goofy_catseye",
       "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "5",
-      "when": 1763123555426,
-      "tag": "0016_dashing_blizzard",
-      "breakpoints": true
     }
   ]
 }
