@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, title, status, closed_at FROM defects ORDER BY id DESC",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, title, status, closed_at FROM defects ORDER BY id DESC",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'closed_at' in 'field list'"
+  ]
+}

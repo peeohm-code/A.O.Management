@@ -1,5 +1,125 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1762417612259,
+      "tag": "0000_reflective_gambit",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1762418142794,
+      "tag": "0001_lean_thunderball",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762423048201,
+      "tag": "0002_nice_gamma_corps",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1762442619269,
+      "tag": "0003_colorful_eternity",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1762494136572,
+      "tag": "0004_ambiguous_vengeance",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1762661841675,
+      "tag": "0005_serious_starjammers",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1762680824443,
+      "tag": "0006_peaceful_screwball",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1762695056210,
+      "tag": "0007_harsh_misty_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1762699688273,
+      "tag": "0008_outstanding_kinsey_walden",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1762702923533,
+      "tag": "0009_silky_cobalt_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1762705794242,
+      "tag": "0010_graceful_karma",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1762707679118,
+      "tag": "0011_organic_sprite",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1762860903569,
+      "tag": "0012_free_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1762872791348,
+      "tag": "0013_bright_cable",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1762874298539,
+      "tag": "0014_damp_lester",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1762875785862,
+      "tag": "0015_goofy_catseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1763123555426,
+      "tag": "0016_dashing_blizzard",
+      "breakpoints": true
+    }
+  ]
 }

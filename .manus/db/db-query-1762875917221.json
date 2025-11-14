@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `defectInspections` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `defectId` int NOT NULL,\n  `inspectorId` int NOT NULL,\n  `inspectionType` enum('initial', 'reinspection') NOT NULL,\n  `result` enum('passed', 'failed', 'pending') NOT NULL DEFAULT 'pending',\n  `comments` text,\n  `photoUrls` text,\n  `inspectedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  CONSTRAINT `defectInspections_id` PRIMARY KEY(`id`),\n  INDEX `defectIdx` (`defectId`),\n  INDEX `inspectorIdx` (`inspectorId`),\n  INDEX `typeIdx` (`inspectionType`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute CREATE TABLE IF NOT EXISTS `defectInspections` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `defectId` int NOT NULL,\n  `inspectorId` int NOT NULL,\n  `inspectionType` enum('initial', 'reinspection') NOT NULL,\n  `result` enum('passed', 'failed', 'pending') NOT NULL DEFAULT 'pending',\n  `comments` text,\n  `photoUrls` text,\n  `inspectedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  CONSTRAINT `defectInspections_id` PRIMARY KEY(`id`),\n  INDEX `defectIdx` (`defectId`),\n  INDEX `inspectorIdx` (`inspectorId`),\n  INDEX `typeIdx` (`inspectionType`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1703
+}

@@ -1,0 +1,16 @@
+{
+  "query": "\nSELECT COUNT(*) as total, \n  SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,\n  SUM(CASE WHEN status = 'not_started' THEN 1 ELSE 0 END) as not_started\nFROM tasks \nWHERE projectId = 2723;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nSELECT COUNT(*) as total, \n  SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,\n  SUM(CASE WHEN status = 'not_started' THEN 1 ELSE 0 END) as not_started\nFROM tasks \nWHERE projectId = 2723;\n",
+  "rows": [
+    {
+      "total": "20",
+      "completed": "3",
+      "in_progress": "2",
+      "not_started": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tcompleted\tin_progress\tnot_started\n20\t3\t2\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1582
+}
