@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserDropdown } from "@/components/UserDropdown";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
@@ -31,6 +31,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import { trpc } from "@/lib/trpc";
 
 function RoleBadge() {
   const roleLabel = useRoleLabel();
@@ -147,7 +148,7 @@ type DashboardLayoutContentProps = {
 };
 
 function DashboardLayoutContent({
-  children,
+  sidebarWidth,
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
@@ -158,6 +159,11 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+  
+  // Get pending inspection requests count
+  const { data: pendingCount = 0 } = trpc.inspectionRequest.getPendingCount.useQuery(undefined, {
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
   useEffect(() => {
     if (isCollapsed) {
@@ -246,6 +252,7 @@ function DashboardLayoutContent({
             <SidebarMenu className="px-2 py-1">
               {menuItems.map(item => {
                 const isActive = location === item.path;
+                const showBadge = item.path === '/inspection-requests' && pendingCount > 0;
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
@@ -257,7 +264,15 @@ function DashboardLayoutContent({
                       <item.icon
                         className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
                       />
-                      <span>{item.label}</span>
+                      <span className="flex-1">{item.label}</span>
+                      {showBadge && (
+                        <Badge 
+                          variant="destructive" 
+                          className="h-5 min-w-5 px-1.5 text-[10px] font-semibold shrink-0 group-data-[collapsible=icon]:hidden"
+                        >
+                          {pendingCount}
+                        </Badge>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
