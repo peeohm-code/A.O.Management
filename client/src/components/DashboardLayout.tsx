@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserDropdown } from "@/components/UserDropdown";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
@@ -53,6 +53,7 @@ const menuItems = [
   { icon: Users, label: "Team", path: "/team" },
   { icon: Archive, label: "Archive", path: "/archive" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
+  { icon: Database, label: "DB Monitoring", path: "/monitoring", adminOnly: true },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -243,7 +244,9 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
+              {menuItems
+                .filter(item => !item.adminOnly || user?.role === 'admin' || user?.role === 'owner')
+                .map(item => {
                 const isActive = location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

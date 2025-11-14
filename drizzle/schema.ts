@@ -444,6 +444,48 @@ export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
 
 /**
+ * Database Query Logs - tracks slow queries and database performance
+ */
+export const queryLogs = mysqlTable("queryLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  queryText: text("queryText").notNull(),
+  executionTime: int("executionTime").notNull(), // milliseconds
+  tableName: varchar("tableName", { length: 100 }),
+  operationType: mysqlEnum("operationType", ["SELECT", "INSERT", "UPDATE", "DELETE", "OTHER"]).notNull(),
+  userId: int("userId"),
+  endpoint: varchar("endpoint", { length: 255 }), // tRPC procedure name
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  executionTimeIdx: index("executionTimeIdx").on(table.executionTime),
+  tableNameIdx: index("tableNameIdx").on(table.tableName),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
+}));
+
+export type QueryLog = typeof queryLogs.$inferSelect;
+export type InsertQueryLog = typeof queryLogs.$inferInsert;
+
+/**
+ * Database Statistics Snapshots - periodic snapshots of database metrics
+ */
+export const dbStatistics = mysqlTable("dbStatistics", {
+  id: int("id").autoincrement().primaryKey(),
+  tableName: varchar("tableName", { length: 100 }).notNull(),
+  rowCount: int("rowCount").notNull(),
+  dataSize: int("dataSize").notNull(), // bytes
+  indexSize: int("indexSize").notNull(), // bytes
+  avgQueryTime: int("avgQueryTime"), // milliseconds
+  queryCount: int("queryCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  tableNameIdx: index("tableNameIdx").on(table.tableName),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
+}));
+
+export type DbStatistic = typeof dbStatistics.$inferSelect;
+export type InsertDbStatistic = typeof dbStatistics.$inferInsert;
+
+/**
  * Activity log - tracks all important actions in the system
  */
 export const activityLog = mysqlTable("activityLog", {

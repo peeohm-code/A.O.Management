@@ -2539,3 +2539,12 @@
 - [x] Update Settings page to link to Notification Settings
 - [x] Test notification settings update functionality
 - [x] Fix TypeScript errors (create placeholder files for removed features)
+
+## Database Monitoring Feature
+- [x] สร้าง database schema สำหรับเก็บข้อมูล query logs และ performance metrics
+- [x] สร้าง backend API สำหรับดึงข้อมูล database statistics (table sizes, row counts, index usage)
+- [x] สร้าง backend API สำหรับดึงข้อมูล query performance metrics
+- [x] สร้าง UI dashboard สำหรับแสดงผล database monitoring metrics
+- [x] เพิ่มฟีเจอร์ slow query detection
+- [x] เพิ่ม route และ menu item สำหรับ Database Monitoring (admin only)
+- [x] ทดสอบและ save checkpoint

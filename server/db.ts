@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -23,6 +23,10 @@ import {
   activityLog,
   categoryColors,
   signatures,
+  queryLogs,
+  dbStatistics,
+  InsertQueryLog,
+  InsertDbStatistic,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -2507,4 +2511,187 @@ export async function completeInspectionRequest(id: number) {
   );
 
   return { success: true };
+}
+
+/**
+ * Database Monitoring Functions
+ */
+
+// Log query execution
+export async function logQuery(log: InsertQueryLog) {
+  const db = await getDb();
+  if (!db) return;
+
+  try {
+    await db.insert(queryLogs).values(log);
+  } catch (error) {
+    console.error("[Database] Failed to log query:", error);
+  }
+}
+
+// Get slow queries (execution time > threshold in ms)
+export async function getSlowQueries(thresholdMs: number = 1000, limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    return await db
+      .select()
+      .from(queryLogs)
+      .where(gte(queryLogs.executionTime, thresholdMs))
+      .orderBy(desc(queryLogs.executionTime))
+      .limit(limit);
+  } catch (error) {
+    console.error("[Database] Failed to get slow queries:", error);
+    return [];
+  }
+}
+
+// Get query statistics by table
+export async function getQueryStatsByTable(tableName?: string, hours: number = 24) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+    
+    const conditions = [gte(queryLogs.createdAt, since)];
+    if (tableName) {
+      conditions.push(eq(queryLogs.tableName, tableName));
+    }
+
+    return await db
+      .select({
+        tableName: queryLogs.tableName,
+        operationType: queryLogs.operationType,
+        count: sql<number>`COUNT(*)`,
+        avgTime: sql<number>`AVG(${queryLogs.executionTime})`,
+        maxTime: sql<number>`MAX(${queryLogs.executionTime})`,
+        minTime: sql<number>`MIN(${queryLogs.executionTime})`,
+      })
+      .from(queryLogs)
+      .where(and(...conditions))
+      .groupBy(queryLogs.tableName, queryLogs.operationType)
+      .orderBy(desc(sql`COUNT(*)`));
+  } catch (error) {
+    console.error("[Database] Failed to get query stats:", error);
+    return [];
+  }
+}
+
+// Save database statistics snapshot
+export async function saveDbStatistics(stats: InsertDbStatistic) {
+  const db = await getDb();
+  if (!db) return;
+
+  try {
+    await db.insert(dbStatistics).values(stats);
+  } catch (error) {
+    console.error("[Database] Failed to save statistics:", error);
+  }
+}
+
+// Get latest database statistics for all tables
+export async function getLatestDbStatistics() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    // Get the latest snapshot for each table
+    const latestStats = await db
+      .select({
+        tableName: dbStatistics.tableName,
+        rowCount: dbStatistics.rowCount,
+        dataSize: dbStatistics.dataSize,
+        indexSize: dbStatistics.indexSize,
+        avgQueryTime: dbStatistics.avgQueryTime,
+        queryCount: dbStatistics.queryCount,
+        createdAt: dbStatistics.createdAt,
+      })
+      .from(dbStatistics)
+      .orderBy(desc(dbStatistics.createdAt));
+
+    // Group by table name and get only the latest
+    const grouped = new Map();
+    for (const stat of latestStats) {
+      if (!grouped.has(stat.tableName)) {
+        grouped.set(stat.tableName, stat);
+      }
+    }
+
+    return Array.from(grouped.values());
+  } catch (error) {
+    console.error("[Database] Failed to get latest statistics:", error);
+    return [];
+  }
+}
+
+// Get database statistics history for a specific table
+export async function getDbStatisticsHistory(tableName: string, days: number = 7) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    
+    return await db
+      .select()
+      .from(dbStatistics)
+      .where(and(
+        eq(dbStatistics.tableName, tableName),
+        gte(dbStatistics.createdAt, since)
+      ))
+      .orderBy(desc(dbStatistics.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get statistics history:", error);
+    return [];
+  }
+}
+
+// Collect current database statistics from information_schema
+export async function collectCurrentDbStatistics() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const result = await db.execute(sql`
+      SELECT 
+        table_name as tableName,
+        table_rows as rowCount,
+        data_length as dataSize,
+        index_length as indexSize
+      FROM information_schema.tables
+      WHERE table_schema = DATABASE()
+      AND table_type = 'BASE TABLE'
+      ORDER BY data_length DESC
+    `);
+
+    return result as unknown as Array<{
+      tableName: string;
+      rowCount: number;
+      dataSize: number;
+      indexSize: number;
+    }>;
+  } catch (error) {
+    console.error("[Database] Failed to collect current statistics:", error);
+    return [];
+  }
+}
+
+// Get query error logs
+export async function getQueryErrors(limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    return await db
+      .select()
+      .from(queryLogs)
+      .where(isNotNull(queryLogs.errorMessage))
+      .orderBy(desc(queryLogs.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error("[Database] Failed to get query errors:", error);
+    return [];
+  }
 }
