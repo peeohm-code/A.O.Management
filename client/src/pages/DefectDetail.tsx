@@ -28,6 +28,8 @@ import { toast } from "sonner";
 import { useCanEditDefect } from "@/hooks/usePermissions";
 import { WorkflowGuide } from "@/components/WorkflowGuide";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format } from "date-fns";
 
 export default function DefectDetail() {
   const params = useParams();
@@ -900,10 +902,12 @@ export default function DefectDetail() {
                   <label className="block text-sm font-medium mb-2">
                     กำหนดเสร็จ (Deadline) <span className="text-red-500">*</span>
                   </label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={actionDeadline}
-                    onChange={(e) => setActionDeadline(e.target.value)}
+                    onChange={(date) => {
+                      setActionDeadline(date ? format(date, 'yyyy-MM-dd') : '');
+                    }}
+                    placeholder="เลือกกำหนดเสร็จ"
                   />
                 </div>
                 <div>

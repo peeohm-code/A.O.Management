@@ -18,6 +18,8 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema, type TaskInput } from "@shared/validations";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format } from "date-fns";
 
 export default function NewTask() {
   const [, setLocation] = useLocation();
@@ -146,11 +148,19 @@ export default function NewTask() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate">วันที่เริ่มต้น <span className="text-red-500">*</span></Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  {...register("startDate")}
-                  className={errors.startDate ? "border-red-500" : ""}
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
+                      placeholder="เลือกวันที่เริ่มต้น"
+                      className={errors.startDate ? "border-red-500" : ""}
+                    />
+                  )}
                 />
                 {errors.startDate && (
                   <p className="text-sm text-red-500">{errors.startDate.message}</p>
@@ -159,11 +169,19 @@ export default function NewTask() {
 
               <div className="space-y-2">
                 <Label htmlFor="endDate">วันที่สิ้นสุด <span className="text-red-500">*</span></Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  {...register("endDate")}
-                  className={errors.endDate ? "border-red-500" : ""}
+                <Controller
+                  name="endDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
+                      placeholder="เลือกวันที่สิ้นสุด"
+                      className={errors.endDate ? "border-red-500" : ""}
+                    />
+                  )}
                 />
                 {errors.endDate && (
                   <p className="text-sm text-red-500">{errors.endDate.message}</p>

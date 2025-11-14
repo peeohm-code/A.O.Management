@@ -2330,4 +2330,12 @@
 - [x] เพิ่ม dependency type selector (Start-Finish, Start-Start, Finish-Finish) - มีอยู่แล้วใน DependenciesTab
 - [x] ทดสอบการสร้างงานใหม่
 - [x] ทดสอบการเลือก dependency type
+- [x] บันทึก checkpoint
+
+## Custom DatePicker Component
+- [x] สร้าง DatePicker component ด้วย shadcn Calendar + Popover
+- [x] นำ DatePicker ไปใช้ใน NewTask
+- [x] นำ DatePicker ไปใช้ใน NewProject
+- [x] นำ DatePicker ไปใช้ในหน้าอื่นๆ ที่มี date input (NewTaskDialog, DefectDetail)
+- [x] ทดสอบ DatePicker บนทุกหน้า
 - [ ] บันทึก checkpoint

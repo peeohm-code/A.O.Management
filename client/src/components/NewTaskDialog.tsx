@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format } from "date-fns";
 
 interface NewTaskDialogProps {
   projectId: number;
@@ -155,28 +157,24 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="startDate">วันเริ่มต้น * (YYYY-MM-DD)</Label>
-                <Input
-                  id="startDate"
-                  type="text"
+                <Label htmlFor="startDate">วันเริ่มต้น *</Label>
+                <DatePicker
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  placeholder="2025-11-15"
-                  pattern="\d{4}-\d{2}-\d{2}"
-                  required
+                  onChange={(date) => {
+                    setStartDate(date ? format(date, 'yyyy-MM-dd') : '');
+                  }}
+                  placeholder="เลือกวันที่เริ่มต้น"
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="endDate">วันสิ้นสุด * (YYYY-MM-DD)</Label>
-                <Input
-                  id="endDate"
-                  type="text"
+                <Label htmlFor="endDate">วันสิ้นสุด *</Label>
+                <DatePicker
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  placeholder="2025-12-31"
-                  pattern="\d{4}-\d{2}-\d{2}"
-                  required
+                  onChange={(date) => {
+                    setEndDate(date ? format(date, 'yyyy-MM-dd') : '');
+                  }}
+                  placeholder="เลือกวันที่สิ้นสุด"
                 />
               </div>
             </div>

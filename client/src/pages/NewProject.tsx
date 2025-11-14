@@ -7,15 +7,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { projectSchema, type ProjectInput } from "@shared/validations";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format } from "date-fns";
 
 export default function NewProject() {
   const [, setLocation] = useLocation();
   
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ProjectInput>({
@@ -109,19 +112,35 @@ export default function NewProject() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate">วันที่เริ่มต้น</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  {...register("startDate")}
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
+                      placeholder="เลือกวันที่เริ่มต้น"
+                    />
+                  )}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="endDate">วันที่สิ้นสุด</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  {...register("endDate")}
+                <Controller
+                  name="endDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => {
+                        field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                      }}
+                      placeholder="เลือกวันที่สิ้นสุด"
+                    />
+                  )}
                 />
               </div>
             </div>
