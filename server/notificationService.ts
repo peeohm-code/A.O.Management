@@ -1,7 +1,7 @@
 import { getDb } from "./db";
 import { notifications, users, type Notification } from "../drizzle/schema";
 import { emitNotification, type Notification as SocketNotification } from "./_core/socket";
-import { sendNotificationEmail } from "./emailService";
+// import { sendNotificationEmail } from "./emailService"; // Disabled - email service removed
 import { eq } from "drizzle-orm";
 
 /**
@@ -116,6 +116,8 @@ export async function createNotification(
           .where(eq(users.id, params.userId))
           .limit(1);
 
+        // Email notifications disabled
+        /*
         if (userResult.length > 0 && userResult[0].email) {
           await sendNotificationEmail({
             to: userResult[0].email,
@@ -123,6 +125,7 @@ export async function createNotification(
             notification,
           });
         }
+        */
       } catch (error) {
         console.error("[NotificationService] Failed to send email:", error);
         // Don't fail the whole operation if email fails
