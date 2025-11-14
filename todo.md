@@ -2362,8 +2362,8 @@
 - [x] Push database migration
 - [x] เพิ่ม backend procedures: requestInspection, approveInspection, rejectInspection
 - [x] เพิ่ม backend procedures: getInspectionRequests, getInspectionRequestById
-- [ ] เพิ่มปุ่ม "ขออนุมัติตรวจงาน" ใน TaskDetail
-- [ ] สร้าง InspectionRequestDialog component
+- [x] เพิ่มปุ่ม "ขออนุมัติตรวจงาน" ใน TaskDetail
+- [x] สร้าง InspectionRequestDialog component
 - [x] เพิ่มหน้า Inspection Requests สำหรับ QC Inspector
 - [ ] เพิ่ม notification เมื่อมีคำขอตรวจงาน
 - [ ] ทดสอบ workflow ทั้งหมด

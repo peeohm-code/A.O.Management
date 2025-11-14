@@ -48,6 +48,7 @@ const menuItems = [
   { icon: FolderKanban, label: "Projects", path: "/projects" },
   { icon: ListTodo, label: "Tasks", path: "/tasks" },
   { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
+  { icon: CheckSquare, label: "Inspection Requests", path: "/inspection-requests" },
   { icon: AlertTriangle, label: "Defects", path: "/defects" },
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
   { icon: Users, label: "Team", path: "/team" },
