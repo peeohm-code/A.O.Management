@@ -28,10 +28,10 @@ export const projects = mysqlTable("projects", {
   code: varchar("code", { length: 100 }),
   location: text("location"),
   ownerName: varchar("ownerName", { length: 255 }),
-  startDate: timestamp("startDate"),
-  endDate: timestamp("endDate"),
+  startDate: varchar("startDate", { length: 10 }),
+  endDate: varchar("endDate", { length: 10 }),
   budget: int("budget"), // Store as cents/smallest unit
-  status: mysqlEnum("status", ["planning", "active", "on_hold", "completed", "cancelled"]).default("planning").notNull(),
+  status: mysqlEnum("status", ["draft", "planning", "active", "on_hold", "completed", "cancelled"]).default("draft").notNull(),
   color: varchar("color", { length: 7 }).default("#3B82F6"), // Project color in hex format (e.g., #3B82F6)
   createdBy: int("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -73,8 +73,8 @@ export const tasks = mysqlTable("tasks", {
   parentTaskId: int("parentTaskId"), // For sub-tasks
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  startDate: timestamp("startDate"),
-  endDate: timestamp("endDate"),
+  startDate: varchar("startDate", { length: 10 }),
+  endDate: varchar("endDate", { length: 10 }),
   progress: int("progress").default(0).notNull(), // 0-100
   status: mysqlEnum("status", [
     "todo",

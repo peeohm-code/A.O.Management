@@ -85,7 +85,9 @@ export default function Projects() {
       setIsOpen(false);
       projectsQuery.refetch();
     } catch (error) {
-      toast.error("Failed to create project");
+      console.error('Error creating project:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create project";
+      toast.error(errorMessage);
     }
   };
 

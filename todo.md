@@ -2246,3 +2246,67 @@
 - [x] Remove stage cards (ก่อนเริ่มงาน, ระหว่างทำงาน, หลังเสร็จงาน) from Template Overview
 - [x] Keep only the 5 main work category cards
 - [x] Test updated dashboard layout
+
+## Final Implementation - Offline Forms & Email Notifications
+- [ ] Create useOfflineForm hook
+- [ ] Create offlineQueue library
+- [ ] Create useOfflineQueue hook
+- [ ] Create OfflineIndicator component
+- [ ] Integrate offline forms into TaskDetail (Comment + Progress)
+- [ ] Integrate offline forms into QCInspection
+- [ ] Add OfflineIndicator to DashboardLayout
+- [ ] Create server/email.ts with templates
+- [ ] Add email notifications to server/db.ts
+- [ ] Create PWA_TESTING_GUIDE.md
+- [ ] Create EMAIL_SETUP_GUIDE.md
+- [ ] Test all features
+- [ ] Save checkpoint
+
+## Final Implementation - Offline Forms & Email Notifications
+- [ ] Create useOfflineForm hook
+- [ ] Create offlineQueue library
+- [ ] Create useOfflineQueue hook
+- [ ] Create OfflineIndicator component
+- [ ] Integrate offline forms into TaskDetail (Comment + Progress)
+- [ ] Integrate offline forms into QCInspection
+- [ ] Add OfflineIndicator to DashboardLayout
+- [ ] Create server/email.ts with templates
+- [ ] Add email notifications to server/db.ts
+- [ ] Create PWA_TESTING_GUIDE.md
+- [ ] Create EMAIL_SETUP_GUIDE.md
+- [ ] Test all features
+- [ ] Save checkpoint
+
+## Final Implementation - Offline Form Handling และ Email Notifications (✅ เสร็จสมบูรณ์)
+- [x] สร้างไฟล์ทั้งหมด (offlineQueue, useOfflineForm, useOfflineQueue, OfflineIndicator, email.ts)
+- [x] Integrate useOfflineForm เข้ากับ Comment form (TaskDetail)
+- [x] Integrate useOfflineForm เข้ากับ Progress update form (TaskDetail)
+- [x] Integrate useOfflineForm เข้ากับ QC Inspection form
+- [x] เพิ่ม OfflineIndicator เข้า DashboardLayout header
+- [x] เพิ่ม Email Notifications ใน backend (server/db.ts)
+- [x] สร้าง PWA_TESTING_GUIDE.md
+- [x] สร้าง EMAIL_SETUP_GUIDE.md
+- [x] ทดสอบและ save checkpoint
+
+## Bug Fix - Project Creation Issue
+- [ ] Debug project creation - identify the error
+- [ ] Fix the issue
+- [ ] Test project creation end-to-end
+- [ ] Save checkpoint
+
+## Bug Fix - Project Creation Error
+- [ ] Debug project creation error ("Failed to create project")
+- [ ] Check backend logs and console errors
+- [ ] Fix the error in backend code
+- [ ] Test project creation
+- [ ] Save checkpoint
+
+## Bug Fix - Project Creation Error
+- [ ] Fix database schema: code field should allow NULL or auto-generate
+- [ ] Test project creation with and without code
+- [ ] Save checkpoint
+- [x] Fix database schema: code field should allow NULL or auto-generate
+- [x] Fix startDate/endDate to match database (varchar instead of timestamp)
+- [x] Fix status enum to include 'draft'
+- [ ] Test project creation with and without code
+- [ ] Save checkpoint
