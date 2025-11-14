@@ -400,6 +400,7 @@ export const notifications = mysqlTable("notifications", {
     "inspection_passed",
     "inspection_failed",
     "checklist_assigned",
+    "checklist_reminder",
     "reinspection_required",
     "defect_assigned",
     "defect_created",

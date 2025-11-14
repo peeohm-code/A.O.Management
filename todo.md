@@ -2515,3 +2515,14 @@
 - [x] ลบปุ่ม "ขออนุมัติตรวจ" ออก
 - [x] ทดสอบหน้า Task Detail
 - [x] บันทึก checkpoint
+
+## ระบบแจ้งเตือนอัตโนมัติสำหรับ Checklist และ Task
+- [x] วิเคราะห์ความต้องการ - กำหนดเงื่อนไขการแจ้งเตือน
+- [x] สร้าง Backend Logic ตรวจสอบ Checklist ที่ใกล้ครบกำหนด
+- [x] สร้าง Backend Logic ตรวจสอบ Task ที่ล่าช้า
+- [x] สร้าง Notification Service สำหรับส่งการแจ้งเตือน
+- [x] สร้าง Cron Job สำหรับ Checklist Reminders
+- [x] สร้าง Cron Job สำหรับ Task Overdue Alerts
+- [x] ตั้งค่า Cron Schedule ให้รันทุกวัน 08:00 น.
+- [x] ทดสอบระบบแจ้งเตือน
+- [ ] บันทึก checkpoint
