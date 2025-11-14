@@ -1424,24 +1424,35 @@ export async function getTaskFollowers(taskId: number) {
  */
 export async function createNotification(data: {
   userId: number;
-  type: "task_assigned" | "inspection_requested" | "inspection_completed" | "defect_assigned" | "defect_resolved" | "defect_reinspected" | "comment_mention" | "task_updated" | "deadline_reminder";
+  type: "task_assigned" | "inspection_requested" | "inspection_completed" | "defect_assigned" | "defect_resolved" | "defect_reinspected" | "comment_mention" | "task_updated" | "deadline_reminder" | "system_health_warning" | "system_health_critical" | "system_health_info";
   title: string;
   content?: string;
+  priority?: "urgent" | "high" | "normal" | "low";
   relatedTaskId?: number;
   relatedProjectId?: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.insert(notifications).values({
+  const result = await db.insert(notifications).values({
     userId: data.userId,
     type: data.type,
     title: data.title,
     content: data.content,
+    priority: data.priority || 'normal',
     relatedTaskId: data.relatedTaskId,
     relatedProjectId: data.relatedProjectId,
     isRead: false,
   });
+
+  // Return the created notification with ID
+  const insertId = (result as any).insertId;
+  if (insertId) {
+    const created = await db.select().from(notifications).where(eq(notifications.id, Number(insertId))).limit(1);
+    return created[0];
+  }
+  
+  return null;
 }
 
 export async function getUserNotifications(userId: number, limit = 50) {

@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { Bell, AlertTriangle, AlertCircle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +40,20 @@ export function NotificationDropdown() {
     }
   };
 
+  const getNotificationIcon = (type: string) => {
+    // System health alerts
+    if (type === 'system_health_critical') {
+      return <AlertTriangle className="h-4 w-4 text-red-600" />;
+    }
+    if (type === 'system_health_warning') {
+      return <AlertCircle className="h-4 w-4 text-orange-600" />;
+    }
+    if (type === 'system_health_info') {
+      return <Info className="h-4 w-4 text-blue-600" />;
+    }
+    return null;
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -78,9 +92,12 @@ export function NotificationDropdown() {
               >
                 <div className="flex items-start justify-between w-full gap-2">
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${getPriorityColor(notif.priority)}`}>
-                      {notif.title}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      {getNotificationIcon(notif.type)}
+                      <p className={`text-sm font-medium ${getPriorityColor(notif.priority)}`}>
+                        {notif.title}
+                      </p>
+                    </div>
                     {notif.content && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {notif.content}

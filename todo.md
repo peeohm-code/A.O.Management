@@ -2476,3 +2476,12 @@
 - [x] สร้าง UI ปุ่ม "เปิดโครงการ" ในหน้า Project Detail
 - [x] สร้าง Dialog แสดงความสมบูรณ์และยืนยันการเปิดโครงการ
 - [x] ทดสอบ workflow การเปิดโครงการ
+
+## System Alert Notification (ข้อ 2)
+- [x] วิเคราะห์ระบบ notification ที่มีอยู่และออกแบบ alert system
+- [x] เพิ่ม notification type สำหรับ system alerts
+- [x] สร้าง API endpoint สำหรับส่ง system alerts (health check results)
+- [x] สร้าง UI แสดง system alerts ใน notification center
+- [x] เพิ่ม severity levels (INFO, WARNING, CRITICAL) และ icons
+- [x] ทดสอบการส่งและแสดง system alerts
+- [x] สร้างเอกสารคู่มือการใช้งาน

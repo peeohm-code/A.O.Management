@@ -415,7 +415,10 @@ export const notifications = mysqlTable("notifications", {
     "dependency_blocked",
     "comment_mention",
     "task_updated",
-    "deadline_reminder"
+    "deadline_reminder",
+    "system_health_warning",
+    "system_health_critical",
+    "system_health_info"
   ]).notNull(),
   priority: mysqlEnum("priority", ["urgent", "high", "normal", "low"]).default("normal").notNull(),
   title: varchar("title", { length: 255 }).notNull(),

@@ -1826,6 +1826,66 @@ const notificationRouter = router({
         });
       }
     }),
+
+  /**
+   * Create System Alert Notification
+   * ใช้สำหรับส่ง notification จาก health check หรือ system monitoring
+   */
+  createSystemAlert: protectedProcedure
+    .input(z.object({
+      severity: z.enum(['info', 'warning', 'critical']),
+      title: z.string(),
+      content: z.string(),
+      targetUserId: z.number().optional(), // ถ้าไม่ระบุจะส่งให้ owner/admin
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Map severity to notification type and priority
+        const typeMap = {
+          info: 'system_health_info' as const,
+          warning: 'system_health_warning' as const,
+          critical: 'system_health_critical' as const,
+        };
+        
+        const priorityMap = {
+          info: 'normal' as const,
+          warning: 'high' as const,
+          critical: 'urgent' as const,
+        };
+
+        // ถ้าไม่ระบุ targetUserId ให้ส่งให้ owner (user ID 1)
+        const targetUserId = input.targetUserId || 1;
+
+        // Create notification
+        const notification = await db.createNotification({
+          userId: targetUserId,
+          type: typeMap[input.severity],
+          priority: priorityMap[input.severity],
+          title: input.title,
+          content: input.content,
+        });
+
+        // Emit real-time notification via socket.io
+        if (notification?.id) {
+          emitNotification(targetUserId, {
+            id: String(notification.id),
+            type: 'task_status',
+            title: notification.title,
+            message: notification.content || '',
+            timestamp: notification.createdAt,
+            read: notification.isRead,
+          });
+        }
+
+        return { success: true, notificationId: notification?.id };
+      } catch (error) {
+        console.error('[notificationRouter.createSystemAlert] Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create system alert',
+        });
+      }
+    }),
 });
 
 /**
