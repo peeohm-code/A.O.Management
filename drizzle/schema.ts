@@ -562,3 +562,29 @@ export const approvalSteps = mysqlTable("approvalSteps", {
 
 export type ApprovalStep = typeof approvalSteps.$inferSelect;
 export type InsertApprovalStep = typeof approvalSteps.$inferInsert;
+
+/**
+ * Inspection Requests table - tracks requests for QC inspections
+ */
+export const inspectionRequests = mysqlTable("inspectionRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull(),
+  requestedBy: int("requestedBy").notNull(), // User who requested the inspection
+  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
+  inspectorId: int("inspectorId"), // Assigned QC inspector
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "completed"]).default("pending").notNull(),
+  notes: text("notes"), // Additional notes from requester
+  approvedBy: int("approvedBy"), // User who approved/rejected
+  approvedAt: timestamp("approvedAt"),
+  rejectedReason: text("rejectedReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  taskIdIdx: index("taskIdIdx").on(table.taskId),
+  requestedByIdx: index("requestedByIdx").on(table.requestedBy),
+  inspectorIdIdx: index("inspectorIdIdx").on(table.inspectorId),
+  statusIdx: index("statusIdx").on(table.status),
+}));
+
+export type InspectionRequest = typeof inspectionRequests.$inferSelect;
+export type InsertInspectionRequest = typeof inspectionRequests.$inferInsert;

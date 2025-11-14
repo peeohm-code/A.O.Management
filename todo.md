@@ -2355,3 +2355,16 @@
 - [x] ทดสอบการสร้างงานใหม่
 - [x] ทดสอบการสร้างโครงการใหม่
 - [x] บันทึก checkpoint
+
+## Inspection Request/Approval Workflow
+- [x] ออกแบบ database schema สำหรับ inspectionRequests table
+- [x] เพิ่ม inspectionRequests table ใน drizzle/schema.ts
+- [x] Push database migration
+- [x] เพิ่ม backend procedures: requestInspection, approveInspection, rejectInspection
+- [x] เพิ่ม backend procedures: getInspectionRequests, getInspectionRequestById
+- [ ] เพิ่มปุ่ม "ขออนุมัติตรวจงาน" ใน TaskDetail
+- [ ] สร้าง InspectionRequestDialog component
+- [x] เพิ่มหน้า Inspection Requests สำหรับ QC Inspector
+- [ ] เพิ่ม notification เมื่อมีคำขอตรวจงาน
+- [ ] ทดสอบ workflow ทั้งหมด
+- [ ] บันทึก checkpoint

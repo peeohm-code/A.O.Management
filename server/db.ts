@@ -2161,3 +2161,144 @@ export async function getSignaturesByChecklistId(checklistId: number) {
     .leftJoin(users, eq(signatures.signedBy, users.id))
     .where(eq(signatures.checklistId, checklistId));
 }
+
+/**
+ * Inspection Requests Management
+ */
+export async function createInspectionRequest(data: {
+  taskId: number;
+  requestedBy: number;
+  inspectorId?: number;
+  notes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.execute(
+    sql`INSERT INTO inspectionRequests (taskId, requestedBy, inspectorId, notes) 
+        VALUES (${data.taskId}, ${data.requestedBy}, ${data.inspectorId || null}, ${data.notes || null})`
+  );
+
+  return { id: Number(result.insertId) };
+}
+
+export async function getInspectionRequestById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db.execute(
+    sql`SELECT ir.*, 
+        u1.name as requesterName, u1.email as requesterEmail,
+        u2.name as inspectorName, u2.email as inspectorEmail,
+        u3.name as approverName, u3.email as approverEmail,
+        t.name as taskName, t.projectId
+        FROM inspectionRequests ir
+        LEFT JOIN users u1 ON ir.requestedBy = u1.id
+        LEFT JOIN users u2 ON ir.inspectorId = u2.id
+        LEFT JOIN users u3 ON ir.approvedBy = u3.id
+        LEFT JOIN tasks t ON ir.taskId = t.id
+        WHERE ir.id = ${id}`
+  );
+
+  return results.rows[0] || null;
+}
+
+export async function getInspectionRequestsByTask(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db.execute(
+    sql`SELECT ir.*, 
+        u1.name as requesterName,
+        u2.name as inspectorName,
+        u3.name as approverName
+        FROM inspectionRequests ir
+        LEFT JOIN users u1 ON ir.requestedBy = u1.id
+        LEFT JOIN users u2 ON ir.inspectorId = u2.id
+        LEFT JOIN users u3 ON ir.approvedBy = u3.id
+        WHERE ir.taskId = ${taskId}
+        ORDER BY ir.createdAt DESC`
+  );
+
+  return results.rows;
+}
+
+export async function getInspectionRequestsByInspector(inspectorId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db.execute(
+    sql`SELECT ir.*, 
+        u1.name as requesterName,
+        t.name as taskName, t.projectId,
+        p.name as projectName
+        FROM inspectionRequests ir
+        LEFT JOIN users u1 ON ir.requestedBy = u1.id
+        LEFT JOIN tasks t ON ir.taskId = t.id
+        LEFT JOIN projects p ON t.projectId = p.id
+        WHERE ir.inspectorId = ${inspectorId}
+        ORDER BY ir.createdAt DESC`
+  );
+
+  return results.rows;
+}
+
+export async function getAllInspectionRequests() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db.execute(
+    sql`SELECT ir.*, 
+        u1.name as requesterName,
+        u2.name as inspectorName,
+        t.name as taskName, t.projectId,
+        p.name as projectName
+        FROM inspectionRequests ir
+        LEFT JOIN users u1 ON ir.requestedBy = u1.id
+        LEFT JOIN users u2 ON ir.inspectorId = u2.id
+        LEFT JOIN tasks t ON ir.taskId = t.id
+        LEFT JOIN projects p ON t.projectId = p.id
+        ORDER BY ir.createdAt DESC`
+  );
+
+  return results.rows;
+}
+
+export async function approveInspectionRequest(id: number, approvedBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.execute(
+    sql`UPDATE inspectionRequests 
+        SET status = 'approved', approvedBy = ${approvedBy}, approvedAt = NOW()
+        WHERE id = ${id}`
+  );
+
+  return { success: true };
+}
+
+export async function rejectInspectionRequest(id: number, approvedBy: number, rejectedReason: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.execute(
+    sql`UPDATE inspectionRequests 
+        SET status = 'rejected', approvedBy = ${approvedBy}, approvedAt = NOW(), rejectedReason = ${rejectedReason}
+        WHERE id = ${id}`
+  );
+
+  return { success: true };
+}
+
+export async function completeInspectionRequest(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.execute(
+    sql`UPDATE inspectionRequests 
+        SET status = 'completed'
+        WHERE id = ${id}`
+  );
+
+  return { success: true };
+}

@@ -14,6 +14,7 @@ import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
 import { createNotification } from "./notificationService";
 import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
+import { inspectionRequestRouter } from "./inspectionRequestRouter";
 
 /**
  * Project Router - Project Management
@@ -2081,6 +2082,7 @@ export const appRouter = router({
   notification: notificationRouter,
   activity: activityRouter,
   categoryColor: categoryColorRouter,
+  inspectionRequest: inspectionRequestRouter,
 });
 
 export type AppRouter = typeof appRouter;
