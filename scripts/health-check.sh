@@ -5,10 +5,17 @@ echo ""
 
 # Check file descriptor usage
 echo "File Descriptors:"
-FD_COUNT=$(lsof 2>/dev/null | wc -l)
+# Count actual FDs from /proc instead of lsof (which counts multiple times)
+FD_COUNT=0
+for pid in $(pgrep -u ubuntu 2>/dev/null); do
+  COUNT=$(ls /proc/$pid/fd 2>/dev/null | wc -l)
+  FD_COUNT=$((FD_COUNT + COUNT))
+done
 FD_LIMIT=$(ulimit -n)
-echo "  Current: $FD_COUNT / $FD_LIMIT"
-FD_PERCENT=$((FD_COUNT * 100 / FD_LIMIT))
+FD_LIMIT_TOTAL=$((FD_LIMIT * $(pgrep -u ubuntu | wc -l)))
+echo "  Current: $FD_COUNT / $FD_LIMIT_TOTAL (total for all ubuntu processes)"
+echo "  Per-process limit: $FD_LIMIT"
+FD_PERCENT=$((FD_COUNT * 100 / FD_LIMIT_TOTAL))
 if [ $FD_PERCENT -gt 80 ]; then
   echo "  ⚠️  WARNING: File descriptor usage > 80% ($FD_PERCENT%)"
 else
