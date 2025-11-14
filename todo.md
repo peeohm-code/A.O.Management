@@ -2525,4 +2525,17 @@
 - [x] สร้าง Cron Job สำหรับ Task Overdue Alerts
 - [x] ตั้งค่า Cron Schedule ให้รันทุกวัน 08:00 น.
 - [x] ทดสอบระบบแจ้งเตือน
-- [ ] บันทึก checkpoint
+- [x] บันทึก checkpoint
+
+## Notification Settings & Daily Summary Email
+- [x] Add notification settings fields to users table (notificationDaysAdvance, enableInAppNotifications, enableEmailNotifications, enableDailySummaryEmail, dailySummaryTime)
+- [x] Create backend API for getting notification settings (user.getNotificationSettings)
+- [x] Create backend API for updating notification settings (user.updateNotificationSettings)
+- [x] Create email template for daily summary (emailTemplates.ts)
+- [x] Create daily summary job to send emails (dailySummaryJob.ts)
+- [x] Add daily summary cron schedule to scheduler (runs at 08:00 AM)
+- [x] Create Notification Settings page UI
+- [x] Add route for Notification Settings page (/settings/notifications)
+- [x] Update Settings page to link to Notification Settings
+- [x] Test notification settings update functionality
+- [x] Fix TypeScript errors (create placeholder files for removed features)

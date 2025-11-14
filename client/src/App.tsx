@@ -27,6 +27,7 @@ import UserProfile from "./pages/UserProfile";
 import TeamManagement from "./pages/TeamManagement";
 import Archive from "./pages/Archive";
 import ArchiveRules from "./pages/ArchiveRules";
+import NotificationSettings from "./pages/NotificationSettings";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -154,6 +155,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Settings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/settings/notifications"}>
+        {() => (
+          <DashboardLayout>
+            <NotificationSettings />
           </DashboardLayout>
         )}
       </Route>

@@ -2147,6 +2147,42 @@ export const appRouter = router({
 
         return { success: true };
       }),
+
+    getNotificationSettings: protectedProcedure.query(async ({ ctx }) => {
+      const user = await db.getUserById(ctx.user!.id);
+      if (!user) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+      return {
+        notificationDaysAdvance: user.notificationDaysAdvance,
+        enableInAppNotifications: user.enableInAppNotifications,
+        enableEmailNotifications: user.enableEmailNotifications,
+        enableDailySummaryEmail: user.enableDailySummaryEmail,
+        dailySummaryTime: user.dailySummaryTime,
+      };
+    }),
+
+    updateNotificationSettings: protectedProcedure
+      .input(
+        z.object({
+          notificationDaysAdvance: z.number().min(1).max(30).optional(),
+          enableInAppNotifications: z.boolean().optional(),
+          enableEmailNotifications: z.boolean().optional(),
+          enableDailySummaryEmail: z.boolean().optional(),
+          dailySummaryTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:mm format
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await db.updateUserNotificationSettings(ctx.user!.id, input);
+
+        await db.logActivity({
+          userId: ctx.user!.id,
+          action: "notification_settings_updated",
+          details: JSON.stringify(input),
+        });
+
+        return { success: true };
+      }),
   }),
 
   signature: router({

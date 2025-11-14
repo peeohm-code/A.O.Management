@@ -158,41 +158,21 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Control which notifications you receive</CardDescription>
+              <CardDescription>Manage your notification settings and daily summary emails</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-4">
-                {[
-                  { key: "taskAssigned", label: "Task Assigned", description: "When a new task is assigned to you" },
-                  { key: "inspectionRequested", label: "Inspection Requested", description: "When an inspection is requested" },
-                  { key: "inspectionCompleted", label: "Inspection Completed", description: "When an inspection is completed" },
-                  { key: "defectAssigned", label: "Defect Assigned", description: "When a defect is assigned to you" },
-                  { key: "defectResolved", label: "Defect Resolved", description: "When a defect is resolved" },
-                  { key: "commentMention", label: "Comment Mention", description: "When someone mentions you in a comment" },
-                  { key: "taskUpdated", label: "Task Updated", description: "When a task you follow is updated" },
-                  { key: "deadlineReminder", label: "Deadline Reminder", description: "Reminders for upcoming deadlines" },
-                ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">{item.label}</p>
-                      <p className="text-xs text-gray-500">{item.description}</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings[item.key as keyof typeof notificationSettings]}
-                      onChange={(e) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          [item.key]: e.target.checked,
-                        })
-                      }
-                      className="w-5 h-5 rounded"
-                    />
-                  </div>
-                ))}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-900 mb-3">
+                  Configure your notification preferences, reminder settings, and daily summary emails.
+                </p>
+                <Button
+                  onClick={() => window.location.href = "/settings/notifications"}
+                  className="w-full"
+                >
+                  <Bell className="w-4 h-4 mr-2" />
+                  Go to Notification Settings
+                </Button>
               </div>
-
-              <Button className="w-full">Save Notification Settings</Button>
             </CardContent>
           </Card>
         </TabsContent>

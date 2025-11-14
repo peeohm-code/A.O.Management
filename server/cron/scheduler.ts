@@ -10,6 +10,7 @@ import cron from "node-cron";
 import { runDeadlineReminders } from "./deadlineReminders";
 import { checkChecklistReminders } from "../jobs/checklistReminderJob";
 import { checkOverdueTasks } from "../jobs/taskOverdueJob";
+import { sendDailySummaryEmails } from "../dailySummaryJob";
 
 /**
  * Initialize all cron jobs
@@ -55,10 +56,24 @@ export function initializeCronJobs() {
     timezone: "Asia/Bangkok"
   });
 
+  // Run daily summary emails at 8:00 AM (user-specific times will be handled by the job)
+  cron.schedule("0 8 * * *", async () => {
+    console.log("[CronScheduler] Running daily summary emails...");
+    try {
+      await sendDailySummaryEmails();
+      console.log("[CronScheduler] Daily summary emails sent successfully");
+    } catch (error) {
+      console.error("[CronScheduler] Daily summary emails failed:", error);
+    }
+  }, {
+    timezone: "Asia/Bangkok"
+  });
+
   console.log("[CronScheduler] Cron jobs initialized:");
   console.log("  - Deadline reminders: Daily at 8:00 AM (Asia/Bangkok)");
   console.log("  - Checklist reminders: Daily at 8:00 AM (Asia/Bangkok)");
   console.log("  - Overdue task checks: Daily at 8:00 AM (Asia/Bangkok)");
+  console.log("  - Daily summary emails: Daily at 8:00 AM (Asia/Bangkok)");
   
   // Optional: Run immediately on startup for testing
   if (process.env.NODE_ENV === "development") {

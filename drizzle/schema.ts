@@ -11,6 +11,12 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["owner", "admin", "project_manager", "qc_inspector", "field_engineer"]).default("field_engineer").notNull(),
+  // Notification settings
+  notificationDaysAdvance: int("notificationDaysAdvance").default(3).notNull(), // จำนวนวันล่วงหน้าสำหรับการแจ้งเตือน
+  enableInAppNotifications: boolean("enableInAppNotifications").default(true).notNull(),
+  enableEmailNotifications: boolean("enableEmailNotifications").default(true).notNull(),
+  enableDailySummaryEmail: boolean("enableDailySummaryEmail").default(false).notNull(),
+  dailySummaryTime: varchar("dailySummaryTime", { length: 5 }).default("08:00"), // เวลาส่งอีเมลสรุปรายวัน (HH:mm)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

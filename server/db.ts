@@ -159,6 +159,41 @@ export async function updateUserProfile(userId: number, data: { name: string; em
   await db.update(users).set(updateData).where(eq(users.id, userId));
 }
 
+export async function updateUserNotificationSettings(
+  userId: number,
+  data: {
+    notificationDaysAdvance?: number;
+    enableInAppNotifications?: boolean;
+    enableEmailNotifications?: boolean;
+    enableDailySummaryEmail?: boolean;
+    dailySummaryTime?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const updateData: any = {};
+  if (data.notificationDaysAdvance !== undefined) {
+    updateData.notificationDaysAdvance = data.notificationDaysAdvance;
+  }
+  if (data.enableInAppNotifications !== undefined) {
+    updateData.enableInAppNotifications = data.enableInAppNotifications;
+  }
+  if (data.enableEmailNotifications !== undefined) {
+    updateData.enableEmailNotifications = data.enableEmailNotifications;
+  }
+  if (data.enableDailySummaryEmail !== undefined) {
+    updateData.enableDailySummaryEmail = data.enableDailySummaryEmail;
+  }
+  if (data.dailySummaryTime !== undefined) {
+    updateData.dailySummaryTime = data.dailySummaryTime;
+  }
+
+  await db.update(users).set(updateData).where(eq(users.id, userId));
+}
+
 /**
  * Project Management
  */
@@ -1424,7 +1459,7 @@ export async function getTaskFollowers(taskId: number) {
  */
 export async function createNotification(data: {
   userId: number;
-  type: "task_assigned" | "inspection_requested" | "inspection_completed" | "defect_assigned" | "defect_resolved" | "defect_reinspected" | "comment_mention" | "task_updated" | "deadline_reminder" | "system_health_warning" | "system_health_critical" | "system_health_info";
+  type: "task_assigned" | "task_status_changed" | "task_deadline_approaching" | "task_overdue" | "task_progress_updated" | "task_comment_mention" | "inspection_requested" | "inspection_completed" | "inspection_passed" | "inspection_failed" | "checklist_assigned" | "checklist_reminder" | "reinspection_required" | "defect_assigned" | "defect_created" | "defect_status_changed" | "defect_resolved" | "defect_reinspected" | "defect_deadline_approaching" | "project_member_added" | "project_milestone_reached" | "project_status_changed" | "file_uploaded" | "comment_added" | "dependency_blocked" | "comment_mention" | "task_updated" | "deadline_reminder" | "system_health_warning" | "system_health_critical" | "system_health_info";
   title: string;
   content?: string;
   priority?: "urgent" | "high" | "normal" | "low";
