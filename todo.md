@@ -2378,4 +2378,11 @@
 - [x] แก้ไข NewTask.tsx - Date comparison issues
 - [x] แก้ไข minor issues (Service Worker, Archive export)
 - [x] ทดสอบ TypeScript compilation (target: 0 errors)
+- [x] บันทึก checkpoint
+
+## Prevent EMFILE (Too Many Open Files)
+- [x] เพิ่ม watch ignore patterns ใน vite.config.ts
+- [x] ปรับ tsx watch ให้ watch เฉพาะ server/_core (not needed - using direct node)
+- [x] Cleanup zombie processes (cannot kill - waiting for parent cleanup)
+- [x] ทดสอบ dev server start
 - [ ] บันทึก checkpoint

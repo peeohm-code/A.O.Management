@@ -40,5 +40,16 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
+    watch: {
+      ignored: [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.cache/**",
+        "**/coverage/**",
+      ],
+      usePolling: false,
+    },
   },
 });
