@@ -2347,4 +2347,11 @@
 - [x] เพิ่ม Quick Date Presets ใน DatePicker component
 - [x] เพิ่ม Task Duration Calculator ใน NewTask
 - [x] ทดสอบทุกฟีเจอร์
-- [ ] บันทึก checkpoint
+- [x] บันทึก checkpoint
+
+## Fix DatePicker Date Format Bug
+- [ ] ตรวจสอบ DatePicker component - ต้องส่งค่าเป็น YYYY-MM-DD ไม่ใช่ timestamp
+- [ ] แก้ไข DatePicker ให้ส่งค่าถูกต้อง
+- [x] ทดสอบการสร้างงานใหม่
+- [x] ทดสอบการสร้างโครงการใหม่
+- [x] บันทึก checkpoint

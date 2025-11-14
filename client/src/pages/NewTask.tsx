@@ -69,14 +69,25 @@ export default function NewTask() {
     }
 
     // แปลงวันที่ให้เป็น YYYY-MM-DD format
+    const formatDate = (dateValue: any): string | undefined => {
+      if (!dateValue) return undefined;
+      if (dateValue instanceof Date) {
+        return format(dateValue, 'yyyy-MM-dd');
+      }
+      if (typeof dateValue === 'string') {
+        return dateValue.split('T')[0];
+      }
+      return undefined;
+    };
+
     const formattedData = {
       ...data,
       description: data.description || undefined,
-      startDate: data.startDate ? data.startDate.split('T')[0] : undefined,
-      endDate: data.endDate ? data.endDate.split('T')[0] : undefined,
+      startDate: formatDate(data.startDate),
+      endDate: formatDate(data.endDate),
     };
     
-    console.log("[DEBUG] Submitting task data:", formattedData);
+
     createTask.mutate(formattedData);
   };
 

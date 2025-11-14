@@ -75,14 +75,25 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
       return;
     }
 
+    // แปลงวันที่ให้เป็น YYYY-MM-DD format
+    const formatDate = (dateValue: any): string => {
+      if (dateValue instanceof Date) {
+        return format(dateValue, 'yyyy-MM-dd');
+      }
+      if (typeof dateValue === 'string') {
+        return dateValue.split('T')[0];
+      }
+      return dateValue;
+    };
+
     createTaskMutation.mutate({
       projectId,
       name,
       category,
       status: status as any,
       priority: priority as any,
-      startDate: startDate, // Already in YYYY-MM-DD format from DatePicker
-      endDate: endDate,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
     });
   };
 

@@ -53,12 +53,24 @@ export default function NewProject() {
       }
     }
 
+    // แปลงวันที่ให้เป็น YYYY-MM-DD format
+    const formatDate = (dateValue: any): string | undefined => {
+      if (!dateValue) return undefined;
+      if (dateValue instanceof Date) {
+        return format(dateValue, 'yyyy-MM-dd');
+      }
+      if (typeof dateValue === 'string') {
+        return dateValue.split('T')[0];
+      }
+      return undefined;
+    };
+
     createProject.mutate({
       ...data,
       code: data.code || undefined,
       location: data.location || undefined,
-      startDate: data.startDate || undefined,
-      endDate: data.endDate || undefined,
+      startDate: formatDate(data.startDate),
+      endDate: formatDate(data.endDate),
     });
   };
 

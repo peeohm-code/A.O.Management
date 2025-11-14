@@ -507,8 +507,9 @@ export async function createTask(data: {
     status: (taskData.status as any) || "todo",
     priority: (taskData.priority as any) || "medium",
     progress: 0,
-    startDate: startDate ? new Date(startDate) : null,
-    endDate: endDate ? new Date(endDate) : null,
+    // Keep dates as strings (YYYY-MM-DD format) - database schema uses varchar(10)
+    startDate: startDate || null,
+    endDate: endDate || null,
   });
 }
 
