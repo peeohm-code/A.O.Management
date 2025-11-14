@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserDropdown } from "@/components/UserDropdown";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -331,6 +332,7 @@ function DashboardLayoutContent({
             )}
           </div>
           <div className="flex items-center gap-2">
+            <OfflineIndicator />
             <NotificationBell />
             <UserDropdown />
           </div>

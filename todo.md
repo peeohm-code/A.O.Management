@@ -2310,3 +2310,17 @@
 - [x] Fix status enum to include 'draft'
 - [ ] Test project creation with and without code
 - [ ] Save checkpoint
+
+## Resume: Offline Form Handling และ Email Notifications
+- [x] สร้าง useOfflineForm hook
+- [x] สร้าง offlineQueue.ts library
+- [x] สร้าง useOfflineQueue hook
+- [x] สร้าง OfflineIndicator component
+- [ ] Integrate offline forms ใน TaskDetail (Comment + Progress)
+- [ ] Integrate offline forms ใน QCInspection
+- [x] เพิ่ม OfflineIndicator ใน DashboardLayout
+- [x] สร้าง server/email.ts พร้อม templates
+- [ ] เพิ่ม email notifications ใน backend
+- [x] สร้าง PWA_TESTING_GUIDE.md
+- [x] สร้าง EMAIL_SETUP_GUIDE.md
+- [ ] ทดสอบและ save checkpoint
