@@ -2368,3 +2368,14 @@
 - [ ] เพิ่ม notification เมื่อมีคำขอตรวจงาน
 - [ ] ทดสอบ workflow ทั้งหมด
 - [ ] บันทึก checkpoint
+
+## Fix TypeScript Errors (20 errors found)
+- [x] แก้ไข DashboardLayout - เพิ่ม CheckSquare import
+- [x] แก้ไข inspectionRequestRouter - เปลี่ยน "inspection_request" เป็น "inspection_requested"
+- [x] แก้ไข inspectionRequestRouter - เปลี่ยน "medium" เป็น "normal"
+- [x] แก้ไข deadlineReminders.ts - Date type mismatches
+- [x] แก้ไข db.ts - MySqlRawQueryResult type issues
+- [x] แก้ไข NewTask.tsx - Date comparison issues
+- [x] แก้ไข minor issues (Service Worker, Archive export)
+- [x] ทดสอบ TypeScript compilation (target: 0 errors)
+- [ ] บันทึก checkpoint

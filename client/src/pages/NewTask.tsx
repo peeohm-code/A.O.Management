@@ -212,8 +212,8 @@ export default function NewTask() {
 
             {/* Task Duration Display */}
             {watch("startDate") && watch("endDate") && (() => {
-              const start = new Date(watch("startDate"));
-              const end = new Date(watch("endDate"));
+              const start = new Date(watch("startDate") as string);
+              const end = new Date(watch("endDate") as string);
               if (end >= start) {
                 const totalDays = differenceInDays(end, start) + 1;
                 const businessDays = differenceInBusinessDays(end, start) + 1;

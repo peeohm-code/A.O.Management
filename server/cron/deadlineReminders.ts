@@ -38,8 +38,8 @@ async function checkTasksApproachingDeadline() {
       .from(tasks)
       .where(
         and(
-          gte(tasks.endDate, threeDaysFromNow),
-          lte(tasks.endDate, fourDaysFromNow),
+          gte(tasks.endDate, threeDaysFromNow.toISOString().split('T')[0]),
+          lte(tasks.endDate, fourDaysFromNow.toISOString().split('T')[0]),
           or(
             eq(tasks.progress, 0),
             lte(tasks.progress, 99)
@@ -56,7 +56,7 @@ async function checkTasksApproachingDeadline() {
           userId: task.assigneeId,
           type: "task_deadline_approaching",
           title: "งานใกล้ครบกำหนด",
-          content: `งาน "${task.name}" จะครบกำหนดในอีก 3 วัน (${task.endDate?.toLocaleDateString('th-TH')})`,
+          content: `งาน "${task.name}" จะครบกำหนดในอีก 3 วัน (${task.endDate})`,
           priority: "high",
           relatedTaskId: task.id,
           relatedProjectId: task.projectId,
@@ -83,15 +83,15 @@ async function checkOverdueTasks() {
       return;
     }
 
-    const now = new Date();
+    const today = new Date();
 
-    // Find tasks with endDate in the past and not completed
+    // Find tasks that are past endDate and not completed
     const overdueTasks = await db
       .select()
       .from(tasks)
       .where(
         and(
-          lte(tasks.endDate, now),
+          lte(tasks.endDate, today.toISOString().split('T')[0]),
           or(
             eq(tasks.progress, 0),
             lte(tasks.progress, 99)
@@ -108,7 +108,7 @@ async function checkOverdueTasks() {
           userId: task.assigneeId,
           type: "task_overdue",
           title: "งานเกินกำหนด",
-          content: `งาน "${task.name}" เกินกำหนดแล้ว (กำหนดเสร็จ: ${task.endDate?.toLocaleDateString('th-TH')})`,
+          content: `งาน "${task.name}" เลยกำหนดแล้ว (ครบกำหนด: ${task.endDate})`,
           priority: "urgent",
           relatedTaskId: task.id,
           relatedProjectId: task.projectId,

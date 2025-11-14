@@ -5,8 +5,8 @@ export interface ArchiveExportData {
   name: string;
   code: string | null;
   location: string | null;
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: string | null;
+  endDate: string | null;
   projectStatus: string;
   archivedAt: Date | null;
   archivedReason: string | null;

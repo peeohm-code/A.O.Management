@@ -75,7 +75,7 @@ async function runAutoArchive() {
           .where(
             and(
               ...conditions,
-              lte(projects.endDate, cutoffDate)
+              lte(projects.endDate, cutoffDate.toISOString().split('T')[0])
             )
           );
       }

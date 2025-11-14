@@ -21,7 +21,7 @@ export const inspectionRequestRouter = router({
       if (input.inspectorId) {
         await createNotification({
           userId: input.inspectorId,
-          type: 'inspection_request',
+          type: 'inspection_requested',
           priority: 'high',
           title: 'คำขอตรวจงานใหม่',
           content: `${ctx.user!.name} ขอให้คุณตรวจงาน`,
@@ -66,8 +66,8 @@ export const inspectionRequestRouter = router({
       // Send notification to requester
       await createNotification({
         userId: request.requestedBy,
-        type: 'inspection_request',
-        priority: 'medium',
+        type: 'inspection_requested',
+        priority: 'normal',
         title: 'คำขอตรวจงานได้รับอนุมัติ',
         content: `${ctx.user!.name} อนุมัติคำขอตรวจงานของคุณแล้ว`,
         relatedTaskId: request.taskId,
@@ -92,7 +92,7 @@ export const inspectionRequestRouter = router({
       // Send notification to requester
       await createNotification({
         userId: request.requestedBy,
-        type: 'inspection_request',
+        type: 'inspection_requested',
         priority: 'high',
         title: 'คำขอตรวจงานถูกปฏิเสธ',
         content: `${ctx.user!.name} ปฏิเสธคำขอตรวจงาน: ${input.rejectedReason}`,

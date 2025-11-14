@@ -2179,7 +2179,7 @@ export async function createInspectionRequest(data: {
         VALUES (${data.taskId}, ${data.requestedBy}, ${data.inspectorId || null}, ${data.notes || null})`
   );
 
-  return { id: Number(result.insertId) };
+  return { id: Number((result as any).insertId) };
 }
 
 export async function getInspectionRequestById(id: number) {
@@ -2200,7 +2200,7 @@ export async function getInspectionRequestById(id: number) {
         WHERE ir.id = ${id}`
   );
 
-  return results.rows[0] || null;
+  return (results as any).rows[0] || null;
 }
 
 export async function getInspectionRequestsByTask(taskId: number) {
@@ -2220,7 +2220,7 @@ export async function getInspectionRequestsByTask(taskId: number) {
         ORDER BY ir.createdAt DESC`
   );
 
-  return results.rows;
+  return (results as any).rows;
 }
 
 export async function getInspectionRequestsByInspector(inspectorId: number) {
@@ -2240,7 +2240,7 @@ export async function getInspectionRequestsByInspector(inspectorId: number) {
         ORDER BY ir.createdAt DESC`
   );
 
-  return results.rows;
+  return (results as any).rows;
 }
 
 export async function getAllInspectionRequests() {
@@ -2261,7 +2261,7 @@ export async function getAllInspectionRequests() {
         ORDER BY ir.createdAt DESC`
   );
 
-  return results.rows;
+  return (results as any).rows;
 }
 
 export async function approveInspectionRequest(id: number, approvedBy: number) {

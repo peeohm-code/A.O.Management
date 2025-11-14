@@ -37,7 +37,7 @@ export function useOfflineForm({
           // Register background sync if available
           if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
             const registration = await navigator.serviceWorker.ready;
-            await registration.sync.register('sync-offline-queue');
+            await (registration as any).sync.register('sync-offline-queue');
           }
         }
       } catch (error) {
