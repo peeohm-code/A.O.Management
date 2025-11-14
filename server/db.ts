@@ -291,6 +291,113 @@ export async function getProjectsByUser(userId: number) {
     );
 }
 
+/**
+ * Validate project completeness for opening (minimum 70%)
+ * Returns completeness percentage and details
+ */
+export async function validateProjectCompleteness(projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const project = await getProjectById(projectId);
+  if (!project) throw new Error("Project not found");
+
+  const checks = {
+    basicInfo: 0,
+    timeline: 0,
+    team: 0,
+    tasks: 0,
+    checklists: 0,
+  };
+
+  const details: Array<{ category: string; status: 'complete' | 'incomplete'; message: string }> = [];
+
+  // 1. Basic Info (20%): name, code, location
+  if (project.name && project.code && project.location) {
+    checks.basicInfo = 20;
+    details.push({ category: 'ข้อมูลพื้นฐาน', status: 'complete', message: 'ชื่อโครงการ, รหัส, และที่อยู่ครบถ้วน' });
+  } else {
+    details.push({ category: 'ข้อมูลพื้นฐาน', status: 'incomplete', message: 'ต้องระบุชื่อโครงการ, รหัส, และที่อยู่' });
+  }
+
+  // 2. Timeline (20%): startDate, endDate
+  if (project.startDate && project.endDate) {
+    checks.timeline = 20;
+    details.push({ category: 'ระยะเวลาโครงการ', status: 'complete', message: 'มีวันเริ่มต้นและวันสิ้นสุด' });
+  } else {
+    details.push({ category: 'ระยะเวลาโครงการ', status: 'incomplete', message: 'ต้องระบุวันเริ่มต้นและวันสิ้นสุด' });
+  }
+
+  // 3. Team (15%): at least 1 member
+  const members = await db
+    .select()
+    .from(projectMembers)
+    .where(eq(projectMembers.projectId, projectId));
+  
+  if (members.length > 0) {
+    checks.team = 15;
+    details.push({ category: 'ทีมงาน', status: 'complete', message: `มีสมาชิก ${members.length} คน` });
+  } else {
+    details.push({ category: 'ทีมงาน', status: 'incomplete', message: 'ต้องมีสมาชิกอย่างน้อย 1 คน' });
+  }
+
+  // 4. Tasks (15%): at least 1 task
+  const projectTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+  
+  if (projectTasks.length > 0) {
+    checks.tasks = 15;
+    details.push({ category: 'งาน', status: 'complete', message: `มีงาน ${projectTasks.length} งาน` });
+  } else {
+    details.push({ category: 'งาน', status: 'incomplete', message: 'ต้องมีงานอย่างน้อย 1 งาน' });
+  }
+
+  // 5. Checklist Templates (10%): at least 1 template (optional but recommended)
+  const templates = await db
+    .select()
+    .from(checklistTemplates);
+  
+  if (templates.length > 0) {
+    checks.checklists = 10;
+    details.push({ category: 'Checklist Templates', status: 'complete', message: `มี ${templates.length} templates` });
+  } else {
+    details.push({ category: 'Checklist Templates', status: 'incomplete', message: 'แนะนำให้มี checklist template อย่างน้อย 1 อัน' });
+  }
+
+  const totalPercentage = Object.values(checks).reduce((sum, val) => sum + val, 0);
+
+  return {
+    percentage: totalPercentage,
+    isValid: totalPercentage >= 70,
+    checks,
+    details,
+  };
+}
+
+/**
+ * Open project - change status from draft to planning or active
+ */
+export async function openProject(projectId: number, newStatus: 'planning' | 'active') {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Validate completeness first
+  const validation = await validateProjectCompleteness(projectId);
+  if (!validation.isValid) {
+    throw new Error(`โครงการมีความสมบูรณ์เพียง ${validation.percentage}% (ต้องการอย่างน้อย 70%)`);
+  }
+
+  // Update project status
+  await db
+    .update(projects)
+    .set({ status: newStatus })
+    .where(eq(projects.id, projectId));
+
+  return { success: true, newStatus };
+}
+
 export async function getProjectStats(projectId: number) {
   const db = await getDb();
   if (!db) return null;

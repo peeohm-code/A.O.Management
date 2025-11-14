@@ -235,6 +235,32 @@ const projectRouter = router({
       return await db.addProjectMember(input);
     }),
 
+  validateCompleteness: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await db.validateProjectCompleteness(input.id);
+    }),
+
+  openProject: roleBasedProcedure('projects', 'edit')
+    .input(
+      z.object({
+        id: z.number(),
+        newStatus: z.enum(["planning", "active"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const result = await db.openProject(input.id, input.newStatus);
+
+      await db.logActivity({
+        userId: ctx.user!.id,
+        projectId: input.id,
+        action: "project_opened",
+        details: JSON.stringify({ newStatus: input.newStatus }),
+      });
+
+      return result;
+    }),
+
   delete: roleBasedProcedure('projects', 'delete')
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {

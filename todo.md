@@ -2469,3 +2469,10 @@
 - [ ] Display map in Project Detail page
 - [ ] Test location picker with actual location data
 - [ ] Test location picker on mobile devices
+
+## Open Project Feature (เปิดโครงการ)
+- [x] สร้าง validation logic สำหรับตรวจสอบความสมบูรณ์ของโครงการ (70%)
+- [x] สร้าง Backend API สำหรับเปิดโครงการ (draft → planning/active)
+- [x] สร้าง UI ปุ่ม "เปิดโครงการ" ในหน้า Project Detail
+- [x] สร้าง Dialog แสดงความสมบูรณ์และยืนยันการเปิดโครงการ
+- [x] ทดสอบ workflow การเปิดโครงการ

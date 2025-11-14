@@ -12,6 +12,7 @@ import NewTaskDialog from "@/components/NewTaskDialog";
 import { CategoryColorPicker } from "@/components/CategoryColorPicker";
 import { QCTab } from "@/components/QCTab";
 import { ArchiveHistoryTimeline } from "@/components/ArchiveHistoryTimeline";
+import { OpenProjectDialog } from "@/components/OpenProjectDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -144,6 +145,17 @@ export default function ProjectDetail() {
         </div>
         <div className="flex items-center gap-2">
           <Badge className={`${getStatusColor(project.status)}`}>{project.status}</Badge>
+          {/* Open Project Button (only for draft projects) */}
+          {project.status === "draft" && (
+            <OpenProjectDialog
+              projectId={projectId}
+              projectName={project.name}
+              onSuccess={() => {
+                projectQuery.refetch();
+                projectTasksQuery.refetch();
+              }}
+            />
+          )}
           {/* Archive Button */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
