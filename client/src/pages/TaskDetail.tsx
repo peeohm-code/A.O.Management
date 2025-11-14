@@ -278,14 +278,7 @@ export default function TaskDetail() {
               }}>
                 อัปเดตความคืบหน้า
               </Button>
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => toast.info("ฟีเจอร์นี้ถูกลบออกแล้ว - ใช้ปุ่ม 'ขออนุมัติตรวจ' ใน Checklists Tab แทน")}
-              >
-                <CheckSquare className="w-4 h-4 mr-1" />
-                ขออนุมัติตรวจงาน
-              </Button>
+
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">

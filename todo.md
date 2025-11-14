@@ -2509,3 +2509,9 @@
 - [x] เรียกใช้ calculateAndUpdateTaskProgress ใน updateChecklistStatus
 - [x] ทดสอบระบบอัพเดทความคืบหน้าอัตโนมัติ
 - [x] ทดสอบว่า task เสร็จสมบูรณ์เมื่อ checklist ทั้งหมดผ่าน
+
+## ลบปุ่มขออนุมัติตรวจใน Task Detail
+- [x] ตรวจสอบไฟล์ TaskDetail.tsx
+- [x] ลบปุ่ม "ขออนุมัติตรวจ" ออก
+- [x] ทดสอบหน้า Task Detail
+- [x] บันทึก checkpoint
