@@ -2405,3 +2405,10 @@
 - [x] Create system health check script
 - [x] Document all prevention measures and best practices
 - [x] Add automated alerts for resource usage thresholds
+
+## Bug Fix: Dashboard Project Count Mismatch
+- [x] Investigate why Dashboard shows 1 project but Projects page shows 3 projects
+- [x] Check Dashboard API (getStats) query logic
+- [x] Check Projects page API (list) query logic
+- [x] Fix backend to ensure consistent project counting across all pages (changed from getProjectsByUser to getAllProjects)
+- [x] Test and verify project count matches on both Dashboard and Projects page

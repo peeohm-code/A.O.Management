@@ -1818,9 +1818,8 @@ const activityRouter = router({
  */
 const dashboardRouter = router({
   getStats: protectedProcedure.query(async ({ ctx }) => {
-    // Get user's projects with stats
-    const userProjectsData = await db.getProjectsByUser(ctx.user!.id);
-    const allProjects = userProjectsData.map(p => p.projects);
+    // Get all projects (admin can see all projects)
+    const allProjects = await db.getAllProjects();
     const projectsWithStats = await Promise.all(
       allProjects.map(async (project) => {
         const stats = await db.getProjectStats(project.id);
