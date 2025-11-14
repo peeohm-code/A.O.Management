@@ -1636,13 +1636,11 @@ export async function submitInspection(data: {
       await db.update(tasks).set({
         status: "rectification_needed",
       }).where(eq(tasks.id, data.taskId));
-    } else {
-      // All passed - update task status to completed
-      await db.update(tasks).set({
-        status: "completed",
-        progress: 100,
-      }).where(eq(tasks.id, data.taskId));
     }
+
+    // Auto-update task progress based on checklist completion
+    const { calculateAndUpdateTaskProgress } = await import("./taskProgressHelper");
+    await calculateAndUpdateTaskProgress(data.taskId);
 
     // 6. Get task details for notifications
     const task = await db.select().from(tasks).where(eq(tasks.id, data.taskId)).limit(1);

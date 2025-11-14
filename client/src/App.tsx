@@ -27,7 +27,6 @@ import UserProfile from "./pages/UserProfile";
 import TeamManagement from "./pages/TeamManagement";
 import Archive from "./pages/Archive";
 import ArchiveRules from "./pages/ArchiveRules";
-import InspectionRequests from "./pages/InspectionRequests";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -101,13 +100,6 @@ function Router() {
             >
               <QCInspection />
             </PageErrorBoundary>
-          </DashboardLayout>
-        )}
-      </Route>
-      <Route path={"/inspection-requests"}>
-        {() => (
-          <DashboardLayout>
-            <InspectionRequests />
           </DashboardLayout>
         )}
       </Route>

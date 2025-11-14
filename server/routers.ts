@@ -14,7 +14,6 @@ import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
 import { createNotification } from "./notificationService";
 import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
-import { inspectionRequestRouter } from "./inspectionRequestRouter";
 
 /**
  * Project Router - Project Management
@@ -1035,6 +1034,10 @@ const checklistRouter = router({
         action: "checklist_status_updated",
         details: JSON.stringify({ checklistId: input.id, status: input.status }),
       });
+
+      // Auto-update task progress based on checklist completion
+      const { calculateAndUpdateTaskProgress } = await import("./taskProgressHelper");
+      await calculateAndUpdateTaskProgress(checklist.taskId);
 
       return { success: true };
     }),
@@ -2181,7 +2184,6 @@ export const appRouter = router({
   notification: notificationRouter,
   activity: activityRouter,
   categoryColor: categoryColorRouter,
-  inspectionRequest: inspectionRequestRouter,
 });
 
 export type AppRouter = typeof appRouter;

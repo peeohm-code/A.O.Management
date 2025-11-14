@@ -16,7 +16,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
 import { DefectsTab } from "@/components/DefectsTab";
-import InspectionRequestDialog from "@/components/InspectionRequestDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +36,6 @@ export default function TaskDetail() {
   const [showProgressForm, setShowProgressForm] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [showInspectionRequestDialog, setShowInspectionRequestDialog] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
@@ -283,7 +281,7 @@ export default function TaskDetail() {
               <Button 
                 size="sm" 
                 variant="outline"
-                onClick={() => setShowInspectionRequestDialog(true)}
+                onClick={() => toast.info("ฟีเจอร์นี้ถูกลบออกแล้ว - ใช้ปุ่ม 'ขออนุมัติตรวจ' ใน Checklists Tab แทน")}
               >
                 <CheckSquare className="w-4 h-4 mr-1" />
                 ขออนุมัติตรวจงาน
@@ -565,13 +563,6 @@ export default function TaskDetail() {
         </TabsContent>
       </Tabs>
 
-      {/* Inspection Request Dialog */}
-      <InspectionRequestDialog
-        open={showInspectionRequestDialog}
-        onOpenChange={setShowInspectionRequestDialog}
-        taskId={taskId}
-        taskName={task?.name || ""}
-      />
     </div>
   );
 }

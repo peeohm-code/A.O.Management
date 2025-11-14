@@ -2485,3 +2485,27 @@
 - [x] เพิ่ม severity levels (INFO, WARNING, CRITICAL) และ icons
 - [x] ทดสอบการส่งและแสดง system alerts
 - [x] สร้างเอกสารคู่มือการใช้งาน
+
+## ลบฟีเจอร์ Inspection Requests และปรับปรุง Auto Progress Update
+- [ ] ลบเมนู "Inspection Requests" ออกจาก DashboardLayout
+- [ ] ลบหน้า InspectionRequests.tsx
+- [ ] ลบ backend API inspectionRequestRouter
+- [ ] ลบตาราง inspectionRequests จาก database schema
+- [ ] สร้างฟังก์ชัน calculateTaskProgress() ใน backend
+- [ ] อัพเดท submitInspection API ให้คำนวณและอัพเดท task progress อัตโนมัติ
+- [ ] ถ้า checklist ทั้งหมดผ่าน → task progress = 100%
+- [ ] ทดสอบ workflow: ขออนุมัติตรวจ → QC ตรวจ → progress อัพเดทอัตโนมัติ
+- [ ] ทดสอบกรณี checklist ทั้งหมดผ่าน → task เสร็จสมบูรณ์
+- [ ] บันทึก checkpoint
+
+## ลบฟีเจอร์ Inspection Requests และปรับปรุงระบบ Checklist
+- [x] ลบเมนู "Inspection Requests" จาก sidebar
+- [x] ลบไฟล์ InspectionRequests.tsx และ InspectionRequestDialog.tsx
+- [x] ลบ backend router inspectionRequestRouter
+- [x] ลบ route /inspection-requests จาก App.tsx
+- [x] ลบตาราง inspectionRequests จาก schema.ts
+- [x] สร้างฟังก์ชัน calculateAndUpdateTaskProgress
+- [x] เรียกใช้ calculateAndUpdateTaskProgress ใน submitInspection
+- [x] เรียกใช้ calculateAndUpdateTaskProgress ใน updateChecklistStatus
+- [x] ทดสอบระบบอัพเดทความคืบหน้าอัตโนมัติ
+- [x] ทดสอบว่า task เสร็จสมบูรณ์เมื่อ checklist ทั้งหมดผ่าน
