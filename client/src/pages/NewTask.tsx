@@ -19,7 +19,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema, type TaskInput } from "@shared/validations";
 import { DatePicker } from "@/components/ui/date-picker";
-import { format } from "date-fns";
+import { format, differenceInDays, differenceInBusinessDays } from "date-fns";
 
 export default function NewTask() {
   const [, setLocation] = useLocation();
@@ -58,6 +58,16 @@ export default function NewTask() {
   });
 
   const onSubmit = (data: TaskInput) => {
+    // Validate date range
+    if (data.startDate && data.endDate) {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      if (end < start) {
+        toast.error("วันที่สิ้นสุดต้องมากกว่าหรือเท่ากับวันที่เริ่มต้น");
+        return;
+      }
+    }
+
     // แปลงวันที่ให้เป็น YYYY-MM-DD format
     const formattedData = {
       ...data,
@@ -188,6 +198,27 @@ export default function NewTask() {
                 )}
               </div>
             </div>
+
+            {/* Task Duration Display */}
+            {watch("startDate") && watch("endDate") && (() => {
+              const start = new Date(watch("startDate"));
+              const end = new Date(watch("endDate"));
+              if (end >= start) {
+                const totalDays = differenceInDays(end, start) + 1;
+                const businessDays = differenceInBusinessDays(end, start) + 1;
+                return (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-medium text-blue-900">ระยะเวลางาน:</span>
+                      <span className="text-blue-700">
+                        {totalDays} วัน ({businessDays} วันทำงาน)
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">

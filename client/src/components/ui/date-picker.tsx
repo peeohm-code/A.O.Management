@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
+import { format, addDays, addWeeks, addMonths, startOfToday } from "date-fns"
 import { th } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 
@@ -72,13 +72,49 @@ export function DatePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={handleSelect}
-          initialFocus
-          locale={th}
-        />
+        <div className="flex flex-col">
+          <div className="flex flex-wrap gap-2 p-3 border-b">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => handleSelect(startOfToday())}
+            >
+              วันนี้
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => handleSelect(addDays(startOfToday(), 1))}
+            >
+              พรุ่งนี้
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => handleSelect(addWeeks(startOfToday(), 1))}
+            >
+              สัปดาห์หน้า
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => handleSelect(addMonths(startOfToday(), 1))}
+            >
+              เดือนหน้า
+            </Button>
+          </div>
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleSelect}
+            initialFocus
+            locale={th}
+          />
+        </div>
       </PopoverContent>
     </Popover>
   )

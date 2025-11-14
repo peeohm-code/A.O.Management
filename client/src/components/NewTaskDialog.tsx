@@ -67,13 +67,21 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
       return;
     }
 
+    // Validate date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (end < start) {
+      toast.error("วันที่สิ้นสุดต้องมากกว่าหรือเท่ากับวันที่เริ่มต้น");
+      return;
+    }
+
     createTaskMutation.mutate({
       projectId,
       name,
       category,
       status: status as any,
       priority: priority as any,
-      startDate: startDate, // Already in YYYY-MM-DD format from input[type="date"]
+      startDate: startDate, // Already in YYYY-MM-DD format from DatePicker
       endDate: endDate,
     });
   };

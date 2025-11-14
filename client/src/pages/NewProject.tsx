@@ -43,6 +43,16 @@ export default function NewProject() {
   });
 
   const onSubmit = (data: ProjectInput) => {
+    // Validate date range
+    if (data.startDate && data.endDate) {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      if (end < start) {
+        toast.error("วันที่สิ้นสุดต้องมากกว่าหรือเท่ากับวันที่เริ่มต้น");
+        return;
+      }
+    }
+
     createProject.mutate({
       ...data,
       code: data.code || undefined,

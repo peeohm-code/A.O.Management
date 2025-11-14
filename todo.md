@@ -2338,4 +2338,13 @@
 - [x] นำ DatePicker ไปใช้ใน NewProject
 - [x] นำ DatePicker ไปใช้ในหน้าอื่นๆ ที่มี date input (NewTaskDialog, DefectDetail)
 - [x] ทดสอบ DatePicker บนทุกหน้า
+- [x] บันทึก checkpoint
+
+## Date Range Validation & Enhancements
+- [x] เพิ่ม Date Range Validation ใน NewTask
+- [x] เพิ่ม Date Range Validation ใน NewProject
+- [x] เพิ่ม Date Range Validation ใน NewTaskDialog
+- [x] เพิ่ม Quick Date Presets ใน DatePicker component
+- [x] เพิ่ม Task Duration Calculator ใน NewTask
+- [x] ทดสอบทุกฟีเจอร์
 - [ ] บันทึก checkpoint
