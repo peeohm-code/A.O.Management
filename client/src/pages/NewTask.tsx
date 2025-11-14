@@ -29,6 +29,7 @@ export default function NewTask() {
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<TaskInput>({
     resolver: zodResolver(taskSchema),
@@ -38,6 +39,8 @@ export default function NewTask() {
       projectId: 0,
       startDate: "",
       endDate: "",
+      category: "other",
+      priority: "medium",
     },
   });
 
@@ -47,17 +50,22 @@ export default function NewTask() {
       setLocation(`/tasks/${data.id}`);
     },
     onError: (error) => {
+      console.error("[ERROR] Task create failed:", error);
       toast.error("เกิดข้อผิดพลาด: " + error.message);
     },
   });
 
   const onSubmit = (data: TaskInput) => {
-    createTask.mutate({
+    // แปลงวันที่ให้เป็น YYYY-MM-DD format
+    const formattedData = {
       ...data,
       description: data.description || undefined,
-      startDate: data.startDate || undefined,
-      endDate: data.endDate || undefined,
-    });
+      startDate: data.startDate ? data.startDate.split('T')[0] : undefined,
+      endDate: data.endDate ? data.endDate.split('T')[0] : undefined,
+    };
+    
+    console.log("[DEBUG] Submitting task data:", formattedData);
+    createTask.mutate(formattedData);
   };
 
   return (
@@ -137,20 +145,78 @@ export default function NewTask() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startDate">วันที่เริ่มต้น</Label>
+                <Label htmlFor="startDate">วันที่เริ่มต้น <span className="text-red-500">*</span></Label>
                 <Input
                   id="startDate"
                   type="date"
                   {...register("startDate")}
+                  className={errors.startDate ? "border-red-500" : ""}
                 />
+                {errors.startDate && (
+                  <p className="text-sm text-red-500">{errors.startDate.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="endDate">วันที่สิ้นสุด</Label>
+                <Label htmlFor="endDate">วันที่สิ้นสุด <span className="text-red-500">*</span></Label>
                 <Input
                   id="endDate"
                   type="date"
                   {...register("endDate")}
+                  className={errors.endDate ? "border-red-500" : ""}
+                />
+                {errors.endDate && (
+                  <p className="text-sm text-red-500">{errors.endDate.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">หมวดหมู่</Label>
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || "other"}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือกหมวดหมู่" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="preparation">งานเตรียมงาน</SelectItem>
+                        <SelectItem value="structure">งานโครงสร้าง</SelectItem>
+                        <SelectItem value="architecture">งานสถาปัตย์</SelectItem>
+                        <SelectItem value="mep">งาน MEP</SelectItem>
+                        <SelectItem value="other">อื่นๆ</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="priority">ความสำคัญ</Label>
+                <Controller
+                  name="priority"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || "medium"}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือกความสำคัญ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">ต่ำ</SelectItem>
+                        <SelectItem value="medium">ปานกลาง</SelectItem>
+                        <SelectItem value="high">สูง</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
               </div>
             </div>

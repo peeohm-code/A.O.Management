@@ -2323,4 +2323,11 @@
 - [ ] เพิ่ม email notifications ใน backend
 - [x] สร้าง PWA_TESTING_GUIDE.md
 - [x] สร้าง EMAIL_SETUP_GUIDE.md
-- [ ] ทดสอบและ save checkpoint
+- [x] ทดสอบและ save checkpoint
+
+## Fix DatePicker และ Dependency Type Selector
+- [x] แก้ไข DatePicker ในฟอร์มสร้างงาน - ให้แสดง calendar popup แทนการพิมพ์
+- [x] เพิ่ม dependency type selector (Start-Finish, Start-Start, Finish-Finish) - มีอยู่แล้วใน DependenciesTab
+- [x] ทดสอบการสร้างงานใหม่
+- [x] ทดสอบการเลือก dependency type
+- [ ] บันทึก checkpoint
