@@ -2379,3 +2379,15 @@
 - [x] แก้ไข minor issues (Service Worker, Archive export)
 - [x] ทดสอบ TypeScript compilation (target: 0 errors)
 - [ ] บันทึก checkpoint
+
+## Fix TypeScript Error & Restart Server
+- [x] ตรวจสอบไฟล์ที่อ้างอิง server/email.ts
+- [x] ลบหรือ comment out imports ที่อ้างถึง email.ts
+- [x] แก้ไข TypeScript errors ทั้งหมด
+- [x] เปลี่ยนจาก tsx watch เป็น nodemon พร้อม legacyWatch
+- [x] เพิ่ม ulimit -n 65536 ใน dev script
+- [x] แก้ไข server/_core/vite.ts ให้ merge config และใช้ usePolling
+- [x] ปิด HMR และเพิ่ม watch ignored patterns ใน vite.config.ts
+- [x] รีสตาร์ท dev server
+- [x] ทดสอบว่า server ทำงานปกติ
+- [x] บันทึก checkpoint

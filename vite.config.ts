@@ -27,6 +27,7 @@ export default defineConfig({
   },
   server: {
     host: true,
+    hmr: false,
     allowedHosts: [
       ".manuspre.computer",
       ".manus.computer",
@@ -39,6 +40,20 @@ export default defineConfig({
     fs: {
       strict: true,
       deny: ["**/.*"],
+    },
+    watch: {
+      usePolling: true,
+      interval: 1000,
+      ignored: [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.cache/**",
+        "**/coverage/**",
+        "**/server/**",
+        "**/drizzle/**",
+      ],
     },
   },
 });
