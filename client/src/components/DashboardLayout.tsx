@@ -21,39 +21,15 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { useRoleLabel } from "@/hooks/usePermissions";
-import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive } from "lucide-react";
-import { NotificationBell } from "@/components/NotificationBell";
-import { UserDropdown } from "@/components/UserDropdown";
-import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-function RoleBadge() {
-  const roleLabel = useRoleLabel();
-  if (!roleLabel) return null;
-  
-  return (
-    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
-      {roleLabel}
-    </Badge>
-  );
-}
-
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: FolderKanban, label: "Projects", path: "/projects" },
-  { icon: ListTodo, label: "Tasks", path: "/tasks" },
-  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
-  { icon: CheckSquare, label: "Inspection Requests", path: "/inspection-requests" },
-  { icon: AlertTriangle, label: "Defects", path: "/defects" },
-  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
-  { icon: Users, label: "Team", path: "/team" },
-  { icon: Archive, label: "Archive", path: "/archive" },
-  { icon: BarChart3, label: "Reports", path: "/reports" },
+  { icon: LayoutDashboard, label: "Page 1", path: "/" },
+  { icon: Users, label: "Page 2", path: "/some-path" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -82,30 +58,22 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#00366D] via-[#006b7a] to-[#00CE81]">
-        <div className="flex flex-col items-center gap-8 p-10 max-w-md w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-6">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#00366D] to-[#00CE81] rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
-              <div className="relative bg-white p-3 rounded-xl">
+              <div className="relative">
                 <img
                   src={APP_LOGO}
                   alt={APP_TITLE}
-                  className="h-24 w-24 object-contain"
+                  className="h-20 w-20 rounded-xl object-cover shadow"
                 />
               </div>
             </div>
-            <div className="text-center space-y-3">
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#00366D] to-[#00CE81] bg-clip-text text-transparent">
-                {APP_TITLE.split('\n').map((line: string, i: number) => (
-                  <div key={i}>{line}</div>
-                ))}
-              </h1>
-              <p className="text-sm text-gray-600 font-medium">
-                Construction Management & QC Platform
-              </p>
-              <p className="text-xs text-gray-500">
-                กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-bold tracking-tight">{APP_TITLE}</h1>
+              <p className="text-sm text-muted-foreground">
+                Please sign in to continue
               </p>
             </div>
           </div>
@@ -114,13 +82,10 @@ export default function DashboardLayout({
               window.location.href = getLoginUrl();
             }}
             size="lg"
-            className="w-full bg-gradient-to-r from-[#2d7a7a] to-[#00b894] hover:from-[#1e3a5f] hover:to-[#2d7a7a] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+            className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            เข้าสู่ระบบ
+            Sign in
           </Button>
-          <p className="text-xs text-gray-400 text-center">
-            Powered by A.O. Construction and Engineering
-          </p>
         </div>
       </div>
     );
@@ -209,7 +174,7 @@ function DashboardLayoutContent({
                 <div className="relative h-8 w-8 shrink-0 group">
                   <img
                     src={APP_LOGO}
-                    className="h-8 w-8 rounded-md object-contain bg-white p-1 ring-1 ring-border"
+                    className="h-8 w-8 rounded-md object-cover ring-1 ring-border"
                     alt="Logo"
                   />
                   <button
@@ -224,7 +189,7 @@ function DashboardLayoutContent({
                   <div className="flex items-center gap-3 min-w-0">
                     <img
                       src={APP_LOGO}
-                      className="h-8 w-8 rounded-md object-contain bg-white p-1 ring-1 ring-border shrink-0"
+                      className="h-8 w-8 rounded-md object-cover ring-1 ring-border shrink-0"
                       alt="Logo"
                     />
                     <span className="font-semibold tracking-tight truncate">
@@ -275,12 +240,9 @@ function DashboardLayoutContent({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate leading-none">
-                        {user?.name || "-"}
-                      </p>
-                      <RoleBadge />
-                    </div>
+                    <p className="text-sm font-medium truncate leading-none">
+                      {user?.name || "-"}
+                    </p>
                     <p className="text-xs text-muted-foreground truncate mt-1.5">
                       {user?.email || "-"}
                     </p>
@@ -288,13 +250,6 @@ function DashboardLayoutContent({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  onClick={() => setLocation('/profile')}
-                  className="cursor-pointer"
-                >
-                  <UserCircle className="mr-2 h-4 w-4" />
-                  <span>โปรไฟล์ของฉัน</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"
@@ -317,27 +272,20 @@ function DashboardLayoutContent({
       </div>
 
       <SidebarInset>
-        {/* Top Bar - Desktop & Mobile */}
-        <div className="flex border-b h-14 items-center justify-between bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-          <div className="flex items-center gap-2">
-            {isMobile && (
-              <>
-                <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-                <span className="tracking-tight text-foreground font-medium">
-                  {activeMenuItem?.label ?? APP_TITLE}
-                </span>
-              </>
-            )}
-            {!isMobile && (
-              <span className="text-lg font-semibold">{APP_TITLE}</span>
-            )}
+        {isMobile && (
+          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="tracking-tight text-foreground">
+                    {activeMenuItem?.label ?? APP_TITLE}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <OfflineIndicator />
-            <NotificationBell />
-            <UserDropdown />
-          </div>
-        </div>
+        )}
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>

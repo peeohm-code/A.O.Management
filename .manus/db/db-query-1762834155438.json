@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO defects (taskId, type, title, description, status, severity, reportedBy, resolvedBy, resolvedAt, beforePhotos, afterPhotos, rootCause, correctiveAction, preventiveAction, resolutionNotes, createdAt, updatedAt) VALUES (1, 'NCR', 'สีทาไม่เรียบ มีรอยแตกและลอกหลุด', 'พบว่าสีทาผนังไม่เรียบ มีรอยแตกและลอกหลุดหลายจุด', 'resolved', 'medium', 1, 1, '2024-11-05', '[]', '[]', 'ผนังไม่แห้งสนิทก่อนทาสี และใช้สีคุณภาพต่ำ', 'ขัดผิวผนังใหม่ ทาสีรองพื้น และทาสีใหม่ด้วยสีคุณภาพดี', 'ตรวจสอบความชื้นของผนังก่อนทาสี และใช้สีที่ผ่านการรับรองมาตรฐาน', 'ได้ทำการขัดผิวและทาสีใหม่เรียบร้อยแล้ว', '2024-10-20', '2024-11-05')",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO defects (taskId, type, title, description, status, severity, reportedBy, resolvedBy, resolvedAt, beforePhotos, afterPhotos, rootCause, correctiveAction, preventiveAction, resolutionNotes, createdAt, updatedAt) VALUES (1, 'NCR', 'สีทาไม่เรียบ มีรอยแตกและลอกหลุด', 'พบว่าสีทาผนังไม่เรียบ มีรอยแตกและลอกหลุดหลายจุด', 'resolved', 'medium', 1, 1, '2024-11-05', '[]', '[]', 'ผนังไม่แห้งสนิทก่อนทาสี และใช้สีคุณภาพต่ำ', 'ขัดผิวผนังใหม่ ทาสีรองพื้น และทาสีใหม่ด้วยสีคุณภาพดี', 'ตรวจสอบความชื้นของผนังก่อนทาสี และใช้สีที่ผ่านการรับรองมาตรฐาน', 'ได้ทำการขัดผิวและทาสีใหม่เรียบร้อยแล้ว', '2024-10-20', '2024-11-05')",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 1626
-}
