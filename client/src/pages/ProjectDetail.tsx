@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2, Archive } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { parseDate } from "@/lib/dateUtils";
 import GanttChart from "@/components/GanttChart";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { CategoryColorPicker } from "@/components/CategoryColorPicker";
@@ -132,9 +133,9 @@ export default function ProjectDetail() {
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {project.startDate && new Date(project.startDate).toLocaleDateString()}
+                  {project.startDate && parseDate(project.startDate).toLocaleDateString()}
                   {project.startDate && project.endDate && " - "}
-                  {project.endDate && new Date(project.endDate).toLocaleDateString()}
+                  {project.endDate && parseDate(project.endDate).toLocaleDateString()}
                 </span>
               </div>
             )}
@@ -313,13 +314,13 @@ export default function ProjectDetail() {
                               )}
                               <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                                 {task.startDate && (
-                                  <span>
-                                    เริ่ม: {new Date(task.startDate).toLocaleDateString('th-TH')}
+                                   <span>
+                                    เริ่ม: {parseDate(task.startDate).toLocaleDateString('th-TH')}
                                   </span>
                                 )}
                                 {task.endDate && (
-                                  <span>
-                                    สิ้นสุด: {new Date(task.endDate).toLocaleDateString('th-TH')}
+                                   <span>
+                                    สิ้นสุด: {parseDate(task.endDate).toLocaleDateString('th-TH')}
                                   </span>
                                 )}
                                 {task.assigneeName && (

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X, CheckSquare, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { parseDate, daysBetween } from "@/lib/dateUtils";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useThaiTextInput } from "@/hooks/useThaiTextInput";
@@ -63,11 +64,7 @@ export default function TaskDetail() {
   // Calculate duration
   const calculateDuration = () => {
     if (!task?.startDate || !task?.endDate) return null;
-    const start = new Date(task.startDate);
-    const end = new Date(task.endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return daysBetween(task.startDate, task.endDate);
   };
 
   const duration = calculateDuration();
@@ -236,7 +233,7 @@ export default function TaskDetail() {
                 <p className="text-xs text-gray-500 mb-1">ระยะเวลา</p>
                 <p className="text-sm font-medium">
                   {task.startDate && task.endDate
-                    ? `${new Date(task.startDate).toLocaleDateString("th-TH", { day: "numeric", month: "short" })} - ${new Date(task.endDate).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" })} (${duration} วัน)`
+                    ? `${parseDate(task.startDate).toLocaleDateString("th-TH", { day: "numeric", month: "short" })} - ${parseDate(task.endDate).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" })} (${duration} วัน)`
                     : "-"}
                 </p>
               </div>
@@ -259,10 +256,10 @@ export default function TaskDetail() {
                   <Badge className={getStatusColor(task.status)}>
                     {getStatusLabel(task.status)}
                   </Badge>
-                  {task.endDate && new Date(task.endDate) < new Date() && task.status !== 'completed' && (
+                  {task.endDate && parseDate(task.endDate) < new Date() && task.status !== 'completed' && (
                     <Badge className="bg-red-100 text-red-700 border-red-300">
                       <AlertTriangle className="w-3 h-3 mr-1" />
-                      ล่าช้า {Math.ceil((new Date().getTime() - new Date(task.endDate).getTime()) / (1000 * 60 * 60 * 24))} วัน
+                      ล่าช้า {Math.abs(daysBetween(new Date(), task.endDate))} วัน
                     </Badge>
                   )}
                 </div>

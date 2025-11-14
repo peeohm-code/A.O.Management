@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { parseDate } from "@/lib/dateUtils";
 
 export default function Projects() {
   const { canCreate } = usePermissions('projects');
@@ -256,7 +257,7 @@ export default function Projects() {
 
   const calculateDaysRemaining = (endDate: string | Date | null) => {
     if (!endDate) return null;
-    const end = new Date(endDate);
+    const end = parseDate(endDate);
     const now = new Date();
     const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     return diff;
@@ -530,9 +531,9 @@ export default function Projects() {
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4 text-[#00366D]" />
                           <span>
-                            {project.startDate && new Date(project.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            {project.startDate && parseDate(project.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                             {project.startDate && project.endDate && ' - '}
-                            {project.endDate && new Date(project.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            {project.endDate && parseDate(project.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                           </span>
                         </div>
                       )}

@@ -19,6 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { parseDate } from "@/lib/dateUtils";
 
 interface GanttTask {
   id: number;
@@ -201,8 +202,16 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   const chartData = useMemo(() => {
     if (!tasks || tasks.length === 0) return { groups: [], minDate: new Date(), maxDate: new Date(), dateRange: [] };
 
-    const startDates = tasks.map((t) => new Date(t.startDate).getTime());
-    const endDates = tasks.map((t) => new Date(t.endDate).getTime());
+    // Helper function to safely parse dates (handles both string and Date object)
+    const parseDate = (date: string | Date | undefined): Date => {
+      if (!date) return new Date();
+      if (date instanceof Date) return date;
+      const parsed = new Date(date);
+      return isNaN(parsed.getTime()) ? new Date() : parsed;
+    };
+
+    const startDates = tasks.map((t) => parseDate(t.startDate).getTime());
+    const endDates = tasks.map((t) => parseDate(t.endDate).getTime());
 
     const minDate = new Date(Math.min(...startDates));
     const maxDate = new Date(Math.max(...endDates));
@@ -245,8 +254,8 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
     // Create groups with calculated data
     const groups: TaskGroup[] = Array.from(groupMap.entries()).map(([category, groupTasks]) => {
       const tasksWithIndices = groupTasks.map((task) => {
-        const start = new Date(task.startDate);
-        const end = new Date(task.endDate);
+        const start = parseDate(task.startDate);
+        const end = parseDate(task.endDate);
         const startIndex = Math.floor((start.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
         const endIndex = Math.floor((end.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -454,10 +463,10 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
                         </td>
                         <td className="p-2">{task.progress}%</td>
                         <td className="p-2">
-                          {new Date(task.startDate).toLocaleDateString("th-TH")}
+                          {parseDate(task.startDate).toLocaleDateString("th-TH")}
                         </td>
                         <td className="p-2">
-                          {new Date(task.endDate).toLocaleDateString("th-TH")}
+                          {parseDate(task.endDate).toLocaleDateString("th-TH")}
                         </td>
                         <td className="p-0" colSpan={chartData.dateRange.length}>
                           <div className="relative h-8">

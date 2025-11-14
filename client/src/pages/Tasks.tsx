@@ -26,6 +26,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { parseDate } from "@/lib/dateUtils";
 
 export default function Tasks() {
   const { canCreate, canEdit } = usePermissions('tasks');
@@ -491,7 +492,7 @@ export default function Tasks() {
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
+                        {parseDate(task.startDate).toLocaleDateString()} - {parseDate(task.endDate).toLocaleDateString()}
                       </span>
                     </div>
                   )}
