@@ -3227,3 +3227,8 @@ All requested features have been implemented and tested. The system is ready for
 - [x] Optimize bundle size และ code splitting
 - [x] ตรวจสอบ build errors
 - [x] ทดสอบและยืนยันการแก้ไข
+
+## Performance Optimization
+- [x] ปรับปรุง TypeScript Watcher - ปิด tsc --watch ในโหมด production เพื่อลด memory usage
+- [x] เพิ่ม Database Connection Pooling - ตั้งค่า connection pool limit เพื่อป้องกัน memory leak
+- [x] ทดสอบ Production Build - รัน pnpm build เพื่อดู bundle size และตรวจสอบ code splitting

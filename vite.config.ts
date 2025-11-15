@@ -118,21 +118,46 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React core
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
               return 'react-vendor';
             }
-            if (id.includes('@trpc')) {
-              return 'trpc';
+            // tRPC and React Query
+            if (id.includes('@trpc') || id.includes('@tanstack/react-query')) {
+              return 'trpc-vendor';
             }
-            if (id.includes('@tanstack')) {
-              return 'tanstack';
+            // Charts
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'chart-vendor';
             }
+            // Radix UI components
             if (id.includes('@radix-ui')) {
-              return 'ui';
+              return 'ui-vendor';
             }
+            // Icons
             if (id.includes('lucide-react')) {
-              return 'icons';
+              return 'icon-vendor';
             }
+            // Date utilities
+            if (id.includes('date-fns')) {
+              return 'date-vendor';
+            }
+            // Form handling
+            if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) {
+              return 'form-vendor';
+            }
+            // Gantt chart
+            if (id.includes('react-gantt-chart')) {
+              return 'gantt-vendor';
+            }
+            // Other large libraries
+            if (id.includes('framer-motion')) {
+              return 'animation-vendor';
+            }
+            if (id.includes('xlsx')) {
+              return 'xlsx-vendor';
+            }
+            // Everything else
             return 'vendor';
           }
         },
@@ -140,6 +165,8 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000,
     sourcemap: false,
+    minify: 'esbuild',
+    target: 'es2020',
   },
   server: {
     host: true,

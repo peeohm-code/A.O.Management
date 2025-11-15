@@ -1,5 +1,6 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import {
   InsertUser,
   users,
@@ -33,11 +34,23 @@ import { createNotification as sendNotification } from "./notificationService";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
+// Lazily create the drizzle instance with connection pooling
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      // Create connection pool with optimized settings
+      const poolConnection = mysql.createPool({
+        uri: process.env.DATABASE_URL,
+        connectionLimit: 10, // Maximum 10 concurrent connections
+        waitForConnections: true,
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 10000,
+        maxIdle: 5, // Maximum idle connections
+        idleTimeout: 60000, // Close idle connections after 60s
+      });
+      console.log("[Database] Connection pool created with limit: 10");
+      _db = drizzle(poolConnection);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
