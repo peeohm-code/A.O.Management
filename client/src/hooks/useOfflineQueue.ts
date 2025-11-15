@@ -32,13 +32,27 @@ export function useOfflineQueue() {
         // Process based on type
         switch (item.type) {
           case 'comment':
-            // await trpc.comment.create.mutate(item.data);
+            await utils.client.comment.add.mutate(item.data);
             break;
           case 'progress':
-            // await trpc.task.updateProgress.mutate(item.data);
+            // Use task.update with progress field
+            await utils.client.task.update.mutate({
+              id: item.data.taskId,
+              progress: item.data.progress,
+            });
             break;
           case 'inspection':
-            // await trpc.checklist.submitInspection.mutate(item.data);
+            await utils.client.checklist.submitInspection.mutate(item.data);
+            break;
+          case 'task':
+            if (item.data.id) {
+              await utils.client.task.update.mutate(item.data);
+            } else {
+              await utils.client.task.create.mutate(item.data);
+            }
+            break;
+          case 'defect':
+            await utils.client.defect.create.mutate(item.data);
             break;
           default:
             console.warn('Unknown queue item type:', item.type);

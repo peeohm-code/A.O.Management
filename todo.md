@@ -2634,3 +2634,21 @@
 - [x] Add safe area support for notch and gesture bar
 - [x] Enable user scaling for accessibility
 - [x] Optimize FloatingActionButton positioning for mobile
+
+## Offline Mode Features
+- [x] Install and configure Vite PWA plugin
+- [x] Create Service Worker configuration for caching strategies
+- [x] Add Web App Manifest for PWA installation
+- [x] Implement IndexedDB queue system for offline data storage (existing offlineQueue.ts)
+- [x] Create offline data sync manager (offlineSync.ts)
+- [x] Add offline indicator UI component (OfflineIndicator.tsx)
+- [x] Implement sync status display in UI
+- [x] Create auto-sync mechanism when connection restored (useOfflineQueue hook)
+- [x] Integrate OfflineIndicator into DashboardLayout
+- [x] Fix sync procedures to use correct tRPC router paths
+- [ ] Test offline mode for QC inspections
+- [ ] Test offline mode for task updates
+- [ ] Test offline mode for comments
+- [ ] Test offline mode for defects
+- [ ] Verify auto-sync functionality when back online
+- [x] Add PWA icons (pwa-192x192.png, pwa-512x512.png)
