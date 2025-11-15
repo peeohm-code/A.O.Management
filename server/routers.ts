@@ -1101,6 +1101,56 @@ const checklistRouter = router({
       return result;
     }),
 
+  // Get inspection results for a checklist
+  getInspectionResults: protectedProcedure
+    .input(z.object({ taskChecklistId: z.number() }))
+    .query(async ({ input }) => {
+      const results = await db.getChecklistResults(input.taskChecklistId);
+      return results;
+    }),
+
+  // Get inspection history with details for a task checklist
+  getInspectionHistory: protectedProcedure
+    .input(z.object({ taskChecklistId: z.number() }))
+    .query(async ({ input }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) return [];
+
+      // Get the checklist info
+      const checklist = await db.getTaskChecklistById(input.taskChecklistId);
+      if (!checklist) return [];
+
+      // Get all inspection results
+      const results = await db.getChecklistResults(input.taskChecklistId);
+      if (results.length === 0) return [];
+
+      // Get template items for reference
+      const templateItems = await db.getChecklistTemplateItems(checklist.templateId);
+
+      // Group results by inspection (assuming one inspection per checklist for now)
+      // In the future, we might want to track multiple inspections with timestamps
+      const inspection = {
+        id: checklist.id,
+        checklistId: checklist.id,
+        inspectedAt: checklist.updatedAt,
+        inspectedBy: checklist.inspectedBy,
+        status: checklist.status,
+        generalComments: checklist.generalComments,
+        photoUrls: checklist.photoUrls ? JSON.parse(checklist.photoUrls) : [],
+        items: results.map(r => {
+          const templateItem = templateItems.find(ti => ti.id === r.templateItemId);
+          return {
+            id: r.id,
+            itemText: templateItem?.itemText || 'Unknown item',
+            result: r.result,
+            photoUrls: r.photoUrls ? JSON.parse(r.photoUrls) : [],
+          };
+        }),
+      };
+
+      return [inspection];
+    }),
+
   // Get all task checklists with template and task info
   getAllTaskChecklists: protectedProcedure.query(async () => {
     const checklists = await db.getAllTaskChecklists();

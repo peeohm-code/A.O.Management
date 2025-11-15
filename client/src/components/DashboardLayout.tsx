@@ -45,16 +45,16 @@ function RoleBadge() {
 }
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: FolderKanban, label: "Projects", path: "/projects" },
-  { icon: ListTodo, label: "Tasks", path: "/tasks" },
-  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc" },
-  { icon: AlertTriangle, label: "Defects", path: "/defects" },
-  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates" },
-  { icon: Users, label: "Team", path: "/team" },
-  { icon: Archive, label: "Archive", path: "/archive" },
-  { icon: BarChart3, label: "Reports", path: "/reports" },
-  { icon: Database, label: "DB Monitoring", path: "/monitoring", adminOnly: true },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "pm", "qc_inspector", "user"] },
+  { icon: FolderKanban, label: "Projects", path: "/projects", roles: ["admin", "pm"] },
+  { icon: ListTodo, label: "Tasks", path: "/tasks", roles: ["admin", "pm", "qc_inspector", "user"] },
+  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc", roles: ["admin", "qc_inspector"] },
+  { icon: AlertTriangle, label: "Defects", path: "/defects", roles: ["admin", "qc_inspector", "pm"] },
+  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "qc_inspector"] },
+  { icon: Users, label: "Team", path: "/team", roles: ["admin", "pm"] },
+  { icon: Archive, label: "Archive", path: "/archive", roles: ["admin", "pm"] },
+  { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "pm"] },
+  { icon: Database, label: "DB Monitoring", path: "/monitoring", roles: ["admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -250,7 +250,15 @@ function DashboardLayoutContent({
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
               {menuItems
-                .filter(item => !item.adminOnly || user?.role === 'admin' || user?.role === 'owner')
+                .filter(item => {
+                  // Admin and owner see everything
+                  if (user?.role === 'admin' || user?.role === 'owner') return true;
+                  // Filter by role if specified
+                  if (item.roles) {
+                    return item.roles.includes(user?.role || 'user');
+                  }
+                  return true;
+                })
                 .map(item => {
                 const isActive = location === item.path;
                 return (

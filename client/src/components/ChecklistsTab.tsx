@@ -29,11 +29,195 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, FileText, CheckCircle, XCircle, Clock, AlertCircle, Pause } from "lucide-react";
+import { Plus, Trash2, FileText, CheckCircle, XCircle, Clock, AlertCircle, Pause, History, User, Calendar, Image, Download } from "lucide-react";
 import { toast } from "sonner";
+import { generateInspectionPDF } from "@/lib/pdfGenerator";
 
 interface ChecklistsTabProps {
   taskId: number;
+}
+
+function InspectionHistoryView({ checklistId, taskName, checklistName, projectName }: { checklistId: number; taskName?: string; checklistName?: string; projectName?: string }) {
+  const { data: history, isLoading } = trpc.checklist.getInspectionHistory.useQuery(
+    { taskChecklistId: checklistId },
+    { enabled: !!checklistId }
+  );
+
+  if (isLoading) {
+    return (
+      <div className="mt-4 pt-4 border-t">
+        <p className="text-sm text-gray-500 text-center py-4">กำลังโหลดประวัติการตรวจ...</p>
+      </div>
+    );
+  }
+
+  if (!history || history.length === 0) {
+    return (
+      <div className="mt-4 pt-4 border-t">
+        <p className="text-sm text-gray-500 text-center py-4">ยังไม่มีประวัติการตรวจ</p>
+      </div>
+    );
+  }
+
+  const getResultColor = (result: string) => {
+    switch (result) {
+      case "pass": return "text-green-600 bg-green-50";
+      case "fail": return "text-red-600 bg-red-50";
+      case "na": return "text-gray-600 bg-gray-50";
+      default: return "text-gray-600";
+    }
+  };
+
+  const getResultLabel = (result: string) => {
+    switch (result) {
+      case "pass": return "ผ่าน";
+      case "fail": return "ไม่ผ่าน";
+      case "na": return "N/A";
+      default: return result;
+    }
+  };
+
+  const getResultIcon = (result: string) => {
+    switch (result) {
+      case "pass": return <CheckCircle className="w-4 h-4" />;
+      case "fail": return <XCircle className="w-4 h-4" />;
+      case "na": return <Clock className="w-4 h-4" />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="mt-4 pt-4 border-t space-y-4">
+      {history.map((inspection: any) => (
+        <div key={inspection.id} className="space-y-3">
+          {/* Inspection Header */}
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1">
+                <User className="w-4 h-4" />
+                ผู้ตรวจ: {inspection.inspectedBy || "ไม่ระบุ"}
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {inspection.inspectedAt ? new Date(inspection.inspectedAt).toLocaleDateString("th-TH", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }) : "ไม่ระบุวันที่"}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await generateInspectionPDF({
+                    taskName: taskName || "Task",
+                    projectName: projectName,
+                    checklistName: checklistName || "Checklist",
+                    inspectedBy: inspection.inspectedBy || "ไม่ระบุ",
+                    inspectedAt: inspection.inspectedAt || new Date(),
+                    status: inspection.status || "completed",
+                    items: inspection.items || [],
+                    generalComments: inspection.generalComments,
+                    photoUrls: inspection.photoUrls || [],
+                  });
+                  toast.success("สร้าง PDF สำเร็จ");
+                } catch (error) {
+                  console.error("Error generating PDF:", error);
+                  toast.error("เกิดข้อผิดพลาดในการสร้าง PDF");
+                }
+              }}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export PDF
+            </Button>
+          </div>
+
+          {/* Inspection Results */}
+          <div className="space-y-2">
+            <h6 className="font-semibold text-sm">ผลการตรวจ:</h6>
+            {inspection.items && inspection.items.length > 0 ? (
+              <div className="space-y-2">
+                {inspection.items.map((item: any, index: number) => (
+                  <div key={item.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 text-sm min-w-[24px]">{index + 1}.</span>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700 mb-1">{item.itemText}</p>
+                      {item.photoUrls && item.photoUrls.length > 0 && (
+                        <div className="flex gap-2 mt-2">
+                          {item.photoUrls.map((url: string, idx: number) => (
+                            <a
+                              key={idx}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block"
+                            >
+                              <img
+                                src={url}
+                                alt={`Photo ${idx + 1}`}
+                                className="w-20 h-20 object-cover rounded border hover:opacity-80 transition-opacity"
+                              />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <Badge className={`flex items-center gap-1 ${getResultColor(item.result)}`}>
+                      {getResultIcon(item.result)}
+                      {getResultLabel(item.result)}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">ไม่มีรายการตรวจ</p>
+            )}
+          </div>
+
+          {/* General Comments */}
+          {inspection.generalComments && (
+            <div className="space-y-1">
+              <h6 className="font-semibold text-sm">ความคิดเห็น:</h6>
+              <p className="text-sm text-gray-700 p-3 bg-gray-50 rounded-lg">
+                {inspection.generalComments}
+              </p>
+            </div>
+          )}
+
+          {/* Photos */}
+          {inspection.photoUrls && inspection.photoUrls.length > 0 && (
+            <div className="space-y-2">
+              <h6 className="font-semibold text-sm flex items-center gap-2">
+                <Image className="w-4 h-4" />
+                รูปภาพประกอบ:
+              </h6>
+              <div className="grid grid-cols-3 gap-2">
+                {inspection.photoUrls.map((url: string, idx: number) => (
+                  <a
+                    key={idx}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <img
+                      src={url}
+                      alt={`Inspection photo ${idx + 1}`}
+                      className="w-full h-32 object-cover rounded border hover:opacity-80 transition-opacity"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
@@ -43,6 +227,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
   const [editingStatusId, setEditingStatusId] = useState<number | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
   const [expandedChecklistId, setExpandedChecklistId] = useState<number | null>(null);
+  const [viewingHistoryId, setViewingHistoryId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -322,6 +507,34 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                           </div>
                         ))}
                       </div>
+                    )}
+
+                    {/* View Inspection History Button - Only show for completed/failed checklists */}
+                    {(checklist.status === "completed" || checklist.status === "failed") && (
+                      <div className="mt-4 pt-4 border-t">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingHistoryId(viewingHistoryId === checklist.id ? null : checklist.id);
+                          }}
+                        >
+                          <History className="w-4 h-4 mr-2" />
+                          {viewingHistoryId === checklist.id ? "ซ่อนประวัติการตรวจ" : "ดูประวัติการตรวจ"}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Inspection History Display */}
+                    {viewingHistoryId === checklist.id && (
+                      <InspectionHistoryView 
+                        checklistId={checklist.id}
+                        checklistName={checklist.templateName}
+                        taskName={checklist.taskName}
+                        projectName={checklist.projectName}
+                      />
                     )}
                   </CardContent>
                 </Card>

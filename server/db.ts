@@ -983,9 +983,13 @@ export async function getTaskChecklistsByTask(taskId: number) {
       templateName: checklistTemplates.name,
       allowGeneralComments: checklistTemplates.allowGeneralComments,
       allowPhotos: checklistTemplates.allowPhotos,
+      taskName: tasks.name,
+      projectName: projects.name,
     })
     .from(taskChecklists)
     .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .leftJoin(projects, eq(tasks.projectId, projects.id))
     .where(eq(taskChecklists.taskId, taskId));
 
   // Get items for each checklist

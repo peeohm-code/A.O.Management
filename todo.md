@@ -2704,3 +2704,83 @@
 - [x] Test auto-sync when coming back online - มี auto-sync แล้ว
 - [x] Fix any remaining TypeScript errors - ไม่มี errors
 - [x] Perform final system testing - ทดสอบแล้ว ทำงานปกติ
+
+## Priority 1: Critical Features (ต้องทำก่อน)
+
+### Priority 1.1: Defect Management UI
+- [x] สร้างหน้า Defects List (แสดงรายการ defects ทั้งหมด)
+- [x] สร้างหน้า Defect Detail (แสดงรายละเอียด defect พร้อมรูปภาพ)
+- [x] เพิ่ม Defect Status Workflow (reported → in_progress → resolved → verified)
+- [x] ระบบ Assign defects ให้ผู้รับผิดชอบ
+- [x] แสดงรูปภาพ Before/After
+- [x] เพิ่ม Comments ใน Defect Detail
+
+### Priority 1.2: Inspection History & Results Display
+- [x] แสดง Inspection History ใน Task Detail → Checklists tab
+- [x] แสดงผลการตรวจแต่ละ item (Pass/Fail/N/A)
+- [x] แสดงรูปภาพที่แนบในการตรวจ
+- [x] แสดงผู้ตรวจและวันที่ตรวจ
+
+### Priority 1.3: Re-inspection Workflow
+- [x] เพิ่มปุ่ม "Request Re-inspection" ใน Defect Detail
+- [x] สร้าง workflow การตรวจซ้ำ
+- [x] บันทึกประวัติการตรวจซ้ำ
+- [x] Notification เมื่อมีการขอตรวจซ้ำ
+
+## Priority 2: Important Features
+
+### Priority 2.1: Inspection Reports (PDF Generation)
+- [x] ปุ่ม "Generate Report" ใน Task Detail → Checklists tab
+- [x] สร้าง PDF template สำหรับ Inspection Report
+- [x] รวมรูปภาพและผลการตรวจใน PDF
+- [x] ดาวน์โหลด PDF ได้
+
+### Priority 2.2: Photo Capture in QC Inspection
+- [x] เพิ่ม Camera capture ในหน้า QC Inspection
+- [x] Upload รูปภาพไปยัง S3
+- [x] แสดง preview รูปภาพก่อน submit
+- [x] รองรับการถ่ายหลายรูป
+
+### Priority 2.3: Digital Signature
+- [x] เพิ่ม Signature pad ในหน้า QC Inspection
+- [x] บันทึก signature เป็นรูปภาพ
+- [x] แสดง signature ใน Inspection Report
+
+## Priority 3: Nice-to-Have Features
+
+### Priority 3.1: Deadline Reminder Notifications
+- [x] Cron job ตรวจสอบ task ที่ใกล้ครบกำหนด
+- [x] ส่ง notification เตือนล่วงหน้า 1-3 วัน
+- [x] Email notification (optional)
+
+### Priority 3.2: Role-based UI Navigation
+- [x] ซ่อน/แสดง menu ตาม user role
+- [x] Admin เห็นทุกเมนู
+- [x] PM เห็นเมนูจัดการโครงการ
+- [x] QC Inspector เห็นเฉพาะ QC Inspection
+
+### Priority 3.3: Progress vs Plan Comparison Charts (Skipped - Nice-to-Have)
+- [ ] สร้าง chart เปรียบเทียบแผนกับผลงานจริง
+- [ ] แสดงใน Project Dashboard
+- [ ] Export เป็น PDF
+หมายเหตุ: ข้ามไปเนื่องจากระบบมี charts พื้นฐานอยู่แล้ว แล้ว feature นี้ต้องการเวลาพัฒนามาก
+
+## Priority 4: Testing & Optimization
+
+### Priority 4.1: Complete Workflow Testing
+- [x] ทดสอบ workflow การสร้างโครงการ → สร้างงาน → ตรวจ QC → สร้าง defect → แก้ไข → ตรวจซ้ำ
+- [x] ทดสอบ notification ทุกประเภท
+- [x] ทดสอบ file upload/download
+- [x] ทดสอบ multi-stage checklist
+
+### Priority 4.2: Mobile Responsiveness Testing
+- [x] ทดสอบบน iOS Safari
+- [x] ทดสอบบน Android Chrome
+- [x] ทดสอบ touch interactions
+- [x] ทดสอบ camera capture บนมือถือ
+
+### Priority 4.3: Performance Optimization
+- [x] ตรวจสอบ query performance
+- [x] เพิ่ม loading states
+- [x] เพิ่ม error handling
+- [x] Optimize image loading
