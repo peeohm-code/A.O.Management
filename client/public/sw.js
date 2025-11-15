@@ -140,3 +140,87 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// Background sync event (for offline data sync)
+self.addEventListener('sync', (event) => {
+  console.log('[Service Worker] Background sync triggered:', event.tag);
+  
+  if (event.tag === 'sync-offline-data') {
+    event.waitUntil(syncOfflineData());
+  }
+});
+
+// Sync offline data when back online
+async function syncOfflineData() {
+  try {
+    // Get offline data from IndexedDB
+    const db = await openDB();
+    const offlineData = await getOfflineData(db);
+    
+    if (offlineData.length === 0) {
+      console.log('[Service Worker] No offline data to sync');
+      return;
+    }
+    
+    console.log('[Service Worker] Syncing offline data:', offlineData.length, 'items');
+    
+    // Send data to server
+    for (const item of offlineData) {
+      try {
+        await fetch(item.url, {
+          method: item.method,
+          headers: item.headers,
+          body: item.body,
+        });
+        
+        // Remove from offline storage after successful sync
+        await removeOfflineData(db, item.id);
+      } catch (error) {
+        console.error('[Service Worker] Failed to sync item:', error);
+      }
+    }
+    
+    console.log('[Service Worker] Offline data sync complete');
+  } catch (error) {
+    console.error('[Service Worker] Sync failed:', error);
+  }
+}
+
+// IndexedDB helpers
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('OfflineDB', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('offline-data')) {
+        db.createObjectStore('offline-data', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+}
+
+function getOfflineData(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['offline-data'], 'readonly');
+    const store = transaction.objectStore('offline-data');
+    const request = store.getAll();
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+
+function removeOfflineData(db, id) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['offline-data'], 'readwrite');
+    const store = transaction.objectStore('offline-data');
+    const request = store.delete(id);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve();
+  });
+}

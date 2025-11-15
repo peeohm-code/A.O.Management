@@ -16,6 +16,7 @@ import { initializeMonitoring } from "../monitoring/startMonitoring";
 import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
 import { validateFile, sanitizeFilename } from "../utils/sanitize";
 import { setupProcessErrorHandlers, startMemoryMonitoring, errorMiddleware } from "../errorHandler";
+import { handleSSE } from "../sse";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -119,6 +120,9 @@ async function startServer() {
   
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // SSE endpoint for real-time notifications
+  app.get("/api/notifications/stream", handleSSE);
   // tRPC API
   app.use(
     "/api/trpc",
