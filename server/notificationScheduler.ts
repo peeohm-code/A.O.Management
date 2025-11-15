@@ -8,8 +8,8 @@ import {
   getDb,
 } from "./db";
 import { createNotification } from "./notificationService";
-import { users } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { users, scheduledNotifications } from "../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 
 /**
  * Notification Scheduler Service
@@ -105,15 +105,19 @@ export async function scheduleTaskDeadlineReminders() {
         notificationDate.setHours(8, 0, 0, 0); // ส่งเวลา 8:00 น.
 
         // ตรวจสอบว่ายังไม่เคยสร้าง notification นี้
-        const existing = await db.query.scheduledNotifications.findFirst({
-          where: (sn: any, { and, eq }: any) =>
+        const existingResult = await db
+          .select()
+          .from(scheduledNotifications)
+          .where(
             and(
-              eq(sn.userId, user.id),
-              eq(sn.relatedTaskId, task.id),
-              eq(sn.type, "task_deadline_reminder"),
-              eq(sn.scheduledFor, notificationDate)
-            ),
-        });
+              eq(scheduledNotifications.userId, user.id),
+              eq(scheduledNotifications.relatedTaskId, task.id),
+              eq(scheduledNotifications.type, "task_deadline_reminder"),
+              eq(scheduledNotifications.scheduledFor, notificationDate)
+            )
+          )
+          .limit(1);
+        const existing = existingResult.length > 0 ? existingResult[0] : null;
 
         if (!existing) {
           await createScheduledNotification({
@@ -170,15 +174,18 @@ export async function scheduleDefectOverdueReminders() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const existing = await db.query.scheduledNotifications.findFirst({
-          where: (sn: any, { and, eq, gte }: any) =>
+        const existingResult = await db
+          .select()
+          .from(scheduledNotifications)
+          .where(
             and(
-              eq(sn.userId, user.id),
-              eq(sn.relatedDefectId, defect.id),
-              eq(sn.type, "defect_overdue_reminder"),
-              gte(sn.createdAt, today)
-            ),
-        });
+              eq(scheduledNotifications.userId, user.id),
+              eq(scheduledNotifications.relatedDefectId, defect.id),
+              eq(scheduledNotifications.type, "defect_overdue_reminder")
+            )
+          )
+          .limit(1);
+        const existing = existingResult.length > 0 ? existingResult[0] : null;
 
         if (!existing) {
           await createScheduledNotification({

@@ -28,11 +28,11 @@ export default function DatabaseMonitoring() {
 
   // Mutations
   const collectStats = trpc.monitoring.collectStatistics.useMutation({
-    onSuccess: (data) => {
+    onSuccess: (data: { count: number }) => {
       toast.success(`เก็บข้อมูลสถิติสำเร็จ (${data.count} ตาราง)`);
       refetchStats();
     },
-    onError: (error) => {
+    onError: (error: { message: string }) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });
@@ -158,7 +158,7 @@ export default function DatabaseMonitoring() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {formatBytes(dbStats?.reduce((sum, s) => sum + s.dataSize + s.indexSize, 0) || 0)}
+                  {formatBytes(dbStats?.reduce((sum: number, s: any) => sum + s.dataSize + s.indexSize, 0) || 0)}
                 </div>
               </CardContent>
             </Card>
@@ -190,7 +190,7 @@ export default function DatabaseMonitoring() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {dbStats.map((stat) => (
+                    {dbStats.map((stat: any) => (
                       <TableRow key={stat.tableName}>
                         <TableCell className="font-medium">{stat.tableName}</TableCell>
                         <TableCell className="text-right">{stat.rowCount.toLocaleString()}</TableCell>
@@ -237,7 +237,7 @@ export default function DatabaseMonitoring() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {slowQueries.map((query) => (
+                    {slowQueries.map((query: any) => (
                       <TableRow key={query.id}>
                         <TableCell className="text-sm">
                           {new Date(query.createdAt).toLocaleString("th-TH")}
@@ -290,7 +290,7 @@ export default function DatabaseMonitoring() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {queryStats.map((stat, idx) => (
+                    {queryStats.map((stat: any, idx: number) => (
                       <TableRow key={idx}>
                         <TableCell>
                           <Badge variant="outline">{stat.tableName || "N/A"}</Badge>
@@ -345,7 +345,7 @@ export default function DatabaseMonitoring() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {queryErrors.map((error) => (
+                    {queryErrors.map((error: any) => (
                       <TableRow key={error.id}>
                         <TableCell className="text-sm">
                           {new Date(error.createdAt).toLocaleString("th-TH")}

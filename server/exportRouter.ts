@@ -149,7 +149,6 @@ export const exportRouter = router({
         detectedBy: defect.detectedByName || '-',
         detectedAt: formatDateTime(defect.detectedAt),
         resolvedAt: defect.resolvedAt ? formatDateTime(defect.resolvedAt) : '-',
-        location: defect.location || '-',
       }));
 
       const columns: ExcelColumn[] = [
@@ -197,7 +196,7 @@ export const exportRouter = router({
       // Prepare data for PDF
       const pdfData = defects.map(defect => ({
         taskName: defect.taskName || '-',
-        description: defect.description.substring(0, 50) + (defect.description.length > 50 ? '...' : ''),
+        description: defect.description ? (defect.description.substring(0, 50) + (defect.description.length > 50 ? '...' : '')) : '-',
         severity: formatPriority(defect.severity),
         status: formatStatus(defect.status),
         assignedTo: defect.assignedToName || '-',

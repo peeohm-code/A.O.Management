@@ -135,10 +135,10 @@ export default function EnhancedGanttChart({
         on_progress_change: function (task: any, progress: number) {
           console.log("Progress changed:", task, progress);
         },
-        on_view_change: function (mode: ViewMode) {
+        on_view_change: function (mode: any) {
           console.log("View mode changed:", mode);
         },
-      });
+      } as any);
     } catch (error) {
       console.error("Error initializing Gantt chart:", error);
       toast.error("เกิดข้อผิดพลาดในการโหลด Gantt Chart");

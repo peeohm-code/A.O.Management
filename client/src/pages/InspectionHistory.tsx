@@ -21,7 +21,7 @@ export default function InspectionHistory() {
   const taskId = params?.taskId ? parseInt(params.taskId) : null;
 
   // Fetch task info
-  const { data: task, isLoading: taskLoading } = trpc.task.getById.useQuery(
+  const { data: task, isLoading: taskLoading } = trpc.task.get.useQuery(
     { id: taskId! },
     { enabled: !!taskId }
   );

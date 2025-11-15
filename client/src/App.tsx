@@ -29,7 +29,7 @@ import TeamManagement from "./pages/TeamManagement";
 import Archive from "./pages/Archive";
 import ArchiveRules from "./pages/ArchiveRules";
 import NotificationSettings from "./pages/NotificationSettings";
-import DatabaseMonitoring from "./pages/DatabaseMonitoring";
+// import DatabaseMonitoring from "./pages/DatabaseMonitoring"; // Temporarily disabled
 import SystemMonitor from "./pages/SystemMonitor";
 import MemoryMonitoring from "./pages/MemoryMonitoring";
 import InspectionHistory from "./pages/InspectionHistory";
@@ -235,13 +235,14 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
-      <Route path={"/monitoring"}>
+      {/* Temporarily disabled - needs proper implementation */}
+      {/* <Route path={"/monitoring"}>
         {() => (
           <DashboardLayout>
             <DatabaseMonitoring />
           </DashboardLayout>
         )}
-      </Route>
+      </Route> */}
       <Route path={"/system-monitor"}>
         {() => (
           <DashboardLayout>

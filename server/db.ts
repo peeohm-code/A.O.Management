@@ -1310,6 +1310,7 @@ export async function getAllDefects() {
     .select({
       id: defects.id,
       taskId: defects.taskId,
+      projectId: tasks.projectId,
       checklistItemResultId: defects.checklistItemResultId,
       title: defects.title,
       description: defects.description,
@@ -1334,8 +1335,11 @@ export async function getAllDefects() {
       verificationComment: defects.verificationComment,
       createdAt: defects.createdAt,
       updatedAt: defects.updatedAt,
+      detectedAt: defects.createdAt,
       taskName: tasks.name,
       checklistTemplateName: checklistTemplates.name,
+      assignedToName: sql<string | null>`(SELECT name FROM ${users} WHERE ${users.id} = ${defects.assignedTo})`,
+      detectedByName: sql<string | null>`(SELECT name FROM ${users} WHERE ${users.id} = ${defects.reportedBy})`,
     })
     .from(defects)
     .leftJoin(tasks, eq(defects.taskId, tasks.id))

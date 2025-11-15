@@ -95,9 +95,9 @@ export default function NotificationBadge() {
           <div className="flex items-center gap-2">
             <h3 className="font-semibold">การแจ้งเตือน</h3>
             {isConnected ? (
-              <Wifi className="h-4 w-4 text-green-600" title="เชื่อมต่อแล้ว" />
+              <Wifi className="h-4 w-4 text-green-600" aria-label="เชื่อมต่อแล้ว" />
             ) : (
-              <WifiOff className="h-4 w-4 text-red-600" title="ไม่ได้เชื่อมต่อ" />
+              <WifiOff className="h-4 w-4 text-red-600" aria-label="ไม่ได้เชื่อมต่อ" />
             )}
           </div>
           <div className="flex items-center gap-1">

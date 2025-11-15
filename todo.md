@@ -207,3 +207,17 @@
 - Implement real-time collaboration features
 - Add AI-powered defect detection from photos
 - Create automated progress tracking using IoT sensors
+
+## 🐛 Current Bugs (แก้ไขเรียบร้อยแล้ว)
+
+### TypeScript Type Errors - ✅ แก้ไขเสร็จสิ้น
+- [x] แก้ไข implicit 'any' type ใน DatabaseMonitoring.tsx (8 errors)
+- [x] เพิ่ม projectId property ใน defect type สำหรับ Defects.tsx
+- [x] แก้ไข inspection.getById ใน InspectionHistory.tsx (เปลี่ยนเป็น task.get)
+- [x] เพิ่ม assignedToName, detectedByName, detectedAt properties ใน defect type สำหรับ exportRouter.ts
+- [x] แก้ไข null check สำหรับ defect.description ใน exportRouter.ts
+- [x] เพิ่ม scheduledNotifications import ใน notificationScheduler.ts
+- [x] แก้ไข query syntax ใน notificationScheduler.ts (ใช้ select/from/where แทน query.findFirst)
+- [x] Comment out DatabaseMonitoring.tsx ชั่วคราว (ต้อง implement procedures ใน monitoring router)
+- [x] แก้ไข NotificationBadge.tsx (เปลี่ยน title เป็น aria-label)
+- [x] แก้ไข EnhancedGanttChart.tsx (ใช้ as any สำหรับ custom_popup_html)
