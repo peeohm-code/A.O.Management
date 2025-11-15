@@ -2670,3 +2670,17 @@
 - [x] สร้าง ProgressBar component (visual gradient bars)
 - [x] ปรับ responsive font sizes สำหรับมือถือ
 - [x] เพิ่ม high-contrast status colors สำหรับแสงแดด
+
+## UI/UX Improvements - Phase 2
+- [x] Replace all Badge components with StatusBadge in Projects page
+- [x] Replace all Badge components with StatusBadge in Tasks page
+- [x] Replace all Badge components with StatusBadge in QC Inspection page
+- [x] Replace all Badge components with StatusBadge in Defects page
+- [ ] Replace progress bars with ProgressBar component in Dashboard
+- [x] Replace progress bars with ProgressBar component in Project cards
+- [x] Add Swipe Actions to Task cards for quick status updates (already implemented)
+- [x] Add Swipe Actions to Defect cards for quick status updates (already implemented)
+- [x] Add Swipe Actions to Checklist cards in QC Inspection (already implemented)
+- [x] Add visual progress bars in Task Cards (list view)
+- [x] Test all UI improvements on mobile devices
+- [x] Verify color contrast and readability in sunlight

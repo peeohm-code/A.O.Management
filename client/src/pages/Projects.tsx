@@ -4,7 +4,8 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { ProgressBar } from "@/components/ProgressBar";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Trash2, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
@@ -513,12 +514,16 @@ export default function Projects() {
                           <p className="text-sm text-gray-600 font-mono mt-1">{project.code}</p>
                         )}
                       </div>
-                      <Badge className={`${getStatusColor(project.status)} border font-medium`}>
-                        {project.status === 'active' ? 'กำลังดำเนินการ' : 
-                         project.status === 'planning' ? 'วางแผน' :
-                         project.status === 'on_hold' ? 'พักไว้' :
-                         project.status === 'completed' ? 'เสร็จสิ้น' : 'ยกเลิก'}
-                      </Badge>
+                      <StatusBadge 
+                        status={project.status === 'active' ? 'in_progress' : 
+                               project.status === 'planning' ? 'not_started' :
+                               project.status === 'on_hold' ? 'delayed' :
+                               project.status === 'completed' ? 'completed' : 'delayed'}
+                        label={project.status === 'active' ? 'กำลังดำเนินการ' : 
+                               project.status === 'planning' ? 'วางแผน' :
+                               project.status === 'on_hold' ? 'พักไว้' :
+                               project.status === 'completed' ? 'เสร็จสิ้น' : 'ยกเลิก'}
+                      />
                     </div>
                     
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
@@ -561,25 +566,22 @@ export default function Projects() {
                   {/* Right: Progress & Status */}
                   <div className="flex flex-col sm:flex-row lg:flex-col gap-4 lg:w-72">
                     {/* Progress Bar */}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-600 font-medium">ความคืบหน้า</span>
-                        <span className="font-bold text-[#00366D]">{project.progressPercentage}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div
-                          className={`h-3 rounded-full transition-all duration-500 ${getProgressColor(project.progressPercentage)}`}
-                          style={{ width: `${project.progressPercentage}%` }}
-                        />
-                      </div>
+                    <div className="flex-1">
+                      <ProgressBar 
+                        value={project.progressPercentage}
+                        showLabel={true}
+                        size="md"
+                      />
                     </div>
 
                     {/* Status Badge & Actions */}
                     <div className="flex items-center justify-between sm:justify-end lg:justify-between gap-3">
-                      <Badge className={`${getProjectStatusColor(project.projectStatus)} border font-medium px-3 py-1 flex items-center gap-1.5`}>
-                        {getProjectStatusIcon(project.projectStatus)}
-                        {getProjectStatusLabel(project.projectStatus)}
-                      </Badge>
+                      <StatusBadge 
+                        status={project.projectStatus === 'on_track' ? 'completed' : 
+                               project.projectStatus === 'at_risk' ? 'in_progress' :
+                               project.projectStatus === 'delayed' ? 'delayed' : 'completed'}
+                        label={getProjectStatusLabel(project.projectStatus)}
+                      />
                       
                       {/* Quick Actions */}
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

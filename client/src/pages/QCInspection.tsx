@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -279,14 +280,7 @@ export default function QCInspection() {
   };
 
   const getStatusBadge = (status: string) => {
-    const config: Record<string, { label: string; className: string }> = {
-      not_started: { label: "ยังไม่เริ่ม", className: "bg-gray-100 text-gray-700" },
-      pending_inspection: { label: "รอตรวจสอบ", className: "bg-yellow-100 text-yellow-700" },
-      completed: { label: "ผ่าน", className: "bg-green-100 text-[#00CE81]" },
-      failed: { label: "ไม่ผ่าน", className: "bg-red-100 text-red-700" },
-    };
-    const { label, className } = config[status] || config.not_started;
-    return <Badge className={className}>{label}</Badge>;
+    return <StatusBadge status={status} />;
   };
 
   return (

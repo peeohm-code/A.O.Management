@@ -3,7 +3,8 @@ import { trpc } from "@/lib/trpc";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { ProgressBar } from "@/components/ProgressBar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -531,9 +532,10 @@ export default function Tasks() {
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <CardTitle className={`text-lg ${canEdit ? 'ml-8' : ''}`}>{task.name}</CardTitle>
-                      <Badge className={`${(task as any).displayStatusColor || 'bg-gray-100 text-gray-800'}`}>
-                        {(task as any).displayStatusLabel || getStatusLabel(task.status)}
-                      </Badge>
+                      <StatusBadge 
+                        status={task.status}
+                        label={(task as any).displayStatusLabel || getStatusLabel(task.status)}
+                      />
                     </div>
                     {task.description && (
                       <CardDescription className="line-clamp-2">{task.description}</CardDescription>
@@ -549,18 +551,11 @@ export default function Tasks() {
                     )}
 
                     {/* Progress Bar - Larger for visibility */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs text-muted-foreground">Progress</span>
-                        <span className="text-sm font-bold">{task.progress}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="bg-[#00366D] h-2.5 rounded-full transition-all"
-                          style={{ width: `${task.progress}%` }}
-                        />
-                      </div>
-                    </div>
+                    <ProgressBar 
+                      value={task.progress}
+                      showLabel={true}
+                      size="sm"
+                    />
 
                     {/* Due Date - Show only end date for simplicity */}
                     {task.endDate && (

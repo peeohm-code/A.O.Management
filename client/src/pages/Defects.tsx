@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus } from "lucide-react";
@@ -676,9 +677,11 @@ export default function Defects() {
                           <Badge className={`${getSeverityColor(defect.severity)} text-xs px-2 py-0.5`}>
                             {defect.severity.toUpperCase()}
                           </Badge>
-                          <Badge className={`${getStatusColor(defect.status)} text-xs px-2 py-0.5`}>
-                            {getStatusLabel(defect.status)}
-                          </Badge>
+                          <StatusBadge 
+                            status={defect.status}
+                            label={getStatusLabel(defect.status)}
+                            className="text-xs px-2 py-0.5"
+                          />
                         </div>
                         
                         {/* Metadata - Single line */}
@@ -759,9 +762,10 @@ export default function Defects() {
                 <div>
                   <Label className="text-xs font-semibold">Status</Label>
                   <div className="mt-1">
-                    <Badge className={`${getStatusColor(selectedDefect.status)}`}>
-                      {selectedDefect.status.replace(/_/g, " ").toUpperCase()}
-                    </Badge>
+                    <StatusBadge 
+                      status={selectedDefect.status}
+                      label={getStatusLabel(selectedDefect.status)}
+                    />
                   </div>
                 </div>
               </div>
