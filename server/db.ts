@@ -3458,3 +3458,163 @@ export async function getOriginalInspection(reinspectionId: number) {
 
   return original.length > 0 ? original[0] : null;
 }
+
+/**
+ * Get inspection history for a task
+ * Returns all inspections (checklists) for a specific task with template and inspector info
+ */
+export async function getInspectionHistoryByTask(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const inspections = await db
+    .select({
+      id: taskChecklists.id,
+      taskId: taskChecklists.taskId,
+      templateId: taskChecklists.templateId,
+      templateName: checklistTemplates.name,
+      stage: taskChecklists.stage,
+      status: taskChecklists.status,
+      inspectedBy: taskChecklists.inspectedBy,
+      inspectorName: users.name,
+      inspectedAt: taskChecklists.inspectedAt,
+      generalComments: taskChecklists.generalComments,
+      photoUrls: taskChecklists.photoUrls,
+      originalInspectionId: taskChecklists.originalInspectionId,
+      reinspectionCount: taskChecklists.reinspectionCount,
+      createdAt: taskChecklists.createdAt,
+    })
+    .from(taskChecklists)
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
+    .leftJoin(users, eq(taskChecklists.inspectedBy, users.id))
+    .where(eq(taskChecklists.taskId, taskId))
+    .orderBy(desc(taskChecklists.createdAt));
+
+  return inspections;
+}
+
+/**
+ * Get detailed inspection results
+ * Returns inspection info with all item results, pass/fail counts, and defects
+ */
+export async function getInspectionDetail(inspectionId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Get inspection basic info
+  const inspection = await db
+    .select({
+      id: taskChecklists.id,
+      taskId: taskChecklists.taskId,
+      templateId: taskChecklists.templateId,
+      templateName: checklistTemplates.name,
+      stage: taskChecklists.stage,
+      status: taskChecklists.status,
+      inspectedBy: taskChecklists.inspectedBy,
+      inspectorName: users.name,
+      inspectorEmail: users.email,
+      inspectedAt: taskChecklists.inspectedAt,
+      generalComments: taskChecklists.generalComments,
+      photoUrls: taskChecklists.photoUrls,
+      signature: taskChecklists.signature,
+      originalInspectionId: taskChecklists.originalInspectionId,
+      reinspectionCount: taskChecklists.reinspectionCount,
+      createdAt: taskChecklists.createdAt,
+    })
+    .from(taskChecklists)
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
+    .leftJoin(users, eq(taskChecklists.inspectedBy, users.id))
+    .where(eq(taskChecklists.id, inspectionId))
+    .limit(1);
+
+  if (inspection.length === 0) return null;
+
+  // Get all item results with template item details
+  const itemResults = await db
+    .select({
+      id: checklistItemResults.id,
+      templateItemId: checklistItemResults.templateItemId,
+      itemText: checklistTemplateItems.itemText,
+      itemOrder: checklistTemplateItems.order,
+      result: checklistItemResults.result,
+      photoUrls: checklistItemResults.photoUrls,
+      createdAt: checklistItemResults.createdAt,
+    })
+    .from(checklistItemResults)
+    .leftJoin(
+      checklistTemplateItems,
+      eq(checklistItemResults.templateItemId, checklistTemplateItems.id)
+    )
+    .where(eq(checklistItemResults.taskChecklistId, inspectionId))
+    .orderBy(checklistTemplateItems.order);
+
+  // Get defects created from this inspection
+  const relatedDefects = await db
+    .select({
+      id: defects.id,
+      title: defects.title,
+      description: defects.description,
+      status: defects.status,
+      severity: defects.severity,
+      type: defects.type,
+      photoUrls: defects.photoUrls,
+      createdAt: defects.createdAt,
+    })
+    .from(defects)
+    .where(eq(defects.checklistId, inspectionId))
+    .orderBy(desc(defects.createdAt));
+
+  // Calculate statistics
+  const passCount = itemResults.filter((item) => item.result === "pass").length;
+  const failCount = itemResults.filter((item) => item.result === "fail").length;
+  const naCount = itemResults.filter((item) => item.result === "na").length;
+  const totalItems = itemResults.length;
+  const passRate = totalItems > 0 ? Math.round((passCount / totalItems) * 100) : 0;
+
+  return {
+    ...inspection[0],
+    itemResults,
+    defects: relatedDefects,
+    statistics: {
+      totalItems,
+      passCount,
+      failCount,
+      naCount,
+      passRate,
+    },
+  };
+}
+
+/**
+ * Get inspection summary statistics for a task
+ * Returns counts of inspections by stage and status
+ */
+export async function getInspectionSummaryByTask(taskId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const inspections = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.taskId, taskId));
+
+  const summary = {
+    total: inspections.length,
+    byStage: {
+      pre_execution: inspections.filter((i) => i.stage === "pre_execution").length,
+      in_progress: inspections.filter((i) => i.stage === "in_progress").length,
+      post_execution: inspections.filter((i) => i.stage === "post_execution").length,
+    },
+    byStatus: {
+      not_started: inspections.filter((i) => i.status === "not_started").length,
+      pending_inspection: inspections.filter((i) => i.status === "pending_inspection").length,
+      in_progress: inspections.filter((i) => i.status === "in_progress").length,
+      completed: inspections.filter((i) => i.status === "completed").length,
+      failed: inspections.filter((i) => i.status === "failed").length,
+    },
+    completedCount: inspections.filter((i) => i.status === "completed").length,
+    failedCount: inspections.filter((i) => i.status === "failed").length,
+  };
+
+  return summary;
+}

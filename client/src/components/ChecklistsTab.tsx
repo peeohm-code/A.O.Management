@@ -29,7 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, FileText, CheckCircle, XCircle, Clock, AlertCircle, Pause, History, User, Calendar, Image, Download } from "lucide-react";
+import { Plus, Trash2, FileText, CheckCircle, XCircle, Clock, AlertCircle, Pause, History, User, Calendar, Image, Download, Eye } from "lucide-react";
+import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { generateInspectionPDF } from "@/lib/pdfGenerator";
 
@@ -221,6 +222,7 @@ function InspectionHistoryView({ checklistId, taskName, checklistName, projectNa
 }
 
 export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
+  const [, navigate] = useLocation();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [checklistToDelete, setChecklistToDelete] = useState<number | null>(null);
@@ -383,7 +385,15 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                 กำหนด Checklist สำหรับงานนี้
               </CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/tasks/${taskId}/inspections`)}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                ดูประวัติการตรวจสอบ
+              </Button>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
@@ -420,7 +430,8 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                   </Button>
                 </DialogFooter>
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

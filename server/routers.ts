@@ -1366,6 +1366,36 @@ const checklistRouter = router({
       return await db.getOriginalInspection(input.reinspectionId);
     }),
 
+  // Get inspection history for a task
+  getTaskInspectionHistory: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getInspectionHistoryByTask(input.taskId);
+    }),
+
+  // Get detailed inspection results
+  getInspectionDetail: protectedProcedure
+    .input(z.object({ inspectionId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getInspectionDetail(input.inspectionId);
+    }),
+
+  // Get inspection summary statistics for a task
+  getInspectionSummary: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getInspectionSummaryByTask(input.taskId);
+    }),
+
+  // Generate PDF report for inspection
+  generateInspectionPDF: protectedProcedure
+    .input(z.object({ inspectionId: z.number() }))
+    .query(async ({ input }) => {
+      const { generateInspectionPDF } = await import("./inspectionPdfGenerator");
+      const htmlContent = await generateInspectionPDF(input.inspectionId);
+      return { html: htmlContent };
+    }),
+
   // Get all task checklists with template and task info
   getAllTaskChecklists: protectedProcedure.query(async () => {
     const checklists = await db.getAllTaskChecklists();

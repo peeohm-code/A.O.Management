@@ -32,6 +32,8 @@ import NotificationSettings from "./pages/NotificationSettings";
 import DatabaseMonitoring from "./pages/DatabaseMonitoring";
 import SystemMonitor from "./pages/SystemMonitor";
 import MemoryMonitoring from "./pages/MemoryMonitoring";
+import InspectionHistory from "./pages/InspectionHistory";
+import InspectionDetail from "./pages/InspectionDetail";
 import DashboardLayout from "./components/DashboardLayout";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
@@ -146,6 +148,20 @@ function Router() {
         {() => (
           <DashboardLayout>
             <ProjectDetail />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/tasks/:taskId/inspections">
+        {() => (
+          <DashboardLayout>
+            <InspectionHistory />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/inspections/:inspectionId">
+        {() => (
+          <DashboardLayout>
+            <InspectionDetail />
           </DashboardLayout>
         )}
       </Route>
