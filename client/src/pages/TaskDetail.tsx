@@ -16,6 +16,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
 import { DefectsTab } from "@/components/DefectsTab";
+import { useOfflineForm } from "@/hooks/useOfflineForm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +53,33 @@ export default function TaskDetail() {
   const deleteAttachmentMutation = trpc.attachment.delete.useMutation();
   const deleteTaskMutation = trpc.task.delete.useMutation();
   const updateTaskMutation = trpc.task.update.useMutation();
+  
+  // Offline-capable comment submission
+  const offlineComment = useOfflineForm({
+    type: 'comment',
+    onlineSubmit: async (data: any) => {
+      await addCommentMutation.mutateAsync(data);
+    },
+    onSuccess: () => {
+      commentTextInput.reset("");
+      commentsQuery.refetch();
+      activityQuery.refetch();
+    },
+  });
+  
+  // Offline-capable progress update
+  const offlineProgress = useOfflineForm({
+    type: 'progress',
+    onlineSubmit: async (data: any) => {
+      await updateTaskMutation.mutateAsync(data);
+    },
+    onSuccess: () => {
+      setShowProgressForm(false);
+      setNewProgress("");
+      taskQuery.refetch();
+      activityQuery.refetch();
+    },
+  });
 
   const task = taskQuery.data;
   const project = projectQuery.data;
@@ -69,19 +97,12 @@ export default function TaskDetail() {
 
   const handleAddComment = async () => {
     if (!commentTextInput.value.trim()) return;
-
-    try {
-      await addCommentMutation.mutateAsync({
-        taskId,
-        content: commentTextInput.value,
-      });
-      commentTextInput.reset("");
-      commentsQuery.refetch();
-      activityQuery.refetch();
-      toast.success("เพิ่มความเห็นสำเร็จ");
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาดในการเพิ่มความเห็น");
-    }
+    
+    // Use offline-capable submission
+    offlineComment.submit({
+      taskId,
+      content: commentTextInput.value,
+    });
   };
 
   const handleFileUpload = async () => {
@@ -329,19 +350,11 @@ export default function TaskDetail() {
                   <Button
                     size="sm"
                     disabled={!newProgress || parseInt(newProgress) < 0 || parseInt(newProgress) > 100}
-                    onClick={async () => {
-                      try {
-                        await updateTaskMutation.mutateAsync({
-                          id: taskId,
-                          progress: parseInt(newProgress),
-                        });
-                        toast.success("อัปเดตความคืบหน้าสำเร็จ");
-                        setShowProgressForm(false);
-                        taskQuery.refetch();
-                        activityQuery.refetch();
-                      } catch (error) {
-                        toast.error("เกิดข้อผิดพลาด");
-                      }
+                    onClick={() => {
+                      offlineProgress.submit({
+                        id: taskId,
+                        progress: parseInt(newProgress),
+                      });
                     }}
                   >
                     บันทึก

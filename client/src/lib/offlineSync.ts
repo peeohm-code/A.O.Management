@@ -3,13 +3,31 @@
  * จัดการการ sync ข้อมูลอัตโนมัติเมื่อกลับมา online
  */
 
-import { trpc } from "./trpc";
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import type { AppRouter } from "../../../server/routers";
+import superjson from "superjson";
 import {
   getQueueItems,
   removeFromQueue,
   updateQueueItem,
   QueueItem,
 } from "./offlineQueue";
+
+// สร้าง vanilla tRPC client สำหรับใช้นอก React component
+const trpcClient = createTRPCClient<AppRouter>({
+  links: [
+    httpBatchLink({
+      url: "/api/trpc",
+      transformer: superjson,
+      fetch(input, init) {
+        return globalThis.fetch(input, {
+          ...(init ?? {}),
+          credentials: "include",
+        });
+      },
+    }),
+  ],
+});
 
 export class OfflineSyncManager {
   private isSyncing = false;
@@ -148,33 +166,32 @@ export class OfflineSyncManager {
   }
 
   private async syncComment(data: any) {
-    // ใช้ trpc client แบบ vanilla (ไม่ใช่ hooks)
-    const client = trpc.useUtils().client;
-    await client.comment.create.mutate(data);
+    // ใช้ vanilla tRPC client
+    await trpcClient.comment.add.mutate(data);
   }
 
   private async syncProgress(data: any) {
-    const client = trpc.useUtils().client;
-    await client.task.updateProgress.mutate(data);
+    // Progress update uses task.update with id and progress fields
+    await trpcClient.task.update.mutate({
+      id: data.taskId || data.id,
+      progress: data.progress,
+    });
   }
 
   private async syncInspection(data: any) {
-    const client = trpc.useUtils().client;
-    await client.qc.submitInspection.mutate(data);
+    await trpcClient.checklist.submitInspection.mutate(data);
   }
 
   private async syncTask(data: any) {
-    const client = trpc.useUtils().client;
     if (data.id) {
-      await client.task.update.mutate(data);
+      await trpcClient.task.update.mutate(data);
     } else {
-      await client.task.create.mutate(data);
+      await trpcClient.task.create.mutate(data);
     }
   }
 
   private async syncDefect(data: any) {
-    const client = trpc.useUtils().client;
-    await client.defect.create.mutate(data);
+    await trpcClient.defect.create.mutate(data);
   }
 }
 

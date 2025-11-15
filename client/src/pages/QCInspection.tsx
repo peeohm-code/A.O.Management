@@ -19,6 +19,7 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
 import { SwipeableCard } from "@/components/SwipeableCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { useOfflineForm } from "@/hooks/useOfflineForm";
 
 type InspectionResult = "pass" | "fail" | "na";
 
@@ -134,13 +135,19 @@ export default function QCInspection() {
 
   const createSignatureMutation = trpc.signature.create.useMutation();
 
-  const updateChecklistMutation = trpc.checklist.updateChecklistStatus.useMutation({
-    onSuccess: async (_, variables) => {
+  const updateChecklistMutation = trpc.checklist.updateChecklistStatus.useMutation();
+  
+  // Offline-capable inspection submission
+  const offlineInspection = useOfflineForm({
+    type: 'inspection',
+    onlineSubmit: async (data: any) => {
+      await updateChecklistMutation.mutateAsync(data);
+      
       // Save signature after checklist update
       if (inspectorSignature) {
         try {
           await createSignatureMutation.mutateAsync({
-            checklistId: variables.id,
+            checklistId: data.id,
             signatureData: inspectorSignature,
             signedBy: 1, // TODO: Use actual user ID from context
           });
@@ -148,18 +155,17 @@ export default function QCInspection() {
           console.error("Failed to save signature:", error);
         }
       }
-
-      toast.success("บันทึกผลการตรวจสอบสำเร็จ");
+    },
+    onSuccess: () => {
       setIsInspecting(false);
       setSelectedChecklistId(null);
       setItemResults({});
       setGeneralComments("");
       setInspectorSignature(null);
-      // Refetch checklists
       refetchChecklists();
     },
     onError: (error) => {
-      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+      console.error('Inspection submission error:', error);
     },
   });
 
@@ -256,7 +262,8 @@ export default function QCInspection() {
     const hasFailures = Object.values(itemResults).some(r => r.result === "fail");
     const finalStatus = hasFailures ? "failed" : "completed";
 
-    updateChecklistMutation.mutate({
+    // Use offline-capable submission
+    offlineInspection.submit({
       id: selectedChecklist.id,
       status: finalStatus,
       generalComments: generalComments || undefined,

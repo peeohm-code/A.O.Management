@@ -2,24 +2,27 @@ import { useState, useCallback } from 'react';
 import { addToQueue } from '@/lib/offlineQueue';
 import { toast } from 'sonner';
 
-interface UseOfflineFormOptions {
+interface UseOfflineFormOptions<TData = any> {
   type: 'comment' | 'progress' | 'inspection' | 'task' | 'defect';
-  onlineSubmit: (data: any) => Promise<void>;
+  onlineSubmit: (data: TData) => Promise<any>;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
 
-export function useOfflineForm({
+/**
+ * Hook สำหรับจัดการ form ที่รองรับ offline mode
+ * จะบันทึกข้อมูลลง queue เมื่อ offline และ sync เมื่อกลับมา online
+ */
+export function useOfflineForm<TData = any>({
   type,
   onlineSubmit,
   onSuccess,
   onError,
-}: UseOfflineFormOptions) {
+}: UseOfflineFormOptions<TData>) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isOnline] = useState(() => navigator.onLine);
 
   const submit = useCallback(
-    async (data: any) => {
+    async (data: TData) => {
       setIsSubmitting(true);
 
       try {
@@ -36,8 +39,12 @@ export function useOfflineForm({
 
           // Register background sync if available
           if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
-            const registration = await navigator.serviceWorker.ready;
-            await (registration as any).sync.register('sync-offline-queue');
+            try {
+              const registration = await navigator.serviceWorker.ready;
+              await (registration as any).sync.register('sync-offline-queue');
+            } catch (error) {
+              console.warn('Background sync registration failed:', error);
+            }
           }
         }
       } catch (error) {
@@ -54,6 +61,6 @@ export function useOfflineForm({
   return {
     submit,
     isSubmitting,
-    isOnline,
+    isOnline: navigator.onLine,
   };
 }

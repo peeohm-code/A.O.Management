@@ -2569,12 +2569,12 @@
 - [x] สร้าง BottomSheet component แทน Dialog
 
 ### Phase 3: Information Hierarchy & Visual Improvements
-- [ ] ปรับ Card layout ให้ชัดเจนบนมือถือ
-- [ ] ขยาย Status badges ให้ใหญ่ขึ้น
-- [ ] เพิ่ม Visual Progress bars
-- [ ] ปรับ Typography สำหรับมือถือ (ขนาดตัวอักษร)
+- [x] ปรับ Card layout ให้ชัดเจนบนมือถือ (เพิ่ม mobile-specific CSS)
+- [x] ขยาย Status badges ให้ใหญ่ขึ้น (สร้าง StatusBadge component)
+- [x] เพิ่ม Visual Progress bars (สร้าง ProgressBar component)
+- [x] ปรับ Typography สำหรับมือถือ (เพิ่ม responsive font sizes ใน CSS)
 - [ ] เพิ่ม Sticky Header
-- [ ] ปรับ Color contrast ให้มองเห็นชัดในแสงแดด
+- [x] ปรับ Color contrast ให้มองเห็นชัดในแสงแดด (ใช้ high-contrast status colors)
 
 ### Phase 4: Offline-First & Performance Optimization
 - [ ] ตั้งค่า PWA (manifest.json, service worker)
@@ -2652,3 +2652,21 @@
 - [ ] Test offline mode for defects
 - [ ] Verify auto-sync functionality when back online
 - [x] Add PWA icons (pwa-192x192.png, pwa-512x512.png)
+
+## Fix Offline Sync Issues
+- [x] แก้ไข offlineSync.ts ให้ใช้ vanilla tRPC client แทน useUtils
+- [x] แก้ไข comment router path จาก create เป็น add
+- [x] แก้ไข qc router path เป็น checklist.submitInspection
+- [x] แก้ไข syncProgress ให้ใช้ task.update แทน task.updateProgress
+- [x] ปรับปรุง useOfflineForm hook ให้ใช้งานง่ายขึ้น
+- [x] เพิ่ม offline support ใน QCInspection.tsx (inspection submission)
+- [x] เพิ่ม offline support ใน TaskDetail.tsx (comments และ progress update)
+- [x] ตรวจสอบ TypeScript errors (ไม่มี errors)
+- [ ] ทดสอบ offline sync บนอุปกรณ์จริง (ต้องทดสอบ manual)
+
+## Visual Improvements & Mobile UX Enhancements
+- [x] เพิ่ม mobile-specific CSS (touch targets, spacing, typography)
+- [x] สร้าง StatusBadge component (ขนาดใหญ่บนมือถือ, high contrast)
+- [x] สร้าง ProgressBar component (visual gradient bars)
+- [x] ปรับ responsive font sizes สำหรับมือถือ
+- [x] เพิ่ม high-contrast status colors สำหรับแสงแดด
