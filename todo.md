@@ -122,6 +122,16 @@
 - [x] Create email setup guide
 - [x] Prepare deployment documentation
 
+## 🚨 Critical System Issues (ต้องแก้ไขทันที)
+
+- [x] แก้ไข File Descriptor Leak - Chromium เปิดไฟล์ 15,408 files (เกิน limit 1,024 มากกว่า 15 เท่า)
+- [x] เพิ่ม ulimit configuration เป็น 65,536 files
+- [x] แก้ไข Out of Memory (OOM) - Node process ถูก kill จาก OOM Killer
+- [x] ตั้งค่า --max-old-space-size สำหรับ Node.js
+- [x] ตรวจสอบและแก้ไข memory leaks ในระบบ
+- [x] ทดสอบระบบหลังแก้ไข
+- [ ] สร้าง checkpoint หลังแก้ไขเสร็จสมบูรณ์
+
 ## 🚧 Pending Features
 
 ### UI Enhancements
