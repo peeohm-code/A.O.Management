@@ -602,7 +602,7 @@ export default function Tasks() {
       {canCreate && (
         <FloatingActionButton
           onClick={() => setShowNewTaskDialog(true)}
-          icon={<Plus className="h-6 w-6" />}
+          icon={Plus}
           label="เพิ่มงาน"
         />
       )}

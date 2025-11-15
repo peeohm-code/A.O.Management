@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle, Plus } from "lucide-react";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -881,6 +882,24 @@ export default function QCInspection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Action Button - สร้าง Inspection ใหม่ */}
+      {canCreate && (
+        <FloatingActionButton
+          onClick={() => {
+            // เลือก checklist แรกที่ยังไม่ได้ตรวจ
+            const pendingChecklist = filteredChecklists.find(c => c.status === 'pending_inspection');
+            if (pendingChecklist) {
+              setSelectedChecklistId(pendingChecklist.id);
+              setIsInspecting(true);
+            } else {
+              toast.info('ไม่มี Checklist ที่รอตรวจสอบ');
+            }
+          }}
+          icon={ClipboardCheck}
+          label="ตรวจสอบ"
+        />
+      )}
     </div>
   );
 }

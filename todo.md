@@ -2592,3 +2592,15 @@
 - [ ] ทดสอบ Camera capture
 - [ ] ปรับแต่งตาม feedback
 - [ ] สร้างเอกสาร Mobile UX Guide
+
+## Mobile Responsive Optimization - Phase 2: Camera-First Design & Quick Actions
+- [x] ปรับปรุง ImageUpload component ให้เป็น Camera-First (ปุ่มถ่ายรูปเป็นหลัก)
+- [x] เพิ่ม multiple photo capture support
+- [x] สร้าง FloatingActionButton component รองรับ LucideIcon
+- [x] เพิ่ม FAB ในหน้า Tasks (เพิ่มงาน)
+- [x] เพิ่ม FAB ในหน้า QC Inspection (ตรวจสอบ)
+- [x] เพิ่ม FAB ในหน้า Defects (รายงานปัญหา)
+- [x] สร้าง SwipeableCard component สำหรับ Task cards
+- [ ] นำ SwipeableCard ไปใช้ใน Tasks page
+- [ ] เพิ่ม Swipe Actions (Complete, Edit, Delete) สำหรับ Task cards
+- [ ] ทดสอบ Camera และ Photo Upload บนมือถือ

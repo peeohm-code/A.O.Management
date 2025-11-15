@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus } from "lucide-react";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import {
   Select,
@@ -1525,6 +1526,16 @@ export default function Defects() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Action Button - สร้าง Defect ใหม่ */}
+      {permissions.canCreate && (
+        <FloatingActionButton
+          onClick={() => setLocation('/qc-inspection')}
+          icon={AlertTriangle}
+          label="รายงานปัญหา"
+          variant="destructive"
+        />
+      )}
     </div>
   );
 }

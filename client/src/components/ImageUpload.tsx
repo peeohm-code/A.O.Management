@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -8,10 +8,13 @@ interface ImageUploadProps {
   onChange: (urls: string[]) => void;
   maxImages?: number;
   disabled?: boolean;
+  cameraFirst?: boolean; // เปิดกล้องทันทีบนมือถือ
 }
 
-export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = false }: ImageUploadProps) {
+export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = false, cameraFirst = true }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -72,10 +75,12 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
 
   return (
     <div className="space-y-4">
-      {/* Upload Button */}
+      {/* Upload Buttons - Camera First on Mobile */}
       {value.length < maxImages && (
-        <div>
+        <div className="space-y-2">
+          {/* Camera Input (hidden) */}
           <input
+            ref={cameraInputRef}
             type="file"
             accept="image/*"
             capture="environment"
@@ -83,47 +88,78 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
             onChange={handleFileSelect}
             disabled={disabled || uploading}
             className="hidden"
-            id="image-upload-input"
+            id="camera-input"
           />
-          <label htmlFor="image-upload-input">
+          
+          {/* File Input (hidden) */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileSelect}
+            disabled={disabled || uploading}
+            className="hidden"
+            id="file-input"
+          />
+          
+          {/* Button Group */}
+          <div className="flex gap-2">
+            {/* Camera Button - Primary on Mobile */}
             <Button
               type="button"
-              variant="outline"
+              onClick={() => cameraInputRef.current?.click()}
               disabled={disabled || uploading}
-              className="cursor-pointer"
-              asChild
+              className="flex-1 h-12 text-base md:flex-none md:h-11"
+              variant="default"
             >
-              <span>
-                <Upload className="w-4 h-4 mr-2" />
-                {uploading ? 'Uploading...' : 'Upload Images'}
-              </span>
+              <Camera className="w-5 h-5 mr-2" />
+              {uploading ? 'กำลังอัปโหลด...' : 'ถ่ายรูป'}
             </Button>
-          </label>
-          <p className="text-xs text-gray-500 mt-1">
-            Max {maxImages} images, 5MB each
+            
+            {/* Upload Button - Secondary */}
+            <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={disabled || uploading}
+              variant="outline"
+              className="flex-1 h-12 text-base md:flex-none md:h-11"
+            >
+              <Upload className="w-5 h-5 mr-2" />
+              เลือกไฟล์
+            </Button>
+          </div>
+          
+          <p className="text-xs text-muted-foreground">
+            สูงสุด {maxImages} รูป, ขนาดไม่เกิน 5MB ต่อรูป
           </p>
         </div>
       )}
 
       {/* Image Preview Grid */}
       {value.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {value.map((url, index) => (
-            <div key={index} className="relative group">
+            <div key={index} className="relative group aspect-square">
               <img
                 src={url}
-                alt={`Upload ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg border"
+                alt={`รูปที่ ${index + 1}`}
+                className="w-full h-full object-cover rounded-lg border-2 border-border"
               />
               {!disabled && (
                 <button
                   type="button"
                   onClick={() => handleRemove(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                  className="absolute top-1 right-1 bg-destructive text-destructive-foreground p-2 rounded-full shadow-lg md:opacity-0 md:group-hover:opacity-100 transition-opacity active:scale-95"
+                  aria-label="ลบรูปภาพ"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
+              {/* Image Counter Badge */}
+              <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                {index + 1}/{value.length}
+              </div>
             </div>
           ))}
         </div>
@@ -131,9 +167,10 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
 
       {/* Empty State */}
       {value.length === 0 && !uploading && (
-        <div className="border-2 border-dashed rounded-lg p-8 text-center text-gray-400">
-          <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-          <p className="text-sm">No images uploaded</p>
+        <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
+          <Camera className="w-12 h-12 mx-auto mb-2" />
+          <p className="text-sm font-medium">ยังไม่มีรูปภาพ</p>
+          <p className="text-xs mt-1">กดปุ่ม "ถ่ายรูป" เพื่อเริ่มต้น</p>
         </div>
       )}
     </div>
