@@ -2548,3 +2548,47 @@
 - [x] เพิ่มฟีเจอร์ slow query detection
 - [x] เพิ่ม route และ menu item สำหรับ Database Monitoring (admin only)
 - [x] ทดสอบและ save checkpoint
+
+## Mobile Responsive Optimization
+
+### Phase 1: Touch-Friendly UI & Bottom Navigation
+- [x] ปรับขนาดปุ่มทั้งหมดให้ขั้นต่ำ 48x48px
+- [x] เพิ่ม spacing ระหว่างปุ่มอย่างน้อย 8px
+- [x] สร้าง BottomNavigation component สำหรับมือถือ
+- [x] ซ่อน Sidebar บนมือถือ แสดง Bottom Nav แทน
+- [x] ปรับ Primary buttons ให้ full-width บนมือถือ
+- [x] เพิ่ม touch feedback (ripple effect)
+
+### Phase 2: Camera-First Design & Quick Actions
+- [ ] ปรับปรุง ImageUpload component ให้เปิดกล้องทันที
+- [ ] เพิ่ม multiple photo capture
+- [x] สร้าง FloatingActionButton (FAB) component
+- [x] เพิ่ม FAB ในหน้า Tasks
+- [ ] เพิ่ม FAB ในหน้า QC Inspection, Defects
+- [ ] เพิ่ม Swipe Actions สำหรับ Task cards
+- [x] สร้าง BottomSheet component แทน Dialog
+
+### Phase 3: Information Hierarchy & Visual Improvements
+- [ ] ปรับ Card layout ให้ชัดเจนบนมือถือ
+- [ ] ขยาย Status badges ให้ใหญ่ขึ้น
+- [ ] เพิ่ม Visual Progress bars
+- [ ] ปรับ Typography สำหรับมือถือ (ขนาดตัวอักษร)
+- [ ] เพิ่ม Sticky Header
+- [ ] ปรับ Color contrast ให้มองเห็นชัดในแสงแดด
+
+### Phase 4: Offline-First & Performance Optimization
+- [ ] ตั้งค่า PWA (manifest.json, service worker)
+- [ ] เพิ่ม Offline indicator
+- [ ] ปรับปรุง Queue system ให้ทำงานได้ offline
+- [ ] เพิ่ม Lazy loading สำหรับรูปภาพ
+- [ ] Optimize image loading (WebP, compression)
+- [ ] เพิ่ม Skeleton loading states
+
+### Phase 5: Testing & Final Adjustments
+- [ ] ทดสอบบน iOS Safari
+- [ ] ทดสอบบน Android Chrome
+- [ ] ทดสอบ Touch gestures
+- [ ] ทดสอบ Offline mode
+- [ ] ทดสอบ Camera capture
+- [ ] ปรับแต่งตาม feedback
+- [ ] สร้างเอกสาร Mobile UX Guide

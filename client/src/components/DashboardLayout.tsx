@@ -31,6 +31,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import BottomNavigation from "@/components/BottomNavigation";
 
 function RoleBadge() {
   const roleLabel = useRoleLabel();
@@ -127,6 +128,7 @@ export default function DashboardLayout({
   }
 
   return (
+    <div className="pb-16 md:pb-0">
     <SidebarProvider
       style={
         {
@@ -138,6 +140,9 @@ export default function DashboardLayout({
         {children}
       </DashboardLayoutContent>
     </SidebarProvider>
+    {/* Bottom Navigation - Mobile only */}
+    <BottomNavigation />
+    </div>
   );
 }
 
@@ -197,7 +202,7 @@ function DashboardLayoutContent({
 
   return (
     <>
-      <div className="relative" ref={sidebarRef}>
+      <div className="relative hidden md:block" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
           className="border-r-0"

@@ -25,23 +25,30 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { format } from "date-fns";
 
 interface NewTaskDialogProps {
-  projectId: number;
+  projectId?: number;
 }
 
-export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
+export default function NewTaskDialog({ projectId: initialProjectId }: NewTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [projectId, setProjectId] = useState<number | undefined>(initialProjectId);
   const [category, setCategory] = useState("preparation");
   const [status, setStatus] = useState<string>("todo");
   const [priority, setPriority] = useState<string>("medium");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  const projectsQuery = trpc.project.list.useQuery();
+  const projects = projectsQuery.data || [];
+
   const utils = trpc.useUtils();
   const createTaskMutation = trpc.task.create.useMutation({
     onSuccess: () => {
       toast.success("สร้างงานใหม่เรียบร้อยแล้ว");
-      utils.task.list.invalidate({ projectId });
+      if (projectId) {
+        utils.task.list.invalidate({ projectId });
+      }
+      utils.task.myTasks.invalidate();
       setOpen(false);
       resetForm();
     },
@@ -52,6 +59,9 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
 
   const resetForm = () => {
     setName("");
+    if (!initialProjectId) {
+      setProjectId(undefined);
+    }
     setCategory("preparation");
     setStatus("todo");
     setPriority("medium");
@@ -86,6 +96,11 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
       return dateValue;
     };
 
+    if (!projectId) {
+      toast.error("กรุณาเลือกโครงการ");
+      return;
+    }
+
     createTaskMutation.mutate({
       projectId,
       name,
@@ -114,6 +129,27 @@ export default function NewTaskDialog({ projectId }: NewTaskDialogProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {!initialProjectId && (
+              <div className="grid gap-2">
+                <Label htmlFor="project">โครงการ *</Label>
+                <Select
+                  value={projectId?.toString()}
+                  onValueChange={(value) => setProjectId(parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกโครงการ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project: any) => (
+                      <SelectItem key={project.id} value={project.id.toString()}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="grid gap-2">
               <Label htmlFor="name">ชื่องาน *</Label>
               <Input

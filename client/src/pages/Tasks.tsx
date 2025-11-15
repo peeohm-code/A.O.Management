@@ -25,6 +25,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
+import FloatingActionButton from "@/components/FloatingActionButton";
+import NewTaskDialog from "@/components/NewTaskDialog";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
 
@@ -38,6 +41,7 @@ export default function Tasks() {
   const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
   const [bulkStatus, setBulkStatus] = useState<string>("");
   const [bulkAssignee, setBulkAssignee] = useState<string>("");
+  const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
 
   const myTasksQuery = trpc.task.myTasks.useQuery();
   const utils = trpc.useUtils();
@@ -593,6 +597,20 @@ export default function Tasks() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Action Button - Mobile */}
+      {canCreate && (
+        <FloatingActionButton
+          onClick={() => setShowNewTaskDialog(true)}
+          icon={<Plus className="h-6 w-6" />}
+          label="เพิ่มงาน"
+        />
+      )}
+
+      {/* New Task Dialog */}
+      {showNewTaskDialog && (
+        <NewTaskDialog projectId={undefined} />
+      )}
     </div>
   );
 }

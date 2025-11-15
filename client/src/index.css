@@ -185,8 +185,14 @@
     button,
     [role="button"],
     a {
-      min-height: 44px; /* iOS recommended minimum touch target */
-      min-width: 44px;
+      min-height: 48px; /* Touch-friendly minimum */
+      min-width: 48px;
+    }
+
+    /* Increase spacing between interactive elements */
+    button + button,
+    [role="button"] + [role="button"] {
+      margin-left: 8px;
     }
 
     /* Adjust font sizes for mobile readability */
@@ -222,6 +228,38 @@
     }
     .space-x-2 {
       @apply space-x-3;
+    }
+
+    /* Full-width buttons on mobile */
+    .btn-mobile-full {
+      @apply w-full;
+    }
+
+    /* Larger checkboxes and radio buttons */
+    input[type="checkbox"],
+    input[type="radio"] {
+      @apply w-6 h-6;
+    }
+
+    /* Better input fields for mobile */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    textarea,
+    select {
+      @apply text-base; /* Prevent zoom on iOS */
+      min-height: 48px;
+    }
+  }
+
+  /* Touch feedback animation */
+  @media (hover: none) and (pointer: coarse) {
+    button:active,
+    [role="button"]:active {
+      @apply scale-95;
     }
   }
 }
