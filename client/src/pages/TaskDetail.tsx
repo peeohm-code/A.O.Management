@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X, CheckSquare, AlertTriangle, Clock } from "lucide-react";
+import { Loader2, Calendar, User, MessageSquare, FileText, Trash2, ArrowLeft, Building2, TrendingUp, TrendingDown, Minus, Upload, File, Image as ImageIcon, X, CheckSquare, AlertTriangle, Clock, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate, daysBetween } from "@/lib/dateUtils";
 import { useLocation, Link } from "wouter";
@@ -28,6 +28,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +48,16 @@ export default function TaskDetail() {
   const [uploading, setUploading] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  
+  // Edit task state
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    assigneeId: 0,
+  });
 
   const taskQuery = trpc.task.get.useQuery({ id: taskId }, { enabled: !!taskId });
   const projectQuery = trpc.project.get.useQuery(
@@ -140,6 +159,57 @@ export default function TaskDetail() {
       toast.success("ลบไฟล์สำเร็จ");
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการลบไฟล์");
+    }
+  };
+
+  const handleEditTask = () => {
+    if (!task) return;
+    setEditForm({
+      name: task.name,
+      description: task.description || "",
+      startDate: task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : "",
+      endDate: task.endDate ? new Date(task.endDate).toISOString().split('T')[0] : "",
+      assigneeId: task.assigneeId || 0,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const updateData: any = {
+        id: taskId,
+      };
+      
+      // Only include fields that have values
+      if (editForm.name && editForm.name.trim()) {
+        updateData.name = editForm.name.trim();
+      }
+      
+      if (editForm.description !== undefined && editForm.description !== null) {
+        updateData.description = editForm.description;
+      }
+      
+      if (editForm.startDate) {
+        updateData.startDate = editForm.startDate;
+      }
+      
+      if (editForm.endDate) {
+        updateData.endDate = editForm.endDate;
+      }
+      
+      // Only include assigneeId if it's a valid value (not 0)
+      if (editForm.assigneeId && editForm.assigneeId > 0) {
+        updateData.assigneeId = editForm.assigneeId;
+      }
+      
+      await updateTaskMutation.mutateAsync(updateData);
+      setShowEditDialog(false);
+      taskQuery.refetch();
+      activityQuery.refetch();
+      toast.success("แก้ไขงานสำเร็จ");
+    } catch (error) {
+      console.error('[Edit Task Error]', error);
+      toast.error("เกิดข้อผิดพลาดในการแก้ไขงาน");
     }
   };
 
@@ -293,6 +363,11 @@ export default function TaskDetail() {
 
             {/* Quick Actions */}
             <div className="flex gap-2 pt-2 border-t">
+              <Button size="sm" variant="outline" onClick={handleEditTask}>
+                <Edit className="w-4 h-4 mr-1" />
+                แก้ไข
+              </Button>
+
               <Button size="sm" variant="outline" onClick={() => {
                 setNewProgress(task.progress.toString());
                 setShowProgressForm(true);
@@ -568,6 +643,67 @@ export default function TaskDetail() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Task Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>แก้ไขงาน</DialogTitle>
+            <DialogDescription>
+              แก้ไขรายละเอียดของงาน
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">ชื่องาน *</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                placeholder="ชื่องาน"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description">รายละเอียด</Label>
+              <Textarea
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                placeholder="รายละเอียดงาน"
+                rows={4}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-start-date">วันเริ่มต้น</Label>
+                <Input
+                  id="edit-start-date"
+                  type="date"
+                  value={editForm.startDate}
+                  onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-end-date">วันสิ้นสุด</Label>
+                <Input
+                  id="edit-end-date"
+                  type="date"
+                  value={editForm.endDate}
+                  onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={!editForm.name.trim()}>
+              บันทึก
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

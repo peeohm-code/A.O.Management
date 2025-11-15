@@ -479,6 +479,8 @@ const taskRouter = router({
         id: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
         status: z
           .enum([
             "todo",
@@ -499,7 +501,16 @@ const taskRouter = router({
       const task = await db.getTaskById(id);
       if (!task) throw new Error("Task not found");
 
-      const result = await db.updateTask(id, updateData);
+      // Convert date strings to Date objects if present
+      const dbUpdateData: any = { ...updateData };
+      if (updateData.startDate) {
+        dbUpdateData.startDate = new Date(updateData.startDate);
+      }
+      if (updateData.endDate) {
+        dbUpdateData.endDate = new Date(updateData.endDate);
+      }
+
+      const result = await db.updateTask(id, dbUpdateData);
 
       await db.logActivity({
         userId: ctx.user!.id,
@@ -733,6 +744,68 @@ const taskRouter = router({
       }
 
       return { success: true, assigned: successCount, total: taskIds.length };
+    }),
+
+  search: protectedProcedure
+    .input(
+      z.object({
+        query: z.string().optional(),
+        projectId: z.number().optional(),
+        status: z.string().optional(),
+        assigneeId: z.number().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      // Get all tasks based on filters
+      let tasks;
+      
+      if (input.projectId) {
+        tasks = await db.getTasksByProject(input.projectId);
+      } else {
+        // Get all tasks from user's projects
+        const userProjects = await db.getProjectsByUser(ctx.user!.id);
+        const projectIds = userProjects.map(p => p.projects.id);
+        
+        const allTasks = [];
+        for (const projectId of projectIds) {
+          const projectTasks = await db.getTasksByProject(projectId);
+          allTasks.push(...projectTasks);
+        }
+        tasks = allTasks;
+      }
+      
+      // Apply filters
+      let filteredTasks = tasks;
+      
+      // Filter by search query (name or description)
+      if (input.query && input.query.trim() !== '') {
+        const queryLower = input.query.toLowerCase();
+        filteredTasks = filteredTasks.filter(task => 
+          task.name.toLowerCase().includes(queryLower) ||
+          (task.description && task.description.toLowerCase().includes(queryLower))
+        );
+      }
+      
+      // Filter by status
+      if (input.status && input.status !== 'all') {
+        filteredTasks = filteredTasks.filter(task => task.status === input.status);
+      }
+      
+      // Filter by assignee
+      if (input.assigneeId) {
+        filteredTasks = filteredTasks.filter(task => task.assigneeId === input.assigneeId);
+      }
+      
+      // Add computed display status to each task
+      return filteredTasks.map(task => {
+        const displayStatus = getTaskDisplayStatus(task);
+        return {
+          ...task,
+          displayStatus,
+          displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
+          displayStatusColor: getTaskDisplayStatusColor(displayStatus),
+        };
+      });
     }),
 });
 
@@ -2011,8 +2084,16 @@ const dashboardRouter = router({
     const totalProgress = projectsWithStats.reduce((sum, p) => sum + p.stats.progressPercentage, 0);
     const averageProgress = projectsWithStats.length > 0 ? Math.round(totalProgress / projectsWithStats.length) : 0;
 
-    // Get all tasks with computed display status
-    const allTasks = await db.getAllTasks();
+    // Get tasks from user's projects only (consistent with Tasks page)
+    const userProjects = await db.getProjectsByUser(ctx.user!.id);
+    const projectIds = userProjects.map(p => p.projects.id);
+    
+    const allTasks = [];
+    for (const projectId of projectIds) {
+      const projectTasks = await db.getTasksByProject(projectId);
+      allTasks.push(...projectTasks);
+    }
+    
     const tasksWithStatus = allTasks.map(task => ({
       ...task,
       displayStatus: getTaskDisplayStatus(task),

@@ -770,13 +770,26 @@ export async function updateTask(
   if (!db) throw new Error("Database not available");
 
   const updateData: Record<string, any> = {};
-  if (data.name !== undefined) updateData.name = data.name;
-  if (data.description !== undefined) updateData.description = data.description;
+  if (data.name !== undefined && data.name !== null) updateData.name = data.name;
+  // Only update description if it's not undefined and not null (allow empty string)
+  if (data.description !== undefined && data.description !== null) {
+    updateData.description = data.description;
+  }
   if (data.status !== undefined) updateData.status = data.status;
   if (data.progress !== undefined) updateData.progress = data.progress;
   if (data.assigneeId !== undefined) updateData.assigneeId = data.assigneeId;
-  if (data.startDate !== undefined) updateData.startDate = data.startDate;
-  if (data.endDate !== undefined) updateData.endDate = data.endDate;
+  
+  // Convert Date to YYYY-MM-DD string format for varchar columns
+  if (data.startDate !== undefined) {
+    updateData.startDate = data.startDate instanceof Date 
+      ? data.startDate.toISOString().split('T')[0] 
+      : data.startDate;
+  }
+  if (data.endDate !== undefined) {
+    updateData.endDate = data.endDate instanceof Date 
+      ? data.endDate.toISOString().split('T')[0] 
+      : data.endDate;
+  }
 
   return await db.update(tasks).set(updateData).where(eq(tasks.id, id));
 }

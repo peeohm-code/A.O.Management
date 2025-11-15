@@ -2921,3 +2921,9 @@
 - [ ] Document performance benchmarks and acceptance criteria
 - [ ] Create user acceptance testing (UAT) scenarios
 - [ ] Document known limitations and workarounds
+
+## New Features - Task Management Enhancement
+- [x] Add Edit Task functionality (update task name, description, dates, assignee)
+- [x] Add Delete Task functionality (with confirmation dialog)
+- [x] Add Search and Filter functionality for tasks (by name, status, assignee, project)
+- [x] Fix task count mismatch between Dashboard and Tasks page (ensure all queries use consistent filters)

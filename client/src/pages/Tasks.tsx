@@ -41,6 +41,8 @@ export default function Tasks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});
   const [displayStatusFilter, setDisplayStatusFilter] = useState<string>("all");
+  const [projectFilter, setProjectFilter] = useState<number | undefined>(undefined);
+  const [assigneeFilter, setAssigneeFilter] = useState<number | undefined>(undefined);
   const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set());
   const [showBulkStatusDialog, setShowBulkStatusDialog] = useState(false);
   const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
@@ -48,10 +50,20 @@ export default function Tasks() {
   const [bulkAssignee, setBulkAssignee] = useState<string>("");
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
 
+  // Use search query with filters
+  const searchQuery = trpc.task.search.useQuery({
+    query: searchTerm,
+    projectId: projectFilter,
+    status: displayStatusFilter !== 'all' ? displayStatusFilter : undefined,
+    assigneeId: assigneeFilter,
+  });
+  
   const myTasksQuery = trpc.task.myTasks.useQuery();
+  const projectsQuery = trpc.project.list.useQuery();
   const utils = trpc.useUtils();
   
   const handleRefresh = async () => {
+    await searchQuery.refetch();
     await utils.task.myTasks.invalidate();
   };
 
@@ -115,7 +127,10 @@ export default function Tasks() {
     }
   };
 
-  const tasks = myTasksQuery.data || [];
+  // Use search results if any filter is active, otherwise use myTasks
+  const hasActiveFilter = searchTerm || projectFilter || displayStatusFilter !== 'all' || assigneeFilter;
+  const tasks = hasActiveFilter ? (searchQuery.data || []) : (myTasksQuery.data || []);
+  const projects = projectsQuery.data || [];
   
   // Extract unique assignees from tasks
   const members = Array.from(
@@ -126,12 +141,8 @@ export default function Tasks() {
     ).values()
   );
 
-  let filteredTasks = tasks.filter((t) => {
-    const matchesSearch = !searchTerm || t.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !filters.status || t.status === filters.status;
-    const matchesDisplayStatus = displayStatusFilter === "all" || (t as any).displayStatus === displayStatusFilter;
-    return matchesSearch && matchesStatus && matchesDisplayStatus;
-  });
+  // Tasks are already filtered by the search query
+  const filteredTasks = tasks;
 
   const stats = {
     total: tasks.length,
@@ -268,28 +279,75 @@ export default function Tasks() {
       )}
 
       {/* Search and Filter - Sticky */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-4 -mt-4 mb-2 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-4">
-        <SearchBar
-          placeholder="ค้นหางาน..."
-          onSearch={setSearchTerm}
-          className="w-full md:max-w-md"
-        />
-        <div className="flex-1">
-          <FilterBar
-            filters={filters}
-            onFilterChange={setFilters}
-            statusOptions={[
-              { value: "ready_to_start", label: "พร้อมเริ่ม" },
-              { value: "in_progress", label: "กำลังดำเนินการ" },
-              { value: "pending_pre_inspection", label: "รอตรวจก่อน" },
-              { value: "pending_final_inspection", label: "รอตรวจสุดท้าย" },
-              { value: "rectification_needed", label: "ต้องแก้ไข" },
-              { value: "completed", label: "เสร็จสิ้น" },
-            ]}
-            showAssignee={false}
-            showCategory={false}
-            showPriority={false}
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-4 -mt-4 mb-2 shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+          <SearchBar
+            placeholder="ค้ษหางาน..."
+            onSearch={setSearchTerm}
+            className="w-full md:max-w-md"
           />
+        </div>
+        
+        {/* Filter Controls */}
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Project Filter */}
+          <div className="flex-1">
+            <Select
+              value={projectFilter?.toString() || "all"}
+              onValueChange={(value) => setProjectFilter(value === "all" ? undefined : parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="ทุกโครงการ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกโครงการ</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id.toString()}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Status Filter */}
+          <div className="flex-1">
+            <Select
+              value={displayStatusFilter}
+              onValueChange={setDisplayStatusFilter}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="สถานะ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกสถานะ</SelectItem>
+                <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+                <SelectItem value="in_progress">กำลังทำ</SelectItem>
+                <SelectItem value="delayed">ล่าช้า</SelectItem>
+                <SelectItem value="completed">เสร็จสมบูรณ์</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Assignee Filter */}
+          <div className="flex-1">
+            <Select
+              value={assigneeFilter?.toString() || "all"}
+              onValueChange={(value) => setAssigneeFilter(value === "all" ? undefined : parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="ผู้รับผิดชอบ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกคน</SelectItem>
+                {members.map((member: any) => (
+                  <SelectItem key={member.userId} value={member.userId.toString()}>
+                    {member.userName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         {canEdit && filteredTasks.length > 0 && (
           <Button
