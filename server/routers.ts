@@ -2473,6 +2473,24 @@ export const appRouter = router({
   health: healthRouter,
   optimization: optimizationRouter,
   cache: cacheRouter,
+  
+  // System Monitor for Admin
+  systemMonitor: router({
+    getMetrics: roleBasedProcedure('system', 'view').query(async () => {
+      const { getSystemMetrics } = await import('./monitoring/startMonitoring');
+      return await getSystemMetrics();
+    }),
+    
+    getDatabaseStats: roleBasedProcedure('system', 'view').query(async () => {
+      const { getDatabaseStats } = await import('./monitoring/startMonitoring');
+      return await getDatabaseStats();
+    }),
+    
+    applyIndexes: roleBasedProcedure('system', 'edit').mutation(async () => {
+      const { applyRecommendedIndexes } = await import('./monitoring/startMonitoring');
+      return await applyRecommendedIndexes();
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

@@ -89,6 +89,11 @@ export const PERMISSIONS = {
     project: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
     personal: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER],
   },
+  system: {
+    view: [ROLES.OWNER, ROLES.ADMIN],
+    edit: [ROLES.OWNER, ROLES.ADMIN],
+    monitor: [ROLES.OWNER, ROLES.ADMIN],
+  },
 } as const;
 
 /**

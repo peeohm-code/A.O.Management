@@ -3179,3 +3179,18 @@ All requested features have been implemented and tested. The system is ready for
 - [x] เพิ่ม Caching Layer (Redis/In-Memory)
 - [x] สร้าง Auto-restart Strategy เมื่อ memory เกินขอบเขต
 - [x] เขียนเอกสาร Memory Management Guide
+
+## System Monitor Feature
+- [x] Create monitoring infrastructure in server/monitoring/startMonitoring.ts
+- [x] Set up alert thresholds (warning/critical) for system metrics
+- [x] Create backend API for system metrics (CPU, memory, disk usage)
+- [x] Create backend API for database statistics
+- [x] Create backend API for applying database indexes
+- [x] Add "System Monitor" menu item in DashboardLayout sidebar (Admin only)
+- [x] Create SystemMonitor page with tabs (Overview, Database, Logs)
+- [x] Implement Database Tab with index management UI
+- [x] Add "Apply Indexes" button functionality
+- [x] Add system permissions to shared/permissions.ts
+- [x] Test System Monitor access control (Admin only)
+- [ ] Test Apply Indexes functionality (ready for user testing)
+- [ ] Verify performance improvements after applying indexes (requires production data)
