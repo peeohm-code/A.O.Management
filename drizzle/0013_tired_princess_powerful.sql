@@ -1,0 +1,2 @@
+ALTER TABLE `defects` MODIFY COLUMN `status` enum('reported','rca_pending','action_plan','assigned','in_progress','implemented','verification','effectiveness_check','closed','rejected','analysis','resolved') NOT NULL DEFAULT 'reported';--> statement-breakpoint
+ALTER TABLE `defects` ADD `beforePhotos` text;

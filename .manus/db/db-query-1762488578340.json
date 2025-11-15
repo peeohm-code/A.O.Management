@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, name, category, projectId FROM tasks LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name, category, projectId FROM tasks LIMIT 10",
+  "rows": [
+    {
+      "id": "150001",
+      "name": "งานวางผัง",
+      "category": "preparation",
+      "projectId": "90003"
+    },
+    {
+      "id": "180001",
+      "name": "ทดสอบ Task จาก Project",
+      "category": "preparation",
+      "projectId": "90003"
+    },
+    {
+      "id": "180002",
+      "name": "ทดสอบ Bug Fix",
+      "category": "preparation",
+      "projectId": "90003"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcategory\tprojectId\n150001\tงานวางผัง\tpreparation\t90003\n180001\tทดสอบ Task จาก Project\tpreparation\t90003\n180002\tทดสอบ Bug Fix\tpreparation\t90003\n",
+  "stderr": "",
+  "execution_time_ms": 1521
+}
