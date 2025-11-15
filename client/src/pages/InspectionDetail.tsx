@@ -22,6 +22,8 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
+import { ImageGalleryViewer } from "@/components/MobileDocumentViewer";
+import { useIsMobile } from "@/hooks/useMobile";
 
 /**
  * Inspection Detail Page
@@ -33,6 +35,10 @@ export default function InspectionDetail() {
   const [, navigate] = useLocation();
   const inspectionId = params?.inspectionId ? parseInt(params.inspectionId) : null;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<Array<{ url: string; fileName?: string }>>([]);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const isMobile = useIsMobile();
 
   // Fetch inspection detail
   const { data: inspection, isLoading } = trpc.checklist.getInspectionDetail.useQuery(
@@ -330,7 +336,15 @@ export default function InspectionDetail() {
                                       src={url}
                                       alt={`Photo ${idx + 1}`}
                                       className="h-20 w-20 object-cover rounded-md border cursor-pointer hover:opacity-80 transition-opacity"
-                                      onClick={() => setSelectedImage(url)}
+                                      onClick={() => {
+                                        if (isMobile) {
+                                          setGalleryImages(photos.map((u, i) => ({ url: u, fileName: `รูปภาพ ${i + 1}` })));
+                                          setGalleryInitialIndex(idx);
+                                          setGalleryOpen(true);
+                                        } else {
+                                          setSelectedImage(url);
+                                        }
+                                      }}
                                     />
                                   ))}
                                 </div>
@@ -407,8 +421,8 @@ export default function InspectionDetail() {
         )}
       </div>
 
-      {/* Image Modal */}
-      {selectedImage && (
+      {/* Image Modal - Desktop */}
+      {!isMobile && selectedImage && (
         <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
@@ -430,6 +444,14 @@ export default function InspectionDetail() {
           </div>
         </div>
       )}
+
+      {/* Image Gallery Viewer - Mobile */}
+      <ImageGalleryViewer
+        images={galleryImages}
+        initialIndex={galleryInitialIndex}
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
     </DashboardLayout>
   );
 }

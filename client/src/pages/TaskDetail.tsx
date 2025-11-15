@@ -17,6 +17,8 @@ import { useThaiTextInput } from "@/hooks/useThaiTextInput";
 import { ChecklistsTab } from "@/components/ChecklistsTab";
 import { DefectsTab } from "@/components/DefectsTab";
 import { useOfflineForm } from "@/hooks/useOfflineForm";
+import { MobileDocumentViewer, ImageGalleryViewer } from "@/components/MobileDocumentViewer";
+import { useIsMobile } from "@/hooks/useMobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +50,12 @@ export default function TaskDetail() {
   const [uploading, setUploading] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<{ url: string; fileName: string; mimeType?: string } | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<Array<{ url: string; fileName?: string }>>([]);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const isMobile = useIsMobile();
   
   // Edit task state
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -645,14 +653,23 @@ export default function TaskDetail() {
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <File className="w-5 h-5 text-gray-600 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <a
-                            href={attachment.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-medium text-[#00366D] hover:underline block truncate"
+                          <button
+                            onClick={() => {
+                              if (isMobile) {
+                                setSelectedDocument({
+                                  url: attachment.fileUrl,
+                                  fileName: attachment.fileName,
+                                  mimeType: attachment.mimeType || undefined,
+                                });
+                                setDocumentViewerOpen(true);
+                              } else {
+                                window.open(attachment.fileUrl, '_blank');
+                              }
+                            }}
+                            className="text-sm font-medium text-[#00366D] hover:underline block truncate text-left"
                           >
                             {attachment.fileName}
-                          </a>
+                          </button>
                           <p className="text-xs text-gray-500">
                             {new Date(attachment.createdAt).toLocaleDateString("th-TH")} •{" "}
                             {attachment.fileSize ? (attachment.fileSize / 1024).toFixed(1) : '0'} KB
@@ -819,6 +836,28 @@ export default function TaskDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Mobile Document Viewer */}
+      {selectedDocument && (
+        <MobileDocumentViewer
+          url={selectedDocument.url}
+          fileName={selectedDocument.fileName}
+          mimeType={selectedDocument.mimeType}
+          open={documentViewerOpen}
+          onClose={() => {
+            setDocumentViewerOpen(false);
+            setSelectedDocument(null);
+          }}
+        />
+      )}
+
+      {/* Image Gallery Viewer - Mobile */}
+      <ImageGalleryViewer
+        images={galleryImages}
+        initialIndex={galleryInitialIndex}
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
 
     </div>
   );

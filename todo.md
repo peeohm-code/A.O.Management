@@ -143,8 +143,10 @@
 - [x] ยืนยันว่า memory limits และ file descriptor limits เพียงพอสำหรับการใช้งานจริง
 
 ### UI Enhancements
-- [ ] Implement dark/light theme toggle
-- [ ] Improve document viewer for mobile
+- [x] Dark/Light theme toggle - เพิ่มปุ่มสลับธีมในระบบ (Navbar และ Settings)
+- [x] Role-based navigation - แสดง/ซ่อนเมนูตามสิทธิ์ผู้ใช้ (Admin/Manager/QC/Worker)
+- [x] Deadline reminder notifications - ระบบแจ้งเตือนงานใกล้ครบกำหนด (3 วัน, 1 วัน, วันสุดท้าย)
+- [x] Document viewer สำหรับมือถือ - ปรับปรุง UI การดูเอกสารบนมือถือ
 - [ ] Add more chart types in dashboard
 - [ ] Implement advanced filtering in task list
 

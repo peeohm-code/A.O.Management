@@ -10,14 +10,14 @@
  */
 
 import { getDb } from "../db";
-import { tasks, defects } from "../../drizzle/schema";
+import { tasks, defects, users } from "../../drizzle/schema";
 import { createNotification } from "../notificationService";
 import { and, lte, gte, eq, isNull, or } from "drizzle-orm";
 
 /**
- * Check for tasks approaching deadline (3 days before)
+ * Check for tasks approaching deadline (configurable days before)
  */
-async function checkTasksApproachingDeadline() {
+async function checkTasksApproachingDeadline(daysAdvance: number = 3) {
   try {
     const db = await getDb();
     if (!db) {
@@ -26,20 +26,20 @@ async function checkTasksApproachingDeadline() {
     }
 
     const now = new Date();
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(now.getDate() + 3);
+    const targetDate = new Date();
+    targetDate.setDate(now.getDate() + daysAdvance);
     
-    const fourDaysFromNow = new Date();
-    fourDaysFromNow.setDate(now.getDate() + 4);
+    const nextDate = new Date();
+    nextDate.setDate(now.getDate() + daysAdvance + 1);
 
-    // Find tasks with endDate between 3-4 days from now and not completed
+    // Find tasks with endDate between target date and next date, not completed
     const approachingTasks = await db
       .select()
       .from(tasks)
       .where(
         and(
-          gte(tasks.endDate, threeDaysFromNow.toISOString().split('T')[0]),
-          lte(tasks.endDate, fourDaysFromNow.toISOString().split('T')[0]),
+          gte(tasks.endDate, targetDate.toISOString().split('T')[0]),
+          lte(tasks.endDate, nextDate.toISOString().split('T')[0]),
           or(
             eq(tasks.progress, 0),
             lte(tasks.progress, 99)
@@ -47,17 +47,18 @@ async function checkTasksApproachingDeadline() {
         )
       );
 
-    console.log(`[DeadlineReminders] Found ${approachingTasks.length} tasks approaching deadline`);
+    console.log(`[DeadlineReminders] Found ${approachingTasks.length} tasks approaching deadline (${daysAdvance} days)`);
 
     // Send notifications
     for (const task of approachingTasks) {
       if (task.assigneeId) {
+        const daysText = daysAdvance === 1 ? "พรุ่งนี้" : `อีก ${daysAdvance} วัน`;
         await createNotification({
           userId: task.assigneeId,
           type: "task_deadline_approaching",
           title: "งานใกล้ครบกำหนด",
-          content: `งาน "${task.name}" จะครบกำหนดในอีก 3 วัน (${task.endDate})`,
-          priority: "high",
+          content: `งาน "${task.name}" จะครบกำหนด${daysText} (${task.endDate})`,
+          priority: daysAdvance === 1 ? "urgent" : "high",
           relatedTaskId: task.id,
           relatedProjectId: task.projectId,
           sendEmail: true,
@@ -125,9 +126,9 @@ async function checkOverdueTasks() {
 }
 
 /**
- * Check for defects approaching deadline (3 days before)
+ * Check for defects approaching deadline (configurable days before)
  */
-async function checkDefectsApproachingDeadline() {
+async function checkDefectsApproachingDeadline(daysAdvance: number = 3) {
   try {
     const db = await getDb();
     if (!db) {
@@ -136,20 +137,20 @@ async function checkDefectsApproachingDeadline() {
     }
 
     const now = new Date();
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(now.getDate() + 3);
+    const targetDate = new Date();
+    targetDate.setDate(now.getDate() + daysAdvance);
     
-    const fourDaysFromNow = new Date();
-    fourDaysFromNow.setDate(now.getDate() + 4);
+    const nextDate = new Date();
+    nextDate.setDate(now.getDate() + daysAdvance + 1);
 
-    // Find defects with dueDate between 3-4 days from now and not closed
+    // Find defects with dueDate between target date and next date, not closed
     const approachingDefects = await db
       .select()
       .from(defects)
       .where(
         and(
-          gte(defects.dueDate, threeDaysFromNow),
-          lte(defects.dueDate, fourDaysFromNow),
+          gte(defects.dueDate, targetDate),
+          lte(defects.dueDate, nextDate),
           or(
             eq(defects.status, "reported"),
             eq(defects.status, "analysis"),
@@ -159,17 +160,18 @@ async function checkDefectsApproachingDeadline() {
         )
       );
 
-    console.log(`[DeadlineReminders] Found ${approachingDefects.length} defects approaching deadline`);
+    console.log(`[DeadlineReminders] Found ${approachingDefects.length} defects approaching deadline (${daysAdvance} days)`);
 
     // Send notifications
     for (const defect of approachingDefects) {
       if (defect.assignedTo) {
+        const daysText = daysAdvance === 1 ? "พรุ่งนี้" : `อีก ${daysAdvance} วัน`;
         await createNotification({
           userId: defect.assignedTo,
           type: "defect_deadline_approaching",
           title: `${defect.type} ใกล้ครบกำหนด`,
-          content: `${defect.type} "${defect.title}" จะครบกำหนดในอีก 3 วัน (${defect.dueDate?.toLocaleDateString('th-TH')})`,
-          priority: "high",
+          content: `${defect.type} "${defect.title}" จะครบกำหนด${daysText} (${defect.dueDate?.toLocaleDateString('th-TH')})`,
+          priority: daysAdvance === 1 ? "urgent" : "high",
           relatedDefectId: defect.id,
           relatedTaskId: defect.taskId,
           sendEmail: true,
@@ -186,30 +188,44 @@ async function checkDefectsApproachingDeadline() {
 
 /**
  * Main function to run all deadline checks
+ * Checks for 3 days, 1 day advance, and overdue items
  */
 export async function runDeadlineReminders() {
   console.log("[DeadlineReminders] Starting deadline reminder checks...");
   
   const startTime = Date.now();
   
-  const [approachingTasks, overdueTasks, approachingDefects] = await Promise.all([
-    checkTasksApproachingDeadline(),
+  // Check multiple time windows: 3 days, 1 day, and overdue
+  const [
+    approachingTasks3Days,
+    approachingTasks1Day,
+    overdueTasks,
+    approachingDefects3Days,
+    approachingDefects1Day,
+  ] = await Promise.all([
+    checkTasksApproachingDeadline(3),
+    checkTasksApproachingDeadline(1),
     checkOverdueTasks(),
-    checkDefectsApproachingDeadline(),
+    checkDefectsApproachingDeadline(3),
+    checkDefectsApproachingDeadline(1),
   ]);
   
   const duration = Date.now() - startTime;
   
   console.log(`[DeadlineReminders] Completed in ${duration}ms`);
   console.log(`[DeadlineReminders] Summary:`);
-  console.log(`  - Tasks approaching deadline: ${approachingTasks}`);
+  console.log(`  - Tasks approaching (3 days): ${approachingTasks3Days}`);
+  console.log(`  - Tasks approaching (1 day): ${approachingTasks1Day}`);
   console.log(`  - Overdue tasks: ${overdueTasks}`);
-  console.log(`  - Defects approaching deadline: ${approachingDefects}`);
+  console.log(`  - Defects approaching (3 days): ${approachingDefects3Days}`);
+  console.log(`  - Defects approaching (1 day): ${approachingDefects1Day}`);
   
   return {
-    approachingTasks,
+    approachingTasks3Days,
+    approachingTasks1Day,
     overdueTasks,
-    approachingDefects,
+    approachingDefects3Days,
+    approachingDefects1Day,
     duration,
   };
 }
