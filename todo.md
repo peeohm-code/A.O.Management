@@ -21,6 +21,8 @@
 - [x] Build notification infrastructure
 - [x] Implement auto-notifications for task assignments and inspections
 - [x] Implement "Follow Task" functionality
+- [x] Create deadline reminder notifications (scheduled)
+- [x] Create overdue defect notifications (scheduled)
 
 ### Frontend UI
 - [x] Design and implement project dashboard with statistics
@@ -41,6 +43,13 @@
 - [x] Add inspection history display (list view)
 - [x] Implement inspection detail view with pass/fail items
 - [x] Implement PDF report generation for inspections
+- [x] Add photo capture directly in checklist items (camera integration)
+- [x] เพิ่มฟีเจอร์ถ่ายรูปและแนบไฟล์ในแบบฟอร์ม QC Inspection
+- [x] เพิ่มการแสดงรูปภาพที่แนบใน QC Inspection Detail
+- [x] เพิ่มการลบรูปภาพที่แนบแล้ว
+- [x] ปรับปรุง Digital Signature UI ให้ใช้งานง่ายขึ้น
+- [x] แสดง signature ชัดเจนใน Inspection Detail และ PDF Report
+- [x] นำ NotificationBadge ไปใช้ใน DashboardLayout header
 
 ### Advanced Features
 - [x] Automatic task status calculation based on dates and progress
@@ -57,6 +66,44 @@
 - [x] Draft project support
 - [x] PWA support with offline capabilities
 - [x] Email notifications integration
+- [x] Implement bulk operations (assign multiple tasks, bulk status update)
+- [x] Add export functionality (Excel/PDF for tasks, defects, inspections)
+
+### Defect Management
+- [x] สร้างหน้าจัดการ Defects แยกต่างหาก (Defects List Page)
+- [x] สร้างหน้า Defect Detail (ดู/แก้ไข/อัปเดตสถานะ)
+- [x] เพิ่มฟีเจอร์กำหนดผู้รับผิดชอบและกำหนดเวลาแก้ไข defect
+- [x] เพิ่มการแนบรูปภาพหลังแก้ไข defect (before/after photos)
+- [x] ปรับปรุง Re-inspection workflow ให้ชัดเจนและใช้งานง่าย
+- [x] บันทึกประวัติการ re-inspect ทั้งหมดพร้อมรูปภาพ
+- [x] อัปเดตสถานะ defect อัตโนมัติเมื่อ re-inspect ผ่าน
+- [x] แสดงประวัติ re-inspection ใน Defect Detail
+
+### Gantt Chart Enhancement
+- [x] ปรับปรุง Gantt Chart ให้แสดง timeline โครงการแบบ visual ที่ชัดเจนขึ้น
+- [x] เพิ่มการ drag-and-drop เพื่อปรับเปลี่ยนวันที่งาน
+- [x] แสดง dependencies ระหว่างงานแบบ visual (เส้นเชื่อม)
+- [x] เพิ่ม zoom in/out และ scroll ใน Gantt Chart
+- [x] แสดง critical path และ milestone
+- [x] เพิ่ม EnhancedGanttChart ในหน้า Project Detail พร้อมตัวเลือกสลับระหว่าง Gantt Chart เดิมและแบบใหม่
+
+### Real-time Notifications System
+- [x] สร้างระบบ Real-time Notifications ด้วย Server-Sent Events (SSE)
+- [x] แจ้งเตือนทันทีเมื่อมี defect ใหม่
+- [x] แจ้งเตือนทันทีเมื่องานล่าช้า (overdue tasks)
+- [x] แจ้งเตือนเมื่อมีการ assign งานใหม่
+- [x] แจ้งเตือนเมื่อมีการ comment หรือ @mention
+- [x] เพิ่ม Push Notification สำหรับ PWA (Service Worker)
+- [x] เพิ่ม notification badge และ sound alert
+
+### Mobile App Support Enhancement
+- [x] ปรับปรุง responsive design ให้เหมาะกับการใช้งานในหน้างานก่อสร้าง
+- [x] ปรับปรุง touch interaction และ gesture support
+- [x] เพิ่ม offline mode สำหรับการทำงานในพื้นที่ไม่มีสัญญาณ
+- [x] ปรับปรุง camera integration สำหรับการถ่ายรูป defect
+- [x] เพิ่ม GPS location tagging สำหรับ defect และ inspection
+- [x] ปรับปรุง form input สำหรับ mobile (larger touch targets, better keyboard handling)
+- [x] เพิ่ม quick actions และ shortcuts สำหรับงานที่ใช้บ่อย
 
 ### Reporting & Analytics
 - [x] Project overview dashboard with statistics
@@ -64,6 +111,10 @@
 - [x] Inspection reports (PDF) with signatures
 - [x] Task progress tracking
 - [x] Activity timeline
+- [x] เพิ่มกราฟเปรียบเทียบ Progress vs Plan ใน Dashboard
+- [x] สร้างรายงาน PDF สำหรับ Daily Progress Report
+- [x] สร้างรายงาน PDF สำหรับ Weekly Progress Report
+- [x] เพิ่มฟีเจอร์ Export รายงานเป็น PDF พร้อมกราฟและสถิติ
 
 ### Documentation
 - [x] Create user documentation
@@ -75,23 +126,18 @@
 
 ### UI Enhancements
 - [ ] Implement dark/light theme toggle
-- [x] Add photo capture directly in checklist items (camera integration)
 - [ ] Improve document viewer for mobile
-- [ ] Add more chart types in dashboard (progress vs. plan comparison)
+- [ ] Add more chart types in dashboard
 - [ ] Implement advanced filtering in task list
 
 ### Advanced Features
 - [ ] Add re-inspection tracking improvements
-- [x] Create deadline reminder notifications (scheduled)
-- [x] Create overdue defect notifications (scheduled)
-- [x] Implement bulk operations (assign multiple tasks, bulk status update)
-- [x] Add export functionality (Excel/PDF for tasks, defects, inspections)
 - [ ] Create project templates
 - [ ] Add time tracking for tasks
 - [ ] Implement resource management
 
 ### Reporting Enhancements
-- [ ] Add daily/weekly progress reports
+- [ ] Add daily/weekly progress reports (auto-send)
 - [ ] Create custom report builder
 - [ ] Add data visualization dashboard
 - [ ] Implement report scheduling and auto-send
@@ -116,9 +162,10 @@
 - File storage uses S3 with metadata in database
 - Notifications are sent for task assignments, inspections, and defect updates
 - Digital signatures are captured and stored with inspection results
+- Real-time notifications use Server-Sent Events (SSE) for instant updates
+- PWA support with offline capabilities and push notifications
 
 ### Known Limitations
-- Photo capture requires manual upload (no direct camera integration yet)
 - Theme switching not implemented (currently fixed to light theme)
 - Email notifications require SMTP configuration
 
@@ -127,67 +174,3 @@
 - Implement real-time collaboration features
 - Add AI-powered defect detection from photos
 - Create automated progress tracking using IoT sensors
-
-## 🔥 New Priority Features (User Request)
-
-### Photo Capture & Attachments in QC Forms
-- [x] เพิ่มฟีเจอร์ถ่ายรูปและแนบไฟล์ในแบบฟอร์ม QC Inspection (ขณะกรอกแบบฟอร์ม)
-- [x] เพิ่มการแสดงรูปภาพที่แนบใน QC Inspection Detail
-- [x] เพิ่มการลบรูปภาพที่แนบแล้ว
-
-### Digital Signature Enhancement
-- [x] ปรับปรุง Digital Signature UI ให้ใช้งานง่ายขึ้น
-- [x] แสดง signature ชัดเจนใน Inspection Detail และ PDF Report
-
-### Defect Management Page
-- [x] สร้างหน้าจัดการ Defects แยกต่างหาก (Defects List Page)
-- [x] สร้างหน้า Defect Detail (ดู/แก้ไข/อัปเดตสถานะ)
-- [x] เพิ่มฟีเจอร์กำหนดผู้รับผิดชอบและกำหนดเวลาแก้ไข defect
-- [x] เพิ่มการแนบรูปภาพหลังแก้ไข defect (before/after photos)
-
-### Re-inspection Workflow Enhancement
-- [x] ปรับปรุง Re-inspection workflow ให้ชัดเจนและใช้งานง่าย
-- [x] บันทึกประวัติการ re-inspect ทั้งหมดพร้อมรูปภาพ
-- [x] อัปเดตสถานะ defect อัตโนมัติเมื่อ re-inspect ผ่าน
-- [x] แสดงประวัติ re-inspection ใน Defect Detail
-
-### Reports & Analytics Enhancement
-- [x] เพิ่มกราฟเปรียบเทียบ Progress vs Plan ใน Dashboard (แสดงความแตกต่างระหว่างแผนกับผลงานจริง)
-- [x] สร้างรายงาน PDF สำหรับ Daily Progress Report
-- [x] สร้างรายงาน PDF สำหรับ Weekly Progress Report
-- [x] เพิ่มฟีเจอร์ Export รายงานเป็น PDF พร้อมกราฟและสถิติ
-
-## 🎯 New Enhancement Features (Latest Request)
-
-### Gantt Chart Enhancement
-- [x] ปรับปรุง Gantt Chart ให้แสดง timeline โครงการแบบ visual ที่ชัดเจนขึ้น
-- [x] เพิ่มการ drag-and-drop เพื่อปรับเปลี่ยนวันที่งาน
-- [x] แสดง dependencies ระหว่างงานแบบ visual (เส้นเชื่อม)
-- [x] เพิ่ม zoom in/out และ scroll ใน Gantt Chart
-- [x] แสดง critical path และ milestone
-
-### Real-time Notifications System
-- [x] สร้างระบบ Real-time Notifications ด้วย Server-Sent Events (SSE)
-- [x] แจ้งเตือนทันทีเมื่อมี defect ใหม่
-- [x] แจ้งเตือนทันทีเมื่องานล่าช้า (overdue tasks)
-- [x] แจ้งเตือนเมื่อมีการ assign งานใหม่
-- [x] แจ้งเตือนเมื่อมีการ comment หรือ @mention
-- [x] เพิ่ม Push Notification สำหรับ PWA (Service Worker)
-- [x] เพิ่ม notification badge และ sound alert
-
-### Mobile App Support Enhancement
-- [x] ปรับปรุง responsive design ให้เหมาะกับการใช้งานในหน้างานก่อสร้าง
-- [x] ปรับปรุง touch interaction และ gesture support
-- [x] เพิ่ม offline mode สำหรับการทำงานในพื้นที่ไม่มีสัญญาณ
-- [x] ปรับปรุง camera integration สำหรับการถ่ายรูป defect
-- [x] เพิ่ม GPS location tagging สำหรับ defect และ inspection
-- [x] ปรับปรุง form input สำหรับ mobile (larger touch targets, better keyboard handling)
-- [x] เพิ่ม quick actions และ shortcuts สำหรับงานที่ใช้บ่อย
-
-## 🎨 UI/UX Enhancement (Latest Request)
-
-### Notification Badge Integration
-- [x] นำ NotificationBadge ไปใช้ใน DashboardLayout header เพื่อแสดง real-time notifications
-
-### Enhanced Gantt Chart
-- [x] เพิ่ม EnhancedGanttChart ในหน้า Project Detail พร้อมตัวเลือกสลับระหว่าง Gantt Chart เดิมและแบบใหม่
