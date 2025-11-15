@@ -31,6 +31,7 @@ import ArchiveRules from "./pages/ArchiveRules";
 import NotificationSettings from "./pages/NotificationSettings";
 import DatabaseMonitoring from "./pages/DatabaseMonitoring";
 import SystemMonitor from "./pages/SystemMonitor";
+import MemoryMonitoring from "./pages/MemoryMonitoring";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -228,6 +229,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <SystemMonitor />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/memory-monitoring"}>
+        {() => (
+          <DashboardLayout>
+            <MemoryMonitoring />
           </DashboardLayout>
         )}
       </Route>

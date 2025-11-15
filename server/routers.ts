@@ -2498,6 +2498,102 @@ export const appRouter = router({
 
   // Health Check Endpoint (using existing healthRouter)
   health: healthRouter,
+
+  // Memory Monitoring Router
+  memoryMonitoring: router({
+    // บันทึก memory log
+    createLog: protectedProcedure
+      .input(
+        z.object({
+          totalMemoryMB: z.number(),
+          usedMemoryMB: z.number(),
+          freeMemoryMB: z.number(),
+          usagePercentage: z.number(),
+          buffersCacheMB: z.number().optional(),
+          availableMemoryMB: z.number().optional(),
+          swapTotalMB: z.number().optional(),
+          swapUsedMB: z.number().optional(),
+          swapFreePercentage: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await db.createMemoryLog(input);
+      }),
+
+    // ดึงข้อมูล memory logs
+    getLogs: protectedProcedure
+      .input(
+        z.object({
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          limit: z.number().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await db.getMemoryLogs(input);
+      }),
+
+    // ดึง memory statistics
+    getStatistics: protectedProcedure
+      .input(
+        z.object({
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await db.getMemoryStatistics(input);
+      }),
+
+    // บันทึก OOM event
+    createOomEvent: protectedProcedure
+      .input(
+        z.object({
+          processName: z.string().optional(),
+          processId: z.number().optional(),
+          killedProcessName: z.string().optional(),
+          killedProcessId: z.number().optional(),
+          memoryUsedMB: z.number().optional(),
+          severity: z.enum(["low", "medium", "high", "critical"]).optional(),
+          logMessage: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await db.createOomEvent(input);
+      }),
+
+    // ดึงข้อมูล OOM events
+    getOomEvents: protectedProcedure
+      .input(
+        z.object({
+          resolved: z.boolean().optional(),
+          severity: z.string().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          limit: z.number().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await db.getOomEvents(input);
+      }),
+
+    // แก้ไข OOM event
+    resolveOomEvent: protectedProcedure
+      .input(
+        z.object({
+          eventId: z.number(),
+          resolutionNotes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await db.resolveOomEvent(input.eventId, ctx.user!.id, input.resolutionNotes);
+      }),
+
+    // ดึง OOM event statistics
+    getOomStatistics: protectedProcedure.query(async () => {
+      return await db.getOomEventStatistics();
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

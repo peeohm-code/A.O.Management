@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserDropdown } from "@/components/UserDropdown";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
@@ -57,6 +57,7 @@ const menuItems = [
   { icon: TrendingUp, label: "Analytics", path: "/analytics", roles: ["admin", "pm"] },
   { icon: Database, label: "DB Monitoring", path: "/monitoring", roles: ["admin"] },
   { icon: Activity, label: "System Monitor", path: "/system-monitor", roles: ["admin"] },
+  { icon: MemoryStick, label: "Memory Monitoring", path: "/memory-monitoring", roles: ["admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

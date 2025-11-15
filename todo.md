@@ -3292,3 +3292,24 @@ All requested features have been implemented and tested. The system is ready for
 - [ ] Monitor ระบบเป็นเวลา 24-48 ชั่วโมง
 - [ ] รายงานผลการปรับปรุง
 - [ ] แนะนำ RAM upgrade plan (ถ้าจำเป็น)
+
+## Memory Monitoring & OOM Detection System
+- [x] สร้าง memory_logs table สำหรับบันทึก memory usage
+- [x] สร้าง oom_events table สำหรับบันทึก OOM events
+- [x] Push schema changes ไปยัง database
+- [x] สร้าง backend API สำหรับบันทึก memory logs
+- [x] สร้าง backend API สำหรับบันทึก OOM events
+- [x] สร้าง backend API สำหรับดึงข้อมูล memory statistics
+- [x] สร้าง bash script สำหรับ memory monitoring (scripts/start-monitoring.sh)
+- [x] สร้าง bash script สำหรับ collect memory data (scripts/collect-memory.sh)
+- [x] สร้าง bash script สำหรับ detect OOM events (scripts/detect-oom.sh)
+- [x] สร้าง log directory และ rotation policy
+- [x] ตั้งค่า cron job หรือ interval สำหรับรัน monitoring ทุก 5-10 นาที
+- [x] สร้างหน้า Memory Monitoring Dashboard
+- [x] แสดง memory usage charts (real-time และ historical)
+- [x] แสดง OOM events log พร้อม timestamp
+- [x] แสดง memory usage patterns และ peak times
+- [x] เพิ่ม alert indicators เมื่อ memory usage เกิน threshold (70%)
+- [x] แสดงคำแนะนำการ upgrade RAM ตาม usage patterns
+- [x] ทดสอบ monitoring scripts
+- [x] ทดสอบ dashboard และ visualizations

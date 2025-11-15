@@ -629,3 +629,53 @@ export const approvalSteps = mysqlTable("approvalSteps", {
 export type ApprovalStep = typeof approvalSteps.$inferSelect;
 export type InsertApprovalStep = typeof approvalSteps.$inferInsert;
 
+/**
+ * Memory Logs - บันทึก memory usage ของระบบ
+ */
+export const memoryLogs = mysqlTable("memoryLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  totalMemoryMB: int("totalMemoryMB").notNull(), // Total system memory in MB
+  usedMemoryMB: int("usedMemoryMB").notNull(), // Used memory in MB
+  freeMemoryMB: int("freeMemoryMB").notNull(), // Free memory in MB
+  usagePercentage: int("usagePercentage").notNull(), // Memory usage percentage (0-100)
+  buffersCacheMB: int("buffersCacheMB"), // Buffers/Cache memory in MB
+  availableMemoryMB: int("availableMemoryMB"), // Available memory in MB
+  swapTotalMB: int("swapTotalMB"), // Total swap memory in MB
+  swapUsedMB: int("swapUsedMB"), // Used swap memory in MB
+  swapFreePercentage: int("swapFreePercentage"), // Swap free percentage
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  timestampIdx: index("timestampIdx").on(table.timestamp),
+  usagePercentageIdx: index("usagePercentageIdx").on(table.usagePercentage),
+}));
+
+export type MemoryLog = typeof memoryLogs.$inferSelect;
+export type InsertMemoryLog = typeof memoryLogs.$inferInsert;
+
+/**
+ * OOM Events - บันทึก Out of Memory events
+ */
+export const oomEvents = mysqlTable("oomEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  processName: varchar("processName", { length: 255 }), // Process that triggered OOM
+  processId: int("processId"), // PID of the process
+  killedProcessName: varchar("killedProcessName", { length: 255 }), // Process that was killed
+  killedProcessId: int("killedProcessId"), // PID of killed process
+  memoryUsedMB: int("memoryUsedMB"), // Memory used at the time of OOM
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  logMessage: text("logMessage"), // Full log message from system
+  resolved: boolean("resolved").default(false).notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+  resolvedBy: int("resolvedBy"),
+  resolutionNotes: text("resolutionNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  timestampIdx: index("timestampIdx").on(table.timestamp),
+  severityIdx: index("severityIdx").on(table.severity),
+  resolvedIdx: index("resolvedIdx").on(table.resolved),
+}));
+
+export type OomEvent = typeof oomEvents.$inferSelect;
+export type InsertOomEvent = typeof oomEvents.$inferInsert;

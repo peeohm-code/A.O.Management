@@ -28,6 +28,8 @@ import {
   dbStatistics,
   InsertQueryLog,
   InsertDbStatistic,
+  memoryLogs,
+  oomEvents,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -3004,5 +3006,252 @@ export async function getTasksDependingOn(taskId: number) {
   } catch (error) {
     console.error("[Database] Failed to get dependent tasks:", error);
     return [];
+  }
+}
+
+// ============================================
+// Memory Monitoring Functions
+// ============================================
+
+/**
+ * บันทึก memory usage log
+ */
+export async function createMemoryLog(data: {
+  totalMemoryMB: number;
+  usedMemoryMB: number;
+  freeMemoryMB: number;
+  usagePercentage: number;
+  buffersCacheMB?: number;
+  availableMemoryMB?: number;
+  swapTotalMB?: number;
+  swapUsedMB?: number;
+  swapFreePercentage?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    const [result] = await db
+      .insert(memoryLogs)
+      .values({
+        ...data,
+        timestamp: new Date(),
+        createdAt: new Date(),
+      });
+
+    return { success: true, id: result.insertId };
+  } catch (error) {
+    console.error("[Database] Failed to create memory log:", error);
+    throw error;
+  }
+}
+
+/**
+ * ดึงข้อมูล memory logs ตามช่วงเวลา
+ */
+export async function getMemoryLogs(params: {
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    let query = db.select().from(memoryLogs);
+
+    if (params.startDate) {
+      query = query.where(gte(memoryLogs.timestamp, params.startDate)) as any;
+    }
+    if (params.endDate) {
+      query = query.where(lte(memoryLogs.timestamp, params.endDate)) as any;
+    }
+
+    query = query.orderBy(desc(memoryLogs.timestamp));
+
+    if (params.limit) {
+      query = query.limit(params.limit) as any;
+    }
+
+    const logs = await query;
+    return logs;
+  } catch (error) {
+    console.error("[Database] Failed to get memory logs:", error);
+    return [];
+  }
+}
+
+/**
+ * คำนวณ memory statistics
+ */
+export async function getMemoryStatistics(params: {
+  startDate?: Date;
+  endDate?: Date;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const logs = await getMemoryLogs({
+      startDate: params.startDate,
+      endDate: params.endDate,
+      limit: 1000, // จำกัดไม่เกิน 1000 records
+    });
+
+    if (logs.length === 0) return null;
+
+    const usagePercentages = logs.map(log => log.usagePercentage);
+    const avgUsage = Math.round(usagePercentages.reduce((a, b) => a + b, 0) / usagePercentages.length);
+    const maxUsage = Math.max(...usagePercentages);
+    const minUsage = Math.min(...usagePercentages);
+
+    // หา peak times (ช่วงเวลาที่ใช้ memory สูง)
+    const highUsageLogs = logs.filter(log => log.usagePercentage >= 70);
+    const peakTimes = highUsageLogs.map(log => ({
+      timestamp: log.timestamp,
+      usage: log.usagePercentage,
+    }));
+
+    return {
+      avgUsage,
+      maxUsage,
+      minUsage,
+      totalLogs: logs.length,
+      peakTimes: peakTimes.slice(0, 10), // แสดงแค่ 10 peak times แรก
+      latestLog: logs[0],
+    };
+  } catch (error) {
+    console.error("[Database] Failed to get memory statistics:", error);
+    return null;
+  }
+}
+
+/**
+ * บันทึก OOM event
+ */
+export async function createOomEvent(data: {
+  processName?: string;
+  processId?: number;
+  killedProcessName?: string;
+  killedProcessId?: number;
+  memoryUsedMB?: number;
+  severity?: "low" | "medium" | "high" | "critical";
+  logMessage?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    const [result] = await db
+      .insert(oomEvents)
+      .values({
+        ...data,
+        timestamp: new Date(),
+        resolved: false,
+        createdAt: new Date(),
+      });
+
+    return { success: true, id: result.insertId };
+  } catch (error) {
+    console.error("[Database] Failed to create OOM event:", error);
+    throw error;
+  }
+}
+
+/**
+ * ดึงข้อมูล OOM events
+ */
+export async function getOomEvents(params: {
+  resolved?: boolean;
+  severity?: string;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    let query = db.select().from(oomEvents);
+
+    if (params.resolved !== undefined) {
+      query = query.where(eq(oomEvents.resolved, params.resolved)) as any;
+    }
+    if (params.severity) {
+      query = query.where(eq(oomEvents.severity, params.severity as any)) as any;
+    }
+    if (params.startDate) {
+      query = query.where(gte(oomEvents.timestamp, params.startDate)) as any;
+    }
+    if (params.endDate) {
+      query = query.where(lte(oomEvents.timestamp, params.endDate)) as any;
+    }
+
+    query = query.orderBy(desc(oomEvents.timestamp));
+
+    if (params.limit) {
+      query = query.limit(params.limit) as any;
+    }
+
+    const events = await query;
+    return events;
+  } catch (error) {
+    console.error("[Database] Failed to get OOM events:", error);
+    return [];
+  }
+}
+
+/**
+ * อัพเดทสถานะ OOM event เป็น resolved
+ */
+export async function resolveOomEvent(eventId: number, userId: number, resolutionNotes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    await db
+      .update(oomEvents)
+      .set({
+        resolved: true,
+        resolvedAt: new Date(),
+        resolvedBy: userId,
+        resolutionNotes,
+      })
+      .where(eq(oomEvents.id, eventId));
+
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to resolve OOM event:", error);
+    throw error;
+  }
+}
+
+/**
+ * นับจำนวน OOM events ตาม severity
+ */
+export async function getOomEventStatistics() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const allEvents = await db.select().from(oomEvents);
+    const unresolvedEvents = allEvents.filter(e => !e.resolved);
+
+    const bySeverity = {
+      low: unresolvedEvents.filter(e => e.severity === "low").length,
+      medium: unresolvedEvents.filter(e => e.severity === "medium").length,
+      high: unresolvedEvents.filter(e => e.severity === "high").length,
+      critical: unresolvedEvents.filter(e => e.severity === "critical").length,
+    };
+
+    return {
+      total: allEvents.length,
+      unresolved: unresolvedEvents.length,
+      resolved: allEvents.length - unresolvedEvents.length,
+      bySeverity,
+    };
+  } catch (error) {
+    console.error("[Database] Failed to get OOM event statistics:", error);
+    return null;
   }
 }
