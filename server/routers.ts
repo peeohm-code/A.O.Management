@@ -17,6 +17,8 @@ import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shar
 import { healthRouter } from "./monitoring/healthRouter";
 import { optimizationRouter } from "./optimization/optimizationRouter";
 import { cacheRouter } from "./cache/cacheRouter";
+import { databaseRouter } from "./database/databaseRouter";
+import { performanceRouter } from "./performance/performanceRouter";
 
 /**
  * Project Router - Project Management
@@ -2473,6 +2475,8 @@ export const appRouter = router({
   health: healthRouter,
   optimization: optimizationRouter,
   cache: cacheRouter,
+  database: databaseRouter,
+  performance: performanceRouter,
   
   // System Monitor for Admin
   systemMonitor: router({

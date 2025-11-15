@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { Activity, Database, HardDrive, Zap, RefreshCw, Trash2, AlertTriangle } from "lucide-react";
+import { Activity, Database, HardDrive, Zap, RefreshCw, Trash2, AlertTriangle, Gauge } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SystemMonitor() {
@@ -13,6 +13,7 @@ export default function SystemMonitor() {
   const { data: cacheStats, refetch: refetchCache } = trpc.cache.getStats.useQuery();
   const { data: tableSizes } = trpc.optimization.analyzeTableSizes.useQuery();
   const { data: recommendations } = trpc.optimization.getRecommendations.useQuery();
+  const { data: dbStats, refetch: refetchDbStats } = trpc.database.getStats.useQuery();
 
   const applyIndexesMutation = trpc.optimization.applyIndexes.useMutation({
     onSuccess: (data) => {
@@ -23,6 +24,19 @@ export default function SystemMonitor() {
     },
     onError: (error) => {
       toast.error(`Failed to apply indexes: ${error.message}`);
+    },
+  });
+
+  const applyDbIndexesMutation = trpc.database.applyIndexes.useMutation({
+    onSuccess: (data) => {
+      toast.success(`สำเร็จ: สร้าง ${data.summary.created} indexes, มีอยู่แล้ว ${data.summary.exists} indexes`);
+      if (data.summary.errors > 0) {
+        toast.warning(`เกิดข้อผิดพลาด ${data.summary.errors} รายการ`);
+      }
+      refetchDbStats();
+    },
+    onError: (error) => {
+      toast.error(`ไม่สามารถ apply indexes: ${error.message}`);
     },
   });
 
@@ -104,17 +118,20 @@ export default function SystemMonitor() {
           </div>
         </CardHeader>
         <CardContent>
-          {healthStatus?.issues && healthStatus.issues.length > 0 ? (
+          {healthStatus?.issues && healthStatus.issues.length > 0 && (
             <div className="space-y-2">
               {healthStatus.issues.map((issue, idx) => (
-                <div key={idx} className="flex items-start gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-                  <p className="text-sm">{issue}</p>
+                <div
+                  key={idx}
+                  className="p-3 rounded-lg border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20"
+                >
+                  <p className="font-medium">{typeof issue === 'string' ? issue : (issue as any).message || JSON.stringify(issue)}</p>
                 </div>
               ))}
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">All systems operating normally</p>
+          )}
+          {(!healthStatus?.issues || healthStatus.issues.length === 0) && (
+            <p className="text-muted-foreground">No issues detected. System is running normally.</p>
           )}
         </CardContent>
       </Card>
@@ -132,6 +149,10 @@ export default function SystemMonitor() {
           <TabsTrigger value="cache">
             <Zap className="h-4 w-4 mr-2" />
             Cache
+          </TabsTrigger>
+          <TabsTrigger value="performance">
+            <Gauge className="h-4 w-4 mr-2" />
+            Performance
           </TabsTrigger>
           <TabsTrigger value="recommendations">
             <AlertTriangle className="h-4 w-4 mr-2" />
@@ -157,9 +178,9 @@ export default function SystemMonitor() {
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
-                            parseFloat(memoryStats.formatted.usedPercentage) > 85
+                            parseFloat(memoryStats.formatted.usedPercentage) > 80
                               ? "bg-red-500"
-                              : parseFloat(memoryStats.formatted.usedPercentage) > 70
+                              : parseFloat(memoryStats.formatted.usedPercentage) > 60
                               ? "bg-yellow-500"
                               : "bg-green-500"
                           }`}
@@ -276,17 +297,37 @@ export default function SystemMonitor() {
                   <CardDescription>Apply indexes to improve query performance</CardDescription>
                 </div>
                 <Button
-                  onClick={() => applyIndexesMutation.mutate()}
-                  disabled={applyIndexesMutation.isPending}
+                  onClick={() => applyDbIndexesMutation.mutate()}
+                  disabled={applyDbIndexesMutation.isPending}
                 >
-                  {applyIndexesMutation.isPending ? "Applying..." : "Apply Indexes"}
+                  {applyDbIndexesMutation.isPending ? "กำลัง Apply..." : "Apply Indexes"}
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Applying recommended indexes can significantly improve query performance for large datasets.
-              </p>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  การ apply indexes ที่แนะนำจะช่วยเพิ่มประสิทธิภาพการ query ข้อมูลในฐานข้อมูลขนาดใหญ่
+                </p>
+                {dbStats && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">จำนวนตาราง</p>
+                      <p className="text-2xl font-bold">{dbStats.tables.length}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">ขนาดฐานข้อมูล</p>
+                      <p className="text-2xl font-bold">{dbStats.totalSize} MB</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">จำนวนแถว</p>
+                      <p className="text-2xl font-bold">
+                        {dbStats.tables.reduce((sum: number, t: any) => sum + (t.TABLE_ROWS || 0), 0).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -374,6 +415,25 @@ export default function SystemMonitor() {
           </Card>
         </TabsContent>
 
+        {/* Performance Tab */}
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Metrics</CardTitle>
+              <CardDescription>System performance monitoring and analysis</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                <Gauge className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium mb-2">ฟีเจอร์นี้จะเปิดให้บริการในเวอร์ชั่นถัดไป</p>
+                <p className="text-sm">
+                  ติดตาม CPU usage, Memory usage, Database performance และ Slow query monitoring แบบ real-time
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Recommendations Tab */}
         <TabsContent value="recommendations" className="space-y-4">
           <Card>
@@ -399,36 +459,22 @@ export default function SystemMonitor() {
                         <AlertTriangle
                           className={`h-5 w-5 mt-0.5 ${
                             rec.type === "critical"
-                              ? "text-red-600"
+                              ? "text-red-500"
                               : rec.type === "warning"
-                              ? "text-yellow-600"
-                              : "text-blue-600"
+                              ? "text-yellow-500"
+                              : "text-blue-500"
                           }`}
                         />
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline">{rec.category}</Badge>
-                            <Badge
-                              className={
-                                rec.type === "critical"
-                                  ? "bg-red-500"
-                                  : rec.type === "warning"
-                                  ? "bg-yellow-500"
-                                  : "bg-blue-500"
-                              }
-                            >
-                              {rec.type}
-                            </Badge>
-                          </div>
-                          <p className="font-medium mb-1">{rec.message}</p>
-                          {rec.action && <p className="text-sm text-muted-foreground">{rec.action}</p>}
+                          <p className="font-medium">{rec.message}</p>
+                          {rec.action && <p className="text-sm text-muted-foreground mt-1">{rec.action}</p>}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No recommendations at this time</p>
+                <p className="text-sm text-muted-foreground">No recommendations at this time. System is performing well.</p>
               )}
             </CardContent>
           </Card>

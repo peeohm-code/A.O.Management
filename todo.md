@@ -3198,3 +3198,25 @@ All requested features have been implemented and tested. The system is ready for
 ## Performance Optimization & Monitoring
 - [x] Apply database indexes เพื่อเพิ่มประสิทธิภาพการ query
 - [x] ปรับแต่ง alert thresholds ใน monitoring system (warning/critical levels)
+
+## Database Optimization & Performance Monitoring Features
+- [ ] Add "Apply Indexes" button in System Monitor → Database Tab
+- [ ] Implement backend API to apply database indexes programmatically
+- [ ] Show index application status and results in UI
+- [ ] Add Performance Metrics display in System Monitor → Performance Tab
+- [ ] Implement backend API to collect memory usage metrics
+- [ ] Implement backend API to collect CPU usage metrics
+- [ ] Display real-time performance charts (memory, CPU)
+- [ ] Add Query Performance Monitoring feature
+- [ ] Track and log slow queries (queries taking > threshold time)
+- [ ] Display slow query list with execution time and query details
+- [ ] Add query performance statistics (avg time, max time, count)
+- [ ] Test Apply Indexes functionality
+- [ ] Test Performance Metrics display
+- [ ] Test Query Performance Monitoring
+
+## Database Optimization & Performance Monitoring - Update
+- [x] ปุ่ม "Apply Indexes" ใน Database Tab (แสดงสถานะ indexes และปุ่ม apply)
+- [x] Performance Tab แสดง Performance Metrics (CPU usage, Memory usage, Database performance, Slow query monitoring)
+- [x] Backend API สำหรับ Database Indexes Management (applyIndexes, getIndexStatus)
+- [x] Backend API สำหรับ Performance Metrics (getMemoryStats, getCpuStats)
