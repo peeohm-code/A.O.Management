@@ -2604,3 +2604,15 @@
 - [ ] นำ SwipeableCard ไปใช้ใน Tasks page
 - [ ] เพิ่ม Swipe Actions (Complete, Edit, Delete) สำหรับ Task cards
 - [ ] ทดสอบ Camera และ Photo Upload บนมือถือ
+
+## Mobile UX Improvements - Swipe Actions
+- [x] Create SwipeableCard component with flexible action support
+- [x] Integrate SwipeableCard into Tasks page
+- [x] Add swipe left actions: Edit (blue) and Delete (red)
+- [x] Add swipe right action: Complete (green)
+- [x] Implement visual feedback with scale effect on active action
+- [x] Add smooth animations and transitions
+- [x] Add shadow effect when swiping
+- [x] Add swipe hint indicators (arrows)
+- [x] Test swipe actions on Tasks page
+- [x] Verify all mutations work correctly (complete, edit, delete)

@@ -27,9 +27,11 @@ import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import NewTaskDialog from "@/components/NewTaskDialog";
-import { Plus } from "lucide-react";
+import { SwipeableCard } from "@/components/SwipeableCard";
+import { Plus, Edit, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
+import { useLocation } from "wouter";
 
 export default function Tasks() {
   const { canCreate, canEdit } = usePermissions('tasks');
@@ -69,6 +71,42 @@ export default function Tasks() {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });
+
+  const [, navigate] = useLocation();
+
+  const updateTaskStatusMutation = trpc.task.update.useMutation({
+    onSuccess: () => {
+      toast.success('อัปเดตสถานะสำเร็จ');
+      utils.task.myTasks.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  const deleteTaskMutation = trpc.task.delete.useMutation({
+    onSuccess: () => {
+      toast.success('ลบงานสำเร็จ');
+      utils.task.myTasks.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  const handleCompleteTask = (taskId: number) => {
+    updateTaskStatusMutation.mutate({ id: taskId, status: 'completed' });
+  };
+
+  const handleEditTask = (taskId: number) => {
+    navigate(`/tasks/${taskId}`);
+  };
+
+  const handleDeleteTask = (taskId: number) => {
+    if (confirm('คุณแน่ใจหรือไม่ที่จะลบงานนี้?')) {
+      deleteTaskMutation.mutate({ id: taskId });
+    }
+  };
 
   const tasks = myTasksQuery.data || [];
   
@@ -458,58 +496,83 @@ export default function Tasks() {
                 />
               </div>
             )}
-            <Link href={`/tasks/${task.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className={`text-lg ${canEdit ? 'ml-8' : ''}`}>{task.name}</CardTitle>
-                    <Badge className={`${(task as any).displayStatusColor || 'bg-gray-100 text-gray-800'}`}>
-                      {(task as any).displayStatusLabel || getStatusLabel(task.status)}
-                    </Badge>
-                  </div>
-                  {task.description && (
-                    <CardDescription className="line-clamp-2">{task.description}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {task.projectName && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Building2 className="w-4 h-4" />
-                      <span className="truncate">{task.projectName}</span>
+            <SwipeableCard
+              leftActions={[
+                {
+                  icon: <CheckCircle className="w-5 h-5" />,
+                  label: 'เสร็จสิ้น',
+                  color: 'bg-green-500',
+                  onAction: () => handleCompleteTask(task.id),
+                },
+              ]}
+              rightActions={[
+                {
+                  icon: <Edit className="w-5 h-5" />,
+                  label: 'แก้ไข',
+                  color: 'bg-blue-500',
+                  onAction: () => handleEditTask(task.id),
+                },
+                {
+                  icon: <Trash2 className="w-5 h-5" />,
+                  label: 'ลบ',
+                  color: 'bg-red-500',
+                  onAction: () => handleDeleteTask(task.id),
+                },
+              ]}
+            >
+              <Link href={`/tasks/${task.id}`}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2">
+                      <CardTitle className={`text-lg ${canEdit ? 'ml-8' : ''}`}>{task.name}</CardTitle>
+                      <Badge className={`${(task as any).displayStatusColor || 'bg-gray-100 text-gray-800'}`}>
+                        {(task as any).displayStatusLabel || getStatusLabel(task.status)}
+                      </Badge>
                     </div>
-                  )}
+                    {task.description && (
+                      <CardDescription className="line-clamp-2">{task.description}</CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {task.projectName && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Building2 className="w-4 h-4" />
+                        <span className="truncate">{task.projectName}</span>
+                      </div>
+                    )}
 
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Progress</span>
-                      <span className="font-semibold">{task.progress}%</span>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="font-semibold">{task.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-[#00366D] h-2 rounded-full transition-all"
+                          style={{ width: `${task.progress}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-[#00366D] h-2 rounded-full transition-all"
-                        style={{ width: `${task.progress}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  {task.startDate && task.endDate && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {parseDate(task.startDate).toLocaleDateString()} - {parseDate(task.endDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
+                    {task.startDate && task.endDate && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {parseDate(task.startDate).toLocaleDateString()} - {parseDate(task.endDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
 
-                  {task.assigneeName && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <User className="w-4 h-4" />
-                      <span>{task.assigneeName}</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
+                    {task.assigneeName && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <User className="w-4 h-4" />
+                        <span>{task.assigneeName}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            </SwipeableCard>
           </div>
         ))}
       </div>
