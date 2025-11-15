@@ -46,6 +46,7 @@ export default function Tasks() {
   const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set());
   const [showBulkStatusDialog, setShowBulkStatusDialog] = useState(false);
   const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [bulkStatus, setBulkStatus] = useState<string>("");
   const [bulkAssignee, setBulkAssignee] = useState<string>("");
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
@@ -85,6 +86,19 @@ export default function Tasks() {
       setSelectedTasks(new Set());
       setShowBulkAssignDialog(false);
       utils.task.myTasks.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  const bulkDeleteMutation = trpc.task.bulkDelete.useMutation({
+    onSuccess: (data) => {
+      toast.success(`ลบงานสำเร็จ ${data.deletedCount} งาน`);
+      setSelectedTasks(new Set());
+      setShowBulkDeleteDialog(false);
+      utils.task.myTasks.invalidate();
+      searchQuery.refetch();
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -214,6 +228,12 @@ export default function Tasks() {
     });
   };
 
+  const handleBulkDelete = () => {
+    bulkDeleteMutation.mutate({
+      taskIds: Array.from(selectedTasks),
+    });
+  };
+
   if (myTasksQuery.isLoading) {
     return (
       <div className="container mx-auto py-6 space-y-6">
@@ -265,6 +285,15 @@ export default function Tasks() {
                 onClick={() => setShowBulkAssignDialog(true)}
               >
                 มอบหมายงาน
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBulkDeleteDialog(true)}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                ลบ
               </Button>
               <Button
                 variant="ghost"
@@ -726,6 +755,33 @@ export default function Tasks() {
             >
               {bulkAssignMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               มอบหมาย
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Dialog */}
+      <Dialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600">ลบงาน</DialogTitle>
+            <DialogDescription>
+              คุณแน่ใจหรือไม่ว่าต้องการลบงานที่เลือก ({selectedTasks.size} งาน)?
+              <br />
+              <span className="text-red-600 font-semibold">การกระทำนี้ไม่สามารถย้อนกลับได้</span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkDeleteDialog(false)}>
+              ยกเลิก
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleteMutation.isPending}
+            >
+              {bulkDeleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              ลบงาน
             </Button>
           </DialogFooter>
         </DialogContent>

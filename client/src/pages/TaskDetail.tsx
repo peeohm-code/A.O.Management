@@ -316,7 +316,7 @@ export default function TaskDetail() {
             )}
 
             {/* Main Info Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
               {/* Date Range */}
               <div>
                 <p className="text-xs text-gray-500 mb-1">ระยะเวลา</p>
@@ -358,6 +358,31 @@ export default function TaskDetail() {
               <div>
                 <p className="text-xs text-gray-500 mb-1">ผู้รับผิดชอบ</p>
                 <p className="text-sm font-medium">{task.assigneeId ? `User #${task.assigneeId}` : "ไม่ได้กำหนด"}</p>
+              </div>
+
+              {/* Priority */}
+              <div>
+                <p className="text-xs text-gray-500 mb-1">ความสำคัญ</p>
+                <Badge className={
+                  task.priority === 'urgent' ? 'bg-red-100 text-red-700' :
+                  task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                  task.priority === 'medium' ? 'bg-blue-100 text-blue-700' :
+                  'bg-gray-100 text-gray-700'
+                }>
+                  {task.priority === 'urgent' ? 'เร่งด่วน' :
+                   task.priority === 'high' ? 'สูง' :
+                   task.priority === 'medium' ? 'ปานกลาง' : 'ต่ำ'}
+                </Badge>
+              </div>
+
+              {/* Category */}
+              <div>
+                <p className="text-xs text-gray-500 mb-1">หมวดหมู่</p>
+                {task.category ? (
+                  <Badge variant="outline">{task.category}</Badge>
+                ) : (
+                  <p className="text-sm text-gray-400">ไม่ระบุ</p>
+                )}
               </div>
             </div>
 

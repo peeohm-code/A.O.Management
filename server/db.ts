@@ -2714,3 +2714,270 @@ export async function getQueryErrors(limit: number = 50) {
     return [];
   }
 }
+
+/**
+ * Bulk Actions for Tasks
+ */
+
+// Bulk update task status
+export async function bulkUpdateTaskStatus(taskIds: number[], status: string, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    // Update all tasks
+    await db
+      .update(tasks)
+      .set({ 
+        status: status as any,
+        updatedAt: new Date()
+      })
+      .where(inArray(tasks.id, taskIds));
+
+    // Create activity log for each task
+    const activityPromises = taskIds.map(taskId => 
+      logActivity({
+        taskId,
+        userId,
+        action: "status_changed",
+        details: `สถานะถูกเปลี่ยนเป็น ${status} (Bulk Action)`,
+      })
+    );
+
+    await Promise.all(activityPromises);
+
+    return { success: true, updatedCount: taskIds.length };
+  } catch (error) {
+    console.error("[Database] Failed to bulk update task status:", error);
+    throw error;
+  }
+}
+
+// Bulk update task assignee
+export async function bulkUpdateTaskAssignee(taskIds: number[], assigneeId: number | null, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    // Get assignee name if provided
+    let assigneeName = "ไม่มีผู้รับผิดชอบ";
+    if (assigneeId) {
+      const assignee = await getUserById(assigneeId);
+      assigneeName = assignee?.name || `User #${assigneeId}`;
+    }
+
+    // Update all tasks
+    await db
+      .update(tasks)
+      .set({ 
+        assigneeId: assigneeId,
+        updatedAt: new Date()
+      })
+      .where(inArray(tasks.id, taskIds));
+
+    // Create activity log for each task
+    const activityPromises = taskIds.map(taskId => 
+      logActivity({
+        taskId,
+        userId,
+        action: "assignee_changed",
+        details: `ผู้รับผิดชอบถูกเปลี่ยนเป็น ${assigneeName} (Bulk Action)`,
+      })
+    );
+
+    await Promise.all(activityPromises);
+
+    // Send notifications to new assignee
+    if (assigneeId) {
+      const notificationPromises = taskIds.map(async (taskId) => {
+        const task = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1);
+        if (task.length > 0) {
+          await sendNotification({
+            userId: assigneeId,
+            type: "task_assigned",
+            title: "งานใหม่ถูกมอบหมายให้คุณ",
+            content: `คุณได้รับมอบหมายงาน: ${task[0].name}`,
+            relatedTaskId: taskId,
+            relatedProjectId: task[0].projectId,
+          });
+        }
+      });
+
+      await Promise.all(notificationPromises);
+    }
+
+    return { success: true, updatedCount: taskIds.length };
+  } catch (error) {
+    console.error("[Database] Failed to bulk update task assignee:", error);
+    throw error;
+  }
+}
+
+// Bulk delete tasks
+export async function bulkDeleteTasks(taskIds: number[], userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    // Delete related data first
+    await db.delete(taskDependencies).where(inArray(taskDependencies.taskId, taskIds));
+    await db.delete(taskDependencies).where(inArray(taskDependencies.dependsOnTaskId, taskIds));
+    await db.delete(taskChecklists).where(inArray(taskChecklists.taskId, taskIds));
+    await db.delete(taskComments).where(inArray(taskComments.taskId, taskIds));
+    await db.delete(taskAttachments).where(inArray(taskAttachments.taskId, taskIds));
+    await db.delete(taskFollowers).where(inArray(taskFollowers.taskId, taskIds));
+    await db.delete(activityLog).where(inArray(activityLog.taskId, taskIds));
+    await db.delete(notifications).where(inArray(notifications.relatedTaskId, taskIds));
+    await db.delete(defects).where(inArray(defects.taskId, taskIds));
+
+    // Delete tasks
+    await db.delete(tasks).where(inArray(tasks.id, taskIds));
+
+    return { success: true, deletedCount: taskIds.length };
+  } catch (error) {
+    console.error("[Database] Failed to bulk delete tasks:", error);
+    throw error;
+  }
+}
+
+/**
+ * Task Dependency Validation
+ */
+
+// Check if task has incomplete dependencies (blocking dependencies)
+export async function getBlockingDependencies(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const dependencies = await db
+      .select({
+        id: taskDependencies.id,
+        dependsOnTaskId: taskDependencies.dependsOnTaskId,
+        type: taskDependencies.type,
+        taskName: tasks.name,
+        taskStatus: tasks.status,
+        taskProgress: tasks.progress,
+      })
+      .from(taskDependencies)
+      .innerJoin(tasks, eq(taskDependencies.dependsOnTaskId, tasks.id))
+      .where(eq(taskDependencies.taskId, taskId));
+
+    // Filter only incomplete dependencies
+    const blocking = dependencies.filter(dep => {
+      if (dep.type === "finish_to_start" || dep.type === "finish_to_finish") {
+        // Task must be completed (progress = 100)
+        return dep.taskProgress !== 100;
+      } else if (dep.type === "start_to_start") {
+        // Task must be started (status not "not_started" or "todo")
+        return dep.taskStatus === "not_started" || dep.taskStatus === "todo";
+      }
+      return false;
+    });
+
+    return blocking;
+  } catch (error) {
+    console.error("[Database] Failed to get blocking dependencies:", error);
+    return [];
+  }
+}
+
+// Validate if task can start based on dependencies
+export async function validateTaskCanStart(taskId: number) {
+  const blocking = await getBlockingDependencies(taskId);
+  
+  return {
+    canStart: blocking.length === 0,
+    blockingCount: blocking.length,
+    blockingTasks: blocking,
+  };
+}
+
+// Update task priority
+export async function updateTaskPriority(taskId: number, priority: string, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    await db
+      .update(tasks)
+      .set({ 
+        priority: priority as any,
+        updatedAt: new Date()
+      })
+      .where(eq(tasks.id, taskId));
+
+    // Create activity log
+    const priorityLabels: Record<string, string> = {
+      low: "ต่ำ",
+      medium: "ปานกลาง",
+      high: "สูง",
+      urgent: "เร่งด่วน"
+    };
+
+    await logActivity({
+      taskId,
+      userId,
+      action: "updated",
+      details: `เปลี่ยนระดับความสำคัญเป็น: ${priorityLabels[priority] || priority}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to update task priority:", error);
+    throw error;
+  }
+}
+
+// Update task category
+export async function updateTaskCategory(taskId: number, category: string | null, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    await db
+      .update(tasks)
+      .set({ 
+        category: category,
+        updatedAt: new Date()
+      })
+      .where(eq(tasks.id, taskId));
+
+    // Create activity log
+    await logActivity({
+      taskId,
+      userId,
+      action: "updated",
+      details: `เปลี่ยนหมวดหมู่เป็น: ${category || "ไม่มีหมวดหมู่"}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to update task category:", error);
+    throw error;
+  }
+}
+
+// Get tasks that depend on a specific task (for notifications)
+export async function getTasksDependingOn(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const dependentTasks = await db
+      .select({
+        taskId: taskDependencies.taskId,
+        taskName: tasks.name,
+        assigneeId: tasks.assigneeId,
+        projectId: tasks.projectId,
+      })
+      .from(taskDependencies)
+      .innerJoin(tasks, eq(taskDependencies.taskId, tasks.id))
+      .where(eq(taskDependencies.dependsOnTaskId, taskId));
+
+    return dependentTasks;
+  } catch (error) {
+    console.error("[Database] Failed to get dependent tasks:", error);
+    return [];
+  }
+}

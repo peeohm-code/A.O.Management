@@ -746,6 +746,51 @@ const taskRouter = router({
       return { success: true, assigned: successCount, total: taskIds.length };
     }),
 
+  bulkDelete: roleBasedProcedure('tasks', 'delete')
+    .input(
+      z.object({
+        taskIds: z.array(z.number()).min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const result = await db.bulkDeleteTasks(input.taskIds, ctx.user!.id);
+      return result;
+    }),
+
+  updatePriority: roleBasedProcedure('tasks', 'edit')
+    .input(
+      z.object({
+        id: z.number(),
+        priority: z.enum(["low", "medium", "high", "urgent"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await db.updateTaskPriority(input.id, input.priority, ctx.user!.id);
+    }),
+
+  updateCategory: roleBasedProcedure('tasks', 'edit')
+    .input(
+      z.object({
+        id: z.number(),
+        category: z.string().nullable(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await db.updateTaskCategory(input.id, input.category, ctx.user!.id);
+    }),
+
+  getBlockingDependencies: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getBlockingDependencies(input.taskId);
+    }),
+
+  validateCanStart: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.validateTaskCanStart(input.taskId);
+    }),
+
   search: protectedProcedure
     .input(
       z.object({

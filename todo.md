@@ -2927,3 +2927,98 @@
 - [x] Add Delete Task functionality (with confirmation dialog)
 - [x] Add Search and Filter functionality for tasks (by name, status, assignee, project)
 - [x] Fix task count mismatch between Dashboard and Tasks page (ensure all queries use consistent filters)
+
+
+## New Feature Request: Bulk Actions, Task Detail Improvements, and Task Dependencies Enhancement
+
+### Feature 1: Bulk Actions in Tasks Page
+- [x] Add checkbox column to task list table for multi-selection
+- [ ] Add "Select All" checkbox in table header
+- [x] Create Bulk Actions toolbar (appears when tasks are selected)
+- [x] Implement Bulk Status Change functionality
+  - [x] Backend API: bulkUpdateStatus mutation
+  - [x] UI: Status dropdown in bulk actions toolbar
+  - [x] Show confirmation dialog before applying changes
+- [x] Implement Bulk Assignee Change functionality
+  - [x] Backend API: bulkUpdateAssignee mutation
+  - [x] UI: Assignee selector in bulk actions toolbar
+  - [x] Show confirmation dialog before applying changes
+- [x] Implement Bulk Delete functionality
+  - [x] Backend API: bulkDeleteTasks mutation
+  - [x] UI: Delete button in bulk actions toolbar
+  - [x] Show confirmation dialog with warning message
+  - [x] Role-based permission check (only Admin and PM can bulk delete)
+- [x] Add visual feedback during bulk operations (loading state, success/error messages)
+- [x] Clear selection after successful bulk operation
+- [ ] Test all bulk actions with multiple tasks
+
+### Feature 2: Task Detail Page Improvements
+- [x] Add Priority field to tasks table schema
+  - [x] Add priority enum: low, medium, high, urgent
+  - [x] Set default value to "medium"
+  - [x] Push schema changes with pnpm db:push
+- [x] Update Task Detail Page to show Priority
+  - [x] Add Priority badge/indicator in task header
+  - [ ] Add Priority dropdown to change priority (TODO: Add edit dialog)
+  - [x] Backend API: updateTaskPriority mutation
+  - [x] Record priority changes in Activity Log
+- [x] Improve Category field functionality
+  - [x] Verify category field exists in schema (already added in previous phase)
+  - [x] Add Category display in Task Detail header
+  - [ ] Add Category dropdown to change category (TODO: Add edit dialog)
+  - [x] Backend API: updateTaskCategory mutation
+  - [x] Record category changes in Activity Log
+- [ ] Add Photo Uploads to Task Detail
+  - [ ] Create dedicated "Photos" tab in Task Detail page
+  - [ ] Implement photo upload UI with drag-and-drop support
+  - [ ] Add photo gallery view with thumbnails
+  - [ ] Add lightbox/modal for viewing full-size photos
+  - [ ] Reuse existing attachments table and API (filter by fileType = image)
+  - [ ] Add photo metadata display (uploader, upload date, file size)
+  - [ ] Test photo upload and viewing functionality
+- [ ] Update Tasks List to show Priority and Category
+  - [ ] Add Priority badge column in task list table
+  - [ ] Add Category badge column in task list table
+  - [ ] Add filter by Priority and Category
+  - [ ] Add sort by Priority option
+
+### Feature 3: Task Dependencies Enhancement
+- [x] Verify taskDependencies table exists and is correct
+- [ ] Enhance Dependencies Tab in Task Detail Page (Dependencies tab already exists)
+  - [ ] Show visual warning when blocked by incomplete dependencies (Use getBlockingDependencies API)
+  - [ ] Add dependency type icons (FS, SS, FF, SF)
+  - [ ] Show dependency task status and progress
+  - [ ] Add "Go to Task" link for each dependency
+- [ ] Implement Dependency Validation
+  - [ ] Backend: Check if all predecessor tasks are completed before allowing task to start
+  - [ ] Backend: validateTaskDependencies function
+  - [ ] Show warning message when trying to start task with incomplete dependencies
+- [ ] Add Dependency Notifications (Backend logic needed in task completion flow)
+  - [ ] Send notification when predecessor task is completed (Call getTasksDependingOn)
+  - [ ] Notify assignee that dependent task can now start
+  - [ ] Add notification type: dependency_completed (May need to add to schema)
+  - [ ] Update notification schema if needed
+- [ ] Add Dependency Visualization in Gantt Chart
+  - [ ] Draw dependency lines between tasks (already exists, verify it works)
+  - [ ] Add color coding for dependency types
+  - [ ] Highlight critical path (optional enhancement)
+- [ ] Add Dependency Warnings in Task List
+  - [ ] Show icon/badge for tasks blocked by dependencies
+  - [ ] Add tooltip showing which tasks are blocking
+  - [ ] Add filter to show only blocked tasks
+- [ ] Test complete dependency workflow
+  - [ ] Create tasks with dependencies
+  - [ ] Verify validation works correctly
+  - [ ] Verify notifications are sent
+  - [ ] Test dependency visualization
+
+### Testing & Integration
+- [ ] Test Bulk Actions with various task selections
+- [ ] Test Priority and Category filtering and sorting
+- [ ] Test Photo uploads with different file sizes and formats
+- [ ] Test Dependency validation in different scenarios
+- [ ] Test all new features on mobile devices
+- [ ] Verify Activity Log records all changes correctly
+- [ ] Verify Notifications are sent correctly
+- [ ] Performance test with large number of tasks
+- [ ] Create final checkpoint after all features are complete
