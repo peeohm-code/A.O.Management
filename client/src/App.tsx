@@ -26,6 +26,8 @@ import ChecklistTemplates from "./pages/ChecklistTemplates";
 import UserManagement from "./pages/UserManagement";
 import UserProfile from "./pages/UserProfile";
 import TeamManagement from "./pages/TeamManagement";
+import ProjectTeam from "./pages/ProjectTeam";
+import MyTasks from "./pages/MyTasks";
 import Archive from "./pages/Archive";
 import ArchiveRules from "./pages/ArchiveRules";
 import NotificationSettings from "./pages/NotificationSettings";
@@ -197,6 +199,20 @@ function Router() {
         {() => (
           <DashboardLayout>
             <TeamManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/my-tasks"}>
+        {() => (
+          <DashboardLayout>
+            <MyTasks />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects/:projectId/team"}>
+        {() => (
+          <DashboardLayout>
+            <ProjectTeam />
           </DashboardLayout>
         )}
       </Route>

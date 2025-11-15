@@ -197,6 +197,13 @@
       "when": 1763200315872,
       "tag": "0027_long_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1763213915094,
+      "tag": "0028_low_doctor_doom",
+      "breakpoints": true
     }
   ]
 }

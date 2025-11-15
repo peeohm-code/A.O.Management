@@ -703,7 +703,7 @@ export async function getArchivedProjects(userId: number) {
 export async function addProjectMember(data: {
   projectId: number;
   userId: number;
-  role: "project_manager" | "qc_inspector" | "field_engineer";
+  role: "project_manager" | "qc_inspector" | "worker";
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -3822,4 +3822,223 @@ export async function getOverdueDefects(daysThreshold: number) {
     );
 
   return result;
+}
+
+/**
+ * Team Management Functions
+ */
+
+export async function getProjectMembers(projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const members = await db
+    .select({
+      id: projectMembers.id,
+      projectId: projectMembers.projectId,
+      userId: projectMembers.userId,
+      role: projectMembers.role,
+      createdAt: projectMembers.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+      userRole: users.role,
+    })
+    .from(projectMembers)
+    .leftJoin(users, eq(projectMembers.userId, users.id))
+    .where(eq(projectMembers.projectId, projectId));
+
+  return members;
+}
+
+export async function removeProjectMember(projectId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .delete(projectMembers)
+    .where(
+      and(
+        eq(projectMembers.projectId, projectId),
+        eq(projectMembers.userId, userId)
+      )
+    );
+
+  return { success: true };
+}
+
+export async function updateProjectMemberRole(
+  projectId: number,
+  userId: number,
+  role: "project_manager" | "qc_inspector" | "worker"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(projectMembers)
+    .set({ role })
+    .where(
+      and(
+        eq(projectMembers.projectId, projectId),
+        eq(projectMembers.userId, userId)
+      )
+    );
+
+  return { success: true };
+}
+
+export async function getUserProjects(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const userProjects = await db
+    .select({
+      id: projects.id,
+      name: projects.name,
+      code: projects.code,
+      status: projects.status,
+      startDate: projects.startDate,
+      endDate: projects.endDate,
+      role: projectMembers.role,
+    })
+    .from(projectMembers)
+    .leftJoin(projects, eq(projectMembers.projectId, projects.id))
+    .where(eq(projectMembers.userId, userId));
+
+  return userProjects;
+}
+
+export async function getUserTasks(
+  userId: number,
+  status?: "all" | "todo" | "in_progress" | "completed",
+  limit?: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  let query = db
+    .select({
+      id: tasks.id,
+      projectId: tasks.projectId,
+      name: tasks.name,
+      description: tasks.description,
+      status: tasks.status,
+      priority: tasks.priority,
+      startDate: tasks.startDate,
+      endDate: tasks.endDate,
+      progress: tasks.progress,
+      projectName: projects.name,
+      projectCode: projects.code,
+    })
+    .from(tasks)
+    .leftJoin(projects, eq(tasks.projectId, projects.id))
+    .where(eq(tasks.assigneeId, userId))
+    .orderBy(tasks.endDate);
+
+  if (status && status !== "all") {
+    if (status === "todo") {
+      query = query.where(
+        and(
+          eq(tasks.assigneeId, userId),
+          eq(tasks.status, "todo")
+        )
+      ) as any;
+    } else if (status === "in_progress") {
+      query = query.where(
+        and(
+          eq(tasks.assigneeId, userId),
+          eq(tasks.status, "in_progress")
+        )
+      ) as any;
+    } else if (status === "completed") {
+      query = query.where(
+        and(
+          eq(tasks.assigneeId, userId),
+          eq(tasks.status, "completed")
+        )
+      ) as any;
+    }
+  }
+
+  if (limit) {
+    query = query.limit(limit) as any;
+  }
+
+  return await query;
+}
+
+export async function getProjectActivity(projectId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const activities = await db
+    .select({
+      id: activityLog.id,
+      userId: activityLog.userId,
+      projectId: activityLog.projectId,
+      taskId: activityLog.taskId,
+      action: activityLog.action,
+      details: activityLog.details,
+      createdAt: activityLog.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+    })
+    .from(activityLog)
+    .leftJoin(users, eq(activityLog.userId, users.id))
+    .where(eq(activityLog.projectId, projectId))
+    .orderBy(activityLog.createdAt)
+    .limit(limit);
+
+  return activities;
+}
+
+export async function getUserTaskStats(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.assigneeId, userId));
+
+  const totalTasks = allTasks.length;
+  const completedTasks = allTasks.filter(t => t.status === "completed").length;
+  const inProgressTasks = allTasks.filter(t => t.status === "in_progress").length;
+  const todoTasks = allTasks.filter(t => t.status === "todo" || t.status === "not_started").length;
+
+  return {
+    totalTasks,
+    completedTasks,
+    inProgressTasks,
+    todoTasks,
+    completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+  };
+}
+
+export async function getUserTaskStatsForProject(userId: number, projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const projectTasks = await db
+    .select()
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.assigneeId, userId),
+        eq(tasks.projectId, projectId)
+      )
+    );
+
+  const totalTasks = projectTasks.length;
+  const completedTasks = projectTasks.filter(t => t.status === "completed").length;
+  const inProgressTasks = projectTasks.filter(t => t.status === "in_progress").length;
+  const todoTasks = projectTasks.filter(t => t.status === "todo" || t.status === "not_started").length;
+
+  return {
+    totalTasks,
+    completedTasks,
+    inProgressTasks,
+    todoTasks,
+    completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+  };
 }

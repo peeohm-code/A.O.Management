@@ -10,7 +10,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["owner", "admin", "project_manager", "qc_inspector", "field_engineer"]).default("field_engineer").notNull(),
+  role: mysqlEnum("role", ["owner", "admin", "project_manager", "qc_inspector", "worker"]).default("worker").notNull(),
   // Notification settings
   notificationDaysAdvance: int("notificationDaysAdvance").default(3).notNull(), // จำนวนวันล่วงหน้าสำหรับการแจ้งเตือน
   enableInAppNotifications: boolean("enableInAppNotifications").default(true).notNull(),
@@ -64,7 +64,7 @@ export const projectMembers = mysqlTable("projectMembers", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   userId: int("userId").notNull(),
-  role: mysqlEnum("role", ["project_manager", "qc_inspector", "field_engineer"]).notNull(),
+  role: mysqlEnum("role", ["project_manager", "qc_inspector", "worker"]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   projectUserIdx: index("projectUserIdx").on(table.projectId, table.userId),

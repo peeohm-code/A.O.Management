@@ -33,7 +33,7 @@ const roleIcons = {
   admin: Shield,
   project_manager: UserCog,
   qc_inspector: ClipboardCheck,
-  field_engineer: Wrench,
+  worker: Wrench,
 };
 
 const roleLabels = {
@@ -41,7 +41,7 @@ const roleLabels = {
   admin: "ผู้ดูแลระบบ",
   project_manager: "ผู้จัดการโครงการ",
   qc_inspector: "ผู้ตรวจสอบคุณภาพ",
-  field_engineer: "วิศวกรประจำไซต์",
+  worker: "พนักงาน",
 };
 
 const roleColors = {
@@ -49,7 +49,7 @@ const roleColors = {
   admin: "bg-[#00366D]/10 text-[#00366D] border-[#00366D]/20",
   project_manager: "bg-[#00CE81]/10 text-[#00CE81] border-[#00CE81]/20",
   qc_inspector: "bg-orange-100 text-orange-800 border-orange-200",
-  field_engineer: "bg-gray-100 text-gray-800 border-gray-200",
+  worker: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
 export default function TeamManagement() {

@@ -22,6 +22,7 @@ import { performanceRouter } from "./performance/performanceRouter";
 import { getHealthStatus, formatBytes } from "./health";
 import { exportRouter } from "./exportRouter";
 import { monitoringRouter } from "./routers/monitoring";
+import { teamRouter } from "./routers/teamRouter";
 
 /**
  * Project Router - Project Management
@@ -2358,6 +2359,9 @@ const categoryColorRouter = router({
 export const appRouter = router({
   // Export Router
   export: exportRouter,
+
+  // Team Management Router
+  team: teamRouter,
 
   // Archive notifications check endpoint
   checkArchiveNotifications: protectedProcedure.mutation(async () => {
