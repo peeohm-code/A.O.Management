@@ -183,3 +183,11 @@
 - [x] เพิ่ม GPS location tagging สำหรับ defect และ inspection
 - [x] ปรับปรุง form input สำหรับ mobile (larger touch targets, better keyboard handling)
 - [x] เพิ่ม quick actions และ shortcuts สำหรับงานที่ใช้บ่อย
+
+## 🎨 UI/UX Enhancement (Latest Request)
+
+### Notification Badge Integration
+- [x] นำ NotificationBadge ไปใช้ใน DashboardLayout header เพื่อแสดง real-time notifications
+
+### Enhanced Gantt Chart
+- [x] เพิ่ม EnhancedGanttChart ในหน้า Project Detail พร้อมตัวเลือกสลับระหว่าง Gantt Chart เดิมและแบบใหม่

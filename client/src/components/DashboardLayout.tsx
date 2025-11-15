@@ -25,6 +25,7 @@ import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
 import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick, Moon, Sun } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
+import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -376,7 +377,7 @@ function DashboardLayoutContent({
           <div className="flex items-center gap-2">
             <OfflineIndicator />
             <ThemeToggleButton />
-            <NotificationBell />
+            <NotificationBadge />
             <UserDropdown />
           </div>
         </div>

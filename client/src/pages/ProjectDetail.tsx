@@ -10,6 +10,7 @@ import { lazy, Suspense, useState } from "react";
 
 // Lazy load GanttChart component
 const GanttChart = lazy(() => import("@/components/GanttChart"));
+const EnhancedGanttChart = lazy(() => import("@/components/EnhancedGanttChart"));
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { CategoryColorPicker } from "@/components/CategoryColorPicker";
 import { QCTab } from "@/components/QCTab";
@@ -42,6 +43,7 @@ export default function ProjectDetail() {
   const exportExcelMutation = trpc.project.exportExcel.useMutation();
   const exportPDFMutation = trpc.project.exportPDF.useMutation();
   const [isExporting, setIsExporting] = useState(false);
+  const [useEnhancedGantt, setUseEnhancedGantt] = useState(false);
 
   const handleArchiveProject = async () => {
     try {
@@ -347,9 +349,27 @@ export default function ProjectDetail() {
         </TabsList>
 
         <TabsContent value="gantt" className="space-y-4">
-          <div className="flex justify-end gap-2 mb-4">
-            <CategoryColorPicker projectId={projectId} />
-            <NewTaskDialog projectId={projectId} />
+          <div className="flex justify-between items-center gap-2 mb-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={useEnhancedGantt ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUseEnhancedGantt(true)}
+              >
+                Enhanced Gantt
+              </Button>
+              <Button
+                variant={!useEnhancedGantt ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUseEnhancedGantt(false)}
+              >
+                Simple Gantt
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <CategoryColorPicker projectId={projectId} />
+              <NewTaskDialog projectId={projectId} />
+            </div>
           </div>
           {tasks.length > 0 && (
             <Suspense fallback={
@@ -357,20 +377,37 @@ export default function ProjectDetail() {
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
             }>
-              <GanttChart
-              tasks={tasks.map((t: any) => ({
-                id: t.id,
-                name: t.name,
-                startDate: t.startDate,
-                endDate: t.endDate,
-                progress: t.progress,
-                displayStatus: t.displayStatus,
-                displayStatusLabel: t.displayStatusLabel,
-                displayStatusColor: t.displayStatusColor,
-                category: t.category,
-              }))}
-              projectId={projectId}
-              />
+              {useEnhancedGantt ? (
+                <EnhancedGanttChart
+                  tasks={tasks.map((t: any) => ({
+                    id: t.id,
+                    name: t.name,
+                    startDate: t.startDate,
+                    endDate: t.endDate,
+                    progress: t.progress,
+                    displayStatus: t.displayStatus,
+                    displayStatusLabel: t.displayStatusLabel,
+                    displayStatusColor: t.displayStatusColor,
+                    category: t.category,
+                  }))}
+                  projectId={projectId}
+                />
+              ) : (
+                <GanttChart
+                  tasks={tasks.map((t: any) => ({
+                    id: t.id,
+                    name: t.name,
+                    startDate: t.startDate,
+                    endDate: t.endDate,
+                    progress: t.progress,
+                    displayStatus: t.displayStatus,
+                    displayStatusLabel: t.displayStatusLabel,
+                    displayStatusColor: t.displayStatusColor,
+                    category: t.category,
+                  }))}
+                  projectId={projectId}
+                />
+              )}
             </Suspense>
           )}
           {tasks.length === 0 && (

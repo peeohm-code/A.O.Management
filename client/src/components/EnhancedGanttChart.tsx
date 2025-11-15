@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Gantt from "frappe-gantt";
-import "frappe-gantt/dist/frappe-gantt.css";
+import "@/styles/frappe-gantt.css";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

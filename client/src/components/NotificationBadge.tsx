@@ -12,10 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { useRealtimeNotifications, RealtimeNotification } from "@/hooks/useRealtimeNotifications";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 
 export default function NotificationBadge() {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const {
     isConnected,
@@ -31,13 +31,13 @@ export default function NotificationBadge() {
   const handleNotificationClick = (notification: RealtimeNotification) => {
     // Navigate to relevant page based on notification type
     if (notification.data?.taskId) {
-      navigate(`/tasks/${notification.data.taskId}`);
+      setLocation(`/tasks/${notification.data.taskId}`);
       setIsOpen(false);
     } else if (notification.data?.defectId) {
-      navigate(`/defects/${notification.data.defectId}`);
+      setLocation(`/defects/${notification.data.defectId}`);
       setIsOpen(false);
     } else if (notification.data?.inspectionId) {
-      navigate(`/inspections/${notification.data.inspectionId}`);
+      setLocation(`/inspections/${notification.data.inspectionId}`);
       setIsOpen(false);
     }
   };
@@ -176,7 +176,7 @@ export default function NotificationBadge() {
                 size="sm"
                 className="w-full text-xs"
                 onClick={() => {
-                  navigate("/notifications");
+                  setLocation("/notifications");
                   setIsOpen(false);
                 }}
               >
