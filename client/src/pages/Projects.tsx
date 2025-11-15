@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Trash2, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
+import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Trash2, TrendingUp, AlertTriangle, CheckCircle2, Building2, Download } from "lucide-react";
 import { ProjectCardSkeleton } from "@/components/skeletons";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
@@ -30,6 +30,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
+import * as XLSX from 'xlsx';
 
 export default function Projects() {
   const { canCreate } = usePermissions('projects');
@@ -492,6 +493,34 @@ export default function Projects() {
                   <SelectItem value="status">สถานะ</SelectItem>
                 </SelectContent>
               </Select>
+              {filteredProjects.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const data = filteredProjects.map(p => ({
+                      'รหัสโครงการ': p.code || '',
+                      'ชื่อโครงการ': p.name || '',
+                      'สถานที่': p.location || '',
+                      'วันที่เริ่ม': p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '',
+                      'วันที่สิ้นสุด': p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '',
+                      'ความคืบหน้า (%)': p.progressPercentage || 0,
+                      'จำนวนงาน': p.taskCount || 0,
+                      'งานเสร็จ': p.completedTasks || 0,
+                      'สถานะ': getProjectStatusLabel(p.projectStatus),
+                    }));
+                    const ws = XLSX.utils.json_to_sheet(data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Projects');
+                    XLSX.writeFile(wb, 'projects.xlsx');
+                    toast.success('ส่งออกไฟล์ Excel สำเร็จ');
+                  }}
+                  className="whitespace-nowrap"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Excel
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>

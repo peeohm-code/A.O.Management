@@ -469,9 +469,9 @@ export default function TaskDetail() {
         </CardContent>
       </Card>
 
-      {/* Tabs - 4 tabs: Checklists | Defects | Documents | Activity Log */}
+      {/* Tabs - 5 tabs: Checklists | Defects | Photos | Documents | Activity Log */}
       <Tabs defaultValue="checklists" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="checklists">
             <CheckSquare className="w-4 h-4 mr-2" />
             Checklists
@@ -480,9 +480,13 @@ export default function TaskDetail() {
             <AlertTriangle className="w-4 h-4 mr-2" />
             Defects
           </TabsTrigger>
+          <TabsTrigger value="photos">
+            <ImageIcon className="w-4 h-4 mr-2" />
+            รูปภาพ
+          </TabsTrigger>
           <TabsTrigger value="documents">
             <FileText className="w-4 h-4 mr-2" />
-            Documents
+            เอกสาร
           </TabsTrigger>
           <TabsTrigger value="activity">
             <Clock className="w-4 h-4 mr-2" />
@@ -500,12 +504,99 @@ export default function TaskDetail() {
           <DefectsTab taskId={taskId} />
         </TabsContent>
 
-        {/* Documents Tab - Combines Attachments + Comments */}
-        <TabsContent value="documents" className="space-y-4">
-          {/* Attachments Section */}
+        {/* Photos Tab - Image Gallery */}
+        <TabsContent value="photos" className="space-y-4">
+          {/* Photo Upload Section */}
           <Card>
             <CardHeader>
-              <CardTitle>อัปโหลดไฟล์</CardTitle>
+              <CardTitle>อัปโหลดรูปภาพ</CardTitle>
+              <CardDescription>อัปโหลดรูปภาพงาน (JPG, PNG, GIF, WebP)</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  disabled={uploading}
+                />
+                <Button
+                  onClick={handleFileUpload}
+                  disabled={!selectedFile || uploading}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      กำลังอัปโหลด...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      อัปโหลด
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Photo Gallery */}
+          <Card>
+            <CardHeader>
+              <CardTitle>คลังรูปภาพ ({attachments.filter(a => a.mimeType?.startsWith('image/')).length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {attachments.filter(a => a.mimeType?.startsWith('image/')).length === 0 ? (
+                <div className="text-center py-12">
+                  <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500">ยังไม่มีรูปภาพ</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {attachments
+                    .filter(a => a.mimeType?.startsWith('image/'))
+                    .map((photo) => (
+                      <div
+                        key={photo.id}
+                        className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={photo.fileUrl}
+                          alt={photo.fileName}
+                          className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() => window.open(photo.fileUrl, '_blank')}
+                        />
+                        {user && (user.role === "admin" || user.role === "project_manager" || photo.uploadedBy === user.id) && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDeleteAttachment(photo.id)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-xs truncate">
+                          <p className="truncate">{photo.fileName}</p>
+                          <p className="text-gray-300">
+                            {new Date(photo.createdAt).toLocaleDateString('th-TH')} • {photo.fileSize ? (photo.fileSize / 1024).toFixed(1) : '0'} KB
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Documents Tab - Non-image files only */}
+        <TabsContent value="documents" className="space-y-4">
+          {/* Document Upload Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>อัปโหลดเอกสาร</CardTitle>
+              <CardDescription>อัปโหลดไฟล์เอกสาร (PDF, Word, Excel, ฯลฯ)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
@@ -536,24 +627,23 @@ export default function TaskDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>ไฟล์แนบทั้งหมด ({attachments.length})</CardTitle>
+              <CardTitle>เอกสารทั้งหมด ({attachments.filter(a => !a.mimeType?.startsWith('image/')).length})</CardTitle>
             </CardHeader>
             <CardContent>
-              {attachments.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">ยังไม่มีไฟล์แนบ</p>
+              {attachments.filter(a => !a.mimeType?.startsWith('image/')).length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500">ยังไม่มีเอกสาร</p>
+                </div>
               ) : (
                 <div className="space-y-2">
-                  {attachments.map((attachment) => (
+                  {attachments.filter(a => !a.mimeType?.startsWith('image/')).map((attachment) => (
                     <div
                       key={attachment.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        {attachment.mimeType?.startsWith("image/") ? (
-                          <ImageIcon className="w-5 h-5 text-[#00366D] flex-shrink-0" />
-                        ) : (
-                          <File className="w-5 h-5 text-gray-600 flex-shrink-0" />
-                        )}
+                        <File className="w-5 h-5 text-gray-600 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <a
                             href={attachment.fileUrl}

@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon } from "lucide-react";
+import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag } from "lucide-react";
 import { TaskCardSkeleton } from "@/components/skeletons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { SearchBar } from "@/components/SearchBar";
@@ -31,10 +31,11 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { SwipeableCard } from "@/components/SwipeableCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { Plus, Edit, Trash2, CheckCircle } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, Download } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
 import { useLocation } from "wouter";
+import { exportTasksToExcel } from "@/lib/excelExport";
 
 export default function Tasks() {
   const { canCreate, canEdit } = usePermissions('tasks');
@@ -378,16 +379,36 @@ export default function Tasks() {
             </Select>
           </div>
         </div>
-        {canEdit && filteredTasks.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={selectAllTasks}
-            className="whitespace-nowrap"
-          >
-            {selectedTasks.size === filteredTasks.length ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด"}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {canEdit && filteredTasks.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
+                onCheckedChange={selectAllTasks}
+                className="border-2"
+              />
+              <span className="text-sm text-muted-foreground">
+                {selectedTasks.size === filteredTasks.length && filteredTasks.length > 0
+                  ? "ยกเลิกทั้งหมด"
+                  : "เลือกทั้งหมด"}
+              </span>
+            </div>
+          )}
+          {filteredTasks.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const projectName = projectFilter ? projects.find((p: any) => p.id === projectFilter)?.name : undefined;
+                exportTasksToExcel(filteredTasks, projectName);
+                toast.success('ส่งออกไฟล์ Excel สำเร็จ');
+              }}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Excel
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Task Overview Dashboard */}
@@ -668,6 +689,32 @@ export default function Tasks() {
                         <span className="truncate">{task.assigneeName}</span>
                       </div>
                     )}
+
+                    {/* Priority and Category Badges */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {task.priority && (
+                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
+                          task.priority === 'urgent' ? 'bg-red-100 text-red-700' :
+                          task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          <Flag className="w-3 h-3" />
+                          <span>
+                            {task.priority === 'urgent' ? 'เร่งด่วน' :
+                             task.priority === 'high' ? 'สูง' :
+                             task.priority === 'medium' ? 'ปานกลาง' :
+                             'ต่ำ'}
+                          </span>
+                        </div>
+                      )}
+                      {task.category && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
+                          <Tag className="w-3 h-3" />
+                          <span>{task.category}</span>
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </Link>

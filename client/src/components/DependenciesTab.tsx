@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, X, ArrowRight, GitBranch } from "lucide-react";
+import { Loader2, Plus, X, ArrowRight, GitBranch, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "wouter";
 
 interface DependenciesTabProps {
   taskId: number;
@@ -34,6 +35,8 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
 
   const utils = trpc.useUtils();
   const dependenciesQuery = trpc.task.getDependencies.useQuery({ taskId });
+  const blockingQuery = trpc.task.getBlockingDependencies.useQuery({ taskId });
+  const validateQuery = trpc.task.validateCanStart.useQuery({ taskId });
   const projectTasksQuery = trpc.task.list.useQuery({ projectId });
   const addDependencyMutation = trpc.task.addDependency.useMutation();
   const removeDependencyMutation = trpc.task.removeDependency.useMutation();
@@ -110,12 +113,61 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
   }
 
   const dependencies = dependenciesQuery.data || [];
+  const blockingDeps = blockingQuery.data || [];
+  const validation = validateQuery.data;
   const availableTasks = (projectTasksQuery.data || []).filter(
     (task) => task.id !== taskId && !dependencies.some((dep) => dep.dependsOnTaskId === task.id)
   );
 
   return (
     <div className="space-y-6">
+      {/* Blocking Dependencies Warning */}
+      {blockingDeps.length > 0 && (
+        <Card className="border-yellow-500 bg-yellow-50">
+          <CardHeader>
+            <CardTitle className="text-yellow-800 flex items-center gap-2">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              งานนี้ถูกบล็อกโดยงานอื่นที่ยังไม่เสร็จ
+            </CardTitle>
+            <CardDescription className="text-yellow-700">
+              งานเหล่านี้ต้องเสร็จก่อนจึงจะเริ่มงานน้ีได้
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {blockingDeps.map((blocking) => (
+                <div
+                  key={blocking.id}
+                  className="flex items-center justify-between p-3 bg-white border border-yellow-300 rounded-lg"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <ArrowRight className="h-4 w-4 text-yellow-600" />
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{blocking.taskName}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {getDependencyTypeLabel(blocking.type)}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs bg-yellow-100 border-yellow-400 text-yellow-800">
+                          ยังไม่เสร็จ
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <Link href={`/tasks/${blocking.dependsOnTaskId}`}>
+                    <Button variant="ghost" size="sm">
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -238,14 +290,21 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveDependency(dep.dependsOnTaskId)}
-                      disabled={removeDependencyMutation.isPending}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Link href={`/tasks/${dep.dependsOnTaskId}`}>
+                        <Button variant="ghost" size="sm">
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveDependency(dep.dependsOnTaskId)}
+                        disabled={removeDependencyMutation.isPending}
+                      >
+                        <X className="h-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 );
               })}
