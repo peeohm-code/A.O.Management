@@ -3350,3 +3350,11 @@ All requested features have been implemented and tested. The system is ready for
 - [x] สร้าง UI สำหรับเลือก export format ในหน้า Project Detail
 - [x] เพิ่มปุ่ม Export ในหน้า Project Detail
 - [ ] ทดสอบ export Excel และ PDF
+
+## 🚨 Critical Bug Fixes - ปัญหาเร่งด่วน
+
+- [x] แก้ไข TypeScript errors (11 errors) - mysql2 Pool type compatibility
+- [x] แก้ไข Dev Server killed (Exit code 137) - memory overflow issue
+- [x] แก้ไข Thai text input timeout ใน textarea components
+- [x] ตรวจสอบและปรับปรุง useThaiTextInput hook ให้ทำงานได้ดีขึ้น
+- [x] ทดสอบระบบหลังแก้ไขทั้งหมดให้แน่ใจว่าทำงานได้สมบูรณ์

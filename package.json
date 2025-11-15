@@ -8,7 +8,7 @@
     "dev:notsc": "ulimit -n 65536 && NODE_ENV=development TSC_COMPILE_ON_ERROR=true nodemon",
     "build": "NODE_ENV=production vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "build:analyze": "NODE_ENV=production vite build --mode analyze",
-    "start": "NODE_ENV=production node --max-old-space-size=512 dist/index.js",
+    "start": "NODE_ENV=production node --max-old-space-size=1024 dist/index.js",
     "check": "tsc --noEmit",
     "check:watch": "tsc --noEmit --watch",
     "format": "prettier --write .",

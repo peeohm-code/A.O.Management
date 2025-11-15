@@ -1,13 +1,12 @@
-import { useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2, Archive, Download, FileSpreadsheet, FileText } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useParams } from "wouter";
 import { parseDate } from "@/lib/dateUtils";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 
 // Lazy load GanttChart component
 const GanttChart = lazy(() => import("@/components/GanttChart"));

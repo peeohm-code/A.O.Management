@@ -176,6 +176,13 @@
       "when": 1763192157583,
       "tag": "0024_thick_enchantress",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1763196147317,
+      "tag": "0025_worried_human_cannonball",
+      "breakpoints": true
     }
   ]
 }

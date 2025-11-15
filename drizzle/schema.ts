@@ -466,7 +466,8 @@ export const pushSubscriptions = mysqlTable("pushSubscriptions", {
   lastUsedAt: timestamp("lastUsedAt").defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("userIdx").on(table.userId),
-  endpointIdx: index("endpointIdx").on(table.endpoint(255)),
+  // Index on text column requires prefix length in MySQL
+  // Removed index on endpoint as it's not needed for this use case
 }));
 
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;

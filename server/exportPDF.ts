@@ -18,7 +18,9 @@ export async function exportProjectToPDF(projectId: number): Promise<Buffer> {
       }
 
       const tasks = await db.getTasksByProject(projectId);
-      const defects = await db.getDefectsByProject(projectId);
+      const allDefects = await db.getAllDefects();
+      const taskIds = tasks.map((t: any) => t.id);
+      const defects = allDefects.filter((d: any) => taskIds.includes(d.taskId));
       const stats = await db.getProjectStats(projectId);
 
       // Create PDF document
@@ -70,8 +72,8 @@ export async function exportProjectToPDF(projectId: number): Promise<Buffer> {
         ['Completed Tasks:', stats?.completedTasks?.toString() || '0'],
         ['In Progress:', stats?.inProgressTasks?.toString() || '0'],
         ['Total Defects:', defects.length.toString()],
-        ['Open Defects:', defects.filter(d => d.status !== 'resolved').length.toString()],
-        ['Resolved Defects:', defects.filter(d => d.status === 'resolved').length.toString()],
+        ['Open Defects:', defects.filter((d: any) => d.status !== 'resolved').length.toString()],
+        ['Resolved Defects:', defects.filter((d: any) => d.status === 'resolved').length.toString()],
       ];
 
       doc.fontSize(10).font('Helvetica');
@@ -110,7 +112,7 @@ export async function exportProjectToPDF(projectId: number): Promise<Buffer> {
       if (defects.length > 0) {
         // Group defects by severity
         const defectsBySeverity: Record<string, number> = {};
-        defects.forEach(defect => {
+        defects.forEach((defect: any) => {
           defectsBySeverity[defect.severity] = (defectsBySeverity[defect.severity] || 0) + 1;
         });
 
@@ -122,13 +124,13 @@ export async function exportProjectToPDF(projectId: number): Promise<Buffer> {
         doc.moveDown(1);
 
         // List critical defects
-        const criticalDefects = defects.filter(d => d.severity === 'critical' && d.status !== 'resolved');
+        const criticalDefects = defects.filter((d: any) => d.severity === 'critical' && d.status !== 'resolved');
         if (criticalDefects.length > 0) {
           doc.fontSize(12).font('Helvetica-Bold').text('Critical Open Defects:');
           doc.moveDown(0.3);
           doc.fontSize(9).font('Helvetica');
           
-          criticalDefects.slice(0, 10).forEach((defect, index) => {
+          criticalDefects.slice(0, 10).forEach((defect: any, index: number) => {
             doc.text(`${index + 1}. ${defect.title} (Status: ${defect.status})`);
           });
 

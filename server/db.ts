@@ -37,7 +37,7 @@ import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: mysql.Pool | null = null;
+let _pool: ReturnType<typeof mysql.createPool> | null = null;
 
 // Lazily create the drizzle instance with connection pooling
 export async function getDb() {
