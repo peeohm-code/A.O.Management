@@ -16,6 +16,8 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "health": "bash scripts/health-check.sh",
     "monitor:memory": "bash scripts/monitor-memory.sh",
+    "monitor:memory:node": "node scripts/monitor-memory.mjs",
+    "load:test": "node scripts/load-test.mjs",
     "cleanup": "bash scripts/cleanup-processes.sh",
     "reset": "bash scripts/emergency-reset.sh",
     "predev": "lsof -ti:3001 | xargs kill -9 2>/dev/null || true"

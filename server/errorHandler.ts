@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { logOOMEvent, logEMFILEEvent, logGeneralError } from './monitoring/errorLogger';
 
 export interface ErrorWithCode extends Error {
   code?: string;
@@ -37,6 +38,11 @@ export function handleEMFILEError(error: ErrorWithCode): boolean {
       recommendation: "Check for file descriptor leaks, increase ulimit, or implement connection pooling",
     });
     
+    // Log to error logger
+    logEMFILEEvent(error, {
+      recommendation: "Check for file descriptor leaks, increase ulimit, or implement connection pooling",
+    }).catch(err => console.error('Failed to log EMFILE event:', err));
+    
     // Trigger garbage collection if available
     if (global.gc) {
       console.log("[EMFILE] Triggering garbage collection");
@@ -59,6 +65,12 @@ export function handleENOMEMError(error: ErrorWithCode): boolean {
       memoryUsage: process.memoryUsage(),
       recommendation: "Check for memory leaks, reduce cache size, or increase available memory",
     });
+    
+    // Log to error logger
+    logOOMEvent(error, {
+      memoryUsage: process.memoryUsage(),
+      recommendation: "Check for memory leaks, reduce cache size, or increase available memory",
+    }).catch(err => console.error('Failed to log OOM event:', err));
     
     // Trigger garbage collection
     if (global.gc) {

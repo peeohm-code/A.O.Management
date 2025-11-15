@@ -13,6 +13,7 @@ import { storagePut } from "../storage";
 import { initializeSocket } from "./socket";
 import { initializeCronJobs } from "../cron/scheduler";
 import { initializeMonitoring } from "../monitoring/startMonitoring";
+import { initializeCronJobs as initializeMonitoringCronJobs } from "../monitoring/cronJobs";
 import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
 import { validateFile, sanitizeFilename } from "../utils/sanitize";
 import { setupProcessErrorHandlers, startMemoryMonitoring, errorMiddleware } from "../errorHandler";
@@ -156,6 +157,9 @@ async function startServer() {
     
     // Initialize system monitoring
     initializeMonitoring();
+    
+    // Initialize monitoring cron jobs (memory check every hour)
+    initializeMonitoringCronJobs();
     
     // Initialize notification scheduler
     import('../notificationScheduler').then(({ startNotificationScheduler }) => {
