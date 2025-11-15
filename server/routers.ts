@@ -236,7 +236,7 @@ const projectRouter = router({
       z.object({
         projectId: z.number(),
         userId: z.number(),
-        role: z.enum(["project_manager", "qc_inspector", "field_engineer"]),
+        role: z.enum(["project_manager", "qc_inspector", "worker"]),
       })
     )
     .mutation(async ({ input, ctx }) => {

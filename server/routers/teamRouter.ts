@@ -12,7 +12,7 @@ export const teamRouter = router({
   /**
    * Get all users in the system (Admin only)
    */
-  listAllUsers: roleBasedProcedure('team', 'view')
+  listAllUsers: roleBasedProcedure('users', 'viewAll')
     .query(async () => {
       return await db.getAllUsers();
     }),
@@ -29,7 +29,7 @@ export const teamRouter = router({
   /**
    * Add a team member to a project
    */
-  addProjectMember: roleBasedProcedure('team', 'edit')
+  addProjectMember: roleBasedProcedure('users', 'changeRole')
     .input(
       z.object({
         projectId: z.number(),
@@ -64,10 +64,10 @@ export const teamRouter = router({
       if (project) {
         await createNotification({
           userId: input.userId,
-          type: "team_assignment",
+          type: "project_member_added",
           title: "เพิ่มเข้าทีมโครงการ",
-          message: `คุณได้ถูกเพิ่มเข้าทีมโครงการ "${project.name}" ในบทบาท ${input.role}`,
-          link: `/projects/${input.projectId}`,
+          content: `คุณได้ถูกเพิ่มเข้าทีมโครงการ "${project.name}" ในบทบาท ${input.role}`,
+          relatedProjectId: input.projectId,
         });
       }
 
@@ -77,7 +77,7 @@ export const teamRouter = router({
   /**
    * Remove a team member from a project
    */
-  removeProjectMember: roleBasedProcedure('team', 'edit')
+  removeProjectMember: roleBasedProcedure('users', 'changeRole')
     .input(
       z.object({
         projectId: z.number(),
@@ -101,7 +101,7 @@ export const teamRouter = router({
   /**
    * Update team member's role in a project
    */
-  updateMemberRole: roleBasedProcedure('team', 'edit')
+  updateMemberRole: roleBasedProcedure('users', 'changeRole')
     .input(
       z.object({
         projectId: z.number(),
@@ -123,13 +123,13 @@ export const teamRouter = router({
       // Send notification to the member
       const project = await db.getProjectById(input.projectId);
       if (project) {
-        await createNotification({
-          userId: input.userId,
-          type: "team_assignment",
-          title: "บทบาทในทีมเปลี่ยนแปลง",
-          message: `บทบาทของคุณในโครงการ "${project.name}" ถูกเปลี่ยนเป็น ${input.role}`,
-          link: `/projects/${input.projectId}`,
-        });
+      await createNotification({
+        userId: input.userId,
+        type: "project_member_added",
+        title: "บทบาทในทีมเปลี่ยนแปลง",
+        content: `บทบาทของคุณในโครงการ "${project.name}" ถูกเปลี่ยนเป็น ${input.role}`,
+        relatedProjectId: input.projectId,
+      });
       }
 
       return result;
@@ -138,7 +138,7 @@ export const teamRouter = router({
   /**
    * Update user's global role (Admin/Owner only)
    */
-  updateUserRole: roleBasedProcedure('team', 'edit')
+  updateUserRole: roleBasedProcedure('users', 'changeRole')
     .input(
       z.object({
         userId: z.number(),
@@ -166,10 +166,9 @@ export const teamRouter = router({
       // Send notification to the user
       await createNotification({
         userId: input.userId,
-        type: "system",
+        type: "system_health_info",
         title: "บทบาทของคุณเปลี่ยนแปลง",
-        message: `บทบาทของคุณในระบบถูกเปลี่ยนเป็น ${input.role}`,
-        link: "/profile",
+        content: `บทบาทของคุณในระบบถูกเปลี่ยนเป็น ${input.role}`,
       });
 
       return result;

@@ -3917,7 +3917,14 @@ export async function getUserTasks(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  let query = db
+  const whereConditions = status && status !== "all"
+    ? and(
+        eq(tasks.assigneeId, userId),
+        eq(tasks.status, status as any)
+      )
+    : eq(tasks.assigneeId, userId);
+
+  const query = db
     .select({
       id: tasks.id,
       projectId: tasks.projectId,
@@ -3933,39 +3940,11 @@ export async function getUserTasks(
     })
     .from(tasks)
     .leftJoin(projects, eq(tasks.projectId, projects.id))
-    .where(eq(tasks.assigneeId, userId))
+    .where(whereConditions)
     .orderBy(tasks.endDate);
 
-  if (status && status !== "all") {
-    if (status === "todo") {
-      query = query.where(
-        and(
-          eq(tasks.assigneeId, userId),
-          eq(tasks.status, "todo")
-        )
-      ) as any;
-    } else if (status === "in_progress") {
-      query = query.where(
-        and(
-          eq(tasks.assigneeId, userId),
-          eq(tasks.status, "in_progress")
-        )
-      ) as any;
-    } else if (status === "completed") {
-      query = query.where(
-        and(
-          eq(tasks.assigneeId, userId),
-          eq(tasks.status, "completed")
-        )
-      ) as any;
-    }
-  }
-
-  if (limit) {
-    query = query.limit(limit) as any;
-  }
-
-  return await query;
+  const results = await query;
+  return results;
 }
 
 export async function getProjectActivity(projectId: number, limit: number = 50) {
@@ -4052,7 +4031,7 @@ export async function getWorkloadStatistics(projectId?: number) {
   const db = await getDb();
   if (!db) return [];
 
-  let query = db
+  const query = db
     .select({
       userId: users.id,
       userName: users.name,
@@ -4067,13 +4046,13 @@ export async function getWorkloadStatistics(projectId?: number) {
     .from(users)
     .leftJoin(taskAssignments, eq(taskAssignments.userId, users.id))
     .leftJoin(tasks, eq(tasks.id, taskAssignments.taskId))
-    .groupBy(users.id);
+    .$dynamic();
 
-  if (projectId) {
-    query = query.where(eq(tasks.projectId, projectId));
-  }
+  const finalQuery = projectId
+    ? query.where(eq(tasks.projectId, projectId)).groupBy(users.id)
+    : query.groupBy(users.id);
 
-  return await query;
+  return await finalQuery;
 }
 
 export async function getUserWorkload(userId: number) {
@@ -4156,7 +4135,7 @@ export async function getRoleDashboardData(userId: number, role: string) {
           ? db.select().from(tasks).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
           : [],
         pmProjectIds.length > 0
-          ? db.select().from(defects).where(sql`${defects.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
+          ? db.select().from(defects).leftJoin(tasks, eq(tasks.id, defects.taskId)).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`).then(results => results.map(r => r.defects))
           : [],
         pmProjectIds.length > 0
           ? db
@@ -4183,22 +4162,22 @@ export async function getRoleDashboardData(userId: number, role: string) {
       const qcDefects = await db
         .select()
         .from(defects)
-        .leftJoin(projects, eq(projects.id, defects.projectId));
+        .leftJoin(tasks, eq(tasks.id, defects.taskId))
+        .leftJoin(projects, eq(projects.id, tasks.projectId));
 
       const qcInspections = await db
         .select()
-        .from(inspections)
-        .leftJoin(tasks, eq(tasks.id, inspections.taskId))
-        .where(eq(inspections.inspectorId, userId));
+        .from(taskChecklists)
+        .leftJoin(tasks, eq(tasks.id, taskChecklists.taskId));
 
       return {
         ...baseData,
         defects: qcDefects.map((d) => d.defects),
-        inspections: qcInspections.map((i) => i.inspections),
+        inspections: qcInspections.map((i) => i.taskChecklists),
         totalDefects: qcDefects.length,
         totalInspections: qcInspections.length,
         pendingInspections: qcInspections.filter(
-          (i) => i.inspections.status === "pending"
+          (i) => i.taskChecklists && i.taskChecklists.status === "pending_inspection"
         ).length,
       };
 

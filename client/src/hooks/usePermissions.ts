@@ -42,7 +42,7 @@ export function usePermissions(resource: keyof typeof PERMISSIONS) {
     isAdmin: role === 'admin' || role === 'owner',
     isPM: role === 'project_manager',
     isQC: role === 'qc_inspector',
-    isFieldEngineer: role === 'field_engineer',
+    isWorker: role === 'worker',
   };
 }
 

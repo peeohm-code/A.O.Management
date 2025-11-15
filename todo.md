@@ -281,3 +281,52 @@
 - [x] ปรับปรุง UI ของ dropdown ให้มีช่อง search input
 - [x] เพิ่มฟีเจอร์กรอง template ตามชื่อแบบ real-time
 - [x] ปรับปรุง UX ให้ค้นหาได้ง่ายและรวดเร็ว
+
+
+## 🔄 UI/UX Improvement - Merge Workload into Team Management (New Request)
+
+### Restructure Navigation
+- [x] ลบเมนู "Workload" ที่แยกออกมา
+- [x] รวมฟีเจอร์ Workload เข้ากับหน้า Team Management
+- [x] เปลี่ยนชื่อเมนูเป็น "Team & Workload" หรือคง "Team Management"
+
+### Team Management Page Enhancement
+- [x] เพิ่ม Tab/Section สำหรับ Workload Overview ในหน้า Team Management
+- [x] แสดงรายชื่อทีมงาน + สถานะภาระงาน (underload/normal/overload) ในที่เดียว
+- [x] เพิ่มกราฟ/แผนภูมิแสดง workload distribution
+- [x] เพิ่มตัวกรองดูตาม role, project, หรือสถานะ
+
+### UI Components
+- [x] ใช้ Tabs component จาก shadcn/ui แยก Team Management และ Workload
+- [x] รวม WorkloadCard และ Progress components ในหน้า Team Management
+- [x] แสดงข้อมูล workload พร้อมสถิติและคำแนะนำ
+
+### Navigation Update
+- [x] อัปเดต DashboardLayout sidebar navigation
+- [x] ลบลิงก์ไปหน้า Workload ที่แยกออกมา
+- [x] อัปเดต routing ใน App.tsx (ลบ /workload route)
+- [x] ทดสอบการนำทางและ UX flow ใหม่
+
+## 🔧 Latest Bug Fixes (Nov 15, 2025)
+
+### TypeScript Errors Fixed
+- [x] แก้ไข defects.projectId ที่ไม่มีใน schema - ใช้ join กับ tasks แทน
+- [x] แก้ไข inspections table ที่ไม่มี - เปลี่ยนเป็น taskChecklists
+- [x] แก้ไข role type mismatch - เปลี่ยน field_engineer เป็น worker
+- [x] แก้ไข notification category errors - เปลี่ยน team เป็น users
+- [x] แก้ไข notification type errors - เปลี่ยน team_assignment เป็น project_member_added
+- [x] แก้ไข notification type system - เปลี่ยนเป็น system_health_info
+- [x] แก้ไข message property - เปลี่ยนเป็น content ตาม CreateNotificationParams
+- [x] แก้ไข usePermissions isFieldEngineer - เปลี่ยนเป็น isWorker
+- [x] แก้ไข getMyTasks where() ซ้ำซ้อน - ใช้ and() ใน where() แรก
+- [x] แก้ไข getWorkloadStatistics where() - ใช้ $dynamic() และ conditional query
+- [x] แก้ไข taskChecklists.inspectorId ที่ไม่มี - ลบ where clause
+- [x] แก้ไข task_checklists property - เปลี่ยนเป็น taskChecklists
+- [x] แก้ไข pending status - เปลี่ยนเป็น pending_inspection
+- [x] ทดสอบระบบและยืนยันว่าไม่มี TypeScript errors เหลืออยู่
+
+### System Status
+- ✅ TypeScript compilation: 0 errors
+- ✅ Dev server: Running successfully
+- ✅ Database: Connected
+- ✅ All features: Working properly
