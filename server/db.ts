@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql, { type Pool } from "mysql2/promise";
 import {
@@ -32,6 +32,8 @@ import {
   oomEvents,
   pushSubscriptions,
   InsertPushSubscription,
+  scheduledNotifications,
+  notificationSettings,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -3744,9 +3746,10 @@ export async function upsertNotificationSettings(data: {
       .where(eq(notificationSettings.userId, data.userId));
   } else {
     // Create new settings
+    const { userId, ...settingsData } = data;
     await db.insert(notificationSettings).values({
-      userId: data.userId,
-      ...data,
+      userId,
+      ...settingsData,
     });
   }
 }
@@ -3816,6 +3819,3 @@ export async function getOverdueDefects(daysThreshold: number) {
 
   return result;
 }
-
-import { scheduledNotifications, notificationSettings } from "../drizzle/schema";
-import { and, eq, lte, gte, notInArray } from "drizzle-orm";

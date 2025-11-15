@@ -106,7 +106,7 @@ export async function scheduleTaskDeadlineReminders() {
 
         // ตรวจสอบว่ายังไม่เคยสร้าง notification นี้
         const existing = await db.query.scheduledNotifications.findFirst({
-          where: (sn, { and, eq }) =>
+          where: (sn: any, { and, eq }: any) =>
             and(
               eq(sn.userId, user.id),
               eq(sn.relatedTaskId, task.id),
@@ -171,7 +171,7 @@ export async function scheduleDefectOverdueReminders() {
         today.setHours(0, 0, 0, 0);
 
         const existing = await db.query.scheduledNotifications.findFirst({
-          where: (sn, { and, eq, gte }) =>
+          where: (sn: any, { and, eq, gte }: any) =>
             and(
               eq(sn.userId, user.id),
               eq(sn.relatedDefectId, defect.id),

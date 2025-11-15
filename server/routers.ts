@@ -2355,78 +2355,9 @@ const categoryColorRouter = router({
     }),
 });
 
-/**
- * Monitoring Router - Database Monitoring & Performance
- */
-const monitoringRouter = router({
-  // Get slow queries
-  getSlowQueries: protectedProcedure
-    .input(z.object({ 
-      thresholdMs: z.number().optional().default(1000),
-      limit: z.number().optional().default(100)
-    }))
-    .query(async ({ input }) => {
-      return await db.getSlowQueries(input.thresholdMs, input.limit);
-    }),
-
-  // Get query statistics by table
-  getQueryStats: protectedProcedure
-    .input(z.object({ 
-      tableName: z.string().optional(),
-      hours: z.number().optional().default(24)
-    }))
-    .query(async ({ input }) => {
-      return await db.getQueryStatsByTable(input.tableName, input.hours);
-    }),
-
-  // Get latest database statistics
-  getDbStatistics: protectedProcedure.query(async () => {
-    return await db.getLatestDbStatistics();
-    }),
-
-  // Get database statistics history
-  getDbStatisticsHistory: protectedProcedure
-    .input(z.object({ 
-      tableName: z.string(),
-      days: z.number().optional().default(7)
-    }))
-    .query(async ({ input }) => {
-      return await db.getDbStatisticsHistory(input.tableName, input.days);
-    }),
-
-  // Collect current database statistics
-  collectStatistics: protectedProcedure.mutation(async () => {
-    const stats = await db.collectCurrentDbStatistics();
-    
-    // Save to database
-    for (const stat of stats) {
-      await db.saveDbStatistics({
-        tableName: stat.tableName,
-        rowCount: stat.rowCount,
-        dataSize: stat.dataSize,
-        indexSize: stat.indexSize,
-        avgQueryTime: null,
-        queryCount: 0,
-      });
-    }
-    
-    return { success: true, count: stats.length };
-  }),
-
-  // Get query errors
-  getQueryErrors: protectedProcedure
-    .input(z.object({ limit: z.number().optional().default(50) }))
-    .query(async ({ input }) => {
-      return await db.getQueryErrors(input.limit);
-    }),
-});
-
 export const appRouter = router({
   // Export Router
   export: exportRouter,
-  
-  // Monitoring Router
-  monitoring: monitoringRouter,
 
   // Archive notifications check endpoint
   checkArchiveNotifications: protectedProcedure.mutation(async () => {

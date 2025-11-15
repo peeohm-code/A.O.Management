@@ -85,7 +85,7 @@ export default function InspectionDetail() {
 
   const getResultBadge = (result: string) => {
     const resultMap = {
-      pass: { label: "ผ่าน", variant: "success" as const },
+      pass: { label: "ผ่าน", variant: "default" as const },
       fail: { label: "ไม่ผ่าน", variant: "destructive" as const },
       na: { label: "N/A", variant: "secondary" as const },
     };
@@ -98,7 +98,7 @@ export default function InspectionDetail() {
       not_started: { label: "ยังไม่เริ่ม", variant: "secondary" as const },
       pending_inspection: { label: "รอตรวจสอบ", variant: "default" as const },
       in_progress: { label: "กำลังตรวจสอบ", variant: "default" as const },
-      completed: { label: "ผ่าน", variant: "success" as const },
+      completed: { label: "ผ่าน", variant: "default" as const },
       failed: { label: "ไม่ผ่าน", variant: "destructive" as const },
     };
     const config = statusMap[status as keyof typeof statusMap] || statusMap.not_started;

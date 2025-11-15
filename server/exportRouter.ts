@@ -36,7 +36,7 @@ export const exportRouter = router({
         description: task.description || '-',
         status: formatStatus(task.status),
         priority: task.priority ? formatPriority(task.priority) : '-',
-        assignee: task.assigneeName || '-',
+        assignee: task.assigneeId ? `User ${task.assigneeId}` : '-',
         startDate: formatDate(task.startDate),
         endDate: formatDate(task.endDate),
         progress: `${task.progress || 0}%`,
@@ -87,7 +87,7 @@ export const exportRouter = router({
       const pdfData = tasks.map(task => ({
         name: task.name,
         status: formatStatus(task.status),
-        assignee: task.assigneeName || '-',
+        assignee: task.assigneeId ? `User ${task.assigneeId}` : '-',
         startDate: formatDate(task.startDate),
         endDate: formatDate(task.endDate),
         progress: `${task.progress || 0}%`,
@@ -129,7 +129,9 @@ export const exportRouter = router({
   exportDefectsExcel: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const defects = await db.getDefectsByProject(input.projectId);
+      const tasks = await db.getTasksByProject(input.projectId);
+      const allDefects = await db.getAllDefects();
+      const defects = allDefects.filter((d: any) => d.taskId && tasks.some((t: any) => t.id === d.taskId && t.projectId === input.projectId));
       const project = await db.getProjectById(input.projectId);
       
       if (!project) {
@@ -183,7 +185,9 @@ export const exportRouter = router({
   exportDefectsPDF: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const defects = await db.getDefectsByProject(input.projectId);
+      const tasks = await db.getTasksByProject(input.projectId);
+      const allDefects = await db.getAllDefects();
+      const defects = allDefects.filter((d: any) => d.taskId && tasks.some((t: any) => t.id === d.taskId && t.projectId === input.projectId));
       const project = await db.getProjectById(input.projectId);
       
       if (!project) {
@@ -236,7 +240,10 @@ export const exportRouter = router({
   exportInspectionsExcel: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const inspections = await db.getInspectionsByProject(input.projectId);
+      const tasks = await db.getTasksByProject(input.projectId);
+      const taskIds = tasks.map((t: any) => t.id);
+      const allChecklists = await db.getAllTaskChecklists();
+      const inspections = allChecklists.filter((c: any) => taskIds.includes(c.taskId));
       const project = await db.getProjectById(input.projectId);
       
       if (!project) {
@@ -244,16 +251,16 @@ export const exportRouter = router({
       }
 
       // Prepare data for Excel
-      const excelData = inspections.map(inspection => ({
+      const excelData = inspections.map((inspection: any) => ({
         id: inspection.id,
         taskName: inspection.taskName || '-',
-        checklistName: inspection.checklistName || '-',
-        inspectorName: inspection.inspectorName || '-',
-        inspectionDate: formatDateTime(inspection.inspectionDate),
-        overallResult: formatStatus(inspection.overallResult),
-        passCount: inspection.passCount || 0,
-        failCount: inspection.failCount || 0,
-        naCount: inspection.naCount || 0,
+        checklistName: inspection.templateName || '-',
+        inspectorName: inspection.inspectedBy ? `User ${inspection.inspectedBy}` : '-',
+        inspectionDate: formatDateTime(inspection.inspectedAt),
+        overallResult: formatStatus(inspection.status),
+        passCount: 0, // TODO: Calculate from results
+        failCount: 0, // TODO: Calculate from results
+        naCount: 0, // TODO: Calculate from results
         notes: inspection.notes || '-',
       }));
 
@@ -290,7 +297,10 @@ export const exportRouter = router({
   exportInspectionsPDF: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const inspections = await db.getInspectionsByProject(input.projectId);
+      const tasks = await db.getTasksByProject(input.projectId);
+      const taskIds = tasks.map((t: any) => t.id);
+      const allChecklists = await db.getAllTaskChecklists();
+      const inspections = allChecklists.filter((c: any) => taskIds.includes(c.taskId));
       const project = await db.getProjectById(input.projectId);
       
       if (!project) {
@@ -298,13 +308,14 @@ export const exportRouter = router({
       }
 
       // Prepare data for PDF
-      const pdfData = inspections.map(inspection => ({
-        taskName: inspection.taskName || '-',
-        checklistName: inspection.checklistName || '-',
-        inspectorName: inspection.inspectorName || '-',
-        inspectionDate: formatDate(inspection.inspectionDate),
-        overallResult: formatStatus(inspection.overallResult),
-        summary: `${inspection.passCount || 0}/${inspection.failCount || 0}/${inspection.naCount || 0}`,
+      const pdfData = inspections.map((inspection: any) => ({
+        checklistName: inspection.templateName || '-',
+        inspectorName: inspection.inspectedBy ? `User ${inspection.inspectedBy}` : '-',
+        inspectionDate: formatDateTime(inspection.inspectedAt),
+        overallResult: formatStatus(inspection.status),
+        passCount: 0, // TODO: Calculate from results
+        failCount: 0, // TODO: Calculate from results
+        naCount: 0, // TODO: Calculate from results
       }));
 
       const columns: PDFTableColumn[] = [

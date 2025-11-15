@@ -132,6 +132,19 @@
 - [x] ทดสอบระบบหลังแก้ไข
 - [x] สร้าง checkpoint หลังแก้ไขเสร็จสมบูรณ์
 
+## 🔧 Bug Fixes - TypeScript Errors (Priority)
+- [x] แก้ไข duplicate identifiers ใน server/db.ts (eq, and, gte, lte, userId)
+- [x] แก้ไข Badge variant "success" ใน InspectionDetail.tsx
+- [x] แก้ไข Badge variant "success" ใน InspectionHistory.tsx
+- [x] แก้ไข Badge variant "success" ใน ChecklistTemplateDetail.tsx
+- [x] แก้ไข trpc.inspection.getById ที่ไม่มีใน router (ไม่มีการใช้งานจริง)
+- [x] แก้ไข getDefectsByProject() ที่ไม่มีใน db.ts
+- [x] แก้ไข getInspectionsByProject() ที่ไม่มีใน db.ts
+- [x] แก้ไข assigneeName property ที่ไม่มีใน task type
+- [x] ลบ duplicate monitoringRouter ใน server/routers.ts
+- [x] แก้ไข implicit any types
+- [x] เพิ่ม error handling ที่ชัดเจน (เพิ่ม type annotations)
+
 ## 🚧 Pending Features
 
 ### System Monitoring & Reliability
