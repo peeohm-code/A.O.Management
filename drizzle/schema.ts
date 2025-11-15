@@ -107,6 +107,10 @@ export const tasks = mysqlTable("tasks", {
   projectIdx: index("projectIdx").on(table.projectId),
   assigneeIdx: index("assigneeIdx").on(table.assigneeId),
   parentIdx: index("parentIdx").on(table.parentTaskId),
+  statusIdx: index("statusIdx").on(table.status),
+  categoryIdx: index("categoryIdx").on(table.category),
+  startDateIdx: index("startDateIdx").on(table.startDate),
+  endDateIdx: index("endDateIdx").on(table.endDate),
 }));
 
 export type Task = typeof tasks.$inferSelect;
@@ -348,6 +352,7 @@ export const taskComments = mysqlTable("taskComments", {
 }, (table) => ({
   taskIdx: index("taskIdx").on(table.taskId),
   userIdx: index("userIdx").on(table.userId),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
 }));
 
 export type TaskComment = typeof taskComments.$inferSelect;
@@ -438,6 +443,10 @@ export const notifications = mysqlTable("notifications", {
 }, (table) => ({
   userIdx: index("userIdx").on(table.userId),
   isReadIdx: index("isReadIdx").on(table.isRead),
+  typeIdx: index("typeIdx").on(table.type),
+  relatedTaskIdx: index("relatedTaskIdx").on(table.relatedTaskId),
+  relatedProjectIdx: index("relatedProjectIdx").on(table.relatedProjectId),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
 }));
 
 export type Notification = typeof notifications.$inferSelect;
@@ -500,6 +509,8 @@ export const activityLog = mysqlTable("activityLog", {
   userIdx: index("userIdx").on(table.userId),
   projectIdx: index("projectIdx").on(table.projectId),
   taskIdx: index("taskIdx").on(table.taskId),
+  actionIdx: index("actionIdx").on(table.action),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
 }));
 
 export type ActivityLog = typeof activityLog.$inferSelect;

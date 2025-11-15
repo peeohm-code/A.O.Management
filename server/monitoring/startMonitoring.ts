@@ -11,9 +11,10 @@ const MONITORING_CONFIG = {
   intervalMs: 60000,
 
   // Memory thresholds (percentage)
+  // Adjusted for production use - more conservative thresholds
   thresholds: {
     warning: 70, // Send warning when memory usage exceeds 70%
-    critical: 85, // Send critical alert when memory usage exceeds 85%
+    critical: 90, // Send critical alert when memory usage exceeds 90%
     swapWarning: 50, // Send warning when swap usage exceeds 50%
   } as MemoryThresholds,
 };

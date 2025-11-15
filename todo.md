@@ -3194,3 +3194,7 @@ All requested features have been implemented and tested. The system is ready for
 - [x] Test System Monitor access control (Admin only)
 - [ ] Test Apply Indexes functionality (ready for user testing)
 - [ ] Verify performance improvements after applying indexes (requires production data)
+
+## Performance Optimization & Monitoring
+- [x] Apply database indexes เพื่อเพิ่มประสิทธิภาพการ query
+- [x] ปรับแต่ง alert thresholds ใน monitoring system (warning/critical levels)
