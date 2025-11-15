@@ -114,6 +114,32 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@trpc')) {
+              return 'trpc';
+            }
+            if (id.includes('@tanstack')) {
+              return 'tanstack';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            return 'vendor';
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false,
   },
   server: {
     host: true,
@@ -132,8 +158,7 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     watch: {
-      usePolling: true,
-      interval: 1000,
+      usePolling: false,
       ignored: [
         "**/node_modules/**",
         "**/.git/**",
@@ -143,6 +168,9 @@ export default defineConfig({
         "**/coverage/**",
         "**/server/**",
         "**/drizzle/**",
+        "**/todo.md",
+        "**/ideas.md",
+        "**/*.log",
       ],
     },
   },

@@ -21,13 +21,13 @@ export interface MemoryThresholds {
 }
 
 const DEFAULT_THRESHOLDS: MemoryThresholds = {
-  warning: 70,
-  critical: 85,
+  warning: 80,
+  critical: 90,
   swapWarning: 50,
 };
 
 let lastAlertTime: { [key: string]: number } = {};
-const ALERT_COOLDOWN = 5 * 60 * 1000; // 5 minutes cooldown between alerts
+const ALERT_COOLDOWN = 30 * 60 * 1000; // 30 minutes cooldown between alerts
 
 /**
  * Get current memory statistics

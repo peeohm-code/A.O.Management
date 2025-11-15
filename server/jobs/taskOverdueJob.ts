@@ -1,6 +1,6 @@
 import { getDb } from "../db";
-import { tasks, users, projects } from "../../drizzle/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { tasks, users, projects, notifications } from "../../drizzle/schema";
+import { and, eq, sql, desc } from "drizzle-orm";
 import { createNotification } from "../db";
 
 /**
@@ -54,6 +54,27 @@ export async function checkOverdueTasks() {
       const daysOverdue = task.taskEndDate
         ? Math.ceil((new Date().getTime() - new Date(task.taskEndDate).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
+
+      // เช็คว่าเคยส่ง notification สำหรับ task นี้ในวันนี้แล้วหรือยัง
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      
+      const existingNotification = await db
+        .select()
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.relatedTaskId, task.taskId),
+            eq(notifications.type, "task_overdue"),
+            sql`${notifications.createdAt} >= ${todayStart.toISOString()}`
+          )
+        )
+        .limit(1);
+
+      // ถ้าเคยส่งไปแล้ววันนี้ ข้ามไป
+      if (existingNotification.length > 0) {
+        continue;
+      }
 
       // ส่งการแจ้งเตือนไปยังผู้รับผิดชอบ (ถ้ามี)
       if (task.assigneeId) {
