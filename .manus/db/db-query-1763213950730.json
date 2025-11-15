@@ -1,9 +1,0 @@
-{
-  "query": "ALTER TABLE users MODIFY COLUMN role ENUM('owner', 'admin', 'project_manager', 'qc_inspector', 'worker') NOT NULL DEFAULT 'worker'",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute ALTER TABLE users MODIFY COLUMN role ENUM('owner', 'admin', 'project_manager', 'qc_inspector', 'worker') NOT NULL DEFAULT 'worker'",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 2575
-}

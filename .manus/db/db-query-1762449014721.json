@@ -1,9 +1,0 @@
-{
-  "query": "\nINSERT INTO projectMembers (projectId, userId, role, createdAt)\nSELECT \n  p.id as projectId,\n  u.id as userId,\n  CASE \n    WHEN u.role = 'owner' THEN 'project_manager'\n    WHEN u.name = 'สมชาย ใจดี' THEN 'project_manager'\n    WHEN u.name = 'สมหญิง วิศวกร' THEN 'field_engineer'\n    WHEN u.name = 'สมศรี ตรวจสอบ' THEN 'qc_inspector'\n  END as role,\n  NOW() as createdAt\nFROM projects p\nCROSS JOIN users u\nWHERE p.name = 'โครงการบ้านพักอาศัย 2 ชั้น'\n  AND (u.role = 'owner' OR u.name IN ('สมชาย ใจดี', 'สมหญิง วิศวกร', 'สมศรี ตรวจสอบ'));\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nINSERT INTO projectMembers (projectId, userId, role, createdAt)\nSELECT \n  p.id as projectId,\n  u.id as userId,\n  CASE \n    WHEN u.role = 'owner' THEN 'project_manager'\n    WHEN u.name = 'สมชาย ใจดี' THEN 'project_manager'\n    WHEN u.name = 'สมหญิง วิศวกร' THEN 'field_engineer'\n    WHEN u.name = 'สมศรี ตรวจสอบ' THEN 'qc_inspector'\n  END as role,\n  NOW() as createdAt\nFROM projects p\nCROSS JOIN users u\nWHERE p.name = 'โครงการบ้านพักอาศัย 2 ชั้น'\n  AND (u.role = 'owner' OR u.name IN ('สมชาย ใจดี', 'สมหญิง วิศวกร', 'สมศรี ตรวจสอบ'));\n",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 1549
-}
