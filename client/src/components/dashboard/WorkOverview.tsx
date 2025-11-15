@@ -5,9 +5,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ListTodo, ClipboardCheck, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Clock, AlertTriangle, ListTodo, ClipboardCheck } from "lucide-react";
 import { Link } from "wouter";
-
+import { ProgressBar } from "@/components/ProgressBar";
 interface WorkOverviewProps {
   stats: {
     taskStats?: {
@@ -168,36 +168,21 @@ export function WorkOverview({ stats }: WorkOverviewProps) {
                   <span className="text-gray-600">กำลังตรวจ</span>
                   <span className="font-semibold">{checklistStats.in_progress || 0}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: `${checklistInProgressPct}%` }}
-                  />
-                </div>
+                <ProgressBar value={checklistInProgressPct} size="sm" showLabel={false} variant="default" />
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-600">ผ่าน</span>
                   <span className="font-semibold">{checklistStats.passed || 0}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-600 h-2 rounded-full transition-all"
-                    style={{ width: `${checklistPassedPct}%` }}
-                  />
-                </div>
+                <ProgressBar value={checklistPassedPct} size="sm" showLabel={false} variant="default" />
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-600">ไม่ผ่าน</span>
                   <span className="font-semibold">{checklistStats.failed || 0}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-red-600 h-2 rounded-full transition-all"
-                    style={{ width: `${checklistFailedPct}%` }}
-                  />
-                </div>
+                <ProgressBar value={checklistFailedPct} size="sm" showLabel={false} variant="danger" />
               </div>
             </div>
 

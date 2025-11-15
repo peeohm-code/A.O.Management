@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle, Plus } from "lucide-react";
+import { CardSkeleton } from "@/components/skeletons";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
@@ -71,7 +72,7 @@ export default function QCInspection() {
 
   // Queries - get all checklists (taskName already included from backend)
   const utils = trpc.useUtils();
-  const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
+  const { data: checklistsData, refetch: refetchChecklists, isLoading: checklistsLoading } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
   const { data: projects } = trpc.project.list.useQuery();
   
@@ -282,6 +283,22 @@ export default function QCInspection() {
   const getStatusBadge = (status: string) => {
     return <StatusBadge status={status} />;
   };
+
+  if (checklistsLoading) {
+    return (
+      <div className="container py-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">QC Inspection Overview</h1>
+          <p className="text-muted-foreground mt-1">
+            ระบบตรวจสอบคุณภาพงานก่อสร้าง
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CardSkeleton count={6} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>

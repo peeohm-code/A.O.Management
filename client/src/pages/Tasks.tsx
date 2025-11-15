@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon } from "lucide-react";
+import { TaskCardSkeleton } from "@/components/skeletons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
@@ -204,8 +205,16 @@ export default function Tasks() {
 
   if (myTasksQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin w-8 h-8" />
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">งาน</h1>
+            <p className="text-gray-500">จัดการงานทั้งหมด</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          <TaskCardSkeleton count={8} />
+        </div>
       </div>
     );
   }
@@ -258,8 +267,8 @@ export default function Tasks() {
         </Card>
       )}
 
-      {/* Search and Filter */}
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+      {/* Search and Filter - Sticky */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-4 -mt-4 mb-2 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-4">
         <SearchBar
           placeholder="ค้นหางาน..."
           onSearch={setSearchTerm}

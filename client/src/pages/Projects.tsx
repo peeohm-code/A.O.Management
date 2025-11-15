@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Trash2, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
+import { ProjectCardSkeleton } from "@/components/skeletons";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
@@ -272,8 +273,16 @@ export default function Projects() {
 
   if (projectsQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin w-8 h-8 text-[#00CE81]" />
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">โครงการ</h1>
+            <p className="text-gray-500">จัดการโครงการทั้งหมด</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <ProjectCardSkeleton count={6} />
+        </div>
       </div>
     );
   }
@@ -448,8 +457,8 @@ export default function Projects() {
         </Card>
       </div>
 
-      {/* Search, Filter, and Sort - Same Row */}
-      <Card className="border-[#00366D]/20">
+      {/* Search, Filter, and Sort - Same Row - Sticky */}
+      <Card className="sticky top-0 z-10 border-[#00366D]/20 shadow-md">
         <CardContent className="p-4">
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
             <SearchBar

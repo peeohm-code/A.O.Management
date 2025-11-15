@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { ProgressBar } from "@/components/ProgressBar";
 
 interface Project {
   id: number;
@@ -253,18 +254,18 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all ${
-                        project.progress === 100
-                          ? "bg-green-500"
-                          : project.status.includes("delayed")
-                          ? "bg-red-500"
+                  <div className="mt-3">
+                    <ProgressBar
+                      value={project.progress}
+                      variant={
+                        project.status.includes("delayed")
+                          ? "danger"
                           : project.status.includes("at_risk")
-                          ? "bg-orange-500"
-                          : "bg-blue-500"
-                      }`}
-                      style={{ width: `${project.progress}%` }}
+                          ? "warning"
+                          : "default"
+                      }
+                      size="sm"
+                      showLabel={false}
                     />
                   </div>
                 </Card>
