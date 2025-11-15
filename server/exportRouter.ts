@@ -12,6 +12,7 @@ import {
   type ExcelColumn,
   type PDFTableColumn 
 } from "./export";
+import { generateProgressReport } from "./progressReport";
 
 /**
  * Export Router - Export data to Excel/PDF
@@ -335,6 +336,65 @@ export const exportRouter = router({
       return {
         data: base64,
         filename: `inspections_${project.code || project.id}_${Date.now()}.pdf`,
+      };
+    }),
+
+  // Export Daily Progress Report
+  exportDailyProgressReport: protectedProcedure
+    .input(z.object({ 
+      projectId: z.number().optional(),
+      date: z.string() // YYYY-MM-DD format
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const buffer = await generateProgressReport({
+        projectId: input.projectId,
+        startDate: input.date,
+        endDate: input.date,
+        reportType: 'daily',
+      });
+
+      const base64 = buffer.toString('base64');
+
+      await db.logActivity({
+        userId: ctx.user!.id,
+        projectId: input.projectId || 0,
+        action: "daily_progress_report_exported",
+        details: JSON.stringify({ date: input.date }),
+      });
+
+      return {
+        data: base64,
+        filename: `daily_progress_${input.date}.pdf`,
+      };
+    }),
+
+  // Export Weekly Progress Report
+  exportWeeklyProgressReport: protectedProcedure
+    .input(z.object({ 
+      projectId: z.number().optional(),
+      startDate: z.string(), // YYYY-MM-DD format
+      endDate: z.string() // YYYY-MM-DD format
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const buffer = await generateProgressReport({
+        projectId: input.projectId,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        reportType: 'weekly',
+      });
+
+      const base64 = buffer.toString('base64');
+
+      await db.logActivity({
+        userId: ctx.user!.id,
+        projectId: input.projectId || 0,
+        action: "weekly_progress_report_exported",
+        details: JSON.stringify({ startDate: input.startDate, endDate: input.endDate }),
+      });
+
+      return {
+        data: base64,
+        filename: `weekly_progress_${input.startDate}_to_${input.endDate}.pdf`,
       };
     }),
 });

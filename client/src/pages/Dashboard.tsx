@@ -5,6 +5,8 @@ import { KeyMetrics } from "@/components/dashboard/KeyMetrics";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { WorkOverview } from "@/components/dashboard/WorkOverview";
 import { FeaturedProjects } from "@/components/dashboard/FeaturedProjects";
+import { ProgressVsPlan } from "@/components/dashboard/ProgressVsPlan";
+import { ProgressReportExport } from "@/components/dashboard/ProgressReportExport";
 import { AllProjectsTable } from "@/components/dashboard/AllProjectsTable";
 import { AllProjectsCards } from "@/components/dashboard/AllProjectsCards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -182,6 +184,9 @@ export default function Dashboard() {
         <div className="px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content (70% on desktop) */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Progress vs Plan */}
+            <ProgressVsPlan projects={allProjects} />
+            
             {/* Work Overview */}
             <WorkOverview stats={stats || {}} />
 
@@ -196,6 +201,9 @@ export default function Dashboard() {
 
           {/* Sidebar (30% on desktop) - Hidden on mobile, shown at bottom */}
           <div className="hidden lg:block space-y-6">
+            {/* Progress Report Export */}
+            <ProgressReportExport projects={allProjects} />
+            
             {/* Quick Actions */}
             <QuickActions />
 
