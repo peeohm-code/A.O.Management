@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus } from "lucide-react";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { SwipeableCard } from "@/components/SwipeableCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   Select,
   SelectContent,
@@ -44,10 +46,21 @@ export default function Defects() {
   const [resolutionComment, setResolutionComment] = useState("");
   
   // Dashboard queries
+  const utils = trpc.useUtils();
   const metricsQuery = trpc.defect.getMetrics.useQuery();
   const statsByStatusQuery = trpc.defect.getStatsByStatus.useQuery();
   const statsByTypeQuery = trpc.defect.getStatsByType.useQuery();
   const statsByPriorityQuery = trpc.defect.getStatsByPriority.useQuery();
+  
+  const handleRefresh = async () => {
+    await Promise.all([
+      utils.defect.getMetrics.invalidate(),
+      utils.defect.getStatsByStatus.invalidate(),
+      utils.defect.getStatsByType.invalidate(),
+      utils.defect.getStatsByPriority.invalidate(),
+      utils.defect.list.invalidate(),
+    ]);
+  };
   const metrics = metricsQuery.data || { total: 0, open: 0, closed: 0, pendingVerification: 0, overdue: 0 };
   
   // RCA & Action Plan states
@@ -426,7 +439,8 @@ export default function Defects() {
   }
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Defect Tracking</h1>
@@ -587,39 +601,94 @@ export default function Defects() {
             const nextStatus = getNextStatus(defect.status);
             const canEdit = permissions.canEdit;
             
+            const swipeLeftActions: any[] = [];
+            const swipeRightActions: any[] = [];
+            
+            // Add status change action if available
+            if (canEdit && nextStatus) {
+              const getStatusIcon = (status: string) => {
+                switch (status) {
+                  case 'reported':
+                    return <CheckCircle2 className="h-5 w-5" />;
+                  case 'analysis':
+                    return <RefreshCw className="h-5 w-5" />;
+                  case 'in_progress':
+                    return <CheckCircle2 className="h-5 w-5" />;
+                  case 'resolved':
+                    return <XCircle className="h-5 w-5" />;
+                  default:
+                    return <CheckCircle2 className="h-5 w-5" />;
+                }
+              };
+              
+              const getStatusButtonText = (status: string) => {
+                switch (status) {
+                  case 'reported':
+                    return 'วิเคราะห์สาเหตุ';
+                  case 'analysis':
+                    return 'เริ่มแก้ไข';
+                  case 'in_progress':
+                    return 'บันทึกการแก้ไข';
+                  case 'resolved':
+                    return 'ปิดงาน';
+                  default:
+                    return 'อัพเดต';
+                }
+              };
+              
+              swipeLeftActions.push({
+                label: getStatusButtonText(defect.status),
+                color: "#10b981",
+                icon: getStatusIcon(defect.status),
+                onAction: () => handleQuickStatusChange(defect.id, defect.status),
+              });
+            }
+            
             return (
-              <div key={defect.id} className="relative">
+              <SwipeableCard
+                key={defect.id}
+                leftActions={swipeLeftActions}
+                rightActions={swipeRightActions}
+                disabled={updatingDefectId === defect.id}
+              >
                 <Card 
                   className="hover:shadow-md transition cursor-pointer"
                   onClick={() => setLocation(`/defects/${defect.id}`)}
                 >
-                    <CardContent className="pt-6 pb-16">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-5 h-5 text-red-600" />
-                            <h3 className="font-semibold text-lg">{defect.title}</h3>
+                    <CardContent className="pt-4 pb-14">
+                      <div className="space-y-2.5">
+                        {/* Title with Icon */}
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                          <h3 className="font-semibold text-base leading-tight flex-1">{defect.title}</h3>
+                        </div>
+                        
+                        {/* Description - Compact */}
+                        {defect.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 pl-6">{defect.description}</p>
+                        )}
+                        
+                        {/* Badges - Horizontal scroll on mobile */}
+                        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+                          <Badge className={`${getTypeColor(defect.type)} text-xs px-2 py-0.5`}>
+                            {defect.type}
+                          </Badge>
+                          <Badge className={`${getSeverityColor(defect.severity)} text-xs px-2 py-0.5`}>
+                            {defect.severity.toUpperCase()}
+                          </Badge>
+                          <Badge className={`${getStatusColor(defect.status)} text-xs px-2 py-0.5`}>
+                            {getStatusLabel(defect.status)}
+                          </Badge>
+                        </div>
+                        
+                        {/* Metadata - Single line */}
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <div className="truncate">
+                            งาน: {defect.taskName || 'Unknown Task'}
                           </div>
-                          {defect.description && (
-                            <p className="text-sm text-gray-600 mt-2 line-clamp-2">{defect.description}</p>
-                          )}
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            <Badge className={`${getTypeColor(defect.type)}`}>
-                              {defect.type}
-                            </Badge>
-                            <Badge className={`${getSeverityColor(defect.severity)}`}>
-                              {defect.severity.toUpperCase()}
-                            </Badge>
-                            <Badge className={`${getStatusColor(defect.status)}`}>
-                              {getStatusLabel(defect.status)}
-                            </Badge>
+                          <div className="truncate">
+                            {new Date(defect.createdAt).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">
-                            Checklist: {defect.checklistTemplateName || 'N/A'} • งาน: {defect.taskName || 'Unknown Task'}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Reported: {new Date(defect.createdAt).toLocaleDateString('th-TH')}
-                          </p>
                         </div>
                       </div>
                     </CardContent>
@@ -646,7 +715,7 @@ export default function Defects() {
                     </Button>
                   </div>
                 )}
-              </div>
+              </SwipeableCard>
             );
           })
         )}
@@ -1536,6 +1605,7 @@ export default function Defects() {
           variant="destructive"
         />
       )}
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }

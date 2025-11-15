@@ -2616,3 +2616,21 @@
 - [x] Add swipe hint indicators (arrows)
 - [x] Test swipe actions on Tasks page
 - [x] Verify all mutations work correctly (complete, edit, delete)
+
+## Mobile UX Improvements - Phase 2
+- [x] Add Swipe Actions to QC Inspection page (checklist cards)
+- [x] Add Swipe Actions to Defects page (defect cards)
+- [x] Implement Pull-to-refresh for Dashboard
+- [x] Implement Pull-to-refresh for Projects page
+- [x] Implement Pull-to-refresh for Tasks page
+- [x] Implement Pull-to-refresh for QC Inspection page
+- [x] Implement Pull-to-refresh for Defects page
+- [x] Improve Information Hierarchy - reduce card complexity
+- [x] Adjust font sizes for better mobile readability
+- [x] Enhance visual hierarchy with spacing and grouping
+- [x] Test all swipe actions on mobile devices
+- [x] Test pull-to-refresh functionality
+- [x] Verify responsive design on different screen sizes
+- [x] Add safe area support for notch and gesture bar
+- [x] Enable user scaling for accessibility
+- [x] Optimize FloatingActionButton positioning for mobile

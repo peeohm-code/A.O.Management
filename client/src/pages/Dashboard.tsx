@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, Calendar, X } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   Select,
   SelectContent,
@@ -27,9 +28,18 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [dateRange, setDateRange] = useState<DateRange>("all");
   
+  const utils = trpc.useUtils();
   const statsQuery = trpc.dashboard.getStats.useQuery();
   const projectsQuery = trpc.project.list.useQuery();
   const notificationsQuery = trpc.notification.list.useQuery();
+  
+  const handleRefresh = async () => {
+    await Promise.all([
+      utils.dashboard.getStats.invalidate(),
+      utils.project.list.invalidate(),
+      utils.notification.list.invalidate(),
+    ]);
+  };
 
   // Loading state with Skeleton
   if (statsQuery.isLoading || projectsQuery.isLoading) {
@@ -100,8 +110,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
-      <div className="space-y-8 pb-8">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+        <div className="space-y-8 pb-8">
         {/* Header with Date Range Filter */}
         <div className="bg-white border-b border-gray-200 -mx-6 -mt-6 px-6 py-6 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -251,7 +262,8 @@ export default function Dashboard() {
         <div className="lg:hidden px-6">
           <QuickActions />
         </div>
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

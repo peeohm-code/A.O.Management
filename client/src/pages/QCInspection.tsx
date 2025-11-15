@@ -17,6 +17,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/ImageUpload";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
+import { SwipeableCard } from "@/components/SwipeableCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 type InspectionResult = "pass" | "fail" | "na";
 
@@ -66,9 +68,18 @@ export default function QCInspection() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Queries - get all checklists (taskName already included from backend)
+  const utils = trpc.useUtils();
   const { data: checklistsData, refetch: refetchChecklists } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
   const { data: projects } = trpc.project.list.useQuery();
+  
+  const handleRefresh = async () => {
+    await Promise.all([
+      utils.checklist.getAllTaskChecklists.invalidate(),
+      utils.user.list.invalidate(),
+      utils.project.list.invalidate(),
+    ]);
+  };
   
   // Use checklists directly (taskName is already included from backend JOIN)
   const allChecklists = React.useMemo(() => {
@@ -272,7 +283,8 @@ export default function QCInspection() {
   };
 
   return (
-    <div className="container py-8">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="container py-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">QC Inspection Overview</h1>
         <p className="text-muted-foreground mt-1">
@@ -429,68 +441,89 @@ export default function QCInspection() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredChecklists.map((checklist) => (
-            <Card 
-              key={checklist.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => setSelectedChecklistId(checklist.id)}
+            <SwipeableCard
+              key={checklist.id}
+              leftActions={[
+                {
+                  label: "ตรวจสอบ",
+                  color: "#3b82f6",
+                  icon: <ClipboardCheck className="h-5 w-5" />,
+                  onAction: () => handleStartInspection(checklist.id),
+                },
+              ]}
+              rightActions={checklist.status === 'failed' && canCreate ? [
+                {
+                  label: "สร้าง CAR/NCR",
+                  color: "#ef4444",
+                  icon: <AlertTriangle className="h-5 w-5" />,
+                  onAction: () => handleCreateDefect(checklist.id),
+                },
+              ] : []}
+              disabled={checklist.status === 'completed'}
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{checklist.templateName || checklist.name}</CardTitle>
-                    <CardDescription className="mt-1 space-y-1">
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-3 w-3" />
-                        <span>งาน: {checklist.taskName}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-sm">
-                        <span>🏗️ โครงการ: {checklist.projectName || 'ไม่ระบุ'}</span>
-                      </div>
-                    </CardDescription>
-                  </div>
-                  {getStatusBadge(checklist.status || 'not_started')}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <ClipboardCheck className="h-4 w-4" />
-                    <span>{(checklist.items as any[])?.length || 0} รายการ</span>
-                  </div>
-                  {checklist.inspectedBy && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      <span>ตรวจโดย: User #{checklist.inspectedBy}</span>
+              <Card 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedChecklistId(checklist.id)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-base leading-tight truncate">{checklist.templateName || checklist.name}</CardTitle>
+                      <CardDescription className="mt-1.5 space-y-0.5">
+                        <div className="flex items-center gap-1 text-xs">
+                          <span className="truncate">งาน: {checklist.taskName}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs">
+                          <span className="truncate">🏗️ {checklist.projectName || 'ไม่ระบุ'}</span>
+                        </div>
+                      </CardDescription>
                     </div>
-                  )}
-                  <div className="space-y-2 mt-4">
-                    <Button 
-                      className="w-full" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleStartInspection(checklist.id);
-                      }}
-                      disabled={checklist.status === 'completed'}
-                    >
-                      {checklist.status === 'completed' ? 'ตรวจสอบแล้ว' : 'เริ่มตรวจสอบ'}
-                    </Button>
-                    {checklist.status === 'failed' && canCreate && (
+                    {getStatusBadge(checklist.status || 'not_started')}
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <ClipboardCheck className="h-3.5 w-3.5" />
+                        <span>{(checklist.items as any[])?.length || 0} รายการ</span>
+                      </div>
+                      {checklist.inspectedBy && (
+                        <div className="flex items-center gap-1.5">
+                          <User className="h-3.5 w-3.5" />
+                          <span className="truncate">User #{checklist.inspectedBy}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1.5 mt-3">
                       <Button 
-                        className="w-full" 
-                        variant="destructive"
+                        className="w-full h-9 text-sm" 
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleCreateDefect(checklist.id);
+                          handleStartInspection(checklist.id);
                         }}
+                        disabled={checklist.status === 'completed'}
                       >
-                        <AlertTriangle className="h-4 w-4 mr-2" />
-                        Create CAR/NCR
+                        {checklist.status === 'completed' ? 'ตรวจสอบแล้ว' : 'เริ่มตรวจสอบ'}
                       </Button>
-                    )}
-                  </div>
+                      {checklist.status === 'failed' && canCreate && (
+                        <Button 
+                          className="w-full h-9 text-sm" 
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCreateDefect(checklist.id);
+                          }}
+                        >
+                          <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+                          Create CAR/NCR
+                        </Button>
+                      )}
+                    </div>
                 </div>
               </CardContent>
             </Card>
+          </SwipeableCard>
           ))}
         </div>
       </div>
@@ -900,6 +933,7 @@ export default function QCInspection() {
           label="ตรวจสอบ"
         />
       )}
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }

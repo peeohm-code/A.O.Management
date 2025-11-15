@@ -25,7 +25,14 @@ export default function FloatingActionButton({
     <button
       onClick={onClick}
       className={cn(
-        "fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40",
+        "fixed z-40",
+        // Mobile positioning with safe area
+        "bottom-20 right-4",
+        "[bottom:calc(5rem+env(safe-area-inset-bottom))]",
+        "[right:calc(1rem+env(safe-area-inset-right))]",
+        // Desktop positioning
+        "md:bottom-6 md:right-6",
+        "md:[bottom:1.5rem] md:[right:1.5rem]",
         "h-14 w-14 rounded-full shadow-lg",
         variantStyles[variant],
         "hover:shadow-xl hover:scale-105",

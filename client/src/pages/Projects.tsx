@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { usePermissions } from "@/hooks/usePermissions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,9 +58,14 @@ export default function Projects() {
     status: "active" as "planning" | "active" | "on_hold" | "completed" | "cancelled",
   });
 
+  const utils = trpc.useUtils();
   const projectsQuery = trpc.project.list.useQuery();
   const createProjectMutation = trpc.project.create.useMutation();
   const updateProjectMutation = trpc.project.update.useMutation();
+  
+  const handleRefresh = async () => {
+    await utils.project.list.invalidate();
+  };
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -272,7 +278,8 @@ export default function Projects() {
   }
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -734,6 +741,7 @@ export default function Projects() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }

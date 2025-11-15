@@ -28,6 +28,7 @@ import { Link } from "wouter";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { SwipeableCard } from "@/components/SwipeableCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { Plus, Edit, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
@@ -47,6 +48,10 @@ export default function Tasks() {
 
   const myTasksQuery = trpc.task.myTasks.useQuery();
   const utils = trpc.useUtils();
+  
+  const handleRefresh = async () => {
+    await utils.task.myTasks.invalidate();
+  };
 
   const bulkUpdateStatusMutation = trpc.task.bulkUpdateStatus.useMutation({
     onSuccess: (data) => {
@@ -205,7 +210,8 @@ export default function Tasks() {
   }
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -533,40 +539,42 @@ export default function Tasks() {
                       <CardDescription className="line-clamp-2">{task.description}</CardDescription>
                     )}
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2.5">
+                    {/* Project Name - Compact */}
                     {task.projectName && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Building2 className="w-4 h-4" />
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
                         <span className="truncate">{task.projectName}</span>
                       </div>
                     )}
 
+                    {/* Progress Bar - Larger for visibility */}
                     <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Progress</span>
-                        <span className="font-semibold">{task.progress}%</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">Progress</span>
+                        <span className="text-sm font-bold">{task.progress}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
                         <div
-                          className="bg-[#00366D] h-2 rounded-full transition-all"
+                          className="bg-[#00366D] h-2.5 rounded-full transition-all"
                           style={{ width: `${task.progress}%` }}
                         />
                       </div>
                     </div>
 
-                    {task.startDate && task.endDate && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          {parseDate(task.startDate).toLocaleDateString()} - {parseDate(task.endDate).toLocaleDateString()}
-                        </span>
+                    {/* Due Date - Show only end date for simplicity */}
+                    {task.endDate && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>ครบกำหนด: {parseDate(task.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                     )}
 
+                    {/* Assignee - Compact */}
                     {task.assigneeName && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <User className="w-4 h-4" />
-                        <span>{task.assigneeName}</span>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <User className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{task.assigneeName}</span>
                       </div>
                     )}
                   </CardContent>
@@ -674,6 +682,7 @@ export default function Tasks() {
       {showNewTaskDialog && (
         <NewTaskDialog projectId={undefined} />
       )}
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }
