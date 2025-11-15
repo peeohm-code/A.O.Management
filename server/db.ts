@@ -3618,3 +3618,204 @@ export async function getInspectionSummaryByTask(taskId: number) {
 
   return summary;
 }
+
+// ==================== Scheduled Notifications ====================
+
+/**
+ * สร้าง scheduled notification สำหรับแจ้งเตือนอัตโนมัติ
+ */
+export async function createScheduledNotification(data: {
+  type: "task_deadline_reminder" | "defect_overdue_reminder" | "inspection_reminder" | "daily_summary";
+  userId: number;
+  relatedTaskId?: number;
+  relatedDefectId?: number;
+  relatedProjectId?: number;
+  scheduledFor: Date;
+  title: string;
+  content?: string;
+  priority?: "urgent" | "high" | "normal" | "low";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(scheduledNotifications).values({
+    type: data.type,
+    userId: data.userId,
+    relatedTaskId: data.relatedTaskId,
+    relatedDefectId: data.relatedDefectId,
+    relatedProjectId: data.relatedProjectId,
+    scheduledFor: data.scheduledFor,
+    title: data.title,
+    content: data.content,
+    priority: data.priority || "normal",
+    status: "pending",
+  });
+
+  return result;
+}
+
+/**
+ * ดึง scheduled notifications ที่ถึงเวลาส่งแล้ว
+ */
+export async function getPendingScheduledNotifications() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const result = await db
+    .select()
+    .from(scheduledNotifications)
+    .where(
+      and(
+        eq(scheduledNotifications.status, "pending"),
+        lte(scheduledNotifications.scheduledFor, now)
+      )
+    )
+    .limit(100);
+
+  return result;
+}
+
+/**
+ * อัปเดตสถานะ scheduled notification
+ */
+export async function updateScheduledNotificationStatus(
+  id: number,
+  status: "sent" | "failed" | "cancelled",
+  errorMessage?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(scheduledNotifications)
+    .set({
+      status,
+      sentAt: status === "sent" ? new Date() : undefined,
+      errorMessage,
+    })
+    .where(eq(scheduledNotifications.id, id));
+}
+
+/**
+ * ดึงการตั้งค่าการแจ้งเตือนของ user
+ */
+export async function getNotificationSettings(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(notificationSettings)
+    .where(eq(notificationSettings.userId, userId))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+/**
+ * สร้างหรืออัปเดตการตั้งค่าการแจ้งเตือน
+ */
+export async function upsertNotificationSettings(data: {
+  userId: number;
+  enableTaskDeadlineReminders?: boolean;
+  taskDeadlineDaysAdvance?: number;
+  enableDefectOverdueReminders?: boolean;
+  defectOverdueDaysThreshold?: number;
+  enableDailySummary?: boolean;
+  dailySummaryTime?: string;
+  enableInAppNotifications?: boolean;
+  enableEmailNotifications?: boolean;
+  enablePushNotifications?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await getNotificationSettings(data.userId);
+
+  if (existing) {
+    // Update existing settings
+    await db
+      .update(notificationSettings)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(notificationSettings.userId, data.userId));
+  } else {
+    // Create new settings
+    await db.insert(notificationSettings).values({
+      userId: data.userId,
+      ...data,
+    });
+  }
+}
+
+/**
+ * ดึง tasks ที่ใกล้ครบกำหนด (สำหรับสร้าง scheduled notifications)
+ */
+export async function getUpcomingDeadlineTasks(daysAdvance: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const today = new Date();
+  const futureDate = new Date(today);
+  futureDate.setDate(futureDate.getDate() + daysAdvance);
+
+  const todayStr = today.toISOString().split('T')[0];
+  const futureDateStr = futureDate.toISOString().split('T')[0];
+
+  const result = await db
+    .select({
+      id: tasks.id,
+      name: tasks.name,
+      endDate: tasks.endDate,
+      assigneeId: tasks.assigneeId,
+      projectId: tasks.projectId,
+      status: tasks.status,
+    })
+    .from(tasks)
+    .where(
+      and(
+        gte(tasks.endDate, todayStr),
+        lte(tasks.endDate, futureDateStr),
+        notInArray(tasks.status, ["completed", "cancelled"] as any)
+      )
+    );
+
+  return result;
+}
+
+/**
+ * ดึง defects ที่ค้างนาน (สำหรับสร้าง scheduled notifications)
+ */
+export async function getOverdueDefects(daysThreshold: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - daysThreshold);
+
+  const result = await db
+    .select({
+      id: defects.id,
+      title: defects.title,
+      taskId: defects.taskId,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      status: defects.status,
+      createdAt: defects.createdAt,
+    })
+    .from(defects)
+    .where(
+      and(
+        lte(defects.createdAt, thresholdDate),
+        notInArray(defects.status, ["closed", "resolved"] as any)
+      )
+    );
+
+  return result;
+}
+
+import { scheduledNotifications, notificationSettings } from "../drizzle/schema";
+import { and, eq, lte, gte, notInArray } from "drizzle-orm";

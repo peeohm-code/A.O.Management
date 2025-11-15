@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { CameraCapture } from '@/components/CameraCapture';
 
 interface ImageUploadProps {
   value: string[]; // Array of image URLs
@@ -13,6 +14,7 @@ interface ImageUploadProps {
 
 export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = false, cameraFirst = true }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,6 +75,38 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
     onChange(newUrls);
   };
 
+  const handleCameraCapture = async (blob: Blob, dataUrl: string) => {
+    if (value.length >= maxImages) {
+      toast.error(`สูงสุด ${maxImages} รูป`);
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Create FormData
+      const formData = new FormData();
+      formData.append('file', blob, 'camera-capture.jpg');
+
+      // Upload to server
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      onChange([...value, data.url]);
+      toast.success('อัปโหลดรูปภาพสำเร็จ');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Upload Buttons - Camera First on Mobile */}
@@ -108,7 +142,7 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
             {/* Camera Button - Primary on Mobile */}
             <Button
               type="button"
-              onClick={() => cameraInputRef.current?.click()}
+              onClick={() => setShowCamera(true)}
               disabled={disabled || uploading}
               className="flex-1 h-12 text-base md:flex-none md:h-11"
               variant="default"
@@ -173,6 +207,14 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
           <p className="text-xs mt-1">กดปุ่ม "ถ่ายรูป" เพื่อเริ่มต้น</p>
         </div>
       )}
+
+      {/* Camera Capture Dialog */}
+      <CameraCapture
+        open={showCamera}
+        onClose={() => setShowCamera(false)}
+        onCapture={handleCameraCapture}
+        title="ถ่ายรูปภาพประกอบ"
+      />
     </div>
   );
 }

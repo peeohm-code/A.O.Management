@@ -75,14 +75,15 @@
 
 ### UI Enhancements
 - [ ] Implement dark/light theme toggle
-- [ ] Add photo capture directly in checklist items (camera integration)
+- [x] Add photo capture directly in checklist items (camera integration)
 - [ ] Improve document viewer for mobile
 - [ ] Add more chart types in dashboard (progress vs. plan comparison)
 - [ ] Implement advanced filtering in task list
 
 ### Advanced Features
 - [ ] Add re-inspection tracking improvements
-- [ ] Create deadline reminder notifications (scheduled)
+- [x] Create deadline reminder notifications (scheduled)
+- [x] Create overdue defect notifications (scheduled)
 - [ ] Implement bulk operations (assign multiple tasks, bulk status update)
 - [ ] Add export functionality (Excel, CSV)
 - [ ] Create project templates

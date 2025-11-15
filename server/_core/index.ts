@@ -152,6 +152,13 @@ async function startServer() {
     
     // Initialize system monitoring
     initializeMonitoring();
+    
+    // Initialize notification scheduler
+    import('../notificationScheduler').then(({ startNotificationScheduler }) => {
+      startNotificationScheduler();
+    }).catch(err => {
+      console.error('[Server] Failed to start notification scheduler:', err);
+    });
   });
 
   // Graceful shutdown handler

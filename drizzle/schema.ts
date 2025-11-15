@@ -703,3 +703,67 @@ export const oomEvents = mysqlTable("oomEvents", {
 
 export type OomEvent = typeof oomEvents.$inferSelect;
 export type InsertOomEvent = typeof oomEvents.$inferInsert;
+
+/**
+ * Scheduled Notifications - ระบบแจ้งเตือนอัตโนมัติตามเวลาที่กำหนด
+ */
+export const scheduledNotifications = mysqlTable("scheduledNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  type: mysqlEnum("type", [
+    "task_deadline_reminder",      // แจ้งเตือนก่อนถึง deadline ของงาน
+    "defect_overdue_reminder",     // แจ้งเตือน defect ที่ค้างนาน
+    "inspection_reminder",         // แจ้งเตือนตรวจสอบที่ค้างอยู่
+    "daily_summary"                // สรุปรายวัน
+  ]).notNull(),
+  userId: int("userId").notNull(),
+  relatedTaskId: int("relatedTaskId"),
+  relatedDefectId: int("relatedDefectId"),
+  relatedProjectId: int("relatedProjectId"),
+  scheduledFor: timestamp("scheduledFor").notNull(), // เวลาที่จะส่งการแจ้งเตือน
+  status: mysqlEnum("status", ["pending", "sent", "failed", "cancelled"]).default("pending").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content"),
+  priority: mysqlEnum("priority", ["urgent", "high", "normal", "low"]).default("normal").notNull(),
+  sentAt: timestamp("sentAt"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("userIdx").on(table.userId),
+  scheduledForIdx: index("scheduledForIdx").on(table.scheduledFor),
+  statusIdx: index("statusIdx").on(table.status),
+  typeIdx: index("typeIdx").on(table.type),
+  relatedTaskIdx: index("relatedTaskIdx").on(table.relatedTaskId),
+  relatedDefectIdx: index("relatedDefectIdx").on(table.relatedDefectId),
+}));
+
+export type ScheduledNotification = typeof scheduledNotifications.$inferSelect;
+export type InsertScheduledNotification = typeof scheduledNotifications.$inferInsert;
+
+/**
+ * Notification Settings - การตั้งค่าการแจ้งเตือนของแต่ละ user
+ */
+export const notificationSettings = mysqlTable("notificationSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  // Task deadline reminders
+  enableTaskDeadlineReminders: boolean("enableTaskDeadlineReminders").default(true).notNull(),
+  taskDeadlineDaysAdvance: int("taskDeadlineDaysAdvance").default(3).notNull(), // แจ้งเตือนกี่วันล่วงหน้า
+  // Defect reminders
+  enableDefectOverdueReminders: boolean("enableDefectOverdueReminders").default(true).notNull(),
+  defectOverdueDaysThreshold: int("defectOverdueDaysThreshold").default(7).notNull(), // ถือว่า defect ค้างนานเมื่อเกินกี่วัน
+  // Daily summary
+  enableDailySummary: boolean("enableDailySummary").default(false).notNull(),
+  dailySummaryTime: varchar("dailySummaryTime", { length: 5 }).default("08:00"), // เวลาส่งสรุปรายวัน (HH:mm)
+  // Notification channels
+  enableInAppNotifications: boolean("enableInAppNotifications").default(true).notNull(),
+  enableEmailNotifications: boolean("enableEmailNotifications").default(true).notNull(),
+  enablePushNotifications: boolean("enablePushNotifications").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("userIdx").on(table.userId),
+}));
+
+export type NotificationSetting = typeof notificationSettings.$inferSelect;
+export type InsertNotificationSetting = typeof notificationSettings.$inferInsert;

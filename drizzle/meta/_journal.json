@@ -190,6 +190,13 @@
       "when": 1763198467876,
       "tag": "0026_gorgeous_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1763200315872,
+      "tag": "0027_long_penance",
+      "breakpoints": true
     }
   ]
 }
