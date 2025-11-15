@@ -391,3 +391,14 @@
 3. Inspections
 4. Reports
 5. Settings
+
+
+## 🔍 System Health Check - 15 พ.ย. 2568
+
+### Minor Issues Found
+- [x] แก้ไข NaN% display ใน Dashboard KeyMetrics (division by zero เมื่อไม่มีข้อมูลสัปดาห์ก่อน)
+- [ ] แก้ไข Service Worker update notification ที่แสดงซ้ำซ้อน
+- [ ] Implement inspection statistics calculation (passCount, failCount, naCount) ใน exportRouter.ts
+- [ ] Integrate email service จริงแทน notifyOwner ใน dailySummaryJob.ts
+- [ ] Implement task followers feature ใน notificationService.ts
+- [ ] Integrate error tracking service (Sentry) ใน errorLogger.ts

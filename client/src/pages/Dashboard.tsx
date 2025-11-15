@@ -70,83 +70,7 @@ export default function Dashboard() {
     { enabled: !!tasks && tasks.length > 0 }
   );
   
-  const handleRefresh = async () => {
-    await Promise.all([
-      utils.dashboard.getStats.invalidate(),
-      utils.project.list.invalidate(),
-      utils.notification.list.invalidate(),
-    ]);
-  };
-
-  // Loading state with Skeleton
-  if (statsQuery.isLoading || projectsQuery.isLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  const stats = statsQuery.data;
-  const allProjects = projectsQuery.data || [];
-  const notifications = notificationsQuery.data || [];
-
-  // Filter projects by date range
-  const getDateRangeFilter = (range: DateRange): Date | null => {
-    const now = new Date();
-    switch (range) {
-      case "today":
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return today;
-      case "week":
-        const weekAgo = new Date();
-        weekAgo.setDate(now.getDate() - 7);
-        return weekAgo;
-      case "month":
-        const monthAgo = new Date();
-        monthAgo.setMonth(now.getMonth() - 1);
-        return monthAgo;
-      case "quarter":
-        const quarterAgo = new Date();
-        quarterAgo.setMonth(now.getMonth() - 3);
-        return quarterAgo;
-      case "all":
-      default:
-        return null;
-    }
-  };
-
-  const filterProjectsByDateRange = (projects: any[]) => {
-    const filterDate = getDateRangeFilter(dateRange);
-    if (!filterDate) return projects;
-
-    return projects.filter((project) => {
-      const projectDate = project.createdAt ? new Date(project.createdAt) : null;
-      return projectDate && projectDate >= filterDate;
-    });
-  };
-
-  const filteredProjects = filterProjectsByDateRange(allProjects);
-
-  // Filter active projects only
-  const activeProjects = filteredProjects.filter(
-    (p) => p.status !== "completed" && p.status !== "cancelled"
-  );
-
-  const getDateRangeLabel = (range: DateRange): string => {
-    switch (range) {
-      case "today":
-        return "วันนี้";
-      case "week":
-        return "สัปดาห์นี้";
-      case "month":
-        return "เดือนนี้";
-      case "quarter":
-        return "ไตรมาสนี้";
-      case "all":
-      default:
-        return "ทั้งหมด";
-    }
-  };
-
-  // Analytics calculations
+  // Analytics calculations - MUST be before early return to avoid hooks order violation
   const progressVsPlanData = useMemo(() => {
     if (!tasks || tasks.length === 0) return [];
 
@@ -246,6 +170,82 @@ export default function Dashboard() {
       onTrackPercentage: Math.round((onTrackTasks / totalTasks) * 100),
     };
   }, [tasks, progressVsPlanData]);
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      utils.dashboard.getStats.invalidate(),
+      utils.project.list.invalidate(),
+      utils.notification.list.invalidate(),
+    ]);
+  };
+
+  // Loading state with Skeleton - MUST be after all hooks
+  if (statsQuery.isLoading || projectsQuery.isLoading) {
+    return <DashboardSkeleton />;
+  }
+
+  const stats = statsQuery.data;
+  const allProjects = projectsQuery.data || [];
+  const notifications = notificationsQuery.data || [];
+
+  // Filter projects by date range
+  const getDateRangeFilter = (range: DateRange): Date | null => {
+    const now = new Date();
+    switch (range) {
+      case "today":
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today;
+      case "week":
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+        return weekAgo;
+      case "month":
+        const monthAgo = new Date();
+        monthAgo.setMonth(now.getMonth() - 1);
+        return monthAgo;
+      case "quarter":
+        const quarterAgo = new Date();
+        quarterAgo.setMonth(now.getMonth() - 3);
+        return quarterAgo;
+      case "all":
+      default:
+        return null;
+    }
+  };
+
+  const filterProjectsByDateRange = (projects: any[]) => {
+    const filterDate = getDateRangeFilter(dateRange);
+    if (!filterDate) return projects;
+
+    return projects.filter((project) => {
+      const projectDate = project.createdAt ? new Date(project.createdAt) : null;
+      return projectDate && projectDate >= filterDate;
+    });
+  };
+
+  const filteredProjects = filterProjectsByDateRange(allProjects);
+
+  // Filter active projects only
+  const activeProjects = filteredProjects.filter(
+    (p) => p.status !== "completed" && p.status !== "cancelled"
+  );
+
+  const getDateRangeLabel = (range: DateRange): string => {
+    switch (range) {
+      case "today":
+        return "วันนี้";
+      case "week":
+        return "สัปดาห์นี้";
+      case "month":
+        return "เดือนนี้";
+      case "quarter":
+        return "ไตรมาสนี้";
+      case "all":
+      default:
+        return "ทั้งหมด";
+    }
+  };
 
   const handleQuickDateRange = (range: string) => {
     const now = new Date();

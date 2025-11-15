@@ -62,7 +62,8 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
 
   // Get trend indicator component - new logic
   const getTrendIndicator = (trend: number, metricType: string) => {
-    if (trend === 0) {
+    // Check for invalid trend values (NaN, Infinity, etc.)
+    if (!Number.isFinite(trend) || trend === 0) {
       return (
         <div className="flex items-center gap-1 text-xs text-gray-500">
           <Minus className="w-3 h-3" />
@@ -103,7 +104,7 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
     {
       title: "กำลังดำเนินการ",
       value: on_track,
-      subtitle: total > 0 ? `${Math.round((on_track / total) * 100)}% ของโครงการทั้งหมด` : "ไม่มีโครงการ",
+      subtitle: total > 0 ? `${Math.round((on_track / total) * 100)}% ของโครงการทั้งหมด` : "0% ของโครงการทั้งหมด",
       icon: CheckCircle2,
       color: "green",
       bgGradient: "from-green-50 to-green-100/50",
