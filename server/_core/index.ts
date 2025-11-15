@@ -15,6 +15,7 @@ import { initializeCronJobs } from "../cron/scheduler";
 import { initializeMonitoring } from "../monitoring/startMonitoring";
 import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
 import { validateFile, sanitizeFilename } from "../utils/sanitize";
+import { setupProcessErrorHandlers, startMemoryMonitoring, errorMiddleware } from "../errorHandler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,6 +37,12 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Setup process-level error handlers
+  setupProcessErrorHandlers();
+  
+  // Start memory monitoring (check every minute)
+  startMemoryMonitoring(60000);
+  
   const app = express();
   const server = createServer(app);
   
@@ -126,6 +133,9 @@ async function startServer() {
   } else {
     serveStatic(app);
   }
+  
+  // Error handling middleware (must be last)
+  app.use(errorMiddleware);
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);

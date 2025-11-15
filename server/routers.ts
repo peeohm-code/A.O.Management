@@ -19,6 +19,7 @@ import { optimizationRouter } from "./optimization/optimizationRouter";
 import { cacheRouter } from "./cache/cacheRouter";
 import { databaseRouter } from "./database/databaseRouter";
 import { performanceRouter } from "./performance/performanceRouter";
+import { getHealthStatus, formatBytes } from "./health";
 
 /**
  * Project Router - Project Management
@@ -2472,7 +2473,6 @@ export const appRouter = router({
   activity: activityRouter,
   categoryColor: categoryColorRouter,
   monitoring: monitoringRouter,
-  health: healthRouter,
   optimization: optimizationRouter,
   cache: cacheRouter,
   database: databaseRouter,
@@ -2495,6 +2495,9 @@ export const appRouter = router({
       return await applyRecommendedIndexes();
     }),
   }),
+
+  // Health Check Endpoint (using existing healthRouter)
+  health: healthRouter,
 });
 
 export type AppRouter = typeof appRouter;
