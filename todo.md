@@ -3319,3 +3319,34 @@ All requested features have been implemented and tested. The system is ready for
 - [x] แก้ปัญหา memory (exit code 137)
 - [x] เพิ่ม inspection history display ใน Task Detail (มีอยู่แล้วใน ChecklistsTab)
 - [x] ทำ comprehensive testing บน mobile
+
+## PWA Features
+- [x] สร้าง manifest.json พร้อมข้อมูลแอปพลิเคชัน
+- [x] เพิ่ม PWA icons หลายขนาดสำหรับ iOS และ Android
+- [x] สร้าง service worker สำหรับ offline support
+- [x] เพิ่ม meta tags สำหรับ PWA ใน index.html
+- [x] สร้าง usePWA hook สำหรับจัดการ PWA features
+- [x] สร้าง PWAInstallBanner component สำหรับแสดงปุ่มติดตั้ง
+- [ ] ทดสอบ "Add to Home Screen" บน iOS และ Android
+
+## Push Notifications
+- [x] สร้าง pushSubscriptions table ในฐานข้อมูล
+- [x] เพิ่ม backend API สำหรับส่ง browser push notifications
+- [x] Implement notification subscription management (subscribe/unsubscribe)
+- [x] สร้าง usePushNotifications hook สำหรับจัดการ push notifications
+- [x] เพิ่ม UI สำหรับขออนุญาต notification permission
+- [x] เพิ่ม push notification toggle ในหน้า Notification Settings
+- [ ] สร้างระบบแจ้งเตือนอัตโนมัติเมื่อมีงานใหม่ (ต้องเพิ่ม VAPID keys)
+- [ ] สร้างระบบแจ้งเตือนเมื่อมี inspection ที่ต้องทำ (ต้องเพิ่ม VAPID keys)
+- [ ] ทดสอบ push notifications บนอุปกรณ์จริง
+
+## Export/Import ข้อมูล
+- [x] ติดตั้ง dependencies สำหรับ Excel export (exceljs)
+- [x] ติดตั้ง dependencies สำหรับ PDF export (pdfkit)
+- [x] สร้าง backend API สำหรับ export โปรเจคเป็น Excel
+- [x] สร้าง backend API สำหรับ export โปรเจคเป็น PDF
+- [x] ออกแบบ Excel template ที่มีข้อมูลครบถ้วน (โปรเจค, งาน, QC, defects)
+- [x] ออกแบบ PDF template สำหรับรายงานผู้บริหาร
+- [x] สร้าง UI สำหรับเลือก export format ในหน้า Project Detail
+- [x] เพิ่มปุ่ม Export ในหน้า Project Detail
+- [ ] ทดสอบ export Excel และ PDF

@@ -30,6 +30,8 @@ import {
   InsertDbStatistic,
   memoryLogs,
   oomEvents,
+  pushSubscriptions,
+  InsertPushSubscription,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -3253,5 +3255,105 @@ export async function getOomEventStatistics() {
   } catch (error) {
     console.error("[Database] Failed to get OOM event statistics:", error);
     return null;
+  }
+}
+
+// ============================================================================
+// Push Subscriptions
+// ============================================================================
+
+/**
+ * สร้าง push subscription ใหม่
+ */
+export async function createPushSubscription(subscription: InsertPushSubscription) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    // Check if subscription already exists
+    const existing = await db
+      .select()
+      .from(pushSubscriptions)
+      .where(
+        and(
+          eq(pushSubscriptions.userId, subscription.userId),
+          eq(pushSubscriptions.endpoint, subscription.endpoint)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      // Update existing subscription
+      await db
+        .update(pushSubscriptions)
+        .set({
+          p256dh: subscription.p256dh,
+          auth: subscription.auth,
+          userAgent: subscription.userAgent,
+          lastUsedAt: new Date(),
+        })
+        .where(eq(pushSubscriptions.id, existing[0].id));
+
+      return existing[0];
+    }
+
+    // Create new subscription
+    const result = await db.insert(pushSubscriptions).values(subscription);
+    return { id: Number(result[0].insertId), ...subscription };
+  } catch (error) {
+    console.error("[Database] Failed to create push subscription:", error);
+    throw error;
+  }
+}
+
+/**
+ * ดึง push subscriptions ของ user
+ */
+export async function getPushSubscriptionsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    return await db
+      .select()
+      .from(pushSubscriptions)
+      .where(eq(pushSubscriptions.userId, userId));
+  } catch (error) {
+    console.error("[Database] Failed to get push subscriptions:", error);
+    return [];
+  }
+}
+
+/**
+ * ลบ push subscription
+ */
+export async function deletePushSubscription(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, id));
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to delete push subscription:", error);
+    throw error;
+  }
+}
+
+/**
+ * ลบ push subscription โดย endpoint
+ */
+export async function deletePushSubscriptionByEndpoint(endpoint: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    await db
+      .delete(pushSubscriptions)
+      .where(eq(pushSubscriptions.endpoint, endpoint));
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to delete push subscription by endpoint:", error);
+    throw error;
   }
 }

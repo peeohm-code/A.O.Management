@@ -7,7 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Bell, Mail, Calendar, Clock } from "lucide-react";
+import { Loader2, Bell, Mail, Calendar, Clock, Smartphone } from "lucide-react";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 export default function NotificationSettings() {
   const { user, loading: authLoading } = useAuth();
@@ -21,6 +22,7 @@ export default function NotificationSettings() {
   const [enableEmailNotifications, setEnableEmailNotifications] = useState(true);
   const [enableDailySummaryEmail, setEnableDailySummaryEmail] = useState(false);
   const [dailySummaryTime, setDailySummaryTime] = useState("08:00");
+  const pushNotifications = usePushNotifications();
 
   // Load settings when data is available
   useEffect(() => {
@@ -94,6 +96,42 @@ export default function NotificationSettings() {
                 checked={enableInAppNotifications}
                 onCheckedChange={setEnableInAppNotifications}
               />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5 flex-1">
+                <Label htmlFor="push-notifications" className="text-base flex items-center gap-2">
+                  <Smartphone className="h-4 w-4" />
+                  การแจ้งเตือนผ่านเบราว์เซอร์
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  รับการแจ้งเตือนแบบ push notification แม้เมื่อไม่ได้เปิดแอป
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {!pushNotifications.isSupported && (
+                  <span className="text-xs text-muted-foreground">ไม่รองรับ</span>
+                )}
+                {pushNotifications.isSupported && (
+                  <Button
+                    variant={pushNotifications.isSubscribed ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => {
+                      if (pushNotifications.isSubscribed) {
+                        pushNotifications.unsubscribe();
+                      } else {
+                        pushNotifications.subscribe();
+                      }
+                    }}
+                    disabled={pushNotifications.isLoading}
+                  >
+                    {pushNotifications.isLoading && (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    )}
+                    {pushNotifications.isSubscribed ? "ปิดการแจ้งเตือน" : "เปิดการแจ้งเตือน"}
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center justify-between">

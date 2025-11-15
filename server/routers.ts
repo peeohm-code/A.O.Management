@@ -266,6 +266,53 @@ const projectRouter = router({
       return result;
     }),
 
+  exportExcel: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { exportProjectToExcel, getExportFilename } = await import('./exportExcel');
+      const project = await db.getProjectById(input.id);
+      if (!project) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+      }
+
+      const buffer = await exportProjectToExcel(input.id);
+      const base64 = buffer.toString('base64');
+      const filename = getExportFilename(project.name, 'xlsx');
+
+      await db.logActivity({
+        userId: ctx.user!.id,
+        projectId: input.id,
+        action: "project_exported",
+        details: JSON.stringify({ format: 'excel', filename }),
+      });
+
+      return { data: base64, filename };
+    }),
+
+  exportPDF: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { exportProjectToPDF } = await import('./exportPDF');
+      const { getExportFilename } = await import('./exportExcel');
+      const project = await db.getProjectById(input.id);
+      if (!project) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+      }
+
+      const buffer = await exportProjectToPDF(input.id);
+      const base64 = buffer.toString('base64');
+      const filename = getExportFilename(project.name, 'pdf');
+
+      await db.logActivity({
+        userId: ctx.user!.id,
+        projectId: input.id,
+        action: "project_exported",
+        details: JSON.stringify({ format: 'pdf', filename }),
+      });
+
+      return { data: base64, filename };
+    }),
+
   delete: roleBasedProcedure('projects', 'delete')
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
@@ -2498,6 +2545,44 @@ export const appRouter = router({
 
   // Health Check Endpoint (using existing healthRouter)
   health: healthRouter,
+
+  // Push Notifications Router
+  pushNotifications: router({
+    // Subscribe to push notifications
+    subscribe: protectedProcedure
+      .input(
+        z.object({
+          endpoint: z.string(),
+          p256dh: z.string(),
+          auth: z.string(),
+          userAgent: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await db.createPushSubscription({
+          userId: ctx.user!.id,
+          ...input,
+        });
+      }),
+
+    // Unsubscribe from push notifications
+    unsubscribe: protectedProcedure
+      .input(z.object({ endpoint: z.string() }))
+      .mutation(async ({ input }) => {
+        return await db.deletePushSubscriptionByEndpoint(input.endpoint);
+      }),
+
+    // Get user's subscriptions
+    getSubscriptions: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getPushSubscriptionsByUserId(ctx.user!.id);
+    }),
+
+    // Get VAPID public key
+    getVapidPublicKey: publicProcedure.query(() => {
+      const { getVapidPublicKey } = require("./_core/pushNotification");
+      return { publicKey: getVapidPublicKey() };
+    }),
+  }),
 
   // Memory Monitoring Router
   memoryMonitoring: router({

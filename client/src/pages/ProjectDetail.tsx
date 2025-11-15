@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2, Archive } from "lucide-react";
+import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2, Archive, Download, FileSpreadsheet, FileText } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { parseDate } from "@/lib/dateUtils";
 import { lazy, Suspense } from "react";
@@ -40,6 +40,9 @@ export default function ProjectDetail() {
   const projectTasksQuery = trpc.task.list.useQuery({ projectId }, { enabled: !!projectId });
   const deleteProjectMutation = trpc.project.delete.useMutation();
   const archiveProjectMutation = trpc.project.archive.useMutation();
+  const exportExcelMutation = trpc.project.exportExcel.useMutation();
+  const exportPDFMutation = trpc.project.exportPDF.useMutation();
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleArchiveProject = async () => {
     try {
@@ -65,6 +68,41 @@ export default function ProjectDetail() {
       } else {
         toast.error("ไม่สามารถลบโครงการได้");
       }
+    }
+  };
+
+  const downloadFile = (base64Data: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = `data:application/octet-stream;base64,${base64Data}`;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportExcel = async () => {
+    setIsExporting(true);
+    try {
+      const result = await exportExcelMutation.mutateAsync({ id: projectId });
+      downloadFile(result.data, result.filename);
+      toast.success('ส่งออกไฟล์ Excel สำเร็จ');
+    } catch (error) {
+      toast.error('ไม่สามารถส่งออกไฟล์ได้');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const result = await exportPDFMutation.mutateAsync({ id: projectId });
+      downloadFile(result.data, result.filename);
+      toast.success('ส่งออกไฟล์ PDF สำเร็จ');
+    } catch (error) {
+      toast.error('ไม่สามารถส่งออกไฟล์ได้');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -159,6 +197,37 @@ export default function ProjectDetail() {
               }}
             />
           )}
+          {/* Export Buttons */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={handleExportExcel}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileSpreadsheet className="w-4 h-4" />
+            )}
+            ส่งออก Excel
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={handleExportPDF}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4" />
+            )}
+            ส่งออก PDF
+          </Button>
+
           {/* Archive Button */}
           <AlertDialog>
             <AlertDialogTrigger asChild>

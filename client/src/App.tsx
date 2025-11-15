@@ -33,6 +33,7 @@ import DatabaseMonitoring from "./pages/DatabaseMonitoring";
 import SystemMonitor from "./pages/SystemMonitor";
 import MemoryMonitoring from "./pages/MemoryMonitoring";
 import DashboardLayout from "./components/DashboardLayout";
+import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
 function Router() {
   return (
@@ -252,6 +253,7 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
+          <PWAInstallBanner />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
