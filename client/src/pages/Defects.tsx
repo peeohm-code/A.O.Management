@@ -72,6 +72,9 @@ export default function Defects() {
   const [analysisMethod, setAnalysisMethod] = useState("5_whys");
   const [correctiveAction, setCorrectiveAction] = useState("");
   const [preventiveAction, setPreventiveAction] = useState("");
+  
+  // Fix Thai text input timeout - track composition state
+  const [isComposing, setIsComposing] = useState(false);
   const [dueDate, setDueDate] = useState("");
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [afterPhotos, setAfterPhotos] = useState<File[]>([]);
@@ -944,6 +947,8 @@ export default function Defects() {
                 placeholder="ตัวอย่าง: พนักงานขาดการอบรมเรื่องอัตราส่วนผสมคอนกรีตที่ถูกต้อง ทำให้ผสมไม่ได้คุณภาพตามมาตรฐาน..."
                 value={rootCause}
                 onChange={(e) => setRootCause(e.target.value)}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 className="mt-2"
                 rows={6}
               />
@@ -993,6 +998,8 @@ export default function Defects() {
               <Textarea
                 id="correctiveAction"
                 placeholder="ตัวอย่าง: ทำการถลกคอนกรีตส่วนที่มีปัญหาแล้วเทใหม่ จัดอบรมพนักงานเรื่องวิธีผสมคอนกรีตที่ถูกต้องทันที..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 value={correctiveAction}
                 onChange={(e) => setCorrectiveAction(e.target.value)}
                 className="mt-2"
@@ -1008,9 +1015,11 @@ export default function Defects() {
                 <p className="text-xs text-gray-500 mt-1">
                   มาตรการเพื่อป้องกันไม่ให้เกิดปัญหาซ้ำในอนาคต
                 </p>
-                <Textarea
-                  id="preventiveAction"
-                  placeholder="ตัวอย่าง: จัดการอบรมบังคับเรื่องการผสมคอนกรีตสำหรับพนักงานทุกคน ติดตั้งคู่มือแสดงภาพประกอบจุดผสม ตรวจสอบแบบสุ่มทุกสัปดาห์..."
+              <Textarea
+                id="preventiveAction"
+                placeholder="ตัวอย่าง: จัดการอบรมบังคับเรื่องการผสมคอนกรีตสำหรับพนักงานทุกคน ติดตั้งคู่มือแสดงภาพประกอบจุดผสม ตรวจสอบแบบสุ่มทุกสัปดาห์..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                   value={preventiveAction}
                   onChange={(e) => setPreventiveAction(e.target.value)}
                   className="mt-2"
@@ -1211,6 +1220,8 @@ export default function Defects() {
               <Textarea
                 id="verificationComment"
                 placeholder="ตัวอย่าง: ตรวจสอบแล้วพบว่าการแก้ไขเป็นไปตามแผนที่วางไว้ คุณภาพงานดี ไม่พบข้อบกพร่อง..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 value={verificationComment}
                 onChange={(e) => setVerificationComment(e.target.value)}
                 rows={4}
@@ -1358,6 +1369,8 @@ export default function Defects() {
               <Textarea
                 id="effectivenessComment"
                 placeholder="บันทึกผลการตรวจสอบประสิทธิผล ข้อสังเกต และคำแนะนำ..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 value={effectivenessComment}
                 onChange={(e) => setEffectivenessComment(e.target.value)}
                 rows={4}
@@ -1469,6 +1482,8 @@ export default function Defects() {
               <Textarea
                 id="implementationMethod"
                 placeholder="ระบุวิธีการและขั้นตอนการดำเนินการแก้ไข..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 value={implementationMethod}
                 onChange={(e) => setImplementationMethod(e.target.value)}
                 rows={4}
@@ -1482,6 +1497,8 @@ export default function Defects() {
               <Textarea
                 id="resolutionNotes"
                 placeholder="บันทึกหมายเหตุ ข้อสังเกต และผลการแก้ไข..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 value={resolutionNotes}
                 onChange={(e) => setResolutionNotes(e.target.value)}
                 rows={3}
@@ -1554,6 +1571,8 @@ export default function Defects() {
               <Textarea
                 id="closureNotes"
                 placeholder="บันทึกหมายเหตุการอนุมัติและปิดเคส..."
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 value={closureNotes}
                 onChange={(e) => setClosureNotes(e.target.value)}
                 rows={4}

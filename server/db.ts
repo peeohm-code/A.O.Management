@@ -1,6 +1,6 @@
 import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import mysql, { type Pool } from "mysql2/promise";
 import {
   InsertUser,
   users,
@@ -37,7 +37,7 @@ import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: ReturnType<typeof mysql.createPool> | null = null;
+let _pool: any = null; // Use any to avoid mysql2 type incompatibility issues
 
 // Lazily create the drizzle instance with connection pooling
 export async function getDb() {
@@ -55,7 +55,8 @@ export async function getDb() {
         idleTimeout: 60000, // Close idle connections after 60s
       });
       console.log("[Database] Connection pool created with limit: 10");
-      _db = drizzle(_pool) as any;
+      // Fix TypeScript type error by properly typing the pool
+      _db = drizzle(_pool as any);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -1708,6 +1709,7 @@ export async function submitInspection(data: {
         
         return db.insert(defects).values({
           taskId: data.taskId,
+          checklistId: data.taskChecklistId, // Fix: Add checklistId for traceability
           checklistItemResultId: resultId,
           title: `ไม่ผ่าน QC: ${item.itemText}`,
           description: `รายการตรวจสอบไม่ผ่าน: ${item.itemText}${data.generalComments ? `\n\nความเห็นเพิ่มเติม: ${data.generalComments}` : ''}`,

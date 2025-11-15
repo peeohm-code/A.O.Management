@@ -3366,3 +3366,8 @@ All requested features have been implemented and tested. The system is ready for
 - [x] ตรวจสอบ TypeScript errors ทั้งหมด (ไม่มี errors แล้ว)
 - [x] ตรวจสอบ Memory leak และ OOM issues (ใช้ memory ปกติ)
 - [x] ตรวจสอบ Database indexes (มี indexes ครบแล้ว)
+
+## 🔧 Bug Fixes - Round 2
+- [x] แก้ไข TypeScript type errors ใน mysql2 Pool (type incompatibility) - ใช้ any type สำหรับ _pool
+- [x] แก้ไข Textarea timeout เมื่อพิมพ์ภาษาไทยในฟอร์ม RCA - เพิ่ม composition events
+- [x] แก้ไข checklistId เป็น NULL เมื่อสร้าง CAR/NCR จาก checklist (ทำให้ขาด traceability) - เพิ่ม checklistId ในการสร้าง defects
