@@ -84,8 +84,8 @@
 - [ ] Add re-inspection tracking improvements
 - [x] Create deadline reminder notifications (scheduled)
 - [x] Create overdue defect notifications (scheduled)
-- [ ] Implement bulk operations (assign multiple tasks, bulk status update)
-- [ ] Add export functionality (Excel, CSV)
+- [x] Implement bulk operations (assign multiple tasks, bulk status update)
+- [x] Add export functionality (Excel/PDF for tasks, defects, inspections)
 - [ ] Create project templates
 - [ ] Add time tracking for tasks
 - [ ] Implement resource management

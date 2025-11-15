@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { usePermissions, useCanDeleteDefect } from "@/hooks/usePermissions";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { FileUpload } from "@/components/FileUpload";
+import { ExportButton } from "@/components/ExportButton";
 
 export default function Defects() {
   const [, setLocation] = useLocation();
@@ -561,6 +562,9 @@ export default function Defects() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1"
         />
+        {filteredDefects.length > 0 && filteredDefects[0]?.projectId && (
+          <ExportButton projectId={filteredDefects[0].projectId} type="defects" />
+        )}
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-full md:w-40">
             <SelectValue placeholder="ประเภท" />

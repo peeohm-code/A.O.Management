@@ -20,6 +20,7 @@ import { cacheRouter } from "./cache/cacheRouter";
 import { databaseRouter } from "./database/databaseRouter";
 import { performanceRouter } from "./performance/performanceRouter";
 import { getHealthStatus, formatBytes } from "./health";
+import { exportRouter } from "./exportRouter";
 
 /**
  * Project Router - Project Management
@@ -2420,6 +2421,9 @@ const monitoringRouter = router({
 });
 
 export const appRouter = router({
+  // Export Router
+  export: exportRouter,
+
   // Archive notifications check endpoint
   checkArchiveNotifications: protectedProcedure.mutation(async () => {
     const result = await checkArchiveWarnings();

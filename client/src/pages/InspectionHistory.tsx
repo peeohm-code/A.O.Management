@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, FileText, Calendar, User, CheckCircle2, XCircle, AlertCircle, Eye } from "lucide-react";
+import { ExportButton } from "@/components/ExportButton";
 import { useLocation, useRoute } from "wouter";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -101,6 +102,9 @@ export default function InspectionHistory() {
               งาน: {task.name}
             </p>
           </div>
+          {task.projectId && (
+            <ExportButton projectId={task.projectId} type="inspections" />
+          )}
         </div>
 
         {/* Summary Statistics */}

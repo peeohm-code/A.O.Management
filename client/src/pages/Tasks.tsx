@@ -31,11 +31,12 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { SwipeableCard } from "@/components/SwipeableCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { Plus, Edit, Trash2, CheckCircle, Download } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
 import { useLocation } from "wouter";
 import { exportTasksToExcel } from "@/lib/excelExport";
+import { ExportButton } from "@/components/ExportButton";
 
 export default function Tasks() {
   const { canCreate, canEdit } = usePermissions('tasks');
@@ -394,19 +395,10 @@ export default function Tasks() {
               </span>
             </div>
           )}
-          {filteredTasks.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const projectName = projectFilter ? projects.find((p: any) => p.id === projectFilter)?.name : undefined;
-                exportTasksToExcel(filteredTasks, projectName);
-                toast.success('ส่งออกไฟล์ Excel สำเร็จ');
-              }}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export Excel
-            </Button>
+          {filteredTasks.length > 0 && projectFilter && (
+            <>
+              <ExportButton projectId={projectFilter} />
+            </>
           )}
         </div>
       </div>
