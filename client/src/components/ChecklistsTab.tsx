@@ -230,6 +230,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
   const [newStatus, setNewStatus] = useState<string>("");
   const [expandedChecklistId, setExpandedChecklistId] = useState<number | null>(null);
   const [viewingHistoryId, setViewingHistoryId] = useState<number | null>(null);
+  const [templateSearchQuery, setTemplateSearchQuery] = useState("");
 
   const utils = trpc.useUtils();
 
@@ -241,6 +242,11 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
 
   const { data: templates } = trpc.checklist.listTemplates.useQuery();
 
+  // Filter templates based on search query
+  const filteredTemplates = templates?.filter((template) =>
+    template.name.toLowerCase().includes(templateSearchQuery.toLowerCase())
+  ) || [];
+
   // Mutations
   const assignChecklistMutation = trpc.checklist.assignToTask.useMutation({
     onSuccess: () => {
@@ -248,6 +254,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
       utils.checklist.getTaskChecklists.invalidate({ taskId });
       setIsAddDialogOpen(false);
       setSelectedTemplateId("");
+      setTemplateSearchQuery("");
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -408,16 +415,32 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">ค้นหา Template</label>
+                    <input
+                      type="text"
+                      placeholder="พิมพ์เพื่อค้นหา..."
+                      value={templateSearchQuery}
+                      onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
                   <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
                     <SelectTrigger>
                       <SelectValue placeholder="เลือก Checklist Template" />
                     </SelectTrigger>
                     <SelectContent>
-                      {templates?.map((template) => (
-                        <SelectItem key={template.id} value={template.id.toString()}>
-                          {template.name} ({getStageLabel(template.stage)})
-                        </SelectItem>
-                      ))}
+                      {filteredTemplates.length > 0 ? (
+                        filteredTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id.toString()}>
+                            {template.name} ({getStageLabel(template.stage)})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-4 text-sm text-gray-500 text-center">
+                          ไม่พบ template ที่ตรงกับคำค้นหา
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
