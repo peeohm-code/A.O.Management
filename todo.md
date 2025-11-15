@@ -3243,3 +3243,8 @@ All requested features have been implemented and tested. The system is ready for
 - [x] Configure React Query caching strategies (5min staleTime, 10min gcTime)
 - [x] Add request deduplication for API calls
 - [x] Update PERFORMANCE_OPTIMIZATION.md documentation
+
+## Performance Optimization Features
+- [x] Virtual Scrolling - ใช้ react-window สำหรับ task lists ที่มีมากกว่า 100 รายการ
+- [x] OptimizedImage component - แทนที่ <img> tags ด้วย lazy loading และ WebP support (มีอยู่แล้ว)
+- [x] Service Worker - เพื่อ offline support และ background sync สำหรับ QC Inspection

@@ -8,6 +8,8 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import * as serviceWorkerRegistration from "./lib/serviceWorkerRegistration";
+import { toast } from "sonner";
 
 // Configure React Query with optimized caching strategies
 const queryClient = new QueryClient({
@@ -97,3 +99,33 @@ createRoot(document.getElementById("root")!).render(
     </trpc.Provider>
   </QueryClientProvider>
 );
+
+// Register service worker for offline support
+serviceWorkerRegistration.register({
+  onSuccess: () => {
+    console.log('[App] Service Worker registered successfully');
+  },
+  onUpdate: (registration) => {
+    console.log('[App] New content available, please refresh');
+    toast.info('มีเวอร์ชันใหม่พร้อมใช้งาน', {
+      description: 'กรุณารีเฟรชหน้าเพื่ออัปเดต',
+      action: {
+        label: 'รีเฟรช',
+        onClick: () => window.location.reload(),
+      },
+      duration: 10000,
+    });
+  },
+  onOffline: () => {
+    console.log('[App] App is offline');
+    toast.warning('คุณกำลังออฟไลน์', {
+      description: 'ข้อมูลบางส่วนอาจไม่เป็นปัจจุบัน',
+    });
+  },
+  onOnline: () => {
+    console.log('[App] App is back online');
+    toast.success('กลับมาออนไลน์แล้ว', {
+      description: 'กำลังซิงค์ข้อมูล...',
+    });
+  },
+});
