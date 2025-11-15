@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import {
@@ -53,7 +53,7 @@ export async function getDb() {
         idleTimeout: 60000, // Close idle connections after 60s
       });
       console.log("[Database] Connection pool created with limit: 10");
-      _db = drizzle(_pool);
+      _db = drizzle(_pool) as any;
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -3067,7 +3067,7 @@ export async function getMemoryLogs(params: {
       query = query.where(lte(memoryLogs.timestamp, params.endDate)) as any;
     }
 
-    query = query.orderBy(desc(memoryLogs.timestamp));
+    query = query.orderBy(desc(memoryLogs.timestamp)) as any;
 
     if (params.limit) {
       query = query.limit(params.limit) as any;
@@ -3187,7 +3187,7 @@ export async function getOomEvents(params: {
       query = query.where(lte(oomEvents.timestamp, params.endDate)) as any;
     }
 
-    query = query.orderBy(desc(oomEvents.timestamp));
+    query = query.orderBy(desc(oomEvents.timestamp)) as any;
 
     if (params.limit) {
       query = query.limit(params.limit) as any;

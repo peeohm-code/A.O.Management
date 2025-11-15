@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 
 // Lazy load recharts components
 const LazyPieChart = lazy(() => import("recharts").then(module => ({ default: module.PieChart })));
-const LazyPie = lazy(() => import("recharts").then(module => ({ default: module.Pie })));
+const LazyPie = lazy(() => import("recharts").then(module => ({ default: module.Pie as any })));
 const LazyCell = lazy(() => import("recharts").then(module => ({ default: module.Cell })));
 const LazyResponsiveContainer = lazy(() => import("recharts").then(module => ({ default: module.ResponsiveContainer })));
 const LazyTooltip = lazy(() => import("recharts").then(module => ({ default: module.Tooltip })));
@@ -11,11 +11,11 @@ const LazyLegend = lazy(() => import("recharts").then(module => ({ default: modu
 const LazyLineChart = lazy(() => import("recharts").then(module => ({ default: module.LineChart })));
 const LazyLine = lazy(() => import("recharts").then(module => ({ default: module.Line })));
 const LazyBarChart = lazy(() => import("recharts").then(module => ({ default: module.BarChart })));
-const LazyBar = lazy(() => import("recharts").then(module => ({ default: module.Bar })));
+const LazyBar = lazy(() => import("recharts").then(module => ({ default: module.Bar as any })));
 const LazyXAxis = lazy(() => import("recharts").then(module => ({ default: module.XAxis })));
 const LazyYAxis = lazy(() => import("recharts").then(module => ({ default: module.YAxis })));
 const LazyCartesianGrid = lazy(() => import("recharts").then(module => ({ default: module.CartesianGrid })));
-const LazyArea = lazy(() => import("recharts").then(module => ({ default: module.Area })));
+const LazyArea = lazy(() => import("recharts").then(module => ({ default: module.Area as any })));
 const LazyAreaChart = lazy(() => import("recharts").then(module => ({ default: module.AreaChart })));
 const LazyComposedChart = lazy(() => import("recharts").then(module => ({ default: module.ComposedChart })));
 

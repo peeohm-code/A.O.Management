@@ -61,7 +61,7 @@ function registerValidSW(swUrl: string, config?: ServiceWorkerConfig) {
           config.onOnline();
         }
         // Trigger background sync
-        registration.sync.register('sync-qc-inspections').catch((err) => {
+        (registration as any).sync?.register('sync-qc-inspections').catch((err: any) => {
           console.error('[SW] Background sync registration failed:', err);
         });
       });
@@ -136,7 +136,7 @@ export async function requestSync(): Promise<void> {
   if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register('sync-qc-inspections');
+      await (registration as any).sync?.register('sync-qc-inspections');
       console.log('[SW] Background sync requested');
     } catch (error) {
       console.error('[SW] Background sync request failed:', error);
