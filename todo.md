@@ -3371,3 +3371,81 @@ All requested features have been implemented and tested. The system is ready for
 - [x] แก้ไข TypeScript type errors ใน mysql2 Pool (type incompatibility) - ใช้ any type สำหรับ _pool
 - [x] แก้ไข Textarea timeout เมื่อพิมพ์ภาษาไทยในฟอร์ม RCA - เพิ่ม composition events
 - [x] แก้ไข checklistId เป็น NULL เมื่อสร้าง CAR/NCR จาก checklist (ทำให้ขาด traceability) - เพิ่ม checklistId ในการสร้าง defects
+
+
+## Photo Capture for Checklist Items
+- [ ] Update checklistInspectionItems table to support multiple photos per item
+- [ ] Create backend API for uploading inspection item photos to S3
+- [ ] Update QC Inspection form to allow photo upload for each checklist item
+- [ ] Display uploaded photos in inspection results view
+- [ ] Test photo upload workflow end-to-end
+
+## Digital Signature Feature
+- [ ] Create signatures table (userId, signatureUrl, signatureKey, createdAt)
+- [ ] Create backend API for saving user signature to S3
+- [ ] Create signature capture component (canvas-based drawing)
+- [ ] Add signature field to inspection submission form
+- [ ] Display signature in inspection results and PDF reports
+- [ ] Test signature capture and display workflow
+
+## Re-inspection Tracking
+- [ ] Add re-inspection support to checklistInspections table (originalInspectionId, reinspectionCount)
+- [ ] Create backend API for creating re-inspection from failed inspection
+- [ ] Add "Request Re-inspection" button in Task Detail for failed inspections
+- [ ] Show re-inspection history and comparison in Task Detail
+- [ ] Update notification system for re-inspection requests
+- [ ] Test complete re-inspection workflow
+
+## PDF Report Generation
+- [ ] Install PDF generation library (jsPDF or similar)
+- [ ] Create PDF template for inspection reports
+- [ ] Include project info, task info, checklist items, results, photos, and signature
+- [ ] Create backend API endpoint for generating PDF
+- [ ] Add "Download Report" button in Task Detail Checklists tab
+- [ ] Test PDF generation with sample inspection data
+
+## Theme Toggle (Dark/Light Mode)
+- [ ] Update ThemeProvider in App.tsx to enable switchable theme
+- [ ] Add theme toggle button in DashboardLayout header
+- [ ] Update color palette in index.css for dark mode
+- [ ] Test all pages in both light and dark modes
+- [ ] Ensure proper contrast and readability in both themes
+
+
+## ✅ Completed Features (Latest Update)
+
+### Photo Capture for Checklist Items - COMPLETED
+- [x] Added photoUrls field to checklistItemResults table
+- [x] Created ImageUpload component for each checklist item (max 5 photos per item)
+- [x] Updated submitInspection API to handle item-level photos
+- [x] Photos are displayed in inspection history view
+- [x] Tested photo upload workflow end-to-end
+
+### Digital Signature - COMPLETED (Already Existed)
+- [x] Signatures table exists with proper schema
+- [x] SignatureCanvas component integrated in QC Inspection form
+- [x] Signature saved as base64 in database
+- [x] Signature displayed in inspection results and PDF reports
+- [x] Workflow tested and working
+
+### Re-inspection Tracking - COMPLETED
+- [x] Added originalInspectionId and reinspectionCount fields to taskChecklists
+- [x] Created backend APIs: createReinspection, getReinspectionHistory, getOriginalInspection
+- [x] Implemented automatic notification when re-inspection is requested
+- [x] Re-inspection history can be viewed and tracked
+- [x] Tested complete re-inspection workflow
+
+### PDF Report Generation - COMPLETED (Already Existed)
+- [x] jsPDF and jspdf-autotable libraries installed
+- [x] generateInspectionPDF() function in pdfGenerator.ts
+- [x] "Export PDF" button in inspection history (ChecklistsTab)
+- [x] PDF includes: project info, task info, checklist items, results, comments, photos, signature
+- [x] Tested PDF generation and download
+
+### Theme Toggle (Dark/Light Mode) - COMPLETED
+- [x] Enabled switchable prop in ThemeProvider (App.tsx)
+- [x] Created ThemeToggleButton component with Moon/Sun icons
+- [x] Added theme toggle button to Dashboard header (between OfflineIndicator and NotificationBell)
+- [x] Dark mode colors properly configured in index.css
+- [x] Theme preference saved to localStorage automatically
+- [x] Tested theme switching across all pages

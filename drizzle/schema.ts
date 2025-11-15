@@ -185,11 +185,14 @@ export const taskChecklists = mysqlTable("taskChecklists", {
   generalComments: text("generalComments"),
   photoUrls: text("photoUrls"), // JSON array of photo URLs
   signature: text("signature"), // Base64 encoded signature image
+  originalInspectionId: int("originalInspectionId"), // Reference to original inspection if this is a re-inspection
+  reinspectionCount: int("reinspectionCount").default(0).notNull(), // Number of times this has been re-inspected
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   taskIdx: index("taskIdx").on(table.taskId),
   templateIdx: index("templateIdx").on(table.templateId),
+  originalInspectionIdx: index("originalInspectionIdx").on(table.originalInspectionId),
 }));
 
 export type TaskChecklist = typeof taskChecklists.$inferSelect;

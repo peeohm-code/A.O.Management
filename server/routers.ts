@@ -1254,6 +1254,7 @@ const checklistRouter = router({
             templateItemId: z.number(),
             itemText: z.string(),
             result: z.enum(["pass", "fail", "na"]),
+            photoUrls: z.string().optional(), // JSON string of photo URLs for this item
           })
         ),
         generalComments: z.string().optional(),
@@ -1324,6 +1325,45 @@ const checklistRouter = router({
       };
 
       return [inspection];
+    }),
+
+  // Create re-inspection from failed inspection
+  createReinspection: protectedProcedure
+    .input(z.object({ checklistId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const result = await db.createReinspection(input.checklistId);
+      
+      // Send notification to assignee
+      const checklist = await db.getTaskChecklistById(input.checklistId);
+      if (checklist) {
+        const task = await db.getTaskById(checklist.taskId);
+        if (task && task.assigneeId) {
+          await createNotification({
+            userId: task.assigneeId,
+            type: "inspection_requested",
+            title: "ขอตรวจสอบซ้ำ",
+            content: `งาน "${task.name}" ต้องการการตรวจสอบซ้ำ`,
+            relatedTaskId: task.id,
+            relatedProjectId: task.projectId,
+          });
+        }
+      }
+      
+      return result;
+    }),
+
+  // Get re-inspection history
+  getReinspectionHistory: protectedProcedure
+    .input(z.object({ checklistId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getReinspectionHistory(input.checklistId);
+    }),
+
+  // Get original inspection
+  getOriginalInspection: protectedProcedure
+    .input(z.object({ reinspectionId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getOriginalInspection(input.reinspectionId);
     }),
 
   // Get all task checklists with template and task info

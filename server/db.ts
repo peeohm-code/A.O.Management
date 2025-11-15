@@ -1660,21 +1660,23 @@ export async function submitInspection(data: {
     templateItemId: number;
     itemText: string;
     result: "pass" | "fail" | "na";
+    photoUrls?: string; // JSON string of photo URLs for this item
   }>;
   generalComments?: string;
-  photoUrls?: string[]; // Array of photo URLs
+  photoUrls?: string[]; // Array of photo URLs for overall inspection
   signature?: string; // Base64 encoded signature image
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   try {
-    // 1. Save all checklist item results
+    // 1. Save all checklist item results with photos
     const itemResultPromises = data.itemResults.map((item) =>
       db.insert(checklistItemResults).values({
         taskChecklistId: data.taskChecklistId,
         templateItemId: item.templateItemId,
         result: item.result,
+        photoUrls: item.photoUrls || null,
       })
     );
     const insertedResults = await Promise.all(itemResultPromises);
@@ -3358,4 +3360,101 @@ export async function deletePushSubscriptionByEndpoint(endpoint: string) {
     console.error("[Database] Failed to delete push subscription by endpoint:", error);
     throw error;
   }
+}
+
+/**
+ * Re-inspection Management
+ */
+
+/**
+ * Create a re-inspection from a failed inspection
+ * Copies the checklist assignment and marks it as a re-inspection
+ */
+export async function createReinspection(originalChecklistId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get the original checklist
+  const original = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, originalChecklistId))
+    .limit(1);
+
+  if (original.length === 0) {
+    throw new Error("Original checklist not found");
+  }
+
+  const originalChecklist = original[0];
+
+  // Only allow re-inspection for failed checklists
+  if (originalChecklist.status !== "failed") {
+    throw new Error("Can only create re-inspection for failed checklists");
+  }
+
+  // Increment the re-inspection count of the original
+  await db
+    .update(taskChecklists)
+    .set({
+      reinspectionCount: (originalChecklist.reinspectionCount || 0) + 1,
+    })
+    .where(eq(taskChecklists.id, originalChecklistId));
+
+  // Create new checklist entry for re-inspection
+  const result = await db.insert(taskChecklists).values({
+    taskId: originalChecklist.taskId,
+    templateId: originalChecklist.templateId,
+    stage: originalChecklist.stage,
+    status: "not_started",
+    originalInspectionId: originalChecklistId,
+    reinspectionCount: 0,
+  });
+
+  return {
+    success: true,
+    reinspectionId: result[0].insertId,
+  };
+}
+
+/**
+ * Get re-inspection history for a checklist
+ */
+export async function getReinspectionHistory(checklistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all re-inspections that reference this checklist
+  const reinspections = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.originalInspectionId, checklistId))
+    .orderBy(taskChecklists.createdAt);
+
+  return reinspections;
+}
+
+/**
+ * Get the original inspection for a re-inspection
+ */
+export async function getOriginalInspection(reinspectionId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const reinspection = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, reinspectionId))
+    .limit(1);
+
+  if (reinspection.length === 0 || !reinspection[0].originalInspectionId) {
+    return null;
+  }
+
+  const original = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, reinspection[0].originalInspectionId))
+    .limit(1);
+
+  return original.length > 0 ? original[0] : null;
 }

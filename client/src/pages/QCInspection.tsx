@@ -28,6 +28,7 @@ type InspectionResult = "pass" | "fail" | "na";
 interface ItemResult {
   itemId: number;
   result: InspectionResult | null;
+  photoUrls?: string[];
 }
 
 interface CreateDefectFormData {
@@ -241,7 +242,14 @@ export default function QCInspection() {
   const handleItemResult = (itemId: number, result: InspectionResult) => {
     setItemResults(prev => ({
       ...prev,
-      [itemId]: { itemId, result }
+      [itemId]: { ...prev[itemId], itemId, result }
+    }));
+  };
+
+  const handleItemPhotos = (itemId: number, photoUrls: string[]) => {
+    setItemResults(prev => ({
+      ...prev,
+      [itemId]: { ...prev[itemId], itemId, photoUrls }
     }));
   };
 
@@ -274,6 +282,7 @@ export default function QCInspection() {
       itemResults: Object.entries(itemResults).map(([itemId, data]) => ({
         templateItemId: parseInt(itemId),
         result: data.result as "pass" | "fail" | "na",
+        photoUrls: data.photoUrls && data.photoUrls.length > 0 ? JSON.stringify(data.photoUrls) : undefined,
       })),
     });
     
@@ -596,6 +605,16 @@ export default function QCInspection() {
                             </div>
                           </div>
                         </RadioGroup>
+                        
+                        {/* Photo upload for this item */}
+                        <div className="mt-3 space-y-2">
+                          <Label className="text-sm text-muted-foreground">รูปภาพประกอบ (ถ้ามี)</Label>
+                          <ImageUpload
+                            value={itemResults[item.id]?.photoUrls || []}
+                            onChange={(urls) => handleItemPhotos(item.id, urls)}
+                            maxImages={5}
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
