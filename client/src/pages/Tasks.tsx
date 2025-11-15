@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag } from "lucide-react";
 import { TaskCardSkeleton } from "@/components/skeletons";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/LazyChart";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";

@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, XCircle, ClipboardCheck, PieChart as PieChartIcon, Calendar, User, AlertTriangle, Plus } from "lucide-react";
 import { CardSkeleton } from "@/components/skeletons";
 import FloatingActionButton from "@/components/FloatingActionButton";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/LazyChart";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/ImageUpload";
 import { SignatureCanvas } from "@/components/SignatureCanvas";

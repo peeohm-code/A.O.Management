@@ -23,7 +23,7 @@ import {
   Area,
   AreaChart,
   ComposedChart,
-} from "recharts";
+} from "@/components/LazyChart";
 
 export default function Analytics() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);

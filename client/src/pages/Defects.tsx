@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus } from "lucide-react";
 import { CardSkeleton } from "@/components/skeletons";
 import FloatingActionButton from "@/components/FloatingActionButton";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "@/components/LazyChart";
 import { SwipeableCard } from "@/components/SwipeableCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import {

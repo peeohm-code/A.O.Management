@@ -7,7 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, MapPin, Calendar, DollarSign, Users, Trash2, Archive } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { parseDate } from "@/lib/dateUtils";
-import GanttChart from "@/components/GanttChart";
+import { lazy, Suspense } from "react";
+
+// Lazy load GanttChart component
+const GanttChart = lazy(() => import("@/components/GanttChart"));
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { CategoryColorPicker } from "@/components/CategoryColorPicker";
 import { QCTab } from "@/components/QCTab";
@@ -281,7 +284,12 @@ export default function ProjectDetail() {
             <NewTaskDialog projectId={projectId} />
           </div>
           {tasks.length > 0 && (
-            <GanttChart
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-96 bg-card rounded-lg border">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            }>
+              <GanttChart
               tasks={tasks.map((t: any) => ({
                 id: t.id,
                 name: t.name,
@@ -294,7 +302,8 @@ export default function ProjectDetail() {
                 category: t.category,
               }))}
               projectId={projectId}
-            />
+              />
+            </Suspense>
           )}
           {tasks.length === 0 && (
             <Card>
