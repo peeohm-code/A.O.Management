@@ -134,6 +134,21 @@ export type TaskDependency = typeof taskDependencies.$inferSelect;
 export type InsertTaskDependency = typeof taskDependencies.$inferInsert;
 
 /**
+ * Task Assignments - many-to-many relationship for multiple assignees per task
+ */
+export const taskAssignments = mysqlTable("taskAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  taskUserIdx: index("taskUserIdx").on(table.taskId, table.userId),
+}));
+
+export type TaskAssignment = typeof taskAssignments.$inferSelect;
+export type InsertTaskAssignment = typeof taskAssignments.$inferInsert;
+
+/**
  * Checklist templates - reusable QC checklists
  */
 export const checklistTemplates = mysqlTable("checklistTemplates", {

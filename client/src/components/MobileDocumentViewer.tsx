@@ -229,7 +229,7 @@ export function ImageGalleryViewer({
     }
   }, [open, initialIndex]);
 
-  const currentImage = images[currentIndex];
+  const currentImage = images[currentIndex] || { url: '', fileName: '' };
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
@@ -250,6 +250,7 @@ export function ImageGalleryViewer({
   };
 
   const handleDownload = () => {
+    if (!currentImage?.url) return;
     const link = document.createElement("a");
     link.href = currentImage.url;
     link.download = currentImage.fileName || `image-${currentIndex + 1}.jpg`;
@@ -278,7 +279,7 @@ export function ImageGalleryViewer({
         <DialogHeader className="px-4 py-3 border-b flex-shrink-0 bg-background">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-sm md:text-base truncate flex-1">
-              {currentImage.fileName || `รูปภาพ ${currentIndex + 1} / ${images.length}`}
+              {currentImage?.fileName || `รูปภาพ ${currentIndex + 1} / ${images.length}`}
             </DialogTitle>
             <div className="flex items-center gap-1 flex-shrink-0">
               <Button

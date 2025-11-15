@@ -34,6 +34,7 @@ import {
   InsertPushSubscription,
   scheduledNotifications,
   notificationSettings,
+  taskAssignments,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";

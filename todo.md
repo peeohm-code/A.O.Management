@@ -208,6 +208,10 @@
 - Add AI-powered defect detection from photos
 - Create automated progress tracking using IoT sensors
 
+## Bug Fixes
+- [x] Fix ImageGalleryViewer undefined fileName error in MobileDocumentViewer
+- [x] Fix taskAssignments not defined error in server routers
+
 ## 🐛 Current Bugs (แก้ไขเรียบร้อยแล้ว)
 
 ### TypeScript Type Errors - ✅ แก้ไขเสร็จสิ้น
