@@ -4042,3 +4042,188 @@ export async function getUserTaskStatsForProject(userId: number, projectId: numb
     completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
   };
 }
+
+// ============================================================================
+// Workload Statistics Functions
+// ============================================================================
+
+export async function getWorkloadStatistics(projectId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db
+    .select({
+      userId: users.id,
+      userName: users.name,
+      userEmail: users.email,
+      userRole: users.role,
+      totalTasks: sql<number>`COUNT(DISTINCT ${tasks.id})`,
+      todoTasks: sql<number>`SUM(CASE WHEN ${tasks.status} IN ('todo', 'not_started') THEN 1 ELSE 0 END)`,
+      inProgressTasks: sql<number>`SUM(CASE WHEN ${tasks.status} = 'in_progress' THEN 1 ELSE 0 END)`,
+      completedTasks: sql<number>`SUM(CASE WHEN ${tasks.status} = 'completed' THEN 1 ELSE 0 END)`,
+      overdueTasks: sql<number>`SUM(CASE WHEN ${tasks.endDate} < NOW() AND ${tasks.status} != 'completed' THEN 1 ELSE 0 END)`,
+    })
+    .from(users)
+    .leftJoin(taskAssignments, eq(taskAssignments.userId, users.id))
+    .leftJoin(tasks, eq(tasks.id, taskAssignments.taskId))
+    .groupBy(users.id);
+
+  if (projectId) {
+    query = query.where(eq(tasks.projectId, projectId));
+  }
+
+  return await query;
+}
+
+export async function getUserWorkload(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select({
+      userId: users.id,
+      userName: users.name,
+      userEmail: users.email,
+      userRole: users.role,
+      totalTasks: sql<number>`COUNT(DISTINCT ${tasks.id})`,
+      todoTasks: sql<number>`SUM(CASE WHEN ${tasks.status} IN ('todo', 'not_started') THEN 1 ELSE 0 END)`,
+      inProgressTasks: sql<number>`SUM(CASE WHEN ${tasks.status} = 'in_progress' THEN 1 ELSE 0 END)`,
+      completedTasks: sql<number>`SUM(CASE WHEN ${tasks.status} = 'completed' THEN 1 ELSE 0 END)`,
+      overdueTasks: sql<number>`SUM(CASE WHEN ${tasks.endDate} < NOW() AND ${tasks.status} != 'completed' THEN 1 ELSE 0 END)`,
+      urgentTasks: sql<number>`SUM(CASE WHEN ${tasks.priority} = 'urgent' AND ${tasks.status} != 'completed' THEN 1 ELSE 0 END)`,
+      highPriorityTasks: sql<number>`SUM(CASE WHEN ${tasks.priority} = 'high' AND ${tasks.status} != 'completed' THEN 1 ELSE 0 END)`,
+    })
+    .from(users)
+    .leftJoin(taskAssignments, eq(taskAssignments.userId, users.id))
+    .leftJoin(tasks, eq(tasks.id, taskAssignments.taskId))
+    .where(eq(users.id, userId))
+    .groupBy(users.id)
+    .limit(1);
+
+  return result[0] || null;
+}
+
+export async function getRoleDashboardData(userId: number, role: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Common data for all roles
+  const baseData = {
+    userId,
+    role,
+  };
+
+  // Role-specific data
+  switch (role) {
+    case "owner":
+    case "admin":
+      // Admin sees everything
+      const [adminProjects, adminTasks, adminDefects, adminUsers] = await Promise.all([
+        db.select().from(projects),
+        db.select().from(tasks),
+        db.select().from(defects),
+        db.select().from(users),
+      ]);
+      return {
+        ...baseData,
+        projects: adminProjects,
+        tasks: adminTasks,
+        defects: adminDefects,
+        users: adminUsers,
+        totalProjects: adminProjects.length,
+        totalTasks: adminTasks.length,
+        totalDefects: adminDefects.length,
+        totalUsers: adminUsers.length,
+      };
+
+    case "project_manager":
+      // PM sees projects they manage
+      const pmProjects = await db
+        .select()
+        .from(projects)
+        .leftJoin(projectMembers, eq(projectMembers.projectId, projects.id))
+        .where(
+          and(
+            eq(projectMembers.userId, userId),
+            eq(projectMembers.role, "project_manager")
+          )
+        );
+
+      const pmProjectIds = pmProjects.map((p) => p.projects.id);
+      const [pmTasks, pmDefects, pmTeamMembers] = await Promise.all([
+        pmProjectIds.length > 0
+          ? db.select().from(tasks).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
+          : [],
+        pmProjectIds.length > 0
+          ? db.select().from(defects).where(sql`${defects.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
+          : [],
+        pmProjectIds.length > 0
+          ? db
+              .select()
+              .from(projectMembers)
+              .leftJoin(users, eq(users.id, projectMembers.userId))
+              .where(sql`${projectMembers.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
+          : [],
+      ]);
+
+      return {
+        ...baseData,
+        projects: pmProjects.map((p) => p.projects),
+        tasks: pmTasks,
+        defects: pmDefects,
+        teamMembers: pmTeamMembers,
+        totalProjects: pmProjects.length,
+        totalTasks: pmTasks.length,
+        totalDefects: pmDefects.length,
+      };
+
+    case "qc_inspector":
+      // QC Inspector sees inspection-related data
+      const qcDefects = await db
+        .select()
+        .from(defects)
+        .leftJoin(projects, eq(projects.id, defects.projectId));
+
+      const qcInspections = await db
+        .select()
+        .from(inspections)
+        .leftJoin(tasks, eq(tasks.id, inspections.taskId))
+        .where(eq(inspections.inspectorId, userId));
+
+      return {
+        ...baseData,
+        defects: qcDefects.map((d) => d.defects),
+        inspections: qcInspections.map((i) => i.inspections),
+        totalDefects: qcDefects.length,
+        totalInspections: qcInspections.length,
+        pendingInspections: qcInspections.filter(
+          (i) => i.inspections.status === "pending"
+        ).length,
+      };
+
+    case "worker":
+      // Worker sees only their assigned tasks
+      const workerTasks = await db
+        .select()
+        .from(tasks)
+        .leftJoin(taskAssignments, eq(taskAssignments.taskId, tasks.id))
+        .leftJoin(projects, eq(projects.id, tasks.projectId))
+        .where(eq(taskAssignments.userId, userId));
+
+      return {
+        ...baseData,
+        tasks: workerTasks.map((t) => ({ ...t.tasks, projectName: t.projects?.name })),
+        totalTasks: workerTasks.length,
+        todoTasks: workerTasks.filter(
+          (t) => t.tasks.status === "todo" || t.tasks.status === "not_started"
+        ).length,
+        inProgressTasks: workerTasks.filter((t) => t.tasks.status === "in_progress")
+          .length,
+        completedTasks: workerTasks.filter((t) => t.tasks.status === "completed")
+          .length,
+      };
+
+    default:
+      return baseData;
+  }
+}

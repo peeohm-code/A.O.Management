@@ -9,6 +9,7 @@ import { ProgressVsPlan } from "@/components/dashboard/ProgressVsPlan";
 import { ProgressReportExport } from "@/components/dashboard/ProgressReportExport";
 import { AllProjectsTable } from "@/components/dashboard/AllProjectsTable";
 import { AllProjectsCards } from "@/components/dashboard/AllProjectsCards";
+import { RoleBasedDashboard } from "@/components/dashboard/RoleBasedDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -110,13 +111,14 @@ export default function Dashboard() {
         return "ทั้งหมด";
     }
   };
-
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
-        <div className="space-y-8 pb-8">
+      <div className="container py-8 space-y-8">
+        {/* Role-based Dashboard Section */}
+        <RoleBasedDashboard />
+        
         {/* Header with Date Range Filter */}
-        <div className="bg-white border-b border-gray-200 -mx-6 -mt-6 px-6 py-6 mb-8">
+        <div className="bg-white border-b border-gray-200 rounded-lg shadow-sm p-6 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -267,9 +269,8 @@ export default function Dashboard() {
         </div>
 
         {/* Mobile Quick Actions - Shown at bottom on mobile */}
-        <div className="lg:hidden px-6">
+        <div className="lg:hidden">
           <QuickActions />
-        </div>
         </div>
       </div>
     </PullToRefresh>

@@ -28,6 +28,7 @@ import UserProfile from "./pages/UserProfile";
 import TeamManagement from "./pages/TeamManagement";
 import ProjectTeam from "./pages/ProjectTeam";
 import MyTasks from "./pages/MyTasks";
+import WorkloadBalancing from "./pages/WorkloadBalancing";
 import Archive from "./pages/Archive";
 import ArchiveRules from "./pages/ArchiveRules";
 import NotificationSettings from "./pages/NotificationSettings";
@@ -213,6 +214,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <ProjectTeam />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/workload"}>
+        {() => (
+          <DashboardLayout>
+            <WorkloadBalancing />
           </DashboardLayout>
         )}
       </Route>

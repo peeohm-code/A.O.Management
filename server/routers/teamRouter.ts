@@ -250,4 +250,30 @@ export const teamRouter = router({
 
       return memberStats;
     }),
+
+  /**
+   * Get workload statistics for all team members
+   */
+  getWorkloadStatistics: protectedProcedure
+    .input(z.object({ projectId: z.number().optional() }))
+    .query(async ({ input }) => {
+      return await db.getWorkloadStatistics(input.projectId);
+    }),
+
+  /**
+   * Get workload for a specific user
+   */
+  getUserWorkload: protectedProcedure
+    .input(z.object({ userId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getUserWorkload(input.userId);
+    }),
+
+  /**
+   * Get role-based dashboard data
+   */
+  getRoleDashboardData: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await db.getRoleDashboardData(ctx.user.id, ctx.user.role);
+    }),
 });

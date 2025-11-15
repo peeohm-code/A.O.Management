@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick, Moon, Sun, Scale } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
@@ -76,6 +76,7 @@ const menuItems = [
   { icon: AlertTriangle, label: "Defects", path: "/defects", roles: ["admin", "qc_inspector", "pm"] },
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "qc_inspector"] },
   { icon: Users, label: "Team", path: "/team", roles: ["admin", "pm"] },
+  { icon: Scale, label: "Workload Balancing", path: "/workload", roles: ["admin", "pm"] },
   { icon: Archive, label: "Archive", path: "/archive", roles: ["admin", "pm"] },
   { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "pm"] },
   { icon: TrendingUp, label: "Analytics", path: "/analytics", roles: ["admin", "pm"] },
