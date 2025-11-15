@@ -14,6 +14,9 @@ import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
 import { createNotification } from "./notificationService";
 import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
+import { healthRouter } from "./monitoring/healthRouter";
+import { optimizationRouter } from "./optimization/optimizationRouter";
+import { cacheRouter } from "./cache/cacheRouter";
 
 /**
  * Project Router - Project Management
@@ -2467,6 +2470,9 @@ export const appRouter = router({
   activity: activityRouter,
   categoryColor: categoryColorRouter,
   monitoring: monitoringRouter,
+  health: healthRouter,
+  optimization: optimizationRouter,
+  cache: cacheRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -30,6 +30,7 @@ import Archive from "./pages/Archive";
 import ArchiveRules from "./pages/ArchiveRules";
 import NotificationSettings from "./pages/NotificationSettings";
 import DatabaseMonitoring from "./pages/DatabaseMonitoring";
+import SystemMonitor from "./pages/SystemMonitor";
 import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
@@ -220,6 +221,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <DatabaseMonitoring />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/system-monitor"}>
+        {() => (
+          <DashboardLayout>
+            <SystemMonitor />
           </DashboardLayout>
         )}
       </Route>

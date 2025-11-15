@@ -3111,3 +3111,71 @@
 
 ### Ready for Production ✅
 All requested features have been implemented and tested. The system is ready for checkpoint and deployment.
+
+## System Resources Management Enhancement (ปรับปรุงระบบจัดการทรัพยากร)
+
+### Resource Hierarchy & Organization
+- [ ] เพิ่ม resource categories (Equipment, Material, Labor, Vehicle)
+- [ ] เพิ่ม parent-child relationships สำหรับจัดกลุ่มทรัพยากร (เช่น รถแบคโฮ → รถขุดดิน → ยานพาหนะ)
+- [ ] เพิ่ม resource tags สำหรับการค้นหาและกรองข้อมูล
+
+### Resource Tracking & Usage Logs
+- [ ] สร้างตาราง resourceUsageLogs เพื่อบันทึกการใช้งาน (taskId, resourceId, startTime, endTime, quantity, operator)
+- [ ] เพิ่ม API สำหรับบันทึกการเริ่มใช้และหยุดใช้ทรัพยากร
+- [ ] แสดง usage history ในหน้า Resource Detail
+- [ ] คำนวณ utilization rate (% เวลาที่ใช้งานจริง vs เวลาที่มี)
+
+### Maintenance Scheduling & Alerts
+- [ ] สร้างตาราง resourceMaintenance (resourceId, maintenanceType, scheduledDate, completedDate, cost, notes)
+- [ ] เพิ่ม maintenance types (Preventive, Corrective, Inspection)
+- [ ] สร้างระบบแจ้งเตือนก่อนถึงวันบำรุงรักษา (7 วัน, 3 วัน, 1 วัน)
+- [ ] เพิ่ม maintenance calendar view
+- [ ] บันทึก maintenance history และค่าใช้จ่าย
+
+### Resource Availability & Booking
+- [ ] เพิ่มฟิลด์ availabilityStatus (available, in_use, maintenance, retired)
+- [ ] สร้างระบบ booking/reservation สำหรับทรัพยากร
+- [ ] แสดง availability calendar แบบ visual
+- [ ] ป้องกันการ double-booking
+- [ ] เพิ่ม conflict detection เมื่อจัดสรรทรัพยากร
+
+### Depreciation & Cost Tracking
+- [ ] เพิ่มฟิลด์ purchaseDate, purchasePrice, estimatedLifeYears
+- [ ] คำนวณค่าเสื่อมราคาแบบเส้นตรง (Straight-line depreciation)
+- [ ] แสดง current book value
+- [ ] บันทึก maintenance costs และ operating costs
+- [ ] คำนวณ total cost of ownership (TCO)
+
+### Resource Allocation Optimization
+- [ ] สร้าง dashboard แสดง resource utilization by category
+- [ ] เพิ่มระบบแนะนำการจัดสรรทรัพยากรที่เหมาะสม
+- [ ] แจ้งเตือนเมื่อทรัพยากรใช้งานเกิน capacity
+- [ ] แสดง idle resources (ทรัพยากรที่ไม่ได้ใช้งาน)
+
+### Analytics & Reporting
+- [ ] สร้าง Resource Utilization Report
+- [ ] สร้าง Maintenance Cost Report
+- [ ] สร้าง Resource Efficiency Dashboard
+- [ ] เพิ่ม charts แสดง utilization trends
+- [ ] Export reports เป็น PDF/Excel
+
+### Bulk Operations
+- [ ] เพิ่มฟีเจอร์ bulk import resources จาก CSV/Excel
+- [ ] เพิ่มฟีเจอร์ bulk update (เช่น เปลี่ยน status หลายรายการพร้อมกัน)
+- [ ] เพิ่มฟีเจอร์ bulk delete พร้อม confirmation
+- [ ] เพิ่มฟีเจอร์ bulk assign resources to tasks
+
+### Mobile Optimization
+- [ ] ปรับปรุง UI ให้ responsive สำหรับ mobile
+- [ ] เพิ่มฟีเจอร์ scan QR code เพื่อเข้าถึงข้อมูลทรัพยากร
+- [ ] เพิ่มฟีเจอร์ quick check-in/check-out ทรัพยากร
+- [ ] เพิ่มฟีเจอร์ถ่ายรูปบันทึกสภาพทรัพยากร
+
+## Memory Monitoring & System Optimization (New Request)
+- [x] สร้างระบบ Memory Monitoring และ Alert
+- [x] ติดตั้ง Health Check Monitoring Script
+- [x] สร้าง System Alert Notification API
+- [x] ทำ Database Query Optimization (pagination, indexes)
+- [x] เพิ่ม Caching Layer (Redis/In-Memory)
+- [x] สร้าง Auto-restart Strategy เมื่อ memory เกินขอบเขต
+- [x] เขียนเอกสาร Memory Management Guide

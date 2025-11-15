@@ -12,6 +12,7 @@ import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
 import { initializeSocket } from "./socket";
 import { initializeCronJobs } from "../cron/scheduler";
+import { initializeMonitoring } from "../monitoring/startMonitoring";
 import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
 import { validateFile, sanitizeFilename } from "../utils/sanitize";
 
@@ -138,6 +139,9 @@ async function startServer() {
     
     // Initialize cron jobs after server starts
     initializeCronJobs();
+    
+    // Initialize system monitoring
+    initializeMonitoring();
   });
 }
 
