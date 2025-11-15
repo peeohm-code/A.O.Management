@@ -1620,6 +1620,7 @@ export async function submitInspection(data: {
   }>;
   generalComments?: string;
   photoUrls?: string[]; // Array of photo URLs
+  signature?: string; // Base64 encoded signature image
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -1650,6 +1651,7 @@ export async function submitInspection(data: {
       inspectedAt: new Date(),
       generalComments: data.generalComments || null,
       photoUrls: data.photoUrls && data.photoUrls.length > 0 ? JSON.stringify(data.photoUrls) : null,
+      signature: data.signature || null,
     }).where(eq(taskChecklists.id, data.taskChecklistId));
 
     // 4. Create defects for failed items

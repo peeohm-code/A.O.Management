@@ -998,6 +998,7 @@ const checklistRouter = router({
         status: z.enum(["not_started", "pending_inspection", "in_progress", "completed", "failed"]),
         generalComments: z.string().optional(),
         photoUrls: z.string().optional(),
+        signature: z.string().optional(),
         itemResults: z.array(z.object({
           templateItemId: z.number(),
           result: z.enum(["pass", "fail", "na"]),
@@ -1008,11 +1009,12 @@ const checklistRouter = router({
       const checklist = await db.getTaskChecklistById(input.id);
       if (!checklist) throw new Error("Checklist not found");
 
-      // Update checklist status, comments, and photos
+      // Update checklist status, comments, photos, and signature
       await db.updateTaskChecklist(input.id, {
         status: input.status,
         generalComments: input.generalComments,
         photoUrls: input.photoUrls,
+        signature: input.signature,
         inspectedBy: ctx.user!.id,
         inspectedAt: new Date(),
       });
@@ -1085,6 +1087,7 @@ const checklistRouter = router({
         ),
         generalComments: z.string().optional(),
         photoUrls: z.array(z.string()).optional(),
+        signature: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -1096,6 +1099,7 @@ const checklistRouter = router({
         itemResults: input.items,
         generalComments: input.generalComments,
         photoUrls: input.photoUrls,
+        signature: input.signature,
       });
 
       return result;

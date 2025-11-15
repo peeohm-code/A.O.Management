@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { exportProjectSummaryToExcel, exportTasksToExcel, exportDefectsToExcel, exportInspectionsToExcel } from "@/lib/excelExport";
 
 export default function Reports() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
@@ -20,6 +21,8 @@ export default function Reports() {
 
   const projectsQuery = trpc.project.list.useQuery();
   const projects = projectsQuery.data || [];
+  
+  const utils = trpc.useUtils();
 
   const handleExportPDF = () => {
     if (!selectedProjectId) {
@@ -31,14 +34,55 @@ export default function Reports() {
     // PDF export functionality would be implemented here
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (!selectedProjectId) {
-      toast.error("Please select a project first");
+      toast.error("กรุณาเลือกโครงการก่อน");
       return;
     }
 
-    toast.success("Report exported as Excel");
-    // Excel export functionality would be implemented here
+    try {
+      const projectId = parseInt(selectedProjectId);
+      
+      // Fetch data based on report type
+      if (reportType === "overview") {
+        // Fetch all data for project summary
+        const [tasks, defects, inspections] = await Promise.all([
+          utils.task.list.fetch({ projectId }),
+          utils.defect.list.fetch({ taskId: 0 }), // Will filter by project later
+          utils.checklist.getAllTaskChecklists.fetch(),
+        ]);
+        
+        exportProjectSummaryToExcel({
+          project: selectedProject!,
+          tasks: tasks || [],
+          defects: defects || [],
+          inspections: (inspections || []).filter((i: any) => 
+            tasks?.some((t: any) => t.id === i.taskId)
+          ),
+        });
+      } else if (reportType === "progress") {
+        const tasks = await utils.task.list.fetch({ projectId });
+        exportTasksToExcel(tasks || [], selectedProject?.name);
+      } else if (reportType === "defects") {
+        const defects = await utils.defect.list.fetch({ taskId: 0 });
+        exportDefectsToExcel(defects || [], selectedProject?.name);
+      } else if (reportType === "qc") {
+        const inspections = await utils.checklist.getAllTaskChecklists.fetch();
+        const tasks = await utils.task.list.fetch({ projectId });
+        const filteredInspections = (inspections || []).filter((i: any) => 
+          tasks?.some((t: any) => t.id === i.taskId)
+        );
+        exportInspectionsToExcel(filteredInspections, selectedProject?.name);
+      } else {
+        toast.error("รายงานประเภทนี้ยังไม่รองรับการ export Excel");
+        return;
+      }
+      
+      toast.success("Export Excel สำเร็จ");
+    } catch (error) {
+      console.error("Excel export error:", error);
+      toast.error("เกิดข้อผิดพลาดในการ export Excel");
+    }
   };
 
   const selectedProject = projects.find((p) => p.id === parseInt(selectedProjectId || "0"));

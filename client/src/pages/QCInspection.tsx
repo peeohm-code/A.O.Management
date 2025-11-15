@@ -270,6 +270,7 @@ export default function QCInspection() {
       status: finalStatus,
       generalComments: generalComments || undefined,
       photoUrls: beforePhotos.length > 0 ? JSON.stringify(beforePhotos) : undefined,
+      signature: inspectorSignature || undefined,
       itemResults: Object.entries(itemResults).map(([itemId, data]) => ({
         templateItemId: parseInt(itemId),
         result: data.result as "pass" | "fail" | "na",

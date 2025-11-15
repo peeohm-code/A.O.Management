@@ -17,6 +17,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import TaskDetail from "./pages/TaskDetail";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
+import Analytics from "./pages/Analytics";
 import Home from "./pages/Home";
 import LoginDemo from "./pages/LoginDemo";
 import NewProject from "./pages/NewProject";
@@ -191,6 +192,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Reports />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/analytics"}>
+        {() => (
+          <DashboardLayout>
+            <Analytics />
           </DashboardLayout>
         )}
       </Route>

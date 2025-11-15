@@ -14,6 +14,7 @@ interface InspectionReportData {
   }>;
   generalComments?: string;
   photoUrls?: string[];
+  signature?: string; // Base64 encoded signature image
 }
 
 /**
@@ -207,6 +208,40 @@ export async function generateInspectionPDF(data: InspectionReportData): Promise
       yPosition += 5;
     });
     yPosition += 5;
+  }
+
+  // Signature Section (if available)
+  if (data.signature) {
+    checkPageBreak(50);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Inspector Signature", margin, yPosition);
+    yPosition += 6;
+
+    try {
+      // Add signature image
+      const signatureWidth = 60;
+      const signatureHeight = 30;
+      doc.addImage(data.signature, "PNG", margin, yPosition, signatureWidth, signatureHeight);
+      yPosition += signatureHeight + 5;
+      
+      // Add line under signature
+      doc.setLineWidth(0.3);
+      doc.line(margin, yPosition, margin + signatureWidth, yPosition);
+      yPosition += 3;
+      
+      // Add inspector name
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(data.inspectedBy, margin, yPosition);
+      yPosition += 10;
+    } catch (error) {
+      console.error("Failed to add signature to PDF:", error);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "italic");
+      doc.text("(Signature image could not be loaded)", margin, yPosition);
+      yPosition += 10;
+    }
   }
 
   // Photos Section (if any)

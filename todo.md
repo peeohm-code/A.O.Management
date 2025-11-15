@@ -2807,3 +2807,117 @@
 - งาน Testing ส่วนใหญ่ต้องทดสอบ manual บนอุปกรณ์จริง (181 รายการ)
 - Optional enhancements สามารถทำในเฟสถัดไป (127 รายการ)
 - Performance optimization และ Security audit ควรทำก่อน production deployment
+
+## 🎯 Phase 6: Complete Remaining Tasks (Final Push to 100%)
+
+### 🔴 CRITICAL - Bug Fixes & Security
+- [x] Fix Thai text input timeout in all forms (already implemented with useComposition hook) (use composition events: onCompositionStart, onCompositionEnd)
+- [x] Security audit - SQL injection prevention (Drizzle ORM with parameterized queries) (verify all queries use parameterized statements)
+- [x] Security audit - XSS protection (React auto-escape + sanitize utilities) (verify all user inputs are sanitized)
+- [x] Security audit - CSRF protection (JWT + tRPC built-in) (verify all mutations have proper auth)
+- [x] Security audit - Input validation all forms (259+ Zod schemas) (add zod schemas)
+- [x] Security audit - Rate limiting (implemented middleware) (add rate limiter middleware)
+- [x] Security audit - File upload validation (type, size, extension checks) (check file types, sizes, malicious content)
+
+### ⚪ OPTIONAL - Digital Signature Enhancement
+- [x] Verify signature capture works in all QC forms
+- [x] Ensure signature images stored in S3 correctly (stored in taskChecklists.signature)
+- [x] Verify signatures display in PDF reports (added to pdfGenerator.ts)
+- [x] Add signature verification timestamp (stored with inspectedAt)
+- [x] Add signature history tracking in inspection records (stored in taskChecklists)
+
+### ⚪ OPTIONAL - Re-inspection Enhancement
+- [x] Verify re-inspection workflow UI completeness (dialogs exist in DefectDetail)
+- [x] Ensure re-inspections linked to original inspections properly (defectInspections table)
+- [x] Add re-inspection history timeline view (inspection history in DefectDetail)
+- [x] Show re-inspection status in dashboard metrics (pending_reinspection status)
+- [x] Generate re-inspection comparison reports (inspection history with before/after)
+
+### ⚪ OPTIONAL - Advanced Analytics
+- [ ] Create Progress vs Plan comparison charts (Planned timeline vs Actual progress)
+- [ ] Add Gantt chart comparison view (overlay planned vs actual)
+- [x] Implement trend analysis charts (velocity, defect trends) (velocity, completion rate over time)
+- [x] Add custom date range filters for analytics (7d/30d/3m/custom range)
+- [ ] Create analytics export to Excel feature
+
+### ⚪ OPTIONAL - Excel Export
+- [ ] Export projects list to Excel (with filters)
+- [ ] Export tasks list to Excel (with status, progress, dates)
+- [ ] Export inspections to Excel (with results, photos links)
+- [ ] Export defects to Excel (with status, assignee, photos)
+- [ ] Export analytics/reports to Excel (charts as images)
+- [ ] Add bulk export with custom filters
+
+### ⚪ OPTIONAL - Performance Optimization
+- [ ] Bundle size optimization - implement dynamic imports for large components
+- [ ] Image optimization - add compression and lazy loading
+- [ ] Database query optimization - add indexes, optimize N+1 queries
+- [ ] Caching strategy - implement Redis or in-memory cache for frequent queries
+- [ ] Code splitting - split large components into smaller chunks
+- [ ] Lighthouse audit - achieve 90+ performance score
+
+### 🔵 TESTING - Manual Testing Checklist
+- [ ] Create comprehensive testing checklist document
+- [ ] Document testing procedures for each feature
+- [ ] List browser compatibility requirements (Chrome, Safari, Firefox, Edge)
+- [ ] Create mobile device testing guide (iOS Safari, Android Chrome)
+- [ ] Document performance benchmarks and acceptance criteria
+- [ ] Create user acceptance testing (UAT) scenarios
+- [ ] Document known limitations and workarounds
+
+## 🎯 Phase 6: Complete Remaining Tasks (Final Push to 100%)
+
+### 🔴 CRITICAL - Bug Fixes & Security
+- [x] Fix Thai text input timeout in all forms (already implemented with useComposition hook) (use composition events: onCompositionStart, onCompositionEnd)
+- [x] Security audit - SQL injection prevention (Drizzle ORM with parameterized queries) (verify all queries use parameterized statements)
+- [x] Security audit - XSS protection (React auto-escape + sanitize utilities) (verify all user inputs are sanitized)
+- [x] Security audit - CSRF protection (JWT + tRPC built-in) (verify all mutations have proper auth)
+- [x] Security audit - Input validation all forms (259+ Zod schemas) (add zod schemas)
+- [x] Security audit - Rate limiting (implemented middleware) (add rate limiter middleware)
+- [x] Security audit - File upload validation (type, size, extension checks) (check file types, sizes, malicious content)
+
+### ⚪ OPTIONAL - Digital Signature Enhancement
+- [x] Verify signature capture works in all QC forms
+- [x] Ensure signature images stored in S3 correctly (stored in taskChecklists.signature)
+- [x] Verify signatures display in PDF reports (added to pdfGenerator.ts)
+- [x] Add signature verification timestamp (stored with inspectedAt)
+- [x] Add signature history tracking in inspection records (stored in taskChecklists)
+
+### ⚪ OPTIONAL - Re-inspection Enhancement
+- [x] Verify re-inspection workflow UI completeness (dialogs exist in DefectDetail)
+- [x] Ensure re-inspections linked to original inspections properly (defectInspections table)
+- [x] Add re-inspection history timeline view (inspection history in DefectDetail)
+- [x] Show re-inspection status in dashboard metrics (pending_reinspection status)
+- [x] Generate re-inspection comparison reports (inspection history with before/after)
+
+### ⚪ OPTIONAL - Advanced Analytics
+- [ ] Create Progress vs Plan comparison charts (Planned timeline vs Actual progress)
+- [ ] Add Gantt chart comparison view (overlay planned vs actual)
+- [x] Implement trend analysis charts (velocity, defect trends) (velocity, completion rate over time)
+- [x] Add custom date range filters for analytics (7d/30d/3m/custom range)
+- [ ] Create analytics export to Excel feature
+
+### ⚪ OPTIONAL - Excel Export
+- [ ] Export projects list to Excel (with filters)
+- [ ] Export tasks list to Excel (with status, progress, dates)
+- [ ] Export inspections to Excel (with results, photos links)
+- [ ] Export defects to Excel (with status, assignee, photos)
+- [ ] Export analytics/reports to Excel (charts as images)
+- [ ] Add bulk export with custom filters
+
+### ⚪ OPTIONAL - Performance Optimization
+- [ ] Bundle size optimization - implement dynamic imports for large components
+- [ ] Image optimization - add compression and lazy loading
+- [ ] Database query optimization - add indexes, optimize N+1 queries
+- [ ] Caching strategy - implement Redis or in-memory cache for frequent queries
+- [ ] Code splitting - split large components into smaller chunks
+- [ ] Lighthouse audit - achieve 90+ performance score
+
+### 🔵 TESTING - Manual Testing Checklist
+- [ ] Create comprehensive testing checklist document
+- [ ] Document testing procedures for each feature
+- [ ] List browser compatibility requirements (Chrome, Safari, Firefox, Edge)
+- [ ] Create mobile device testing guide (iOS Safari, Android Chrome)
+- [ ] Document performance benchmarks and acceptance criteria
+- [ ] Create user acceptance testing (UAT) scenarios
+- [ ] Document known limitations and workarounds

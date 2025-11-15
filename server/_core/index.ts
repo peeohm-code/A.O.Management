@@ -12,6 +12,8 @@ import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
 import { initializeSocket } from "./socket";
 import { initializeCronJobs } from "../cron/scheduler";
+import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
+import { validateFile, sanitizeFilename } from "../utils/sanitize";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,6 +40,9 @@ async function startServer() {
   
   // Initialize Socket.io
   initializeSocket(server);
+  // Apply rate limiting to all API routes
+  app.use("/api", apiRateLimit);
+  
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -48,11 +53,17 @@ async function startServer() {
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
   });
   
-  // File upload endpoint with image compression
-  app.post("/api/upload", upload.single('file'), async (req, res) => {
+  // File upload endpoint with image compression (with stricter rate limit)
+  app.post("/api/upload", strictRateLimit, upload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
+      }
+      
+      // Validate file
+      const validation = validateFile(req.file);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.error });
       }
       
       let fileBuffer = req.file.buffer;
