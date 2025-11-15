@@ -33,13 +33,14 @@ import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: mysql.Pool | null = null;
 
 // Lazily create the drizzle instance with connection pooling
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
       // Create connection pool with optimized settings
-      const poolConnection = mysql.createPool({
+      _pool = mysql.createPool({
         uri: process.env.DATABASE_URL,
         connectionLimit: 10, // Maximum 10 concurrent connections
         waitForConnections: true,
@@ -50,7 +51,7 @@ export async function getDb() {
         idleTimeout: 60000, // Close idle connections after 60s
       });
       console.log("[Database] Connection pool created with limit: 10");
-      _db = drizzle(poolConnection);
+      _db = drizzle(_pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -59,9 +60,20 @@ export async function getDb() {
   return _db;
 }
 
-/**
- * User Management
- */
+// Close database connections gracefully
+export async function closeDbConnection(): Promise<void> {
+  if (_pool) {
+    try {
+      await _pool.end();
+      console.log('[Database] Connection pool closed');
+      _pool = null;
+      _db = null;
+    } catch (error) {
+      console.error('[Database] Error closing connection pool:', error);
+    }
+  }
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");

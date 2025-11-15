@@ -3248,3 +3248,47 @@ All requested features have been implemented and tested. The system is ready for
 - [x] Virtual Scrolling - ใช้ react-window สำหรับ task lists ที่มีมากกว่า 100 รายการ
 - [x] OptimizedImage component - แทนที่ <img> tags ด้วย lazy loading และ WebP support (มีอยู่แล้ว)
 - [x] Service Worker - เพื่อ offline support และ background sync สำหรับ QC Inspection
+
+## System Optimization & Performance Improvements
+
+### Phase 1: Swap Space และ Memory Configuration
+- [x] ตรวจสอบ swap space ปัจจุบัน
+- [x] สร้าง swap file 4 GB
+- [x] กำหนดค่า swappiness เป็น 10
+- [x] ปรับ Node.js memory limit จาก 512 MB เป็น 256 MB
+- [x] อัพเดท package.json scripts
+
+### Phase 2: Zombie Process Cleanup
+- [x] ตรวจสอบ zombie processes ที่มีอยู่
+- [x] ทำความสะอาด zombie processes
+- [x] สร้าง cleanup script อัตโนมัติ
+
+### Phase 3: Monitoring System
+- [x] ติดตั้ง memory monitoring script
+- [x] ติดตั้ง OOM (Out of Memory) detection
+- [x] ติดตั้ง zombie process monitoring
+- [x] สร้าง log rotation system
+
+### Phase 4: Resource Optimization
+- [x] Implement graceful shutdown สำหรับ Node.js
+- [x] เพิ่ม process cleanup ใน server shutdown
+- [x] ปรับปรุง database connection pooling
+- [x] เพิ่ม request timeout configuration
+
+### Phase 5: System Hardening
+- [x] ตั้งค่า cgroups สำหรับ memory limits
+- [x] สร้าง automated cleanup cron jobs
+- [x] เพิ่ม health check endpoints
+- [x] ตั้งค่า process restart policies
+
+### Phase 6: Testing และ Documentation
+- [x] ทดสอบระบบหลังการปรับปรุง
+- [x] ตรวจสอบ memory usage patterns
+- [x] บันทึก checkpoint
+- [x] สร้างเอกสาร capacity planning
+
+### Phase 7: Deployment และ Monitoring
+- [ ] Deploy การเปลี่ยนแปลง
+- [ ] Monitor ระบบเป็นเวลา 24-48 ชั่วโมง
+- [ ] รายงานผลการปรับปรุง
+- [ ] แนะนำ RAM upgrade plan (ถ้าจำเป็น)

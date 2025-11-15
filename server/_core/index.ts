@@ -153,6 +153,47 @@ async function startServer() {
     // Initialize system monitoring
     initializeMonitoring();
   });
+
+  // Graceful shutdown handler
+  const gracefulShutdown = async (signal: string) => {
+    console.log(`\n${signal} received. Starting graceful shutdown...`);
+    
+    // Force shutdown after 30 seconds
+    const forceShutdownTimer = setTimeout(() => {
+      console.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 30000);
+    
+    try {
+      // Stop accepting new connections
+      await new Promise<void>((resolve) => {
+        server.close(() => {
+          console.log('HTTP server closed');
+          resolve();
+        });
+      });
+      
+      // Close database connections
+      console.log('Closing database connections...');
+      const { closeDbConnection } = await import('../db');
+      await closeDbConnection();
+      
+      // Clear force shutdown timer
+      clearTimeout(forceShutdownTimer);
+      
+      // Exit process
+      console.log('Graceful shutdown completed');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      clearTimeout(forceShutdownTimer);
+      process.exit(1);
+    }
+  };
+
+  // Register shutdown handlers
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 startServer().catch(console.error);
