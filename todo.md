@@ -3,6 +3,7 @@
 ## ✅ Completed Core Features
 
 ### Database & Backend
+
 - [x] Design and implement complete database schema
 - [x] Create all necessary tables (projects, tasks, checklists, inspections, defects, etc.)
 - [x] Implement project CRUD operations
@@ -25,6 +26,7 @@
 - [x] Create overdue defect notifications (scheduled)
 
 ### Frontend UI
+
 - [x] Design and implement project dashboard with statistics
 - [x] Create mobile-responsive task list view
 - [x] Build QC inspection interface with step-by-step workflow
@@ -52,6 +54,7 @@
 - [x] นำ NotificationBadge ไปใช้ใน DashboardLayout header
 
 ### Advanced Features
+
 - [x] Automatic task status calculation based on dates and progress
 - [x] Plan vs Actual progress comparison
 - [x] Progress status indicator (on track, ahead, behind schedule)
@@ -70,6 +73,7 @@
 - [x] Add export functionality (Excel/PDF for tasks, defects, inspections)
 
 ### Defect Management
+
 - [x] สร้างหน้าจัดการ Defects แยกต่างหาก (Defects List Page)
 - [x] สร้างหน้า Defect Detail (ดู/แก้ไข/อัปเดตสถานะ)
 - [x] เพิ่มฟีเจอร์กำหนดผู้รับผิดชอบและกำหนดเวลาแก้ไข defect
@@ -80,6 +84,7 @@
 - [x] แสดงประวัติ re-inspection ใน Defect Detail
 
 ### Gantt Chart Enhancement
+
 - [x] ปรับปรุง Gantt Chart ให้แสดง timeline โครงการแบบ visual ที่ชัดเจนขึ้น
 - [x] เพิ่มการ drag-and-drop เพื่อปรับเปลี่ยนวันที่งาน
 - [x] แสดง dependencies ระหว่างงานแบบ visual (เส้นเชื่อม)
@@ -88,6 +93,7 @@
 - [x] เพิ่ม EnhancedGanttChart ในหน้า Project Detail พร้อมตัวเลือกสลับระหว่าง Gantt Chart เดิมและแบบใหม่
 
 ### Real-time Notifications System
+
 - [x] สร้างระบบ Real-time Notifications ด้วย Server-Sent Events (SSE)
 - [x] แจ้งเตือนทันทีเมื่อมี defect ใหม่
 - [x] แจ้งเตือนทันทีเมื่องานล่าช้า (overdue tasks)
@@ -97,6 +103,7 @@
 - [x] เพิ่ม notification badge และ sound alert
 
 ### Mobile App Support Enhancement
+
 - [x] ปรับปรุง responsive design ให้เหมาะกับการใช้งานในหน้างานก่อสร้าง
 - [x] ปรับปรุง touch interaction และ gesture support
 - [x] เพิ่ม offline mode สำหรับการทำงานในพื้นที่ไม่มีสัญญาณ
@@ -106,6 +113,7 @@
 - [x] เพิ่ม quick actions และ shortcuts สำหรับงานที่ใช้บ่อย
 
 ### Reporting & Analytics
+
 - [x] Project overview dashboard with statistics
 - [x] Defect tracking reports
 - [x] Inspection reports (PDF) with signatures
@@ -117,6 +125,7 @@
 - [x] เพิ่มฟีเจอร์ Export รายงานเป็น PDF พร้อมกราฟและสถิติ
 
 ### Documentation
+
 - [x] Create user documentation
 - [x] Create PWA testing guide
 - [x] Create email setup guide
@@ -133,6 +142,7 @@
 - [x] สร้าง checkpoint หลังแก้ไขเสร็จสมบูรณ์
 
 ## 🔧 Bug Fixes - TypeScript Errors (Priority)
+
 - [x] แก้ไข duplicate identifiers ใน server/db.ts (eq, and, gte, lte, userId)
 - [x] แก้ไข Badge variant "success" ใน InspectionDetail.tsx
 - [x] แก้ไข Badge variant "success" ใน InspectionHistory.tsx
@@ -148,6 +158,7 @@
 ## 🚧 Pending Features
 
 ### System Monitoring & Reliability
+
 - [x] เพิ่ม Automated Monitoring - cron job รัน pnpm run monitor:memory ทุก 1 ชั่วโมง
 - [x] เพิ่มการส่งแจ้งเตือนเมื่อ memory usage เกิน 80%
 - [x] ปรับปรุง Error Logging - บันทึก OOM events และ EMFILE errors พร้อม timestamp
@@ -156,6 +167,7 @@
 - [x] ยืนยันว่า memory limits และ file descriptor limits เพียงพอสำหรับการใช้งานจริง
 
 ### UI Enhancements
+
 - [x] Dark/Light theme toggle - เพิ่มปุ่มสลับธีมในระบบ (Navbar และ Settings)
 - [x] Role-based navigation - แสดง/ซ่อนเมนูตามสิทธิ์ผู้ใช้ (Admin/Manager/QC/Worker)
 - [x] Deadline reminder notifications - ระบบแจ้งเตือนงานใกล้ครบกำหนด (3 วัน, 1 วัน, วันสุดท้าย)
@@ -164,18 +176,21 @@
 - [ ] Implement advanced filtering in task list
 
 ### Advanced Features
+
 - [ ] Add re-inspection tracking improvements
 - [ ] Create project templates
 - [ ] Add time tracking for tasks
 - [ ] Implement resource management
 
 ### Reporting Enhancements
+
 - [ ] Add daily/weekly progress reports (auto-send)
 - [ ] Create custom report builder
 - [ ] Add data visualization dashboard
 - [ ] Implement report scheduling and auto-send
 
 ### Testing & Optimization
+
 - [ ] Comprehensive testing of all user workflows
 - [ ] Performance optimization for large projects
 - [ ] Security audit
@@ -183,6 +198,7 @@
 - [ ] Cross-browser compatibility testing
 
 ### Deployment
+
 - [ ] Final production deployment
 - [ ] User training sessions
 - [ ] Create video tutorials
@@ -190,6 +206,7 @@
 ## 📝 Notes
 
 ### Design Decisions
+
 - Task status is automatically calculated based on dates and progress
 - Checklist templates support three stages: Pre-execution, In-progress, Post-execution
 - File storage uses S3 with metadata in database
@@ -199,22 +216,26 @@
 - PWA support with offline capabilities and push notifications
 
 ### Known Limitations
+
 - Theme switching not implemented (currently fixed to light theme)
 - Email notifications require SMTP configuration
 
 ### Future Improvements
+
 - Add mobile app (React Native)
 - Implement real-time collaboration features
 - Add AI-powered defect detection from photos
 - Create automated progress tracking using IoT sensors
 
 ## Bug Fixes
+
 - [x] Fix ImageGalleryViewer undefined fileName error in MobileDocumentViewer
 - [x] Fix taskAssignments not defined error in server routers
 
 ## 🐛 Current Bugs (แก้ไขเรียบร้อยแล้ว)
 
 ### TypeScript Type Errors - ✅ แก้ไขเสร็จสิ้น
+
 - [x] แก้ไข implicit 'any' type ใน DatabaseMonitoring.tsx (8 errors)
 - [x] เพิ่ม projectId property ใน defect type สำหรับ Defects.tsx
 - [x] แก้ไข inspection.getById ใน InspectionHistory.tsx (เปลี่ยนเป็น task.get)
@@ -229,12 +250,14 @@
 ## 👥 Team Management System (New Feature Request)
 
 ### Role Management
+
 - [x] ปรับปรุง role enum ให้รองรับ 4 บทบาท: Admin, Project Manager, QC Inspector, Worker
 - [x] สร้างระบบกำหนดสิทธิ์ตามบทบาท (role-based access control)
 - [x] เพิ่มหน้าจัดการผู้ใช้และบทบาท (User Management Page)
 - [x] เพิ่มฟีเจอร์เปลี่ยนบทบาทผู้ใช้ (สำหรับ Admin)
 
 ### Task Assignment & Tracking
+
 - [x] สร้างระบบมอบหมายงานที่ชัดเจน (assign tasks to team members)
 - [x] เพิ่มหน้า Team Dashboard แสดงภาพรวมงานของทีม
 - [x] สร้างหน้า My Tasks แสดงงานที่ได้รับมอบหมาย
@@ -242,6 +265,7 @@
 - [x] สร้างระบบรายงานสถานะงาน (Task Status Report)
 
 ### Notification System
+
 - [x] ปรับปรุงระบบแจ้งเตือนเมื่อมีงานใหม่ที่ได้รับมอบหมาย
 - [x] เพิ่มการแจ้งเตือนเมื่อพบปัญหา (defect detected)
 - [x] เพิ่มการแจ้งเตือนเมื่อสถานะงานเปลี่ยนแปลง
@@ -249,6 +273,7 @@
 - [x] เพิ่มการตั้งค่าการแจ้งเตือนตามบทบาท (notification preferences by role)
 
 ### Team Collaboration
+
 - [x] เพิ่มฟีเจอร์ดูสมาชิกทีมในโครงการ (Team Members List)
 - [x] สร้างหน้าโปรไฟล์สมาชิกทีม (Team Member Profile)
 - [x] เพิ่มระบบแสดงสถานะออนไลน์/ออฟไลน์ของสมาชิกทีม
@@ -257,6 +282,7 @@
 ## 📊 Role-based Dashboard & Workload Balancing (New Feature Request)
 
 ### Dashboard แยกตาม Role
+
 - [x] ออกแบบ Dashboard layout สำหรับแต่ละ role
 - [x] สร้าง API procedures สำหรับดึงข้อมูลตาม role
 - [x] ปรับปรุง Dashboard component ให้แสดงข้อมูลที่เหมาะสมกับแต่ละบทบาท
@@ -266,6 +292,7 @@
 - [x] Worker Dashboard - แสดงงานที่ได้รับมอบหมาย, ความคืบหน้างานของตัวเอง
 
 ### Workload Balancing
+
 - [x] สร้าง API สำหรับคำนวณภาระงานของแต่ละคน
 - [x] สร้างหน้า Workload Overview แสดงภาระงานของทีม
 - [x] แสดงจำนวนงานที่กำลังทำของแต่ละคน
@@ -277,31 +304,35 @@
 ## 🔍 Checklist Template Search & Filter (New Feature Request)
 
 ### Dropdown Filter Enhancement
+
 - [x] เพิ่มช่องค้นหา/กรองใน Checklist Template dropdown
 - [x] ปรับปรุง UI ของ dropdown ให้มีช่อง search input
 - [x] เพิ่มฟีเจอร์กรอง template ตามชื่อแบบ real-time
 - [x] ปรับปรุง UX ให้ค้นหาได้ง่ายและรวดเร็ว
 
-
 ## 🔄 UI/UX Improvement - Merge Workload into Team Management (New Request)
 
 ### Restructure Navigation
+
 - [x] ลบเมนู "Workload" ที่แยกออกมา
 - [x] รวมฟีเจอร์ Workload เข้ากับหน้า Team Management
 - [x] เปลี่ยนชื่อเมนูเป็น "Team & Workload" หรือคง "Team Management"
 
 ### Team Management Page Enhancement
+
 - [x] เพิ่ม Tab/Section สำหรับ Workload Overview ในหน้า Team Management
 - [x] แสดงรายชื่อทีมงาน + สถานะภาระงาน (underload/normal/overload) ในที่เดียว
 - [x] เพิ่มกราฟ/แผนภูมิแสดง workload distribution
 - [x] เพิ่มตัวกรองดูตาม role, project, หรือสถานะ
 
 ### UI Components
+
 - [x] ใช้ Tabs component จาก shadcn/ui แยก Team Management และ Workload
 - [x] รวม WorkloadCard และ Progress components ในหน้า Team Management
 - [x] แสดงข้อมูล workload พร้อมสถิติและคำแนะนำ
 
 ### Navigation Update
+
 - [x] อัปเดต DashboardLayout sidebar navigation
 - [x] ลบลิงก์ไปหน้า Workload ที่แยกออกมา
 - [x] อัปเดต routing ใน App.tsx (ลบ /workload route)
@@ -310,6 +341,7 @@
 ## 🔧 Latest Bug Fixes (Nov 15, 2025)
 
 ### TypeScript Errors Fixed
+
 - [x] แก้ไข defects.projectId ที่ไม่มีใน schema - ใช้ join กับ tasks แทน
 - [x] แก้ไข inspections table ที่ไม่มี - เปลี่ยนเป็น taskChecklists
 - [x] แก้ไข role type mismatch - เปลี่ยน field_engineer เป็น worker
@@ -326,15 +358,16 @@
 - [x] ทดสอบระบบและยืนยันว่าไม่มี TypeScript errors เหลืออยู่
 
 ### System Status
+
 - ✅ TypeScript compilation: 0 errors
 - ✅ Dev server: Running successfully
 - ✅ Database: Connected
 - ✅ All features: Working properly
 
-
 ## 📦 Archive & Analytics System ✅ (เสร็จสมบูรณ์)
 
 ### Archive Features
+
 - [x] เพิ่ม Archive/Unarchive functions ใน server/db.ts
 - [x] สร้าง archive router ใน server/routers.ts
 - [x] สร้างหน้า Archive.tsx สำหรับดูโครงการที่ถูก archive
@@ -345,6 +378,7 @@
 - [x] เพิ่ม Bulk delete operations สำหรับโครงการที่ archive
 
 ### Analytics Dashboard
+
 - [x] เพิ่ม Analytics helper functions ใน server/db.ts
 - [x] สร้าง analytics router ใน server/routers.ts
 - [x] สร้างหน้า Analytics.tsx แสดงข้อมูลวิเคราะห์โครงการ
@@ -353,10 +387,10 @@
 - [x] เพิ่มฟีเจอร์เลือกช่วงเวลาสำหรับวิเคราะห์
 - [x] เพิ่ม Export Progress Reports (Daily/Weekly) เป็น PDF
 
-
 ## 🔄 Menu Restructuring - ปรับปรุงโครงสร้างเมนู ## 🔄 Menu Restructuring - ปรับปรุงโครงสร้างเมนู
 
 ### Goal
+
 - [x] ลดเมนูหลักจาก 13 เหลือ 11 เมนู (ลบ Analytics และ Archive)
 - [x] รวม Analytics เข้ากับ Dashboard เป็น Tab
 - [x] รวม Archive เข้ากับ Projects เป็น Tab
@@ -368,6 +402,7 @@
 - [x] ปรับปรุง UI ให้เป็น unified experience
 
 ### Projects Enhancement
+
 - [x] สร้าง ActiveProjectsList component
 - [x] สร้าง ArchivedProjectsList component (ใช้โค้ดจาก Archive.tsx)
 - [x] ปรับปรุงหน้า Projects ให้มี Tabs: Active Projects, Archived Projects
@@ -375,27 +410,31 @@
 - [x] ปรับปรุง UI ให้สลับระหว่าง Active/Archive ได้ง่าย
 
 ### Testing
+
 - [x] รีสตาร์ท dev server
 - [x] ตรวจสอบการทำงานของเว็บ
 - [x] ยืนยันว่า Tabs ใน Dashboard และ Projects ทำงานถูกต้อง
 
 ### Cleanup
+
 - [x] เก็บไฟล์ Analytics.tsx และ Archive.tsx ไว้สำหรับ reference
 - [x] App.tsx routing ไม่ต้องปรับ (ใช้ Tabs ภายใน component)
 - [x] ทดสอบการทำงานของเมนูใหม่
 
 ### Final Result
+
 เมนูหลัก 5 เมนู:
+
 1. Dashboard (รวม Analytics section)
 2. Projects (รวม Archive tab)
 3. Inspections
 4. Reports
 5. Settings
 
-
 ## 🔍 System Health Check - 15 พ.ย. 2568
 
 ### Minor Issues Found
+
 - [x] แก้ไข NaN% display ใน Dashboard KeyMetrics (division by zero เมื่อไม่มีข้อมูลสัปดาห์ก่อน)
 - [ ] แก้ไข Service Worker update notification ที่แสดงซ้ำซ้อน
 - [ ] Implement inspection statistics calculation (passCount, failCount, naCount) ใน exportRouter.ts
@@ -403,16 +442,17 @@
 - [ ] Implement task followers feature ใน notificationService.ts
 - [ ] Integrate error tracking service (Sentry) ใน errorLogger.ts
 
-
 ## 🔍 System Health Check & Bug Hunting (Nov 15, 2025)
 
 ### Phase 1: TypeScript & Build Errors
+
 - [x] ตรวจสอบ TypeScript compilation errors
 - [x] ตรวจสอบ ESLint warnings
 - [x] ตรวจสอบ Build process
 - [x] ตรวจสอบ Import/Export issues
 
 ### Phase 2: Runtime Errors & System Health
+
 - [x] ตรวจสอบ Dev server logs
 - [x] ตรวจสอบ Memory usage
 - [x] ตรวจสอบ File descriptor usage
@@ -420,6 +460,7 @@
 - [x] ตรวจสอบ Console errors ใน browser
 
 ### Phase 3: API Endpoints & Database Testing
+
 - [x] ทดสอบ tRPC procedures ทั้งหมด
 - [x] ตรวจสอบ Database queries
 - [x] ทดสอบ Authentication flow
@@ -427,11 +468,13 @@
 - [x] ทดสอบ Notification system
 
 ### Phase 4: Bug Fixes
+
 - [x] แก้ไข bugs ที่พบจากการตรวจสอบ (ไม่พบ critical bugs)
 - [x] ทดสอบการแก้ไขแต่ละ bug
 - [x] อัปเดต documentation
 
 ### Phase 5: Final Report
+
 - [x] สรุปผลการตรวจสอบ
 - [x] รายงาน bugs ที่พบและแก้ไข
 - [x] รายงาน System health status
@@ -440,28 +483,32 @@
 ## 🐛 Bugs ที่ต้องแก้ไข (พบใหม่)
 
 ### Critical Issues
+
 - [x] แก้ไข SSE Connection Error - ปรับปรุง error handling ไม่ให้แสดง error ปกติ
 - [x] แก้ไข Out of Memory (OOM) - เพิ่ม memory limit เป็น 4096 MB
 - [ ] แก้ไข TypeScript errors 11 จุดที่ทำให้ build ล้มเหลว (ยังมี errors จาก mysql2 types)
 - [x] ลด bundle size - เพิ่ม code splitting และ lazy loading (vendor chunk ลดลงเหลือ 1009K)
 
-### UI/UX Issues  
+### UI/UX Issues
+
 - [ ] แก้ไขการแสดงผล skeleton loading ที่ยังไม่หายไปบน Dashboard
 - [ ] ตรวจสอบและแก้ไข responsive layout บนหน้าจอขนาดเล็ก
 - [ ] แก้ไข notification badge ที่แสดงตัวเลขผิด
 
 ### Performance Issues
+
 - [x] ปรับปรุง code splitting เพื่อลด initial bundle size
 - [x] เพิ่ม lazy loading สำหรับ heavy components (Dashboard, Projects, Reports, etc.)
 - [x] ลด memory usage ของ dev server (เพิ่ม NODE_OPTIONS='--max-old-space-size=4096')
 
 ## 🔧 TypeScript Errors - mysql2 Library (แก้ไขเพิ่มเติม)
-- [x] แก้ไข TypeScript errors จาก mysql2 library
 
+- [x] แก้ไข TypeScript errors จาก mysql2 library
 
 ## 📦 Final Delivery - Nov 16, 2025
 
 ### System Status
+
 - ✅ All core features implemented and working
 - ✅ Database schema complete with all necessary tables
 - ✅ Backend API with tRPC procedures fully functional
@@ -473,11 +520,13 @@
 - ✅ Export functionality (PDF/Excel) working
 
 ### Known Issues
+
 - TypeScript has some implicit 'any' type warnings (60+ warnings) - these are non-critical and don't affect functionality
 - Dev server occasionally shows memory warnings but system remains stable
 - Theme is fixed to light mode (dark mode toggle available but requires CSS variable adjustments)
 
 ### Deployment Ready
+
 - [x] System tested and verified working
 - [x] All major features functional
 - [x] Database schema stable
@@ -486,6 +535,7 @@
 - [x] Documentation complete
 
 ### Next Steps for Production
+
 1. Click "Publish" button in Management UI to deploy
 2. Configure custom domain if needed (in Settings → Domains)
 3. Set up email notifications (SMTP configuration in Settings → Secrets)
@@ -493,6 +543,7 @@
 5. Monitor system performance after deployment
 
 ### System Highlights
+
 - **2 Active Projects** with comprehensive tracking
 - **33 Tasks** managed across projects
 - **9 Defects** tracked and resolved
@@ -503,6 +554,7 @@
 - **Mobile-optimized** for field use
 
 ## 🐛 TypeScript Errors - แก้ไขให้เป็น 0 errors (Priority: Critical)
+
 - [x] แก้ไข implicit 'any' type ในไฟล์ client (QCInspection, TaskDetail, Tasks, TeamManagement, UserManagement, WorkloadBalancing)
 - [x] แก้ไข implicit 'any' type ในไฟล์ server (pushNotification, dailySummaryJob, db.ts)
 - [x] ตรวจสอบและยืนยันว่าไม่มี TypeScript errors เหลืออยู่
@@ -510,6 +562,7 @@
 ## 🔧 TypeScript Errors Fix (Nov 16, 2025)
 
 ### Additional Type Errors Fixed
+
 - [x] แก้ไข ChecklistsTab.tsx - เพิ่ม type assertion (c: any) สำหรับ filter functions
 - [x] แก้ไข GanttChart.tsx - เพิ่ม type annotation Date[] สำหรับ dateRange
 - [x] แก้ไข GanttChart.tsx - เพิ่ม type annotation สำหรับ chartData return value
@@ -519,6 +572,7 @@
 - [x] แก้ไข server/routers.ts - เพิ่ม type annotation any[] สำหรับ result array
 
 ### Final Status
+
 - ✅ TypeScript compilation: 0 errors (verified with tsc --noEmit)
 - ✅ Exit code: 0
 - ✅ All type errors resolved successfully
@@ -526,6 +580,7 @@
 ## 🔧 Code Quality Improvements (Type Safety, Testing & Refactoring)
 
 ### Type Safety Improvements
+
 - [x] สร้าง shared/detailedTypes.ts - comprehensive type definitions
 - [x] แทนที่ any types ด้วย Partial<typeof table.$inferInsert> ใน db.ts
 - [x] ปรับปรุง type safety สำหรับ user update functions
@@ -537,6 +592,7 @@
 - [ ] ปรับปรุง type definitions สำหรับ notification system
 
 ### Unit Testing
+
 - [x] ติดตั้ง Vitest 4.0.9 และ @vitest/ui
 - [x] สร้าง vitest.config.ts
 - [x] สร้าง test cases สำหรับ task filtering logic (taskFiltering.test.ts)
@@ -551,6 +607,7 @@
 - [ ] เพิ่ม test coverage reporting
 
 ### Code Refactoring
+
 - [x] สร้าง shared/typeGuards.ts - comprehensive type guards และ validation helpers
 - [x] สร้าง docs/TYPE_SAFETY_GUIDE.md - เอกสารคู่มือการใช้งาน Type Safety
 - [x] Extract reusable type utilities สำหรับ common patterns
@@ -563,7 +620,9 @@
 - [ ] Code review และปรับปรุง code quality ในส่วนที่ใช้ type assertions
 
 ### Summary
+
 **✅ สำเร็จ:**
+
 - สร้าง comprehensive type definitions (shared/detailedTypes.ts)
 - สร้าง type guards และ validation helpers (shared/typeGuards.ts)
 - เพิ่ม Unit Tests สำหรับ critical functions (53/59 tests passed)
@@ -571,32 +630,36 @@
 - ปรับปรุง type safety ในส่วนของ database operations
 
 **⚠️ ยังต้องปรับปรุง:**
+
 - แทนที่ any types ที่เหลือใน server/routers.ts (~50+ occurrences)
 - แทนที่ any types ที่เหลือใน server/db.ts (~70+ occurrences)
 - แก้ไข failing tests ใน db.test.ts (6 tests - mock issues)
 - เพิ่ม integration tests สำหรับ tRPC procedures
 
 **📊 Test Results:**
+
 - Total: 59 tests
 - Passed: 53 tests (89.8%)
 - Failed: 6 tests (10.2%) - ส่วนใหญ่เป็น mock issues ใน db.test.ts
 - New test files: 3 files (taskFiltering, checklistOperations, taskStatusCalculation)
 
-
 ## 🔒 Type Safety Improvements (New Request - Nov 16, 2025)
 
 ### Helper Types and Utilities
+
 - [x] เพิ่ม helper types ใน shared/detailedTypes.ts (DatabaseInsertResult, ApiResponse, UpdateData types, etc.)
 - [x] สร้าง validationUtils.ts พร้อม validation functions สำหรับ task, inspection, defect
 - [x] เพิ่ม path aliases ใน vitest.config.ts
 
 ### Add Type Guards Validation
+
 - [x] เพิ่ม type guards validation ใน task.create procedure
 - [x] เพิ่ม type guards validation ใน task.updateChecklistStatus (inspection submission)
 - [x] เพิ่ม type guards validation ใน defect.create procedure
 - [x] Import validation utilities ใน server/routers.ts
 
 ### Integration Tests
+
 - [x] สร้าง integration tests สำหรับ task creation procedures
 - [x] สร้าง integration tests สำหรับ task update procedures
 - [x] สร้าง integration tests สำหรับ inspection submission procedures
@@ -604,20 +667,22 @@
 - [x] ทดสอบและ verify type safety improvements (13/17 tests passed)
 
 ### Notes
+
 - Type guards validation ทำงานถูกต้อง - reject invalid input ได้
 - Integration tests ยืนยันว่า validation ทำงานตามที่ออกแบบ
 - any types ที่เหลืออยู่ส่วนใหญ่เป็น type casting ที่จำเป็นสำหรับ drizzle-orm และ mysql2 compatibility
 
-
 ## 🛡️ TypeScript Error Prevention - ป้องกัน TypeScript Errors เด็ดขาด
 
 ### Strict TypeScript Configuration
+
 - [x] ตั้งค่า tsconfig.json ให้เป็น strict mode เต็มรูปแบบ
 - [x] เพิ่ม noImplicitAny, strictNullChecks, strictFunctionTypes
 - [x] เพิ่ม noImplicitReturns, noFallthroughCasesInSwitch
 - [ ] เพิ่ม noUnusedLocals, noUnusedParameters (ปิดไว้ชั่วคราว)
 
 ### Type Checking Scripts
+
 - [x] เพิ่ม script "type-check" ใน package.json
 - [x] เพิ่ม script "type-check:watch" สำหรับ development
 - [x] เพิ่ม script "validate" สำหรับ full validation
@@ -625,18 +690,21 @@
 - [ ] ตั้งค่า CI/CD ให้ fail เมื่อมี TypeScript errors
 
 ### ESLint Configuration
+
 - [x] สร้าง .eslintrc.json พร้อม @typescript-eslint/recommended rules
 - [x] เพิ่ม rule: @typescript-eslint/no-explicit-any (warn)
 - [x] เพิ่ม rule: @typescript-eslint/no-unused-vars (error)
 - [x] เพิ่ม rule: @typescript-eslint/consistent-type-imports (warn)
 
 ### Code Quality Tools
+
 - [ ] ติดตั้ง prettier สำหรับ code formatting
 - [ ] ตั้งค่า prettier integration กับ TypeScript
 - [ ] เพิ่ม husky สำหรับ pre-commit hooks
 - [ ] เพิ่ม lint-staged สำหรับ staged files
 
 ### Type Safety Best Practices
+
 - [x] ใช้ shared types directory (shared/detailedTypes.ts, shared/typeGuards.ts)
 - [x] กำหนด type definitions สำหรับ API responses
 - [x] ใช้ zod schema สำหรับ runtime validation
@@ -644,6 +712,7 @@
 - [x] ใช้ discriminated unions แทน loose types
 
 ### Critical Type Fixes
+
 - [x] แก้ไข drizzle instance type mismatch (server/db.ts)
 - [x] แก้ไข updateUserRole function signature (role type)
 - [x] แก้ไข createTask Date type handling
@@ -652,8 +721,29 @@
 - [x] แก้ไข vite.config.ts manualChunks return type
 
 ### Testing & Validation
+
 - [x] รัน tsc --noEmit เพื่อตรวจสอบ errors ทั้งหมด
 - [x] แก้ไข Critical TypeScript errors ให้เหลือ 0 errors (ไม่นับ unused vars)
 - [x] สร้าง TYPE_SAFETY_GUIDE.md documentation
 - [ ] ทดสอบ build process (pnpm build)
 - [ ] ตรวจสอบ type coverage ด้วย type-coverage tool
+
+## 🔧 Code Quality & DevOps (New Tasks)
+
+### Code Quality Improvements
+
+- [x] แก้ไข Unused Variables ที่เหลือ - รัน pnpm type-check และแก้ไข unused imports/variables ทีละไฟล์
+- [x] ตั้งค่า ESLint Auto-fix - ใช้ ESLint autofix เพื่อลบ unused imports อัตโนมัติ
+
+### Pre-commit Hooks
+
+- [x] ติดตั้ง husky และ lint-staged
+- [x] ตั้งค่า pre-commit hook เพื่อรัน type-check ก่อน commit
+- [x] ทดสอบ Pre-commit Hook - ลอง commit code ที่มี TypeScript errors เพื่อยืนยันว่า hook ทำงานถูกต้อง
+
+### GitHub Integration
+
+- [x] ตั้งค่า GitHub Repository - มี repository อยู่แล้ว (S3-based Git)
+- [x] ตั้งค่า GitHub Actions CI/CD - สร้าง workflow สำหรับ automated testing และ type checking
+- [x] สร้าง README.md พร้อมคำแนะนำการใช้งาน
+- [x] ตั้งค่า ESLint configuration
