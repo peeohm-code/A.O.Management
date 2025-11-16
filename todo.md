@@ -1305,3 +1305,11 @@
 - [x] แก้ไข defectId และ assigneeId errors
 - [x] แก้ไข relatedDefectId error
 - [x] ทดสอบและยืนยันว่าแก้ไขครบถ้วนแล้ว
+- [x] แก้ไข dashboard.getStatistics → dashboard.getStats
+- [x] แก้ไข property access ใน Dashboard.tsx และ Dashboard_backup.tsx
+- [x] แก้ไข defects.projectId errors โดยใช้ join กับ tasks
+- [x] แก้ไข defect status "open" → "reported"
+- [x] แก้ไข endDate type mismatch
+- [x] แก้ไข syntax errors จาก sed replacement
+- [x] แก้ไข defectStats.resolved → defectStats.closed
+- [x] แก้ไข defectStats.resolutionRate calculation
