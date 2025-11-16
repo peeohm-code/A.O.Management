@@ -1,6 +1,6 @@
 import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql, { type Pool } from "mysql2/promise";
+import mysql from "mysql2/promise";
 import {
   InsertUser,
   users,
@@ -39,7 +39,7 @@ import {
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: any = null; // Use any to avoid mysql2 type incompatibility issues
 let _pool: any = null; // Use any to avoid mysql2 type incompatibility issues
 
 // Lazily create the drizzle instance with connection pooling

@@ -40,7 +40,7 @@ export const teamRouter = router({
     .mutation(async ({ input, ctx }) => {
       // Check if member already exists
       const existingMembers = await db.getProjectMembers(input.projectId);
-      const alreadyMember = existingMembers.some(m => m.userId === input.userId);
+      const alreadyMember = existingMembers.some((m: any) => m.userId === input.userId);
       
       if (alreadyMember) {
         throw new TRPCError({
@@ -238,7 +238,7 @@ export const teamRouter = router({
       const members = await db.getProjectMembers(input.projectId);
       
       const memberStats = await Promise.all(
-        members.map(async (member) => {
+        members.map(async (member: any) => {
           const taskStats = await db.getUserTaskStatsForProject(member.userId, input.projectId);
           return {
             ...member,

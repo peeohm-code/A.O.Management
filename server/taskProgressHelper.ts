@@ -29,7 +29,7 @@ export async function calculateAndUpdateTaskProgress(taskId: number): Promise<nu
   }
 
   // นับจำนวน checklist ที่ผ่าน (completed)
-  const completedCount = checklists.filter((c) => c.status === "completed").length;
+  const completedCount = checklists.filter((c: any) => c.status === "completed").length;
   const totalCount = checklists.length;
 
   // คำนวณ progress percentage
@@ -65,5 +65,5 @@ export async function areAllChecklistsCompleted(taskId: number): Promise<boolean
 
   if (checklists.length === 0) return false;
 
-  return checklists.every((c) => c.status === "completed");
+  return checklists.every((c: any) => c.status === "completed");
 }

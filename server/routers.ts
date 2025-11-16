@@ -466,7 +466,7 @@ const taskRouter = router({
   myTasks: protectedProcedure.query(async ({ ctx }) => {
     // Get all projects where user is a member
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
-    const projectIds = userProjects.map(p => p.projects.id);
+    const projectIds = userProjects.map((p: any) => p.projects.id);
     
     // Get all tasks from those projects
     const allTasks = [];
@@ -863,7 +863,7 @@ const taskRouter = router({
       } else {
         // Get all tasks from user's projects
         const userProjects = await db.getProjectsByUser(ctx.user!.id);
-        const projectIds = userProjects.map(p => p.projects.id);
+        const projectIds = userProjects.map((p: any) => p.projects.id);
         
         const allTasks = [];
         for (const projectId of projectIds) {
@@ -892,11 +892,11 @@ const taskRouter = router({
       
       // Filter by assignee
       if (input.assigneeId) {
-        filteredTasks = filteredTasks.filter(task => task.assigneeId === input.assigneeId);
+        filteredTasks = filteredTasks.filter((task: any) => task.assigneeId === input.assigneeId);
       }
       
       // Add computed display status to each task
-      return filteredTasks.map(task => {
+      return filteredTasks.map((task: any) => {
         const displayStatus = getTaskDisplayStatus(task);
         return {
           ...task,
@@ -1314,8 +1314,8 @@ const checklistRouter = router({
         status: checklist.status,
         generalComments: checklist.generalComments,
         photoUrls: checklist.photoUrls ? JSON.parse(checklist.photoUrls) : [],
-        items: results.map(r => {
-          const templateItem = templateItems.find(ti => ti.id === r.templateItemId);
+        items: results.map((r: any) => {
+          const templateItem = templateItems.find((ti: any) => ti.id === r.templateItemId);
           return {
             id: r.id,
             itemText: templateItem?.itemText || 'Unknown item',
@@ -1405,23 +1405,23 @@ const checklistRouter = router({
     
     // Get all template items for all templates
     const allTemplateItems = await Promise.all(
-      templates.map(async (template) => ({
+      templates.map(async (template: any) => ({
         templateId: template.id,
         items: await db.getChecklistTemplateItems(template.id),
       }))
     );
     
     // Map checklists with task and template info
-    return checklists.map(checklist => {
-      const task = tasks.find(t => t.id === checklist.taskId);
-      const template = templates.find(t => t.id === checklist.templateId);
-      const templateItems = allTemplateItems.find(t => t.templateId === checklist.templateId)?.items || [];
+    return checklists.map((checklist: any) => {
+      const task = tasks.find((t: any) => t.id === checklist.taskId);
+      const template = templates.find((t: any) => t.id === checklist.templateId);
+      const templateItems = allTemplateItems.find((t: any) => t.templateId === checklist.templateId)?.items || [];
       
       return {
         ...checklist,
         name: template?.name || "Unknown Template",
         taskName: task?.name || "Unknown Task",
-        items: templateItems.map(item => ({
+        items: templateItems.map((item: any) => ({
           id: item.id,
           description: item.itemText,
           acceptanceCriteria: null, // Can be added to schema later if needed
@@ -2208,7 +2208,7 @@ const dashboardRouter = router({
     // Get all projects (admin can see all projects)
     const allProjects = await db.getAllProjects();
     const projectsWithStats = await Promise.all(
-      allProjects.map(async (project) => {
+      allProjects.map(async (project: any) => {
         const stats = await db.getProjectStats(project.id);
         return { ...project, stats };
       })
@@ -2243,7 +2243,7 @@ const dashboardRouter = router({
 
     // Get tasks from user's projects only (consistent with Tasks page)
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
-    const projectIds = userProjects.map(p => p.projects.id);
+    const projectIds = userProjects.map((p: any) => p.projects.id);
     
     const allTasks = [];
     for (const projectId of projectIds) {
@@ -2270,11 +2270,11 @@ const dashboardRouter = router({
     
     // Count checklists by status
     const checklistStats = {
-      not_started: allChecklists.filter(c => c.status === 'not_started').length,
-      pending_inspection: allChecklists.filter(c => c.status === 'pending_inspection').length,
-      in_progress: allChecklists.filter(c => c.status === 'in_progress').length,
-      completed: allChecklists.filter(c => c.status === 'completed').length,
-      failed: allChecklists.filter(c => c.status === 'failed').length,
+      not_started: allChecklists.filter((c: any) => c.status === 'not_started').length,
+      pending_inspection: allChecklists.filter((c: any) => c.status === 'pending_inspection').length,
+      in_progress: allChecklists.filter((c: any) => c.status === 'in_progress').length,
+      completed: allChecklists.filter((c: any) => c.status === 'completed').length,
+      failed: allChecklists.filter((c: any) => c.status === 'failed').length,
       total: allChecklists.length,
     };
 
