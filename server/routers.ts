@@ -2,6 +2,7 @@ import { z } from "zod";
 import { canEditDefect, canDeleteDefect } from "@shared/permissions";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
+import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "./_core/trpc";
 import * as db from "./db";
@@ -491,8 +492,21 @@ const taskRouter = router({
     .input(taskSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        const result = await db.createTask({
+        // Validate input using type guards
+        const validation = validateTaskCreateInput({
           ...input,
+          projectId: input.projectId,
+        });
+        
+        if (!validation.valid) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: validation.errors?.join(', ') || 'Invalid input',
+          });
+        }
+        
+        const result = await db.createTask({
+          ...validation.data!,
           createdBy: ctx.user!.id,
         });
 
@@ -1180,6 +1194,28 @@ const checklistRouter = router({
     .mutation(async ({ input, ctx }) => {
       const checklist = await db.getTaskChecklistById(input.id);
       if (!checklist) throw new Error("Checklist not found");
+      
+      // Validate inspection submission if itemResults provided
+      if (input.itemResults && input.itemResults.length > 0) {
+        const validation = validateInspectionSubmission({
+          taskChecklistId: input.id,
+          inspectorId: ctx.user!.id,
+          itemResults: input.itemResults.map(item => ({
+            templateItemId: item.templateItemId,
+            result: item.result,
+          })),
+          overallNote: input.generalComments,
+          signatureUrl: input.signature,
+          photoUrls: input.photoUrls ? JSON.parse(input.photoUrls) : undefined,
+        });
+        
+        if (!validation.valid) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: validation.errors?.join(', ') || 'Invalid inspection data',
+          });
+        }
+      }
 
       // Update checklist status, comments, photos, and signature
       await db.updateTaskChecklist(input.id, {
@@ -1519,6 +1555,25 @@ const defectRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Validate defect creation input
+      const validation = validateDefectCreateInput({
+        title: input.title,
+        taskId: input.taskId,
+        taskChecklistId: input.checklistId,
+        severity: input.severity,
+        description: input.description,
+        detectedById: ctx.user!.id,
+        assignedToId: input.assignedTo,
+        dueDate: input.dueDate,
+      });
+      
+      if (!validation.valid) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: validation.errors?.join(', ') || 'Invalid defect data',
+        });
+      }
+      
       const result = await db.createDefect({
         ...input,
         reportedBy: ctx.user!.id,

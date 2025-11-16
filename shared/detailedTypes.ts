@@ -320,3 +320,208 @@ export interface UpdateResult {
 export interface DeleteResult {
   affectedRows: number;
 }
+
+// ============= Database Operation Types =============
+
+export interface DatabaseInsertResult {
+  insertId: number;
+  affectedRows: number;
+}
+
+export interface DatabaseUpdateResult {
+  affectedRows: number;
+  changedRows: number;
+}
+
+export interface DatabaseDeleteResult {
+  affectedRows: number;
+}
+
+// ============= API Response Types =============
+
+export interface SuccessResponse<T = unknown> {
+  success: true;
+  data?: T;
+  message?: string;
+}
+
+export interface ErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+}
+
+export type ApiResponse<T = unknown> = SuccessResponse<T> | ErrorResponse;
+
+// ============= Type-safe Update Data Types =============
+
+export type TaskUpdateData = Partial<{
+  name: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  progress: number;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
+  assigneeId: number | null;
+  estimatedHours: number | null;
+  actualHours: number | null;
+}>;
+
+export type ProjectUpdateData = Partial<{
+  name: string;
+  description: string | null;
+  code: string | null;
+  location: string | null;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
+  status: string;
+  budget: number | null;
+  notificationDaysAdvance: number;
+}>;
+
+export type DefectUpdateData = Partial<{
+  title: string;
+  description: string | null;
+  status: DefectStatus;
+  severity: DefectSeverity;
+  assignedToId: number | null;
+  dueDate: Date | string | null;
+  resolvedAt: Date | null;
+  resolutionNotes: string | null;
+}>;
+
+export type ChecklistUpdateData = Partial<{
+  status: ChecklistStatus;
+  inspectorId: number | null;
+  inspectedAt: Date | null;
+  overallNote: string | null;
+  signatureUrl: string | null;
+}>;
+
+// ============= Filter and Query Types =============
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SortParams {
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface DateRangeParams {
+  startDate?: Date | string;
+  endDate?: Date | string;
+}
+
+export interface TaskQueryParams extends PaginationParams, SortParams, DateRangeParams {
+  projectId?: number;
+  assigneeId?: number;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  search?: string;
+}
+
+export interface DefectQueryParams extends PaginationParams, SortParams {
+  projectId?: number;
+  taskId?: number;
+  assignedToId?: number;
+  detectedById?: number;
+  status?: DefectStatus;
+  severity?: DefectSeverity;
+  search?: string;
+}
+
+export interface ChecklistQueryParams extends PaginationParams, SortParams {
+  projectId?: number;
+  taskId?: number;
+  templateId?: number;
+  inspectorId?: number;
+  status?: ChecklistStatus;
+  stage?: ChecklistStage;
+}
+
+// ============= Validation Result Types =============
+
+export interface ValidationResult<T = unknown> {
+  valid: boolean;
+  data?: T;
+  errors?: string[];
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+  code?: string;
+}
+
+// ============= Utility Helper Types =============
+
+/**
+ * Extract non-null properties from a type
+ */
+export type NonNullableProperties<T> = {
+  [P in keyof T]: NonNullable<T[P]>;
+};
+
+/**
+ * Make specific properties required
+ */
+export type RequireProperties<T, K extends keyof T> = T & Required<Pick<T, K>>;
+
+/**
+ * Make specific properties optional
+ */
+export type OptionalProperties<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+/**
+ * Type-safe keys of an object
+ */
+export type KeysOf<T> = keyof T;
+
+/**
+ * Type-safe values of an object
+ */
+export type ValuesOf<T> = T[keyof T];
+
+// ============= Array and Collection Types =============
+
+export type NonEmptyArray<T> = [T, ...T[]];
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+// ============= Type Guards Helper Types =============
+
+export type TypeGuard<T> = (value: unknown) => value is T;
+
+export type AssertFunction<T> = (value: unknown) => T;
+
+// ============= Mapped Types for Database Results =============
+
+/**
+ * Type for database query results with joined tables
+ */
+export type JoinedQueryResult<T, U> = T & {
+  [K in keyof U as `joined_${string & K}`]: U[K];
+};
+
+/**
+ * Type for aggregated query results
+ */
+export interface AggregatedResult<T> {
+  data: T;
+  count: number;
+  sum?: number;
+  avg?: number;
+  min?: number;
+  max?: number;
+}

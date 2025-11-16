@@ -1,6 +1,6 @@
 import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import mysql, { type Pool } from "mysql2/promise";
 import {
   InsertUser,
   users,
@@ -39,9 +39,9 @@ import {
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 
-// Use any for mysql2 pool to avoid type incompatibility between mysql2/promise and mysql2 typings
+// Use Pool type from mysql2/promise for proper typing
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: any = null;
+let _pool: Pool | null = null;
 
 // Lazily create the drizzle instance with connection pooling
 export async function getDb() {
@@ -60,7 +60,7 @@ export async function getDb() {
       });
       console.log("[Database] Connection pool created with limit: 10");
       // Create drizzle instance
-      _db = drizzle(_pool as any);
+      _db = drizzle(_pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
