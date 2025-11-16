@@ -15,7 +15,6 @@ async function importTemplates() {
     fs.readFileSync(path.join(__dirname, "checklist-templates-2story-house.json"), "utf-8")
   );
 
-  console.log(`\n📋 Importing ${templatesData.length} checklist templates...\n`);
 
   // Get current user ID (assuming user 1 exists)
   const [users] = await connection.execute("SELECT id FROM users LIMIT 1");
@@ -31,7 +30,6 @@ async function importTemplates() {
       );
 
       const templateId = result.insertId;
-      console.log(`✅ Created template: ${template.name} (ID: ${templateId})`);
 
       // Insert items
       let order = 0;
@@ -45,14 +43,12 @@ async function importTemplates() {
         );
       }
 
-      console.log(`   ➜ Added ${template.items.length} items\n`);
     } catch (error) {
       console.error(`❌ Error importing ${template.name}:`, error.message);
     }
   }
 
   await connection.end();
-  console.log("✅ Import completed!\n");
 }
 
 importTemplates().catch(console.error);

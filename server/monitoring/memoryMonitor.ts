@@ -173,9 +173,6 @@ export function startMemoryMonitoring(
   intervalMs: number = 60000, // Check every minute by default
   thresholds: MemoryThresholds = DEFAULT_THRESHOLDS
 ): NodeJS.Timeout {
-  console.log("[MemoryMonitor] Starting memory monitoring...");
-  console.log(`[MemoryMonitor] Check interval: ${intervalMs}ms`);
-  console.log(`[MemoryMonitor] Thresholds:`, thresholds);
 
   const interval = setInterval(async () => {
     try {
@@ -204,5 +201,4 @@ export function startMemoryMonitoring(
  */
 export function stopMemoryMonitoring(interval: NodeJS.Timeout): void {
   clearInterval(interval);
-  console.log("[MemoryMonitor] Memory monitoring stopped");
 }

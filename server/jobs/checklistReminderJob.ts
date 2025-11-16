@@ -53,13 +53,11 @@ export async function checkChecklistReminders() {
         )
       );
 
-    console.log(`[Checklist Reminder] Found ${checklistsToRemind.length} checklists to remind`);
 
     let notificationsSent = 0;
 
     for (const checklist of checklistsToRemind) {
       if (!checklist.assigneeId) {
-        console.log(`[Checklist Reminder] Skipping checklist ${checklist.checklistId} - no assignee`);
         continue;
       }
 
@@ -85,7 +83,6 @@ export async function checkChecklistReminders() {
       });
 
       notificationsSent++;
-      console.log(`[Checklist Reminder] Sent notification to user ${checklist.assigneeId} for checklist ${checklist.checklistId}`);
     }
 
     return {

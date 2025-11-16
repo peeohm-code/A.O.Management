@@ -31,7 +31,6 @@ export async function processScheduledNotifications() {
       return;
     }
 
-    console.log(`[NotificationScheduler] Processing ${pendingNotifications.length} pending notifications`);
 
     for (const notification of pendingNotifications) {
       try {
@@ -58,7 +57,6 @@ export async function processScheduledNotifications() {
 
         // อัปเดตสถานะเป็น sent
         await updateScheduledNotificationStatus(notification.id, "sent");
-        console.log(`[NotificationScheduler] Sent notification #${notification.id}`);
       } catch (error) {
         console.error(`[NotificationScheduler] Failed to send notification #${notification.id}:`, error);
         await updateScheduledNotificationStatus(
@@ -130,7 +128,6 @@ export async function scheduleTaskDeadlineReminders() {
             content: `งานนี้จะครบกำหนดในอีก ${daysAdvance} วัน (${task.endDate})`,
             priority: "high",
           });
-          console.log(`[NotificationScheduler] Scheduled deadline reminder for task #${task.id}`);
         }
       }
     }
@@ -198,7 +195,6 @@ export async function scheduleDefectOverdueReminders() {
             content: `Defect นี้ยังไม่ได้รับการแก้ไข กรุณาดำเนินการโดยเร็ว`,
             priority: daysSinceCreated > 14 ? "urgent" : "high",
           });
-          console.log(`[NotificationScheduler] Scheduled overdue reminder for defect #${defect.id}`);
         }
       }
     }
@@ -211,7 +207,6 @@ export async function scheduleDefectOverdueReminders() {
  * เริ่มต้น scheduler (เรียกใช้ทุก 5 นาที)
  */
 export function startNotificationScheduler() {
-  console.log("[NotificationScheduler] Starting notification scheduler...");
 
   // ประมวลผล scheduled notifications ทุก 5 นาที
   setInterval(async () => {
@@ -233,5 +228,4 @@ export function startNotificationScheduler() {
   scheduleTaskDeadlineReminders();
   scheduleDefectOverdueReminders();
 
-  console.log("[NotificationScheduler] Notification scheduler started successfully");
 }

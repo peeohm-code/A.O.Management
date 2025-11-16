@@ -22,7 +22,6 @@ export async function sendDailySummaryEmails() {
       .from(users)
       .where(eq(users.enableDailySummaryEmail, true));
 
-    console.log(`[Daily Summary] Found ${usersWithDailySummary.length} users with daily summary enabled`);
 
     for (const user of usersWithDailySummary) {
       try {
@@ -32,7 +31,6 @@ export async function sendDailySummaryEmails() {
       }
     }
 
-    console.log("[Daily Summary] Job completed");
   } catch (error) {
     console.error("[Daily Summary] Job failed:", error);
   }
@@ -188,8 +186,6 @@ async function sendDailySummaryToUser(userId: number, userName: string, userEmai
 
   // 5. ส่งอีเมล (ใช้ notifyOwner เป็นตัวอย่าง - ในการใช้งานจริงควรใช้ email service)
   // TODO: Replace with actual email service
-  console.log(`[Daily Summary] Email generated for ${userName} (${userEmail})`);
-  console.log(`[Daily Summary] Projects: ${projectsData.length}, Deadlines: ${upcomingDeadlines.length}, Activities: ${recentActivities.length}`);
 
   // ส่งการแจ้งเตือนให้ owner ว่ามีการส่งอีเมลสรุปรายวัน
   await notifyOwner({

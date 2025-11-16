@@ -45,7 +45,6 @@ export function handleEMFILEError(error: ErrorWithCode): boolean {
     
     // Trigger garbage collection if available
     if (global.gc) {
-      console.log("[EMFILE] Triggering garbage collection");
       global.gc();
     }
     
@@ -74,7 +73,6 @@ export function handleENOMEMError(error: ErrorWithCode): boolean {
     
     // Trigger garbage collection
     if (global.gc) {
-      console.log("[ENOMEM] Triggering garbage collection");
       global.gc();
     }
     
@@ -240,7 +238,6 @@ export function startMemoryMonitoring(intervalMs: number = 60000) {
       
       // Trigger GC if available
       if (global.gc) {
-        console.log("[Memory] Triggering garbage collection");
         global.gc();
       }
     }

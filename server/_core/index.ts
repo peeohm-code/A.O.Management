@@ -146,7 +146,6 @@ async function startServer() {
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
   server.listen(port, () => {
@@ -171,7 +170,6 @@ async function startServer() {
 
   // Graceful shutdown handler
   const gracefulShutdown = async (signal: string) => {
-    console.log(`\n${signal} received. Starting graceful shutdown...`);
     
     // Force shutdown after 30 seconds
     const forceShutdownTimer = setTimeout(() => {
@@ -183,13 +181,11 @@ async function startServer() {
       // Stop accepting new connections
       await new Promise<void>((resolve) => {
         server.close(() => {
-          console.log('HTTP server closed');
           resolve();
         });
       });
       
       // Close database connections
-      console.log('Closing database connections...');
       const { closeDbConnection } = await import('../db');
       await closeDbConnection();
       

@@ -199,7 +199,6 @@ class CacheService {
     }
 
     if (removed > 0) {
-      console.log(`[Cache] Cleaned up ${removed} expired entries`);
     }
 
     return removed;

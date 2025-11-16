@@ -27,11 +27,9 @@ let monitoringInterval: NodeJS.Timeout | null = null;
  */
 export function initializeMonitoring(): void {
   if (monitoringInterval) {
-    console.log("[Monitoring] Already running, skipping initialization");
     return;
   }
 
-  console.log("[Monitoring] Initializing system monitoring...");
 
   // Start memory monitoring
   monitoringInterval = startMemoryMonitoring(
@@ -39,7 +37,6 @@ export function initializeMonitoring(): void {
     MONITORING_CONFIG.thresholds
   );
 
-  console.log("[Monitoring] System monitoring initialized successfully");
 }
 
 /**
@@ -49,7 +46,6 @@ export function stopMonitoring(): void {
   if (monitoringInterval) {
     clearInterval(monitoringInterval);
     monitoringInterval = null;
-    console.log("[Monitoring] System monitoring stopped");
   }
 }
 
@@ -57,12 +53,10 @@ export function stopMonitoring(): void {
  * Graceful shutdown handler
  */
 process.on("SIGTERM", () => {
-  console.log("[Monitoring] SIGTERM received, stopping monitoring...");
   stopMonitoring();
 });
 
 process.on("SIGINT", () => {
-  console.log("[Monitoring] SIGINT received, stopping monitoring...");
   stopMonitoring();
 });
 

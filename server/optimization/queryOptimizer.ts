@@ -156,13 +156,11 @@ export async function applyRecommendedIndexes(): Promise<{
   const errors: string[] = [];
   let applied = 0;
 
-  console.log("[QueryOptimizer] Applying recommended indexes...");
 
   for (const indexSql of RECOMMENDED_INDEXES) {
     try {
       await db.execute(indexSql as any);
       applied++;
-      console.log(`[QueryOptimizer] ✓ Applied: ${indexSql.substring(0, 60)}...`);
     } catch (error: any) {
       // Ignore "already exists" errors
       if (!error.message?.includes("already exists") && !error.message?.includes("Duplicate key")) {
@@ -174,7 +172,6 @@ export async function applyRecommendedIndexes(): Promise<{
     }
   }
 
-  console.log(`[QueryOptimizer] Applied ${applied}/${RECOMMENDED_INDEXES.length} indexes`);
 
   return {
     success: errors.length === 0,

@@ -111,8 +111,7 @@ const projectRouter = router({
 
       // Send notification if status changed
       if (updateData.status && project) {
-        // Note: getProjectMembers doesn't exist in db.ts
-        const members: any[] = []; // await db.getProjectMembers(id);
+        const members = await db.getProjectMembers(id);
         const statusLabels: Record<string, string> = {
           planning: "วางแผน",
           active: "กำลังดำเนินการ",
@@ -491,7 +490,6 @@ const taskRouter = router({
   create: roleBasedProcedure('tasks', 'create')
     .input(taskSchema)
     .mutation(async ({ input, ctx }) => {
-      console.log('[DEBUG] Task create mutation called with input:', JSON.stringify(input, null, 2));
       try {
         const result = await db.createTask({
           ...input,
@@ -1577,11 +1575,9 @@ const defectRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        console.log("[defect.update] Received input:", JSON.stringify(input, null, 2));
         const { id, ...updateData } = input;
         const defect = await db.getDefectById(id);
         if (!defect) throw new Error("Defect not found");
-        console.log("[defect.update] Found defect:", defect.id, defect.title);
         
         // Check edit permission
         if (!canEditDefect(ctx.user.role, ctx.user!.id, defect)) {
@@ -1626,9 +1622,7 @@ const defectRouter = router({
         }
       }
       
-      console.log("[defect.update] Calling updateDefect with:", JSON.stringify(dataToUpdate, null, 2));
       const result = await db.updateDefect(id, dataToUpdate);
-      console.log("[defect.update] Update successful");
 
       // Notify assignee if assigned
       if (updateData.assignedTo && updateData.assignedTo !== defect.assignedTo) {
@@ -1809,12 +1803,9 @@ const defectRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       try {
-        console.log('[requestReinspection] Starting with input:', input);
-        console.log('[requestReinspection] User ID:', ctx.user.id);
         
         const defect = await db.getDefectById(input.defectId);
         if (!defect) throw new Error("Defect not found");
-        console.log('[requestReinspection] Defect found:', defect.id, defect.status);
         
         if (defect.status !== "resolved") {
           throw new TRPCError({
@@ -1824,13 +1815,11 @@ const defectRouter = router({
         }
 
         // Update defect status to pending_reinspection
-        console.log('[requestReinspection] Updating defect status...');
         await db.updateDefect(input.defectId, {
           status: "pending_reinspection",
         });
 
         // Create inspection record
-        console.log('[requestReinspection] Creating inspection record...');
         const inspectionData = {
           defectId: input.defectId,
           inspectorId: ctx.user.id,
@@ -1838,17 +1827,14 @@ const defectRouter = router({
           result: "pending" as const,
           comments: input.comments,
         };
-        console.log('[requestReinspection] Inspection data:', inspectionData);
         await db.createDefectInspection(inspectionData);
 
         // Notify QC inspectors
-        console.log('[requestReinspection] Sending notification...');
         await notifyOwner({
           title: `มีการขอตรวจสอบซ้ำ ${defect.type}`,
           content: `${defect.title} - รอการตรวจสอบซ้ำ`,
         });
 
-        console.log('[requestReinspection] Success!');
         return { success: true };
       } catch (error) {
         console.error('[requestReinspection] Error:', error);

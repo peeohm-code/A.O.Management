@@ -13,20 +13,16 @@ export function initializeSocket(httpServer: HTTPServer) {
   });
 
   io.on("connection", (socket) => {
-    console.log(`[Socket.io] Client connected: ${socket.id}`);
 
     socket.on("disconnect", () => {
-      console.log(`[Socket.io] Client disconnected: ${socket.id}`);
     });
 
     // Join user-specific room
     socket.on("join", (userId: string) => {
       socket.join(`user:${userId}`);
-      console.log(`[Socket.io] User ${userId} joined their room`);
     });
   });
 
-  console.log("[Socket.io] Server initialized");
   return io;
 }
 
@@ -53,7 +49,6 @@ export function emitNotification(userId: number, notification: Notification) {
   try {
     const socketIO = getIO();
     socketIO.to(`user:${userId}`).emit("notification", notification);
-    console.log(`[Socket.io] Notification sent to user ${userId}:`, notification.title);
   } catch (error) {
     console.error("[Socket.io] Failed to emit notification:", error);
   }
@@ -64,7 +59,6 @@ export function broadcastNotification(notification: Notification) {
   try {
     const socketIO = getIO();
     socketIO.emit("notification", notification);
-    console.log("[Socket.io] Broadcast notification:", notification.title);
   } catch (error) {
     console.error("[Socket.io] Failed to broadcast notification:", error);
   }

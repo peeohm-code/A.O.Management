@@ -31,12 +31,10 @@ export function handleSSE(req: Request, res: Response) {
   // Store client connection
   sseClients.set(userId, res);
 
-  console.log(`[SSE] Client connected: ${userId}`);
 
   // Handle client disconnect
   req.on("close", () => {
     sseClients.delete(userId);
-    console.log(`[SSE] Client disconnected: ${userId}`);
   });
 
   // Keep connection alive with periodic heartbeat
@@ -57,7 +55,6 @@ export function sendNotificationToUser(userId: number, notification: any) {
   if (client) {
     try {
       client.write(`data: ${JSON.stringify(notification)}\n\n`);
-      console.log(`[SSE] Notification sent to user ${userId}:`, notification.type);
     } catch (error) {
       console.error(`[SSE] Error sending notification to user ${userId}:`, error);
       sseClients.delete(String(userId));
@@ -83,7 +80,6 @@ export function broadcastNotification(notification: any) {
     }
   });
 
-  console.log(`[SSE] Broadcast complete: ${successCount} sent, ${errorCount} failed`);
 }
 
 /**

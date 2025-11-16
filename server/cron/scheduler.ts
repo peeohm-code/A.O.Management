@@ -16,11 +16,9 @@ import { sendDailySummaryEmails } from "../dailySummaryJob";
  * Initialize all cron jobs
  */
 export function initializeCronJobs() {
-  console.log("[CronScheduler] Initializing cron jobs...");
 
   // Run deadline reminders daily at 8:00 AM
   cron.schedule("0 8 * * *", async () => {
-    console.log("[CronScheduler] Running deadline reminders...");
     try {
       await runDeadlineReminders();
     } catch (error) {
@@ -32,10 +30,8 @@ export function initializeCronJobs() {
 
   // Run checklist reminders daily at 8:00 AM
   cron.schedule("0 8 * * *", async () => {
-    console.log("[CronScheduler] Running checklist reminders...");
     try {
       const result = await checkChecklistReminders();
-      console.log("[CronScheduler] Checklist reminders result:", result);
     } catch (error) {
       console.error("[CronScheduler] Checklist reminders failed:", error);
     }
@@ -45,10 +41,8 @@ export function initializeCronJobs() {
 
   // Run overdue task checks daily at 8:00 AM
   cron.schedule("0 8 * * *", async () => {
-    console.log("[CronScheduler] Running overdue task checks...");
     try {
       const result = await checkOverdueTasks();
-      console.log("[CronScheduler] Overdue task checks result:", result);
     } catch (error) {
       console.error("[CronScheduler] Overdue task checks failed:", error);
     }
@@ -58,10 +52,8 @@ export function initializeCronJobs() {
 
   // Run daily summary emails at 8:00 AM (user-specific times will be handled by the job)
   cron.schedule("0 8 * * *", async () => {
-    console.log("[CronScheduler] Running daily summary emails...");
     try {
       await sendDailySummaryEmails();
-      console.log("[CronScheduler] Daily summary emails sent successfully");
     } catch (error) {
       console.error("[CronScheduler] Daily summary emails failed:", error);
     }
@@ -69,15 +61,9 @@ export function initializeCronJobs() {
     timezone: "Asia/Bangkok"
   });
 
-  console.log("[CronScheduler] Cron jobs initialized:");
-  console.log("  - Deadline reminders: Daily at 8:00 AM (Asia/Bangkok)");
-  console.log("  - Checklist reminders: Daily at 8:00 AM (Asia/Bangkok)");
-  console.log("  - Overdue task checks: Daily at 8:00 AM (Asia/Bangkok)");
-  console.log("  - Daily summary emails: Daily at 8:00 AM (Asia/Bangkok)");
   
   // Optional: Run immediately on startup for testing
   if (process.env.NODE_ENV === "development") {
-    console.log("[CronScheduler] Development mode: Running all jobs immediately...");
     runDeadlineReminders().catch((error) => {
       console.error("[CronScheduler] Initial deadline reminders failed:", error);
     });
@@ -94,7 +80,5 @@ export function initializeCronJobs() {
  * Stop all cron jobs (for graceful shutdown)
  */
 export function stopCronJobs() {
-  console.log("[CronScheduler] Stopping all cron jobs...");
   cron.getTasks().forEach((task) => task.stop());
-  console.log("[CronScheduler] All cron jobs stopped");
 }

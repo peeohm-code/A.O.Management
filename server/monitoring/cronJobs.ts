@@ -69,10 +69,6 @@ async function checkMemoryUsage() {
     const processMemory = getProcessMemory();
     const openFDs = await getOpenFileDescriptors();
 
-    console.log(`[${timestamp}] Memory Monitor Check:`);
-    console.log(`  System Memory: ${systemMemory.usagePercent}%`);
-    console.log(`  Process RSS: ${processMemory.rss} MB`);
-    console.log(`  Open FDs: ${openFDs}`);
 
     // ตรวจสอบ memory usage
     const memoryUsage = parseFloat(systemMemory.usagePercent);
@@ -95,7 +91,6 @@ System memory usage is at ${systemMemory.usagePercent}% (threshold: ${MEMORY_THR
 Timestamp: ${timestamp}
       `.trim();
 
-      console.log(`⚠️  Memory usage exceeds threshold! Sending notification...`);
       await notifyOwner({ title: alertTitle, content: alertContent });
     }
 
@@ -112,7 +107,6 @@ This may indicate a file descriptor leak.
 Timestamp: ${timestamp}
       `.trim();
 
-      console.log(`⚠️  File descriptor usage is high! Sending notification...`);
       await notifyOwner({ title: alertTitle, content: alertContent });
     }
   } catch (error) {
@@ -124,16 +118,12 @@ Timestamp: ${timestamp}
  * เริ่มต้น cron jobs
  */
 export function initializeCronJobs() {
-  console.log('🕐 Initializing monitoring cron jobs...');
 
   // ตรวจสอบ memory ทุก 1 ชั่วโมง (0 นาที ของทุกชั่วโมง)
   cron.schedule('0 * * * *', async () => {
-    console.log('Running scheduled memory check...');
     await checkMemoryUsage();
   });
 
-  console.log('✅ Cron jobs initialized:');
-  console.log('  - Memory monitoring: Every hour (0 * * * *)');
   
   // รันครั้งแรกทันทีเมื่อเริ่มระบบ
   checkMemoryUsage();

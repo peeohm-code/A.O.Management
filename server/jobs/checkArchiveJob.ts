@@ -10,21 +10,13 @@ import { checkArchiveWarnings } from "../archiveNotifications";
  */
 
 async function runArchiveCheck() {
-  console.log("[Archive Job] Starting archive warnings check...");
-  console.log("[Archive Job] Time:", new Date().toISOString());
   
   try {
     const result = await checkArchiveWarnings();
     
-    console.log("[Archive Job] Check completed successfully");
-    console.log("[Archive Job] Warnings sent:", result.notified);
-    console.log("[Archive Job] Projects checked:", result.checked);
-    console.log("[Archive Job] Projects with warnings:", result.notified);
     
     if (result.notified > 0) {
-      console.log("[Archive Job] Notification sent to owner");
     } else {
-      console.log("[Archive Job] No warnings to send");
     }
     
     process.exit(0);

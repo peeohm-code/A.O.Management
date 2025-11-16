@@ -285,7 +285,6 @@ export async function getErrorPatterns(): Promise<Record<string, ErrorPattern>> 
 export async function clearErrorPatterns() {
   try {
     await fs.writeFile(PATTERN_ANALYSIS_FILE, JSON.stringify({}, null, 2));
-    console.log('Error patterns cleared');
   } catch (error) {
     console.error('Failed to clear error patterns:', error);
   }

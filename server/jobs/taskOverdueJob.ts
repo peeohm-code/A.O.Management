@@ -45,7 +45,6 @@ export async function checkOverdueTasks() {
         )
       );
 
-    console.log(`[Task Overdue] Found ${overdueTasks.length} overdue tasks`);
 
     let notificationsSent = 0;
 
@@ -89,7 +88,6 @@ export async function checkOverdueTasks() {
         });
 
         notificationsSent++;
-        console.log(`[Task Overdue] Sent notification to assignee ${task.assigneeId} for task ${task.taskId}`);
       }
 
       // ส่งการแจ้งเตือนไปยัง PM ของโครงการ
@@ -119,7 +117,6 @@ export async function checkOverdueTasks() {
           });
 
           notificationsSent++;
-          console.log(`[Task Overdue] Sent notification to PM ${pm.userId} for task ${task.taskId}`);
         }
       }
     }

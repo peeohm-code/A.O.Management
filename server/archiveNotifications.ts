@@ -35,7 +35,6 @@ export async function checkArchiveWarnings() {
         )
       );
 
-    console.log(`[ArchiveNotifications] Found ${archivedProjects.length} projects approaching 5 years`);
 
     let notifiedCount = 0;
 
@@ -53,7 +52,6 @@ export async function checkArchiveWarnings() {
 
       if (notified) {
         notifiedCount++;
-        console.log(`[ArchiveNotifications] Notified owner about project ${project.id}: ${project.name}`);
       }
     }
 
@@ -69,7 +67,6 @@ export async function checkArchiveWarnings() {
       );
 
     if (projectsReadyToDelete.length > 0) {
-      console.log(`[ArchiveNotifications] Found ${projectsReadyToDelete.length} projects ready to delete`);
       
       const projectList = projectsReadyToDelete
         .map(p => `- ${p.name} (${p.code || p.id})`)

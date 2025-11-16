@@ -47,7 +47,6 @@ async function checkTasksApproachingDeadline(daysAdvance: number = 3) {
         )
       );
 
-    console.log(`[DeadlineReminders] Found ${approachingTasks.length} tasks approaching deadline (${daysAdvance} days)`);
 
     // Send notifications
     for (const task of approachingTasks) {
@@ -100,7 +99,6 @@ async function checkOverdueTasks() {
         )
       );
 
-    console.log(`[DeadlineReminders] Found ${overdueTasks.length} overdue tasks`);
 
     // Send notifications (only once per day to avoid spam)
     for (const task of overdueTasks) {
@@ -160,7 +158,6 @@ async function checkDefectsApproachingDeadline(daysAdvance: number = 3) {
         )
       );
 
-    console.log(`[DeadlineReminders] Found ${approachingDefects.length} defects approaching deadline (${daysAdvance} days)`);
 
     // Send notifications
     for (const defect of approachingDefects) {
@@ -191,7 +188,6 @@ async function checkDefectsApproachingDeadline(daysAdvance: number = 3) {
  * Checks for 3 days, 1 day advance, and overdue items
  */
 export async function runDeadlineReminders() {
-  console.log("[DeadlineReminders] Starting deadline reminder checks...");
   
   const startTime = Date.now();
   
@@ -212,13 +208,6 @@ export async function runDeadlineReminders() {
   
   const duration = Date.now() - startTime;
   
-  console.log(`[DeadlineReminders] Completed in ${duration}ms`);
-  console.log(`[DeadlineReminders] Summary:`);
-  console.log(`  - Tasks approaching (3 days): ${approachingTasks3Days}`);
-  console.log(`  - Tasks approaching (1 day): ${approachingTasks1Day}`);
-  console.log(`  - Overdue tasks: ${overdueTasks}`);
-  console.log(`  - Defects approaching (3 days): ${approachingDefects3Days}`);
-  console.log(`  - Defects approaching (1 day): ${approachingDefects1Day}`);
   
   return {
     approachingTasks3Days,

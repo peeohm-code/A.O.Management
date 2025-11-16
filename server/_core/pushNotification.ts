@@ -56,7 +56,6 @@ export async function sendPushNotification(
       .where(eq(pushSubscriptions.userId, userId));
 
     if (subscriptions.length === 0) {
-      console.log(`[Push] No subscriptions found for user ${userId}`);
       return { success: true, sent: 0, failed: 0 };
     }
 
@@ -92,7 +91,6 @@ export async function sendPushNotification(
 
         // Remove invalid subscriptions (410 Gone or 404 Not Found)
         if (error.statusCode === 410 || error.statusCode === 404) {
-          console.log(`[Push] Removing invalid subscription ${sub.id}`);
           await db
             .delete(pushSubscriptions)
             .where(eq(pushSubscriptions.id, sub.id));
@@ -102,7 +100,6 @@ export async function sendPushNotification(
 
     await Promise.all(promises);
 
-    console.log(`[Push] Sent ${sent}/${subscriptions.length} notifications to user ${userId}`);
     return { success: true, sent, failed };
   } catch (error) {
     console.error('[Push] Error sending push notification:', error);

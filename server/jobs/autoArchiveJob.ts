@@ -16,7 +16,6 @@ import { getDb } from "../db";
 import { projects, archiveRules, archiveHistory } from "../../drizzle/schema";
 
 async function runAutoArchive() {
-  console.log("[Auto-Archive] Starting auto-archive job...");
   
   const db = await getDb();
   if (!db) {
@@ -31,12 +30,10 @@ async function runAutoArchive() {
       .from(archiveRules)
       .where(eq(archiveRules.enabled, true));
 
-    console.log(`[Auto-Archive] Found ${rules.length} enabled rules`);
 
     let totalArchived = 0;
 
     for (const rule of rules) {
-      console.log(`[Auto-Archive] Processing rule: ${rule.name}`);
       
       // Build conditions based on rule
       const conditions: any[] = [
@@ -80,7 +77,6 @@ async function runAutoArchive() {
           );
       }
 
-      console.log(`[Auto-Archive] Found ${matchingProjects.length} projects matching rule`);
 
       // Archive each matching project
       for (const project of matchingProjects) {
@@ -107,7 +103,6 @@ async function runAutoArchive() {
             performedAt: now,
           });
 
-          console.log(`[Auto-Archive] Archived project: ${project.name} (ID: ${project.id})`);
           totalArchived++;
         } catch (error) {
           console.error(`[Auto-Archive] Failed to archive project ${project.id}:`, error);
@@ -121,7 +116,6 @@ async function runAutoArchive() {
         .where(eq(archiveRules.id, rule.id));
     }
 
-    console.log(`[Auto-Archive] Job completed. Total archived: ${totalArchived}`);
   } catch (error) {
     console.error("[Auto-Archive] Job failed:", error);
     throw error;
@@ -131,7 +125,6 @@ async function runAutoArchive() {
 // Run the job
 runAutoArchive()
   .then(() => {
-    console.log("[Auto-Archive] Exiting...");
     process.exit(0);
   })
   .catch((error) => {
