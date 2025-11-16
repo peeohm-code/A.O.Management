@@ -1,0 +1,2 @@
+ALTER TABLE `projectMembers` MODIFY COLUMN `role` enum('project_manager','qc_inspector','worker') NOT NULL;--> statement-breakpoint
+ALTER TABLE `users` MODIFY COLUMN `role` enum('owner','admin','project_manager','qc_inspector','worker') NOT NULL DEFAULT 'worker';

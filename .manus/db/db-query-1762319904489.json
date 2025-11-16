@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO taskChecklists (taskId, templateId, stage, status)\nSELECT t.id, 1, 'pre_execution', 'pending'\nFROM tasks t\nWHERE t.name = 'งานฐานราก' AND t.id NOT IN (SELECT taskId FROM taskChecklists WHERE templateId = 1)\nUNION ALL\nSELECT t.id, 2, 'in_progress', 'pending'\nFROM tasks t\nWHERE t.name = 'งานฐานราก' AND t.id NOT IN (SELECT taskId FROM taskChecklists WHERE templateId = 2)\nUNION ALL\nSELECT t.id, 3, 'post_execution', 'pending'\nFROM tasks t\nWHERE t.name = 'งานฐานราก' AND t.id NOT IN (SELECT taskId FROM taskChecklists WHERE templateId = 3);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO taskChecklists (taskId, templateId, stage, status)\nSELECT t.id, 1, 'pre_execution', 'pending'\nFROM tasks t\nWHERE t.name = 'งานฐานราก' AND t.id NOT IN (SELECT taskId FROM taskChecklists WHERE templateId = 1)\nUNION ALL\nSELECT t.id, 2, 'in_progress', 'pending'\nFROM tasks t\nWHERE t.name = 'งานฐานราก' AND t.id NOT IN (SELECT taskId FROM taskChecklists WHERE templateId = 2)\nUNION ALL\nSELECT t.id, 3, 'post_execution', 'pending'\nFROM tasks t\nWHERE t.name = 'งานฐานราก' AND t.id NOT IN (SELECT taskId FROM taskChecklists WHERE templateId = 3);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1562
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO checklistItemResults (taskChecklistId, templateItemId, result, createdAt)\nSELECT \n  tc.id as taskChecklistId,\n  cti.id as templateItemId,\n  'fail' as result,\n  NOW() as createdAt\nFROM taskChecklists tc\nJOIN checklistTemplateItems cti ON cti.templateId = tc.templateId\nWHERE tc.status = 'failed'\nLIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO checklistItemResults (taskChecklistId, templateItemId, result, createdAt)\nSELECT \n  tc.id as taskChecklistId,\n  cti.id as templateItemId,\n  'fail' as result,\n  NOW() as createdAt\nFROM taskChecklists tc\nJOIN checklistTemplateItems cti ON cti.templateId = tc.templateId\nWHERE tc.status = 'failed'\nLIMIT 3;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1561
+}

@@ -43,15 +43,18 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
+  /* Brand Colors: #00CE81 (green), #00366D (blue) */
+  --brand-green: 0 206 129;
+  --brand-blue: 0 54 109;
+  --primary: rgb(var(--brand-green));
+  --primary-foreground: oklch(1 0 0);
+  --sidebar-primary: rgb(var(--brand-blue));
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --chart-1: rgb(var(--brand-green));
+  --chart-2: rgb(var(--brand-blue));
+  --chart-3: oklch(0.55 0.15 170);
+  --chart-4: oklch(0.45 0.12 240);
+  --chart-5: oklch(0.35 0.10 210);
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.235 0.015 65);
@@ -79,10 +82,11 @@
 }
 
 .dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
+  /* Brand Colors for dark mode */
+  --primary: rgb(var(--brand-green));
+  --primary-foreground: oklch(0.1 0 0);
+  --sidebar-primary: rgb(var(--brand-blue));
+  --sidebar-primary-foreground: oklch(1 0 0);
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.85 0.005 65);
   --card: oklch(0.21 0.006 285.885);
@@ -100,11 +104,11 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
+  --chart-1: rgb(var(--brand-green));
+  --chart-2: rgb(var(--brand-blue));
+  --chart-3: oklch(0.55 0.15 170);
+  --chart-4: oklch(0.45 0.12 240);
+  --chart-5: oklch(0.35 0.10 210);
   --sidebar: oklch(0.21 0.006 285.885);
   --sidebar-foreground: oklch(0.85 0.005 65);
   --sidebar-accent: oklch(0.274 0.006 286.033);
@@ -120,6 +124,16 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Safe area for mobile notch and gesture bar */
+  @supports (padding: env(safe-area-inset-top)) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -130,6 +144,16 @@
   input[type="checkbox"]:not(:disabled),
   input[type="radio"]:not(:disabled) {
     @apply cursor-pointer;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -173,5 +197,159 @@
       padding-right: 2rem;
       max-width: 1280px; /* Standard content width */
     }
+  }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Increase touch target sizes for mobile */
+    button,
+    [role="button"],
+    a {
+      min-height: 48px; /* Touch-friendly minimum */
+      min-width: 48px;
+    }
+
+    /* Increase spacing between interactive elements */
+    button + button,
+    [role="button"] + [role="button"] {
+      margin-left: 8px;
+    }
+
+    /* Adjust font sizes for mobile readability */
+    h1 {
+      @apply text-2xl;
+    }
+    h2 {
+      @apply text-xl;
+    }
+    h3 {
+      @apply text-lg;
+    }
+
+    /* Make cards stack vertically on mobile */
+    .grid {
+      @apply grid-cols-1;
+    }
+
+    /* Horizontal scrolling for tables */
+    table {
+      @apply block overflow-x-auto;
+    }
+
+    /* Adjust padding for mobile */
+    .card,
+    [class*="Card"] {
+      @apply p-3;
+    }
+
+    /* Increase spacing between interactive elements */
+    .space-y-2 {
+      @apply space-y-3;
+    }
+    .space-x-2 {
+      @apply space-x-3;
+    }
+
+    /* Full-width buttons on mobile */
+    .btn-mobile-full {
+      @apply w-full;
+    }
+
+    /* Larger checkboxes and radio buttons */
+    input[type="checkbox"],
+    input[type="radio"] {
+      @apply w-6 h-6;
+    }
+
+    /* Better input fields for mobile */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    textarea,
+    select {
+      @apply text-base; /* Prevent zoom on iOS */
+      min-height: 48px;
+    }
+  }
+
+  /* Touch feedback animation */
+  @media (hover: none) and (pointer: coarse) {
+    button:active,
+    [role="button"]:active {
+      @apply scale-95;
+    }
+  }
+
+  /* Enhanced Status Badges for Mobile */
+  .status-badge {
+    @apply inline-flex items-center justify-center px-3 py-1.5 rounded-full font-semibold text-sm;
+    min-width: 80px;
+  }
+
+  @media (max-width: 768px) {
+    .status-badge {
+      @apply px-4 py-2 text-base font-bold;
+      min-width: 100px;
+      /* Higher contrast for outdoor visibility */
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  /* Visual Progress Bar */
+  .progress-bar {
+    @apply relative w-full h-3 bg-gray-200 rounded-full overflow-hidden;
+  }
+
+  .progress-bar-fill {
+    @apply h-full transition-all duration-500 ease-out;
+    background: linear-gradient(90deg, rgb(var(--brand-green)) 0%, #00e094 100%);
+  }
+
+  .progress-bar-fill.warning {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+  }
+
+  .progress-bar-fill.danger {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+  }
+
+  @media (max-width: 768px) {
+    .progress-bar {
+      @apply h-4; /* Larger on mobile */
+    }
+  }
+
+  /* High Contrast Status Colors for Outdoor Visibility */
+  .status-not-started {
+    @apply bg-gray-200 text-gray-900;
+  }
+
+  .status-in-progress {
+    @apply bg-blue-600 text-white;
+  }
+
+  .status-delayed {
+    @apply bg-red-600 text-white;
+  }
+
+  .status-completed {
+    @apply text-white;
+    background-color: rgb(var(--brand-green));
+  }
+
+  .status-pending {
+    @apply bg-yellow-500 text-gray-900;
+  }
+
+  /* Dark mode adjustments for status colors */
+  .dark .status-not-started {
+    @apply bg-gray-700 text-gray-100;
+  }
+
+  .dark .status-pending {
+    @apply bg-yellow-600 text-gray-100;
   }
 }
