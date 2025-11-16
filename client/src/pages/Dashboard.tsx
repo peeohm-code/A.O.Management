@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   CheckCircle2, 
   Clock, 
@@ -34,7 +33,6 @@ import { th } from "date-fns/locale";
 export default function Dashboard() {
   const { user } = useAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch data
   const { data: projects = [], isLoading: projectsLoading } = trpc.project.list.useQuery();
@@ -247,261 +245,217 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="mytasks">My Tasks</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            {/* Project Statistics */}
-            {projectStats && (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="border-l-4 border-l-blue-500">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold">{projectStats.totalTasks}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {projectStats.inProgressTasks} in progress
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-l-4 border-l-green-500">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-                    <Target className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold">{projectStats.completionRate.toFixed(1)}%</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {projectStats.completedTasks} completed
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-l-4 border-l-orange-500">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Overdue Tasks</CardTitle>
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-orange-600">{projectStats.overdueTasks}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Need attention
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-l-4 border-l-red-500">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Open Defects</CardTitle>
-                    <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-red-600">{projectStats.openDefects}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {projectStats.criticalDefects} critical
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Project Progress */}
-            {currentProject && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-blue-500" />
-                    Project Progress
-                  </CardTitle>
-                  <CardDescription>{currentProject.name}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Overall Completion</span>
-                      <span className="text-sm font-bold">{projectStats?.completionRate.toFixed(0)}%</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-3">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all"
-                        style={{ width: `${projectStats?.completionRate || 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{projectStats?.totalTasks}</div>
-                      <div className="text-xs text-muted-foreground">Total Tasks</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">{projectStats?.completedTasks}</div>
-                      <div className="text-xs text-muted-foreground">Completed</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">{projectStats?.inProgressTasks}</div>
-                      <div className="text-xs text-muted-foreground">In Progress</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-red-600">{projectStats?.overdueTasks}</div>
-                      <div className="text-xs text-muted-foreground">Overdue</div>
-                    </div>
-                  </div>
-
-                  {currentProject.startDate && currentProject.endDate && (
-                    <div className="flex items-center justify-between pt-4 border-t text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Start: </span>
-                        <span className="font-medium">
-                          {format(new Date(currentProject.startDate), 'dd MMM yyyy', { locale: th })}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">End: </span>
-                        <span className="font-medium">
-                          {format(new Date(currentProject.endDate), 'dd MMM yyyy', { locale: th })}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Recent Activities */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-blue-500" />
-                  Recent Activities
-                </CardTitle>
-                <CardDescription>Latest updates in this project</CardDescription>
+        {/* Project Statistics */}
+        {projectStats && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="border-l-4 border-l-blue-500">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                {recentActivities.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No recent activities</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {recentActivities.map((activity, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                      >
-                        <div className="mt-0.5">
-                          {activity.type === 'task' && (
-                            <CheckCircle2 className="h-5 w-5 text-green-500" />
-                          )}
-                          {activity.type === 'defect' && (
-                            <AlertTriangle className="h-5 w-5 text-red-500" />
-                          )}
-                          {activity.type === 'inspection' && (
-                            <ClipboardCheck className="h-5 w-5 text-blue-500" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">{activity.title}</p>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {format(activity.time, 'dd MMM yyyy HH:mm', { locale: th })}
-                          </p>
-                        </div>
-                        {activity.link && (
-                          <Link href={activity.link}>
-                            <Button variant="ghost" size="sm">View</Button>
-                          </Link>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="text-3xl font-bold">{projectStats.totalTasks}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {projectStats.inProgressTasks} in progress
+                </p>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* My Tasks Tab */}
-          <TabsContent value="mytasks" className="space-y-6">
-            <Card>
-              <CardHeader>
+            <Card className="border-l-4 border-l-green-500">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{projectStats.completionRate.toFixed(1)}%</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {projectStats.completedTasks} of {projectStats.totalTasks} completed
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-orange-500">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Overdue Tasks</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-orange-600">{projectStats.overdueTasks}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Require immediate attention
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-red-500">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Open Defects</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-red-600">{projectStats.openDefects}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {projectStats.criticalDefects} critical
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* My Tasks Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
                 <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-blue-500" />
+                  <User className="h-5 w-5" />
                   My Tasks
                 </CardTitle>
                 <CardDescription>Tasks assigned to you</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {myTasks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <CheckCircle2 className="h-12 w-12 mx-auto mb-2 text-green-500 opacity-50" />
-                    <p>No pending tasks</p>
-                    <p className="text-sm">You're all caught up!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {myTasks.map(task => {
-                      const isOverdue = task.endDate && new Date(task.endDate) < new Date();
-                      
-                      return (
-                        <Link key={task.id} href={`/tasks/${task.id}`}>
-                          <div className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1">
-                                <h3 className="font-semibold">{task.name}</h3>
-                                {task.description && (
-                                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                    {task.description}
-                                  </p>
-                                )}
-                              </div>
-                            <Badge
-                              variant={
-                                task.status === 'in_progress' ? 'default' :
-                                task.status === 'todo' ? 'secondary' : 'outline'
-                              }
-                            >
-                              {task.status}
-                            </Badge>
-                            </div>
+              </div>
+              <Link href="/tasks">
+                <Button variant="outline" size="sm">
+                  View All
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {myTasks.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No pending tasks</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {myTasks.map(task => (
+                  <Link key={task.id} href={`/tasks/${task.id}`}>
+                    <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{task.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={
+                            task.status === 'completed' ? 'default' :
+                            task.status === 'in_progress' ? 'secondary' :
+                            'outline'
+                          } className="text-xs">
+                            {task.status === 'completed' ? 'Completed' :
+                             task.status === 'in_progress' ? 'In Progress' :
+                             task.status === 'pending_pre_inspection' ? 'Pending Inspection' :
+                             'Not Started'}
+                          </Badge>
+                          {task.endDate && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(task.endDate), 'dd MMM yyyy', { locale: th })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {task.endDate && new Date(task.endDate) < new Date() && task.status !== 'completed' && (
+                        <AlertCircle className="h-5 w-5 text-red-500 ml-2 shrink-0" />
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              {task.endDate && (
-                                <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-600 font-medium' : ''}`}>
-                                  <Calendar className="h-4 w-4" />
-                                  {format(new Date(task.endDate), 'dd MMM yyyy', { locale: th })}
-                                  {isOverdue && ' (Overdue)'}
-                                </span>
-                              )}
-                              <span>Progress: {task.progress || 0}%</span>
-                            </div>
-
-                            <div className="w-full bg-secondary rounded-full h-2 mt-3">
-                              <div
-                                className="bg-primary h-2 rounded-full transition-all"
-                                style={{ width: `${task.progress || 0}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
+        {/* Recent Activities */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Recent Activities
+            </CardTitle>
+            <CardDescription>Latest updates in this project</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentActivities.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No recent activities</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentActivities.map((activity, index) => (
+                  <div key={index} className="flex gap-3">
+                    <div className={`mt-1 rounded-full p-2 shrink-0 ${
+                      activity.type === 'task' ? 'bg-blue-100 text-blue-600' :
+                      activity.type === 'defect' ? 'bg-red-100 text-red-600' :
+                      'bg-green-100 text-green-600'
+                    }`}>
+                      {activity.type === 'task' ? <CheckCircle2 className="h-4 w-4" /> :
+                       activity.type === 'defect' ? <AlertTriangle className="h-4 w-4" /> :
+                       <ClipboardCheck className="h-4 w-4" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{activity.title}</p>
+                      <p className="text-sm text-muted-foreground truncate">{activity.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(activity.time, 'dd MMM yyyy HH:mm', { locale: th })}
+                      </p>
+                    </div>
+                    {activity.link && (
+                      <Link href={activity.link}>
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </Link>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Project Progress */}
+        {currentProject && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Project Progress
+              </CardTitle>
+              <CardDescription>{currentProject.name}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Overall Progress</span>
+                    <span className="text-sm text-muted-foreground">
+                      {projectStats?.completionRate.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2.5">
+                    <div 
+                      className="bg-primary h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${projectStats?.completionRate || 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Start Date</p>
+                    <p className="text-sm font-medium">
+                      {format(new Date(currentProject.startDate), 'dd MMM yyyy', { locale: th })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">End Date</p>
+                    <p className="text-sm font-medium">
+                      {format(new Date(currentProject.endDate), 'dd MMM yyyy', { locale: th })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -1,3 +1,4 @@
+import React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -23,7 +24,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, LineChart, Zap, Server, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, LineChart, Moon, Sun } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
@@ -69,7 +70,6 @@ function ThemeToggleButton() {
 }
 
 const menuItems = [
-  { icon: Zap, label: "Overview", path: "/overview", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
   { icon: FolderKanban, label: "Projects", path: "/projects", roles: ["admin", "owner", "project_manager"] },
   { icon: ListTodo, label: "Tasks", path: "/tasks", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
@@ -78,8 +78,8 @@ const menuItems = [
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "owner", "qc_inspector"] },
   { icon: Users, label: "Team & Workload", path: "/team", roles: ["admin", "owner", "project_manager"] },
   { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "owner", "project_manager"] },
+  { icon: LineChart, label: "Analytics", path: "/analytics", roles: ["admin", "owner", "project_manager"] },
   { icon: LineChart, label: "Advanced Analytics", path: "/advanced-analytics", roles: ["admin", "owner", "project_manager"] },
-  { icon: Server, label: "System Overview", path: "/system-overview", roles: ["admin", "owner"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
