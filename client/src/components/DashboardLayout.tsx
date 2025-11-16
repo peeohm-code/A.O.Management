@@ -24,7 +24,22 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, LineChart, Moon, Sun } from "lucide-react";
+import {
+  LayoutDashboard,
+  PanelLeft,
+  FolderKanban,
+  ListTodo,
+  ClipboardCheck,
+  AlertTriangle,
+  FileText,
+  BarChart3,
+  UserCircle,
+  LogOut,
+  Users,
+  LineChart,
+  Moon,
+  Sun,
+} from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
@@ -32,14 +47,14 @@ import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import { Button } from "./ui/button";
 import BottomNavigation from "@/components/BottomNavigation";
 
 function RoleBadge() {
   const roleLabel = useRoleLabel();
   if (!roleLabel) return null;
-  
+
   return (
     <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
       {roleLabel}
@@ -49,9 +64,9 @@ function RoleBadge() {
 
 function ThemeToggleButton() {
   const { theme, toggleTheme, switchable } = useTheme();
-  
+
   if (!switchable || !toggleTheme) return null;
-  
+
   return (
     <Button
       variant="ghost"
@@ -70,16 +85,66 @@ function ThemeToggleButton() {
 }
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
-  { icon: FolderKanban, label: "Projects", path: "/projects", roles: ["admin", "owner", "project_manager"] },
-  { icon: ListTodo, label: "Tasks", path: "/tasks", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
-  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc", roles: ["admin", "owner", "qc_inspector"] },
-  { icon: AlertTriangle, label: "Defects", path: "/defects", roles: ["admin", "owner", "qc_inspector", "project_manager"] },
-  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "owner", "qc_inspector"] },
-  { icon: Users, label: "Team & Workload", path: "/team", roles: ["admin", "owner", "project_manager"] },
-  { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "owner", "project_manager"] },
-  { icon: LineChart, label: "Analytics", path: "/analytics", roles: ["admin", "owner", "project_manager"] },
-  { icon: LineChart, label: "Advanced Analytics", path: "/advanced-analytics", roles: ["admin", "owner", "project_manager"] },
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    path: "/dashboard",
+    roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"],
+  },
+  {
+    icon: FolderKanban,
+    label: "Projects",
+    path: "/projects",
+    roles: ["admin", "owner", "project_manager"],
+  },
+  {
+    icon: ListTodo,
+    label: "Tasks",
+    path: "/tasks",
+    roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"],
+  },
+  {
+    icon: ClipboardCheck,
+    label: "QC Inspection",
+    path: "/qc",
+    roles: ["admin", "owner", "qc_inspector"],
+  },
+  {
+    icon: AlertTriangle,
+    label: "Defects",
+    path: "/defects",
+    roles: ["admin", "owner", "qc_inspector", "project_manager"],
+  },
+  {
+    icon: FileText,
+    label: "Checklist Templates",
+    path: "/checklist-templates",
+    roles: ["admin", "owner", "qc_inspector"],
+  },
+  {
+    icon: Users,
+    label: "Team & Workload",
+    path: "/team",
+    roles: ["admin", "owner", "project_manager"],
+  },
+  {
+    icon: BarChart3,
+    label: "Reports",
+    path: "/reports",
+    roles: ["admin", "owner", "project_manager"],
+  },
+  {
+    icon: LineChart,
+    label: "Analytics",
+    path: "/analytics",
+    roles: ["admin", "owner", "project_manager"],
+  },
+  {
+    icon: LineChart,
+    label: "Advanced Analytics",
+    path: "/advanced-analytics",
+    roles: ["admin", "owner", "project_manager"],
+  },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -93,17 +158,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
+    // eslint-disable-next-line no-undef
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
 
   useEffect(() => {
+    // eslint-disable-next-line no-undef
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
   if (loading) {
-    return <DashboardLayoutSkeleton />
+    return <DashboardLayoutSkeleton />;
   }
 
   if (!user) {
@@ -123,7 +190,7 @@ export default function DashboardLayout({
             </div>
             <div className="text-center space-y-3">
               <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-[#00366D] to-[#00CE81] bg-clip-text text-transparent">
-                {APP_TITLE.split('\n').map((line: string, i: number) => (
+                {APP_TITLE.split("\n").map((line: string, i: number) => (
                   <div key={i}>{line}</div>
                 ))}
               </h1>
@@ -137,6 +204,7 @@ export default function DashboardLayout({
           </div>
           <Button
             onClick={() => {
+              // eslint-disable-next-line no-undef
               window.location.href = getLoginUrl();
             }}
             size="lg"
@@ -154,19 +222,19 @@ export default function DashboardLayout({
 
   return (
     <div className="pb-16 md:pb-0">
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": `${sidebarWidth}px`,
-        } as CSSProperties
-      }
-    >
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
-        {children}
-      </DashboardLayoutContent>
-    </SidebarProvider>
-    {/* Bottom Navigation - Mobile only */}
-    <BottomNavigation />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": `${sidebarWidth}px`,
+          } as CSSProperties
+        }
+      >
+        <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+          {children}
+        </DashboardLayoutContent>
+      </SidebarProvider>
+      {/* Bottom Navigation - Mobile only */}
+      <BottomNavigation />
     </div>
   );
 }
@@ -185,6 +253,7 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
+  // eslint-disable-next-line no-undef
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
@@ -196,6 +265,7 @@ function DashboardLayoutContent({
   }, [isCollapsed]);
 
   useEffect(() => {
+    // eslint-disable-next-line no-undef
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
 
@@ -211,16 +281,24 @@ function DashboardLayoutContent({
     };
 
     if (isResizing) {
+      // eslint-disable-next-line no-undef
       document.addEventListener("mousemove", handleMouseMove);
+      // eslint-disable-next-line no-undef
       document.addEventListener("mouseup", handleMouseUp);
+      // eslint-disable-next-line no-undef
       document.body.style.cursor = "col-resize";
+      // eslint-disable-next-line no-undef
       document.body.style.userSelect = "none";
     }
 
     return () => {
+      // eslint-disable-next-line no-undef
       document.removeEventListener("mousemove", handleMouseMove);
+      // eslint-disable-next-line no-undef
       document.removeEventListener("mouseup", handleMouseUp);
+      // eslint-disable-next-line no-undef
       document.body.style.cursor = "";
+      // eslint-disable-next-line no-undef
       document.body.style.userSelect = "";
     };
   }, [isResizing, setSidebarWidth]);
@@ -230,7 +308,7 @@ function DashboardLayoutContent({
       <div className="relative hidden md:block" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0"
+          className="border-r-0 bg-[#1e3a8a] text-white"
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-16 justify-center">
@@ -246,7 +324,7 @@ function DashboardLayoutContent({
                     onClick={toggleSidebar}
                     className="absolute inset-0 flex items-center justify-center bg-accent rounded-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <PanelLeft className="h-4 w-4 text-foreground" />
+                    <PanelLeft className="h-4 w-4 text-white" />
                   </button>
                 </div>
               ) : (
@@ -265,7 +343,7 @@ function DashboardLayoutContent({
                     onClick={toggleSidebar}
                     className="ml-auto h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
                   >
-                    <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                    <PanelLeft className="h-4 w-4 text-white/70" />
                   </button>
                 </>
               )}
@@ -277,31 +355,30 @@ function DashboardLayoutContent({
               {menuItems
                 .filter(item => {
                   // Admin and owner see everything
-                  if (user?.role === 'admin' || user?.role === 'owner') return true;
+                  if (user?.role === "admin" || user?.role === "owner")
+                    return true;
                   // Filter by role if specified
                   if (item.roles) {
-                    return item.roles.includes(user?.role || 'user');
+                    return item.roles.includes(user?.role || "user");
                   }
                   return true;
                 })
                 .map(item => {
-                const isActive = location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+                  const isActive = location === item.path;
+                  return (
+                    <SidebarMenuItem key={item.path}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        onClick={() => setLocation(item.path)}
+                        tooltip={item.label}
+                        className={`h-10 transition-all font-normal ${isActive ? "bg-white/10 text-white hover:bg-white/15" : "text-white/80 hover:bg-white/5 hover:text-white"}`}
+                      >
+                        <item.icon className={`h-4 w-4`} />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
             </SidebarMenu>
           </SidebarContent>
 
@@ -329,7 +406,7 @@ function DashboardLayoutContent({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
-                  onClick={() => setLocation('/profile')}
+                  onClick={() => setLocation("/profile")}
                   className="cursor-pointer"
                 >
                   <UserCircle className="mr-2 h-4 w-4" />
@@ -379,7 +456,8 @@ function DashboardLayoutContent({
             <UserDropdown />
           </div>
         </div>
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-4 pb-20 md:pb-4">{children}</main>
+        {isMobile && <BottomNavigation />}
       </SidebarInset>
     </>
   );

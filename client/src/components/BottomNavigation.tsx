@@ -1,5 +1,6 @@
+import React from "react";
 import { Link, useLocation } from "wouter";
-import { Zap, ClipboardList, ClipboardCheck, AlertTriangle, User } from "lucide-react";
+import { Home, ClipboardList, AlertCircle, Users, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -9,11 +10,11 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: "/overview", icon: Zap, label: "ภาพรวม" },
+  { path: "/", icon: Home, label: "หน้าหลัก" },
   { path: "/tasks", icon: ClipboardList, label: "งาน" },
-  { path: "/qc", icon: ClipboardCheck, label: "QC" },
-  { path: "/defects", icon: AlertTriangle, label: "ข้อบกพร่อง" },
-  { path: "/profile", icon: User, label: "โปรไฟล์" },
+  { path: "/defects", icon: AlertCircle, label: "ปัญหา" },
+  { path: "/team", icon: Users, label: "ทีม" },
+  { path: "/notifications", icon: Bell, label: "แจ้งเตือน" },
 ];
 
 export default function BottomNavigation() {
@@ -21,7 +22,7 @@ export default function BottomNavigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden">
-      <div className="grid grid-cols-5 h-16">
+      <div className="grid grid-cols-5 h-16 safe-area-inset-bottom">
         {navItems.map((item: any) => {
           const Icon = item.icon;
           const isActive = location === item.path;
