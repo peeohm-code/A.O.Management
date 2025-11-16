@@ -551,10 +551,10 @@ export default function TaskDetail() {
           {/* Photo Gallery */}
           <Card>
             <CardHeader>
-              <CardTitle>คลังรูปภาพ ({attachments.filter(a => a.mimeType?.startsWith('image/')).length})</CardTitle>
+              <CardTitle>คลังรูปภาพ ({attachments.filter((a: any) => a.mimeType?.startsWith('image/')).length})</CardTitle>
             </CardHeader>
             <CardContent>
-              {attachments.filter(a => a.mimeType?.startsWith('image/')).length === 0 ? (
+              {attachments.filter((a: any) => a.mimeType?.startsWith('image/')).length === 0 ? (
                 <div className="text-center py-12">
                   <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-500">ยังไม่มีรูปภาพ</p>
@@ -562,7 +562,7 @@ export default function TaskDetail() {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {attachments
-                    .filter(a => a.mimeType?.startsWith('image/'))
+                    .filter((a: any) => a.mimeType?.startsWith('image/'))
                     .map((photo) => (
                       <div
                         key={photo.id}
@@ -635,17 +635,17 @@ export default function TaskDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>เอกสารทั้งหมด ({attachments.filter(a => !a.mimeType?.startsWith('image/')).length})</CardTitle>
+              <CardTitle>เอกสารทั้งหมด ({attachments.filter((a: any) => !a.mimeType?.startsWith('image/')).length})</CardTitle>
             </CardHeader>
             <CardContent>
-              {attachments.filter(a => !a.mimeType?.startsWith('image/')).length === 0 ? (
+              {attachments.filter((a: any) => !a.mimeType?.startsWith('image/')).length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-500">ยังไม่มีเอกสาร</p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {attachments.filter(a => !a.mimeType?.startsWith('image/')).map((attachment) => (
+                  {attachments.filter((a: any) => !a.mimeType?.startsWith('image/')).map((attachment) => (
                     <div
                       key={attachment.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"

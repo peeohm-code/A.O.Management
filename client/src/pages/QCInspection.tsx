@@ -199,7 +199,7 @@ export default function QCInspection() {
   };
 
   const handleSubmitDefect = async () => {
-    const checklist = allChecklists.find(c => c.id === defectChecklistId);
+    const checklist = allChecklists.find((c: any) => c.id === defectChecklistId);
     if (!checklist || !defectForm.title) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
@@ -692,21 +692,21 @@ export default function QCInspection() {
                         <CheckCircle2 className="h-4 w-4 text-[#00366D] dark:text-blue-400" />
                         <div>
                           <span className="text-muted-foreground">Checklist:</span>
-                          <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.name}</p>
+                          <p className="font-medium">{allChecklists.find((c: any) => c.id === defectChecklistId)?.name}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-[#00366D] dark:text-blue-400" />
                         <div>
                           <span className="text-muted-foreground">งาน:</span>
-                          <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.taskName}</p>
+                          <p className="font-medium">{allChecklists.find((c: any) => c.id === defectChecklistId)?.taskName}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🏗️</span>
                         <div>
                           <span className="text-muted-foreground">โครงการ:</span>
-                          <p className="font-medium">{allChecklists.find(c => c.id === defectChecklistId)?.projectName || 'ไม่ระบุ'}</p>
+                          <p className="font-medium">{allChecklists.find((c: any) => c.id === defectChecklistId)?.projectName || 'ไม่ระบุ'}</p>
                         </div>
                       </div>
                     </div>
@@ -959,7 +959,7 @@ export default function QCInspection() {
         <FloatingActionButton
           onClick={() => {
             // เลือก checklist แรกที่ยังไม่ได้ตรวจ
-            const pendingChecklist = filteredChecklists.find(c => c.status === 'pending_inspection');
+            const pendingChecklist = filteredChecklists.find((c: any) => c.status === 'pending_inspection');
             if (pendingChecklist) {
               setSelectedChecklistId(pendingChecklist.id);
               setIsInspecting(true);

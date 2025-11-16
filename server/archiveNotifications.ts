@@ -69,7 +69,7 @@ export async function checkArchiveWarnings() {
     if (projectsReadyToDelete.length > 0) {
       
       const projectList = projectsReadyToDelete
-        .map(p => `- ${p.name} (${p.code || p.id})`)
+        .map((p: any) => `- ${p.name} (${p.code || p.id})`)
         .join('\n');
 
       await notifyOwner({

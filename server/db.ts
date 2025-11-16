@@ -503,10 +503,10 @@ export async function getProjectStats(projectId: number) {
   }
 
   const now = new Date();
-  const completedTasks = projectTasks.filter(t => t.status === 'completed').length;
-  const inProgressTasks = projectTasks.filter(t => t.status === 'in_progress').length;
-  const notStartedTasks = projectTasks.filter(t => t.status === 'not_started').length;
-  const overdueTasks = projectTasks.filter(t => 
+  const completedTasks = projectTasks.filter((t: any) => t.status === 'completed').length;
+  const inProgressTasks = projectTasks.filter((t: any) => t.status === 'in_progress').length;
+  const notStartedTasks = projectTasks.filter((t: any) => t.status === 'not_started').length;
+  const overdueTasks = projectTasks.filter((t: any) => 
     t.endDate && new Date(t.endDate) < now && t.status !== 'completed'
   ).length;
 
@@ -589,7 +589,7 @@ export async function deleteProject(id: number) {
   
   // 2. Delete task-related data
   const projectTasks = await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.projectId, id));
-  const taskIds = projectTasks.map(t => t.id);
+  const taskIds = projectTasks.map((t: any) => t.id);
   
   if (taskIds.length > 0) {
     // Delete task dependencies
@@ -607,7 +607,7 @@ export async function deleteProject(id: number) {
     
     // Delete checklist item results
     await db.delete(checklistItemResults).where(inArray(checklistItemResults.taskChecklistId, 
-      (await db.select({ id: taskChecklists.id }).from(taskChecklists).where(inArray(taskChecklists.taskId, taskIds))).map(tc => tc.id)
+      (await db.select({ id: taskChecklists.id }).from(taskChecklists).where(inArray(taskChecklists.taskId, taskIds))).map((tc: any) => tc.id)
     ));
     
     // Delete task checklists

@@ -83,11 +83,11 @@ export default function WorkloadBalancing() {
 
   // Calculate team statistics
   const totalMembers = workloadStats?.length || 0;
-  const idleMembers = workloadStats?.filter(m => {
+  const idleMembers = workloadStats?.filter((m: any) => {
     const activeTasks = (m.todoTasks || 0) + (m.inProgressTasks || 0);
     return activeTasks === 0;
   }).length || 0;
-  const overloadedMembers = workloadStats?.filter(m => {
+  const overloadedMembers = workloadStats?.filter((m: any) => {
     const activeTasks = (m.todoTasks || 0) + (m.inProgressTasks || 0);
     return activeTasks > 8;
   }).length || 0;
