@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, ClipboardList, ClipboardCheck, AlertTriangle, User } from "lucide-react";
+import { Zap, ClipboardList, ClipboardCheck, AlertTriangle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -9,7 +9,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: "/", icon: Home, label: "หน้าหลัก" },
+  { path: "/overview", icon: Zap, label: "ภาพรวม" },
   { path: "/tasks", icon: ClipboardList, label: "งาน" },
   { path: "/qc", icon: ClipboardCheck, label: "QC" },
   { path: "/defects", icon: AlertTriangle, label: "ข้อบกพร่อง" },

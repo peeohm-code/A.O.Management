@@ -249,19 +249,30 @@ export const exportRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
       }
 
-      // Prepare data for Excel
-      const excelData = inspections.map((inspection: any) => ({
-        id: inspection.id,
-        taskName: inspection.taskName || '-',
-        checklistName: inspection.templateName || '-',
-        inspectorName: inspection.inspectedBy ? `User ${inspection.inspectedBy}` : '-',
-        inspectionDate: formatDateTime(inspection.inspectedAt),
-        overallResult: formatStatus(inspection.status),
-        passCount: 0, // TODO: Calculate from results
-        failCount: 0, // TODO: Calculate from results
-        naCount: 0, // TODO: Calculate from results
-        notes: inspection.notes || '-',
-      }));
+      // Get checklist results for each inspection to calculate pass/fail/na counts
+      const inspectionsWithCounts = await Promise.all(
+        inspections.map(async (inspection: any) => {
+          const results = await db.getChecklistItemResults(inspection.id);
+          const passCount = results.filter((r: any) => r.result === 'pass').length;
+          const failCount = results.filter((r: any) => r.result === 'fail').length;
+          const naCount = results.filter((r: any) => r.result === 'na').length;
+          
+          return {
+            id: inspection.id,
+            taskName: inspection.taskName || '-',
+            checklistName: inspection.templateName || '-',
+            inspectorName: inspection.inspectedBy ? `User ${inspection.inspectedBy}` : '-',
+            inspectionDate: formatDateTime(inspection.inspectedAt),
+            overallResult: formatStatus(inspection.status),
+            passCount,
+            failCount,
+            naCount,
+            notes: inspection.notes || '-',
+          };
+        })
+      );
+
+      const excelData = inspectionsWithCounts;
 
       const columns: ExcelColumn[] = [
         { header: 'ID', key: 'id', width: 8 },
@@ -306,16 +317,25 @@ export const exportRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
       }
 
-      // Prepare data for PDF
-      const pdfData = inspections.map((inspection: any) => ({
-        checklistName: inspection.templateName || '-',
-        inspectorName: inspection.inspectedBy ? `User ${inspection.inspectedBy}` : '-',
-        inspectionDate: formatDateTime(inspection.inspectedAt),
-        overallResult: formatStatus(inspection.status),
-        passCount: 0, // TODO: Calculate from results
-        failCount: 0, // TODO: Calculate from results
-        naCount: 0, // TODO: Calculate from results
-      }));
+      // Get checklist results for each inspection to calculate pass/fail/na counts
+      const pdfData = await Promise.all(
+        inspections.map(async (inspection: any) => {
+          const results = await db.getChecklistItemResults(inspection.id);
+          const passCount = results.filter((r: any) => r.result === 'pass').length;
+          const failCount = results.filter((r: any) => r.result === 'fail').length;
+          const naCount = results.filter((r: any) => r.result === 'na').length;
+          
+          return {
+            checklistName: inspection.templateName || '-',
+            inspectorName: inspection.inspectedBy ? `User ${inspection.inspectedBy}` : '-',
+            inspectionDate: formatDateTime(inspection.inspectedAt),
+            overallResult: formatStatus(inspection.status),
+            passCount,
+            failCount,
+            naCount,
+          };
+        })
+      );
 
       const columns: PDFTableColumn[] = [
         { header: 'งาน', key: 'taskName', width: 130 },

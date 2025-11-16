@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
+import { EmptyState } from "@/components/EmptyState";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -211,6 +213,14 @@ export function ActiveProjectsList() {
           <ProjectCardSkeleton count={6} />
         </div>
       </div>
+    );
+  }
+
+  if (projectsQuery.error) {
+    return (
+      <QueryErrorBoundary onReset={() => projectsQuery.refetch()}>
+        <div>Error loading projects</div>
+      </QueryErrorBoundary>
     );
   }
 
@@ -571,13 +581,15 @@ export function ActiveProjectsList() {
       </div>
 
       {filteredProjects.length === 0 && (
-        <Card className="border-dashed border-2">
-          <CardContent className="text-center py-12">
-            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg font-medium">ไม่พบโครงการ</p>
-            <p className="text-gray-400 text-sm mt-1">ลองค้นหาด้วยคำอื่นหรือสร้างโครงการใหม่</p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Building2}
+          title="ไม่พบโครงการ"
+          description="ลองค้นหาด้วยคำอื่นหรือสร้างโครงการใหม่"
+          action={canCreate ? {
+            label: "สร้างโครงการใหม่",
+            onClick: () => setIsOpen(true)
+          } : undefined}
+        />
       )}
 
       {/* Edit Project Dialog */}

@@ -13,6 +13,7 @@ import DashboardLayout from "./components/DashboardLayout";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
 // Lazy load heavy pages
+const Overview = lazy(() => import("./pages/Overview"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Tasks = lazy(() => import("./pages/Tasks"));
@@ -75,6 +76,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <AdvancedAnalytics />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/overview"}>
+        {() => (
+          <DashboardLayout>
+            <Overview />
           </DashboardLayout>
         )}
       </Route>

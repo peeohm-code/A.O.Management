@@ -23,8 +23,8 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick, Moon, Sun, Scale, Monitor, Bell, LineChart } from "lucide-react";
-import { NotificationBell } from "@/components/NotificationBell";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, Moon, Sun, Monitor, Bell, LineChart, Zap } from "lucide-react";
+
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
@@ -69,6 +69,7 @@ function ThemeToggleButton() {
 }
 
 const menuItems = [
+  { icon: Zap, label: "Overview", path: "/overview", roles: ["admin", "pm", "qc_inspector", "user"] },
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "pm", "qc_inspector", "user"] },
   { icon: FolderKanban, label: "Projects", path: "/projects", roles: ["admin", "pm"] },
   { icon: ListTodo, label: "Tasks", path: "/tasks", roles: ["admin", "pm", "qc_inspector", "user"] },
