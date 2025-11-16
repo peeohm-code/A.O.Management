@@ -146,8 +146,8 @@ export default defineConfig({
             if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) {
               return 'form-vendor';
             }
-            // Gantt chart
-            if (id.includes('react-gantt-chart')) {
+            // Gantt chart (split separately due to size)
+            if (id.includes('frappe-gantt') || id.includes('gantt')) {
               return 'gantt-vendor';
             }
             // Other large libraries
@@ -157,13 +157,21 @@ export default defineConfig({
             if (id.includes('xlsx')) {
               return 'xlsx-vendor';
             }
+            // PDF generation
+            if (id.includes('jspdf') || id.includes('html2canvas')) {
+              return 'pdf-vendor';
+            }
+            // Socket.io
+            if (id.includes('socket.io-client')) {
+              return 'socket-vendor';
+            }
             // Everything else
             return 'vendor';
           }
         },
       },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
     sourcemap: false,
     minify: 'esbuild',
     target: 'es2020',

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -6,42 +7,50 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import DefectDetailErrorBoundary from "./components/DefectDetailErrorBoundary";
 import PageErrorBoundary from "./components/PageErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";
-import QCInspection from "./pages/QCInspection";
-import Defects from "./pages/Defects";
-import DefectDetail from "./pages/DefectDetail";
-import NotificationCenter from "./pages/NotificationCenter";
-import ProjectDetail from "./pages/ProjectDetail";
-import TaskDetail from "./pages/TaskDetail";
-import Settings from "./pages/Settings";
-import Reports from "./pages/Reports";
-import Analytics from "./pages/Analytics";
 import Home from "./pages/Home";
 import LoginDemo from "./pages/LoginDemo";
-import NewProject from "./pages/NewProject";
-import NewTask from "./pages/NewTask";
-import ChecklistTemplates from "./pages/ChecklistTemplates";
-import UserManagement from "./pages/UserManagement";
-import UserProfile from "./pages/UserProfile";
-import TeamManagement from "./pages/TeamManagement";
-import ProjectTeam from "./pages/ProjectTeam";
-import MyTasks from "./pages/MyTasks";
-
-import Archive from "./pages/Archive";
-import ArchiveRules from "./pages/ArchiveRules";
-import NotificationSettings from "./pages/NotificationSettings";
-// import DatabaseMonitoring from "./pages/DatabaseMonitoring"; // Temporarily disabled
-import SystemMonitor from "./pages/SystemMonitor";
-import MemoryMonitoring from "./pages/MemoryMonitoring";
-import InspectionHistory from "./pages/InspectionHistory";
-import InspectionDetail from "./pages/InspectionDetail";
 import DashboardLayout from "./components/DashboardLayout";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
+// Lazy load heavy pages
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Projects = lazy(() => import("./pages/Projects"));
+const Tasks = lazy(() => import("./pages/Tasks"));
+const QCInspection = lazy(() => import("./pages/QCInspection"));
+const Defects = lazy(() => import("./pages/Defects"));
+const DefectDetail = lazy(() => import("./pages/DefectDetail"));
+const NotificationCenter = lazy(() => import("./pages/NotificationCenter"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const TaskDetail = lazy(() => import("./pages/TaskDetail"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const NewProject = lazy(() => import("./pages/NewProject"));
+const NewTask = lazy(() => import("./pages/NewTask"));
+const ChecklistTemplates = lazy(() => import("./pages/ChecklistTemplates"));
+const UserManagement = lazy(() => import("./pages/UserManagement"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const TeamManagement = lazy(() => import("./pages/TeamManagement"));
+const ProjectTeam = lazy(() => import("./pages/ProjectTeam"));
+const MyTasks = lazy(() => import("./pages/MyTasks"));
+const Archive = lazy(() => import("./pages/Archive"));
+const ArchiveRules = lazy(() => import("./pages/ArchiveRules"));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const SystemMonitor = lazy(() => import("./pages/SystemMonitor"));
+const MemoryMonitoring = lazy(() => import("./pages/MemoryMonitoring"));
+const InspectionHistory = lazy(() => import("./pages/InspectionHistory"));
+const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
+
 function Router() {
   return (
+    <Suspense fallback={<PageLoader />}>
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/login-demo"} component={LoginDemo} />
@@ -279,6 +288,7 @@ function Router() {
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 

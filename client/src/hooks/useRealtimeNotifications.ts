@@ -140,15 +140,24 @@ export function useRealtimeNotifications(options: UseRealtimeNotificationsOption
         };
 
         eventSource.onerror = (error) => {
-          console.error("[SSE] Connection error:", error);
+          // Only log actual errors, not normal connection close events
+          if (eventSource.readyState === EventSource.CLOSED) {
+            console.log("[SSE] Connection closed");
+          } else {
+            console.error("[SSE] Connection error:", error);
+          }
           setIsConnected(false);
 
-          // Reconnect after 5 seconds
+          // Close and cleanup
           eventSource.close();
-          setTimeout(() => {
-            console.log("[SSE] Attempting to reconnect...");
-            connectSSE();
-          }, 5000);
+          
+          // Only reconnect if user is still logged in
+          if (user?.id) {
+            setTimeout(() => {
+              console.log("[SSE] Attempting to reconnect...");
+              connectSSE();
+            }, 5000);
+          }
         };
       } catch (error) {
         console.error("[SSE] Failed to connect:", error);
