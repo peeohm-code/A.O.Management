@@ -774,6 +774,34 @@ export type ScheduledNotification = typeof scheduledNotifications.$inferSelect;
 export type InsertScheduledNotification = typeof scheduledNotifications.$inferInsert;
 
 /**
+ * System Logs - tracks system events, errors, and performance issues for admin monitoring
+ */
+export const systemLogs = mysqlTable("systemLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  type: mysqlEnum("type", ["error", "warning", "info", "performance", "security"]).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  message: text("message").notNull(),
+  details: text("details"),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("low").notNull(),
+  userId: int("userId"),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  resolved: boolean("resolved").default(false).notNull(),
+  resolvedBy: int("resolvedBy"),
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  typeIdx: index("typeIdx").on(table.type),
+  categoryIdx: index("categoryIdx").on(table.category),
+  severityIdx: index("severityIdx").on(table.severity),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
+  resolvedIdx: index("resolvedIdx").on(table.resolved),
+}));
+
+export type SystemLog = typeof systemLogs.$inferSelect;
+export type InsertSystemLog = typeof systemLogs.$inferInsert;
+
+/**
  * Notification Settings - การตั้งค่าการแจ้งเตือนของแต่ละ user
  */
 export const notificationSettings = mysqlTable("notificationSettings", {

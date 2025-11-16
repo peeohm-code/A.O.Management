@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, Moon, Sun, Monitor, Bell, LineChart, Zap } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, LineChart, Zap, Server, Moon, Sun } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
@@ -69,18 +69,17 @@ function ThemeToggleButton() {
 }
 
 const menuItems = [
-  { icon: Zap, label: "Overview", path: "/overview", roles: ["admin", "pm", "qc_inspector", "user"] },
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "pm", "qc_inspector", "user"] },
-  { icon: FolderKanban, label: "Projects", path: "/projects", roles: ["admin", "pm"] },
-  { icon: ListTodo, label: "Tasks", path: "/tasks", roles: ["admin", "pm", "qc_inspector", "user"] },
-  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc", roles: ["admin", "qc_inspector"] },
-  { icon: AlertTriangle, label: "Defects", path: "/defects", roles: ["admin", "qc_inspector", "pm"] },
-  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "qc_inspector"] },
-  { icon: Users, label: "Team & Workload", path: "/team", roles: ["admin", "pm"] },
-  { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "pm"] },
-  { icon: LineChart, label: "Advanced Analytics", path: "/advanced-analytics", roles: ["admin", "pm"] },
-  { icon: Monitor, label: "System Monitoring", path: "/system-monitoring", roles: ["admin"] },
-  { icon: Bell, label: "Alert Settings", path: "/alert-settings", roles: ["admin"] },
+  { icon: Zap, label: "Overview", path: "/overview", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
+  { icon: FolderKanban, label: "Projects", path: "/projects", roles: ["admin", "owner", "project_manager"] },
+  { icon: ListTodo, label: "Tasks", path: "/tasks", roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"] },
+  { icon: ClipboardCheck, label: "QC Inspection", path: "/qc", roles: ["admin", "owner", "qc_inspector"] },
+  { icon: AlertTriangle, label: "Defects", path: "/defects", roles: ["admin", "owner", "qc_inspector", "project_manager"] },
+  { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "owner", "qc_inspector"] },
+  { icon: Users, label: "Team & Workload", path: "/team", roles: ["admin", "owner", "project_manager"] },
+  { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "owner", "project_manager"] },
+  { icon: LineChart, label: "Advanced Analytics", path: "/advanced-analytics", roles: ["admin", "owner", "project_manager"] },
+  { icon: Server, label: "System Overview", path: "/system-overview", roles: ["admin", "owner"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

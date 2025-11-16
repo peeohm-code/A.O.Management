@@ -37,13 +37,12 @@ const MyTasks = lazy(() => import("./pages/MyTasks"));
 const Archive = lazy(() => import("./pages/Archive"));
 const ArchiveRules = lazy(() => import("./pages/ArchiveRules"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
-const SystemMonitor = lazy(() => import("./pages/SystemMonitor"));
-const MemoryMonitoring = lazy(() => import("./pages/MemoryMonitoring"));
 const SystemMonitoring = lazy(() => import("./pages/SystemMonitoring"));
 const InspectionHistory = lazy(() => import("./pages/InspectionHistory"));
 const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
 const AlertSettings = lazy(() => import("./pages/AlertSettings"));
 const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
+const SystemOverview = lazy(() => import("./pages/SystemOverview"));
 
 // Loading component
 const PageLoader = () => (
@@ -69,6 +68,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <NewProject />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/system-overview"}>
+        {() => (
+          <DashboardLayout>
+            <SystemOverview />
           </DashboardLayout>
         )}
       </Route>

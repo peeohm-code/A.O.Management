@@ -260,6 +260,13 @@
       "when": 1763266455539,
       "tag": "0036_sudden_black_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1763281418916,
+      "tag": "0037_narrow_sheva_callister",
+      "breakpoints": true
     }
   ]
 }
