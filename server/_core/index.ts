@@ -64,7 +64,7 @@ async function startServer() {
   });
   
   // File upload endpoint with image compression (with stricter rate limit)
-  app.post("/api/upload", strictRateLimit, upload.single('file'), async (req, res) => {
+  app.post("/api/upload", strictRateLimit, upload.single('file'), async (req, res): Promise<any> => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });

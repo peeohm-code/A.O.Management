@@ -116,7 +116,7 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
+        manualChunks: (id): string | undefined => {
           if (id.includes('node_modules')) {
             // React core
             if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
@@ -168,6 +168,7 @@ export default defineConfig({
             // Everything else
             return 'vendor';
           }
+          return undefined;
         },
       },
     },

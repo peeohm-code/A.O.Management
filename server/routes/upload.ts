@@ -12,17 +12,18 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit (will compress to smaller)
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     // Only allow images
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed'));
     }
+    return;
   },
 });
 
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', upload.single('file'), async (req, res): Promise<any> => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });

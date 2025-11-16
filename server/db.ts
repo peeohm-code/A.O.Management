@@ -60,7 +60,7 @@ export async function getDb() {
       });
       console.log("[Database] Connection pool created with limit: 10");
       // Create drizzle instance
-      _db = drizzle(_pool);
+      _db = drizzle(_pool) as any;
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -174,7 +174,7 @@ export async function getAllUsers() {
   return result;
 }
 
-export async function updateUserRole(userId: number, role: string) {
+export async function updateUserRole(userId: number, role: "owner" | "admin" | "project_manager" | "qc_inspector" | "worker") {
   const db = await getDb();
   if (!db) {
     throw new Error("Database not available");
@@ -290,7 +290,7 @@ export async function createProject(data: {
   if (!db) throw new Error("Database not available");
 
   // Convert date strings to Date objects
-  const values: Partial<typeof projects.$inferInsert> = {
+  const values: typeof projects.$inferInsert = {
     name: data.name,
     createdBy: data.createdBy,
   };
@@ -728,8 +728,8 @@ export async function createTask(data: {
   category?: string;
   status?: string;
   priority?: string;
-  startDate?: string;
-  endDate?: string;
+  startDate?: string | Date;
+  endDate?: string | Date;
   assigneeId?: number;
   createdBy: number;
 }) {
@@ -737,14 +737,19 @@ export async function createTask(data: {
   if (!db) throw new Error("Database not available");
 
   const { createdBy, startDate, endDate, ...taskData } = data;
+  
+  // Convert Date to string if needed
+  const startDateStr = startDate instanceof Date ? startDate.toISOString().split('T')[0] : startDate;
+  const endDateStr = endDate instanceof Date ? endDate.toISOString().split('T')[0] : endDate;
+  
   return await db.insert(tasks).values({
     ...taskData,
     status: (taskData.status as any) || "todo",
     priority: (taskData.priority as any) || "medium",
     progress: 0,
     // Keep dates as strings (YYYY-MM-DD format) - database schema uses varchar(10)
-    startDate: startDate || null,
-    endDate: endDate || null,
+    startDate: startDateStr || null,
+    endDate: endDateStr || null,
   });
 }
 

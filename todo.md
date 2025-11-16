@@ -607,3 +607,53 @@
 - Type guards validation ทำงานถูกต้อง - reject invalid input ได้
 - Integration tests ยืนยันว่า validation ทำงานตามที่ออกแบบ
 - any types ที่เหลืออยู่ส่วนใหญ่เป็น type casting ที่จำเป็นสำหรับ drizzle-orm และ mysql2 compatibility
+
+
+## 🛡️ TypeScript Error Prevention - ป้องกัน TypeScript Errors เด็ดขาด
+
+### Strict TypeScript Configuration
+- [x] ตั้งค่า tsconfig.json ให้เป็น strict mode เต็มรูปแบบ
+- [x] เพิ่ม noImplicitAny, strictNullChecks, strictFunctionTypes
+- [x] เพิ่ม noImplicitReturns, noFallthroughCasesInSwitch
+- [ ] เพิ่ม noUnusedLocals, noUnusedParameters (ปิดไว้ชั่วคราว)
+
+### Type Checking Scripts
+- [x] เพิ่ม script "type-check" ใน package.json
+- [x] เพิ่ม script "type-check:watch" สำหรับ development
+- [x] เพิ่ม script "validate" สำหรับ full validation
+- [ ] เพิ่ม pre-commit hook ตรวจสอบ TypeScript errors
+- [ ] ตั้งค่า CI/CD ให้ fail เมื่อมี TypeScript errors
+
+### ESLint Configuration
+- [x] สร้าง .eslintrc.json พร้อม @typescript-eslint/recommended rules
+- [x] เพิ่ม rule: @typescript-eslint/no-explicit-any (warn)
+- [x] เพิ่ม rule: @typescript-eslint/no-unused-vars (error)
+- [x] เพิ่ม rule: @typescript-eslint/consistent-type-imports (warn)
+
+### Code Quality Tools
+- [ ] ติดตั้ง prettier สำหรับ code formatting
+- [ ] ตั้งค่า prettier integration กับ TypeScript
+- [ ] เพิ่ม husky สำหรับ pre-commit hooks
+- [ ] เพิ่ม lint-staged สำหรับ staged files
+
+### Type Safety Best Practices
+- [x] ใช้ shared types directory (shared/detailedTypes.ts, shared/typeGuards.ts)
+- [x] กำหนด type definitions สำหรับ API responses
+- [x] ใช้ zod schema สำหรับ runtime validation
+- [x] สร้าง type guards สำหรับ type narrowing
+- [x] ใช้ discriminated unions แทน loose types
+
+### Critical Type Fixes
+- [x] แก้ไข drizzle instance type mismatch (server/db.ts)
+- [x] แก้ไข updateUserRole function signature (role type)
+- [x] แก้ไข createTask Date type handling
+- [x] แก้ไข role enum inconsistency (field_engineer → worker)
+- [x] แก้ไข missing return type annotations
+- [x] แก้ไข vite.config.ts manualChunks return type
+
+### Testing & Validation
+- [x] รัน tsc --noEmit เพื่อตรวจสอบ errors ทั้งหมด
+- [x] แก้ไข Critical TypeScript errors ให้เหลือ 0 errors (ไม่นับ unused vars)
+- [x] สร้าง TYPE_SAFETY_GUIDE.md documentation
+- [ ] ทดสอบ build process (pnpm build)
+- [ ] ตรวจสอบ type coverage ด้วย type-coverage tool
