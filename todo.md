@@ -174,6 +174,9 @@
 - [x] Document viewer สำหรับมือถือ - ปรับปรุง UI การดูเอกสารบนมือถือ
 - [ ] Add more chart types in dashboard
 - [ ] Implement advanced filtering in task list
+- [x] นำ Mobile Components ไปใช้งานจริง - ใช้ SwipeableListItem ในหน้า Tasks และ Defects เพื่อให้ swipe-to-complete หรือ swipe-to-delete ได้ และเพิ่ม BottomSheet สำหรับ quick actions ในการแก้ไขสถานะหรือ assign งาน
+- [x] เพิ่ม Export/Print ฟีเจอร์ - เพิ่มปุ่ม export กราฟเป็น PDF หรือ PNG และ print reports สำหรับนำเสนอผู้บริหาร
+- [x] ปรับปรุง Table Layout บน Mobile - แปลง data tables ในหน้า Projects, Tasks, Defects ให้เป็น card view บน mobile เพื่อให้อ่านง่ายและใช้งานสะดวกขึ้น
 
 ### Advanced Features
 
@@ -1161,3 +1164,144 @@
 - [x] ปรับสีข้อความและไอคอนให้เด่นชัดบน Navy Blue background
 - [x] เพิ่ม hover effects และ active states ที่เหมาะสม
 - [x] ทดสอบ contrast ratio เพื่อความสามารถในการอ่าน
+
+## 📊 Dashboard Improvements (Current Sprint)
+
+- [x] เชื่อมต่อ Statistics Cards กับข้อมูลจริงจาก database
+- [x] เพิ่ม tRPC procedures สำหรับดึงสถิติ Total Tasks, Completion Rate, Overdue Tasks, Open Defects
+- [x] ปรับปรุง Dashboard UI สำหรับ desktop ให้ใช้งานง่ายขึ้น
+- [x] ปรับ layout และ spacing ให้เหมาะสมกับหน้าจอขนาดใหญ่
+- [x] ปรับปรุง navigation และ information hierarchy
+
+## 🖥️ Desktop UI Improvements (Nov 16, 2025)
+
+- [x] ปรับ DashboardLayout และ sidebar ให้แสดงเมนูทั้งหมดชัดเจน (ลดจาก 10 เป็น 8 เมนู, ลด sidebar width)
+- [x] ทำให้ Dashboard เป็นหน้าหลัก (route "/") แทนที่จะเป็นเมนูแยก
+- [x] ลด spacing และปรับ grid layout ให้กระชับขึ้น (ลด gap จาก 6 เป็น 3-4, ลด padding)
+- [x] เพิ่ม max-width container ไม่ให้เนื้อหาเต็มจอ (max-w-6xl)
+- [x] ปรับปรุงหน้าอื่นๆ ให้สอดคล้องกับ layout ใหม่ (Projects, Tasks, Team, Reports, QC, Defects, Checklist Templates)
+
+## 🐛 Bug Fixes - Dashboard Layout (Nov 16, 2025)
+
+- [x] แก้ไข header ซ้ำซ้อน (มี Construction Management ปรากฏ 2 ครั้ง) - ลบ DashboardLayout wrapper ออกจาก Dashboard.tsx
+- [x] แก้ไขปัญหาหน้าไม่เต็มหน้าจอ - ปรับ layout ให้ใช้พื้นที่เต็ม
+- [x] แก้ไข JSX structure ที่ไม่ถูกต้อง - เขียนโครงสร้างใหม่ทั้งหมด
+
+## 🔧 UI/UX Improvements - Nov 16, 2025
+
+### Navigation Menu Fix
+
+- [x] แก้ไขเมนูด้านซ้ายให้แสดงครบทุกเมนู (ปัจจุบันแสดงเพียง Dashboard)
+- [x] ตรวจสอบ DashboardLayout navigation items
+- [x] ตรวจสอบ role-based navigation logic
+- [x] แก้ไข conditional rendering ของเมนู
+
+### Dashboard Redesign
+
+- [x] ปรับปรุงการจัดวาง Dashboard ให้อ่านง่ายขึ้น
+- [x] แบ่งข้อมูลเป็นส่วนๆ ชัดเจน (Overview, Tasks, QC, Team)
+- [x] ลดความหนาแน่นของข้อมูล เพิ่มช่องว่าง
+- [x] ปรับปรุง Card layout ให้สบายตา
+- [x] เพิ่ม visual hierarchy ที่ชัดเจน
+- [x] ปรับปรุง responsive design สำหรับหน้าจอขนาดต่างๆ
+
+## 📊 Charts & Data Visualization (Nov 16, 2025)
+
+### Charts Library Setup
+
+- [x] ติดตั้ง recharts library สำหรับสร้างกราฟ
+- [x] ติดตั้ง date-fns สำหรับจัดการวันที่ในกราฟ
+
+### Progress Charts
+
+- [x] สร้าง ProgressChart component แสดงความคืบหน้าโครงการแบบ bar chart
+- [x] สร้าง ProjectProgressOverview แสดงสถิติความคืบหน้าทุกโครงการ
+- [x] เพิ่ม tRPC procedure สำหรับดึงข้อมูล progress ของโครงการ
+
+### Timeline Visualization
+
+- [x] สร้าง TimelineChart component แสดง project timeline แบบ gantt-style
+- [ ] สร้าง MilestoneTimeline แสดง milestone และ key dates
+- [x] เพิ่ม tRPC procedure สำหรับดึงข้อมูล timeline
+
+### Defect Trends Chart
+
+- [x] สร้าง DefectTrendsChart component แสดงสถิติข้อบกพร่องตามเวลา
+- [x] แสดงกราฟ line chart สำหรับ defects opened vs resolved
+- [x] เพิ่ม filter ตามช่วงเวลา (7 days, 30 days, 90 days)
+- [x] เพิ่ม tRPC procedure สำหรับดึงข้อมูล defect trends
+
+### Dashboard Analytics Integration
+
+- [x] เพิ่ม Charts section ใน Dashboard page
+- [x] รวมกราฟทั้งหมดในหน้า Dashboard
+- [ ] เพิ่ม toggle สำหรับแสดง/ซ่อนกราฟแต่ละประเภท
+- [ ] ปรับปรุง responsive design สำหรับ charts บน mobile
+
+## 📱 Mobile Experience Enhancement (Nov 16, 2025)
+
+### Swipe Gestures Library
+
+- [x] ติดตั้ง react-swipeable library
+- [x] ติดตั้ง framer-motion สำหรับ animations
+
+### Swipe-to-Action Features
+
+- [x] เพิ่ม swipe-to-delete สำหรับ inspection items
+- [x] เพิ่ม swipe-to-complete สำหรับ tasks ใน task list
+- [x] เพิ่ม swipe-to-archive สำหรับ projects
+- [x] เพิ่ม visual feedback เมื่อ swipe (color change, icons)
+- [ ] เพิ่ม undo action หลัง swipe-to-delete
+
+### Bottom Sheet Component
+
+- [x] สร้าง BottomSheet component สำหรับ quick actions
+- [x] เพิ่ม BottomSheet สำหรับ task quick actions (assign, status change, add comment)
+- [x] เพิ่ม BottomSheet สำหรับ defect quick actions (assign, update status)
+- [x] เพิ่ม drag-to-dismiss gesture สำหรับ bottom sheet
+- [x] เพิ่ม backdrop และ animations
+
+### Touch Optimization
+
+- [x] ตรวจสอบและปรับ touch targets ให้มีขนาดอย่างน้อย 44x44px
+- [x] เพิ่ม spacing ระหว่าง clickable elements
+- [x] ปรับปรุง button sizes บน mobile
+- [x] เพิ่ม touch feedback (ripple effect, scale animation)
+- [ ] ปรับปรุง form inputs สำหรับ mobile (larger inputs, better spacing)
+
+### Pull-to-Refresh
+
+- [x] เพิ่ม pull-to-refresh สำหรับ task list
+- [x] เพิ่ม pull-to-refresh สำหรับ defect list
+- [x] เพิ่ม pull-to-refresh สำหรับ notification list
+- [x] เพิ่ม loading animation สำหรับ pull-to-refresh
+
+### Haptic Feedback
+
+- [x] เพิ่ม haptic feedback เมื่อ swipe action สำเร็จ
+- [x] เพิ่ม haptic feedback เมื่อกด button
+- [x] เพิ่ม haptic feedback เมื่อ toggle switch
+- [x] ใช้ Vibration API สำหรับ haptic feedback
+
+### Mobile Responsive Improvements
+
+- [x] ปรับปรุง responsive design สำหรับ charts บน mobile
+- [ ] ปรับปรุง table layout บน mobile (horizontal scroll หรือ card view)
+- [ ] ปรับปรุง modal และ dialog sizes บน mobile
+- [ ] ทดสอบ UX บนหน้าจอขนาดต่างๆ (small, medium, large mobile)
+- [x] เพิ่ม Batch Operations สำหรับ Tasks - เลือกหลายรายการพร้อมกัน และทำ bulk assign, bulk status change, bulk delete
+- [x] เพิ่ม Batch Operations สำหรับ Defects - เลือกหลายรายการพร้อมกัน และทำ bulk assign, bulk status change, bulk delete
+- [x] สร้าง Bulk Selection UI component - checkbox selection และ select all
+- [x] สร้าง Bulk Actions Bar - แสดง action bar เมื่อมีรายการที่เลือก
+- [x] เพิ่ม Backend Mutations สำหรับ bulk operations (bulkUpdateTasks, bulkDeleteTasks, bulkUpdateDefects, bulkDeleteDefects)
+- [x] แก้ไขปัญหาเมนู sidebar ที่แสดงไม่ครบทุกเมนูบน desktop (เพิ่ม owner role ให้เห็นเมนูทั้งหมด)
+
+## TypeScript Error Fixes (Nov 17, 2025)
+
+- [x] แก้ไข implicit any types ในไฟล์ต่างๆ (TS7006)
+- [x] แก้ไข duplicate dashboard router
+- [x] แก้ไข metadata property error
+- [x] แก้ไข ButtonProps import error
+- [x] แก้ไข defectId และ assigneeId errors
+- [x] แก้ไข relatedDefectId error
+- [x] ทดสอบและยืนยันว่าแก้ไขครบถ้วนแล้ว

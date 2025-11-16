@@ -2,19 +2,42 @@ import { z } from "zod";
 import { canEditDefect, canDeleteDefect } from "@shared/permissions";
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
-import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
+import {
+  validateTaskCreateInput,
+  validateTaskUpdateInput,
+  validateInspectionSubmission,
+  validateDefectCreateInput,
+  validateDefectUpdateInput,
+} from "@shared/validationUtils";
 import { systemRouter } from "./_core/systemRouter";
-import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "./_core/trpc";
+import {
+  protectedProcedure,
+  publicProcedure,
+  router,
+  roleBasedProcedure,
+} from "./_core/trpc";
 import * as db from "./db";
-import { generateProjectExport, generateProjectReport } from "./downloadProject";
+import {
+  generateProjectExport,
+  generateProjectReport,
+} from "./downloadProject";
 import { generateArchiveExcel } from "./excelExport";
 import { storagePut } from "./storage";
-import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "./taskStatusHelper";
+import {
+  getTaskDisplayStatus,
+  getTaskDisplayStatusLabel,
+  getTaskDisplayStatusColor,
+} from "./taskStatusHelper";
 import { notifyOwner } from "./_core/notification";
 import { checkArchiveWarnings } from "./archiveNotifications";
 import { emitNotification } from "./_core/socket";
 import { createNotification } from "./notificationService";
-import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
+import {
+  projectSchema,
+  taskSchema,
+  defectSchema,
+  inspectionSchema,
+} from "@shared/validations";
 import { healthRouter } from "./monitoring/healthRouter";
 import { optimizationRouter } from "./optimization/optimizationRouter";
 import { cacheRouter } from "./cache/cacheRouter";
@@ -43,18 +66,20 @@ const projectRouter = router({
           taskCount: stats?.totalTasks || 0,
           completedTasks: stats?.completedTasks || 0,
           progressPercentage: stats?.progressPercentage || 0,
-          projectStatus: stats?.projectStatus || 'on_track',
+          projectStatus: stats?.projectStatus || "on_track",
         };
       })
     );
     return projectsWithStats;
   }),
 
-  get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-    return await db.getProjectById(input.id);
-  }),
+  get: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getProjectById(input.id);
+    }),
 
-  create: roleBasedProcedure('projects', 'create')
+  create: roleBasedProcedure("projects", "create")
     .input(projectSchema)
     .mutation(async ({ input, ctx }) => {
       const result = await db.createProject({
@@ -63,14 +88,14 @@ const projectRouter = router({
       });
 
       const projectId = result.id;
-      
+
       if (!projectId || isNaN(projectId)) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
+          code: "INTERNAL_SERVER_ERROR",
           message: `Failed to create project: invalid project ID (${projectId})`,
         });
       }
-      
+
       await db.logActivity({
         userId: ctx.user!.id,
         projectId,
@@ -81,7 +106,7 @@ const projectRouter = router({
       return { success: true, id: projectId };
     }),
 
-  update: roleBasedProcedure('projects', 'edit')
+  update: roleBasedProcedure("projects", "edit")
     .input(
       z.object({
         id: z.number(),
@@ -94,7 +119,16 @@ const projectRouter = router({
         endDate: z.string().optional(),
         ownerName: z.string().optional(),
         color: z.string().optional(),
-        status: z.enum(["draft", "planning", "active", "on_hold", "completed", "cancelled"]).optional(),
+        status: z
+          .enum([
+            "draft",
+            "planning",
+            "active",
+            "on_hold",
+            "completed",
+            "cancelled",
+          ])
+          .optional(),
         completionPercentage: z.number().optional(),
       })
     )
@@ -120,7 +154,7 @@ const projectRouter = router({
           completed: "เสร็จสิ้น",
           cancelled: "ยกเลิก",
         };
-        
+
         // Notify owner about status change
         const notification = {
           id: `project-status-${id}-${Date.now()}`,
@@ -131,7 +165,7 @@ const projectRouter = router({
           timestamp: new Date(),
           read: false,
         };
-        
+
         // Notify all project members
         if (members && members.length > 0) {
           members.forEach((member: any) => {
@@ -196,10 +230,11 @@ const projectRouter = router({
 
   exportArchiveExcel: protectedProcedure.query(async ({ ctx }) => {
     const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
-    
+
     const exportData = archivedProjects.map((project: any) => {
       const archivedYears = project.archivedAt
-        ? (Date.now() - new Date(project.archivedAt).getTime()) / (1000 * 60 * 60 * 24 * 365)
+        ? (Date.now() - new Date(project.archivedAt).getTime()) /
+          (1000 * 60 * 60 * 24 * 365)
         : 0;
 
       return {
@@ -217,11 +252,11 @@ const projectRouter = router({
     });
 
     const excelBuffer = generateArchiveExcel(exportData);
-    const base64 = excelBuffer.toString('base64');
-    
+    const base64 = excelBuffer.toString("base64");
+
     return {
       data: base64,
-      fileName: `archive_projects_${new Date().toISOString().split('T')[0]}.xlsx`,
+      fileName: `archive_projects_${new Date().toISOString().split("T")[0]}.xlsx`,
     };
   }),
 
@@ -231,7 +266,7 @@ const projectRouter = router({
       return await db.getArchiveHistory(input.id);
     }),
 
-  addMember: roleBasedProcedure('projects', 'assignMembers')
+  addMember: roleBasedProcedure("projects", "assignMembers")
     .input(
       z.object({
         projectId: z.number(),
@@ -249,7 +284,7 @@ const projectRouter = router({
       return await db.validateProjectCompleteness(input.id);
     }),
 
-  openProject: roleBasedProcedure('projects', 'edit')
+  openProject: roleBasedProcedure("projects", "edit")
     .input(
       z.object({
         id: z.number(),
@@ -272,21 +307,26 @@ const projectRouter = router({
   exportExcel: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const { exportProjectToExcel, getExportFilename } = await import('./exportExcel');
+      const { exportProjectToExcel, getExportFilename } = await import(
+        "./exportExcel"
+      );
       const project = await db.getProjectById(input.id);
       if (!project) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const buffer = await exportProjectToExcel(input.id);
-      const base64 = buffer.toString('base64');
-      const filename = getExportFilename(project.name, 'xlsx');
+      const base64 = buffer.toString("base64");
+      const filename = getExportFilename(project.name, "xlsx");
 
       await db.logActivity({
         userId: ctx.user!.id,
         projectId: input.id,
         action: "project_exported",
-        details: JSON.stringify({ format: 'excel', filename }),
+        details: JSON.stringify({ format: "excel", filename }),
       });
 
       return { data: base64, filename };
@@ -295,28 +335,31 @@ const projectRouter = router({
   exportPDF: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const { exportProjectToPDF } = await import('./exportPDF');
-      const { getExportFilename } = await import('./exportExcel');
+      const { exportProjectToPDF } = await import("./exportPDF");
+      const { getExportFilename } = await import("./exportExcel");
       const project = await db.getProjectById(input.id);
       if (!project) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const buffer = await exportProjectToPDF(input.id);
-      const base64 = buffer.toString('base64');
-      const filename = getExportFilename(project.name, 'pdf');
+      const base64 = buffer.toString("base64");
+      const filename = getExportFilename(project.name, "pdf");
 
       await db.logActivity({
         userId: ctx.user!.id,
         projectId: input.id,
         action: "project_exported",
-        details: JSON.stringify({ format: 'pdf', filename }),
+        details: JSON.stringify({ format: "pdf", filename }),
       });
 
       return { data: base64, filename };
     }),
 
-  delete: roleBasedProcedure('projects', 'delete')
+  delete: roleBasedProcedure("projects", "delete")
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       await db.deleteProject(input.id);
@@ -352,7 +395,7 @@ const projectRouter = router({
         } catch (error) {
           results.failed.push({
             id,
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
           });
         }
       }
@@ -372,7 +415,10 @@ const projectRouter = router({
       // Simplified version - just get basic project data
       const project = await db.getProjectById(input.id);
       if (!project) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       // Create simple export data
@@ -393,13 +439,14 @@ const projectRouter = router({
       };
 
       // Create simple report
-      const report = `# รายงานโครงการ: ${project.name}\n\n` +
-        `**รหัส:** ${project.code || 'N/A'}\n` +
-        `**สถานที่:** ${project.location || 'N/A'}\n` +
+      const report =
+        `# รายงานโครงการ: ${project.name}\n\n` +
+        `**รหัส:** ${project.code || "N/A"}\n` +
+        `**สถานที่:** ${project.location || "N/A"}\n` +
         `**สถานะ:** ${project.status}\n` +
-        `**วันที่ Archive:** ${project.archivedAt ? new Date(project.archivedAt).toLocaleDateString('th-TH') : 'N/A'}\n` +
-        `**เหตุผล:** ${project.archivedReason || 'N/A'}\n`;
-      
+        `**วันที่ Archive:** ${project.archivedAt ? new Date(project.archivedAt).toLocaleDateString("th-TH") : "N/A"}\n` +
+        `**เหตุผล:** ${project.archivedReason || "N/A"}\n`;
+
       return {
         exportData,
         report,
@@ -437,9 +484,9 @@ const taskRouter = router({
         // Return all tasks for user if no projectId specified
         tasks = await db.getTasksByAssignee(ctx.user!.id);
       }
-      
+
       // Add computed display status to each task
-      return tasks.map(task => {
+      return tasks.map((task: any) => {
         const displayStatus = getTaskDisplayStatus(task);
         return {
           ...task,
@@ -450,32 +497,34 @@ const taskRouter = router({
       });
     }),
 
-  get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
-    const task = await db.getTaskById(input.id);
-    if (!task) return null;
-    
-    // Add computed display status
-    const displayStatus = getTaskDisplayStatus(task);
-    return {
-      ...task,
-      displayStatus,
-      displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
-      displayStatusColor: getTaskDisplayStatusColor(displayStatus),
-    };
-  }),
+  get: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const task = await db.getTaskById(input.id);
+      if (!task) return null;
+
+      // Add computed display status
+      const displayStatus = getTaskDisplayStatus(task);
+      return {
+        ...task,
+        displayStatus,
+        displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
+        displayStatusColor: getTaskDisplayStatusColor(displayStatus),
+      };
+    }),
 
   myTasks: protectedProcedure.query(async ({ ctx }) => {
     // Get all projects where user is a member
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
     const projectIds = userProjects.map((p: any) => p.projects.id);
-    
+
     // Get all tasks from those projects
     const allTasks: any[] = [];
     for (const projectId of projectIds) {
       const projectTasks = await db.getTasksByProject(projectId);
       allTasks.push(...projectTasks);
     }
-    
+
     // Add computed display status to each task
     return allTasks.map(task => {
       const displayStatus = getTaskDisplayStatus(task);
@@ -488,7 +537,7 @@ const taskRouter = router({
     });
   }),
 
-  create: roleBasedProcedure('tasks', 'create')
+  create: roleBasedProcedure("tasks", "create")
     .input(taskSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -497,51 +546,51 @@ const taskRouter = router({
           ...input,
           projectId: input.projectId,
         });
-        
+
         if (!validation.valid) {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: validation.errors?.join(', ') || 'Invalid input',
+            code: "BAD_REQUEST",
+            message: validation.errors?.join(", ") || "Invalid input",
           });
         }
-        
+
         const result = await db.createTask({
           ...validation.data!,
           createdBy: ctx.user!.id,
         });
 
-      const taskId = (result as any).insertId as number;
+        const taskId = (result as any).insertId as number;
 
-      await db.logActivity({
-        userId: ctx.user!.id,
-        projectId: input.projectId,
-        taskId,
-        action: "task_created",
-        details: JSON.stringify({ name: input.name }),
-      });
-
-      // Create notification for assignee using notification service
-      if (input.assigneeId) {
-        await createNotification({
-          userId: input.assigneeId,
-          type: "task_assigned",
-          title: "มอบหมายงานใหม่",
-          content: `คุณได้รับมอบหมายงาน: "${input.name}"`,
-          priority: "normal",
-          relatedTaskId: taskId,
-          relatedProjectId: input.projectId,
-          sendEmail: true, // Send email for task assignments
+        await db.logActivity({
+          userId: ctx.user!.id,
+          projectId: input.projectId,
+          taskId,
+          action: "task_created",
+          details: JSON.stringify({ name: input.name }),
         });
-      }
 
-      return { success: true, id: taskId };
+        // Create notification for assignee using notification service
+        if (input.assigneeId) {
+          await createNotification({
+            userId: input.assigneeId,
+            type: "task_assigned",
+            title: "มอบหมายงานใหม่",
+            content: `คุณได้รับมอบหมายงาน: "${input.name}"`,
+            priority: "normal",
+            relatedTaskId: taskId,
+            relatedProjectId: input.projectId,
+            sendEmail: true, // Send email for task assignments
+          });
+        }
+
+        return { success: true, id: taskId };
       } catch (error) {
-        console.error('[ERROR] Task create failed:', error);
+        console.error("[ERROR] Task create failed:", error);
         throw error;
       }
     }),
 
-  update: roleBasedProcedure('tasks', 'edit')
+  update: roleBasedProcedure("tasks", "edit")
     .input(
       z.object({
         id: z.number(),
@@ -590,7 +639,9 @@ const taskRouter = router({
 
       // Send real-time notifications
       if (updateData.status) {
-        const displayStatus = getTaskDisplayStatusLabel(updateData.status as any);
+        const displayStatus = getTaskDisplayStatusLabel(
+          updateData.status as any
+        );
         const notification = {
           id: `task-status-${id}-${Date.now()}`,
           type: "task_status" as const,
@@ -600,7 +651,7 @@ const taskRouter = router({
           timestamp: new Date(),
           read: false,
         };
-        
+
         // Notify task followers
         const followers = await db.getTaskFollowers(id);
         followers.forEach((follower: any) => {
@@ -609,7 +660,7 @@ const taskRouter = router({
           }
         });
       }
-      
+
       // Send notification if task is assigned to someone
       if (updateData.assigneeId && updateData.assigneeId !== task.assigneeId) {
         await createNotification({
@@ -625,16 +676,19 @@ const taskRouter = router({
       }
 
       // Send notification if progress is updated significantly (25%, 50%, 75%, 100%)
-      if (updateData.progress !== undefined && task.progress !== updateData.progress) {
+      if (
+        updateData.progress !== undefined &&
+        task.progress !== updateData.progress
+      ) {
         const milestones = [25, 50, 75, 100];
         const oldProgress = task.progress || 0;
         const newProgress = updateData.progress;
-        
+
         // Check if we crossed a milestone
         const crossedMilestone = milestones.find(
-          (milestone) => oldProgress < milestone && newProgress >= milestone
+          milestone => oldProgress < milestone && newProgress >= milestone
         );
-        
+
         if (crossedMilestone && task.assigneeId) {
           // Notify task followers about progress milestone
           const followers = await db.getTaskFollowers(id);
@@ -663,7 +717,9 @@ const taskRouter = router({
       z.object({
         taskId: z.number(),
         dependsOnTaskId: z.number(),
-        type: z.enum(["finish_to_start", "start_to_start", "finish_to_finish"]).optional(),
+        type: z
+          .enum(["finish_to_start", "start_to_start", "finish_to_finish"])
+          .optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -698,16 +754,18 @@ const taskRouter = router({
     .query(async ({ input }) => {
       const { calculateCriticalPath } = await import("./criticalPath");
       const tasks = await db.getTasksByProject(input.projectId);
-      const dependencies = await db.getAllTaskDependenciesForProject(input.projectId);
-      
+      const dependencies = await db.getAllTaskDependenciesForProject(
+        input.projectId
+      );
+
       // Transform tasks to include dependencies
-      const tasksWithDeps = tasks.map(task => ({
+      const tasksWithDeps = tasks.map((task: any) => ({
         id: task.id,
         startDate: task.startDate,
         endDate: task.endDate,
-        dependencies: dependencies.filter(d => d.taskId === task.id),
+        dependencies: dependencies.filter((d: any) => d.taskId === task.id),
       }));
-      
+
       return calculateCriticalPath(tasksWithDeps as any);
     }),
 
@@ -730,7 +788,7 @@ const taskRouter = router({
       return { success: true };
     }),
 
-  bulkUpdateStatus: roleBasedProcedure('tasks', 'edit')
+  bulkUpdateStatus: roleBasedProcedure("tasks", "edit")
     .input(
       z.object({
         taskIds: z.array(z.number()).min(1),
@@ -771,7 +829,7 @@ const taskRouter = router({
       return { success: true, updated: successCount, total: taskIds.length };
     }),
 
-  bulkAssign: roleBasedProcedure('tasks', 'edit')
+  bulkAssign: roleBasedProcedure("tasks", "edit")
     .input(
       z.object({
         taskIds: z.array(z.number()).min(1),
@@ -814,7 +872,7 @@ const taskRouter = router({
       return { success: true, assigned: successCount, total: taskIds.length };
     }),
 
-  bulkDelete: roleBasedProcedure('tasks', 'delete')
+  bulkDelete: roleBasedProcedure("tasks", "delete")
     .input(
       z.object({
         taskIds: z.array(z.number()).min(1),
@@ -825,7 +883,7 @@ const taskRouter = router({
       return result;
     }),
 
-  updatePriority: roleBasedProcedure('tasks', 'edit')
+  updatePriority: roleBasedProcedure("tasks", "edit")
     .input(
       z.object({
         id: z.number(),
@@ -833,10 +891,14 @@ const taskRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await db.updateTaskPriority(input.id, input.priority, ctx.user!.id);
+      return await db.updateTaskPriority(
+        input.id,
+        input.priority,
+        ctx.user!.id
+      );
     }),
 
-  updateCategory: roleBasedProcedure('tasks', 'edit')
+  updateCategory: roleBasedProcedure("tasks", "edit")
     .input(
       z.object({
         id: z.number(),
@@ -844,7 +906,11 @@ const taskRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await db.updateTaskCategory(input.id, input.category, ctx.user!.id);
+      return await db.updateTaskCategory(
+        input.id,
+        input.category,
+        ctx.user!.id
+      );
     }),
 
   getBlockingDependencies: protectedProcedure
@@ -871,14 +937,14 @@ const taskRouter = router({
     .query(async ({ input, ctx }) => {
       // Get all tasks based on filters
       let tasks;
-      
+
       if (input.projectId) {
         tasks = await db.getTasksByProject(input.projectId);
       } else {
         // Get all tasks from user's projects
         const userProjects = await db.getProjectsByUser(ctx.user!.id);
         const projectIds = userProjects.map((p: any) => p.projects.id);
-        
+
         const allTasks: any[] = [];
         for (const projectId of projectIds) {
           const projectTasks = await db.getTasksByProject(projectId);
@@ -886,29 +952,35 @@ const taskRouter = router({
         }
         tasks = allTasks;
       }
-      
+
       // Apply filters
       let filteredTasks = tasks;
-      
+
       // Filter by search query (name or description)
-      if (input.query && input.query.trim() !== '') {
+      if (input.query && input.query.trim() !== "") {
         const queryLower = input.query.toLowerCase();
-        filteredTasks = filteredTasks.filter(task => 
-          task.name.toLowerCase().includes(queryLower) ||
-          (task.description && task.description.toLowerCase().includes(queryLower))
+        filteredTasks = filteredTasks.filter(
+          (task: any) =>
+            task.name.toLowerCase().includes(queryLower) ||
+            (task.description &&
+              task.description.toLowerCase().includes(queryLower))
         );
       }
-      
+
       // Filter by status
-      if (input.status && input.status !== 'all') {
-        filteredTasks = filteredTasks.filter(task => task.status === input.status);
+      if (input.status && input.status !== "all") {
+        filteredTasks = filteredTasks.filter(
+          (task: any) => task.status === input.status
+        );
       }
-      
+
       // Filter by assignee
       if (input.assigneeId) {
-        filteredTasks = filteredTasks.filter((task: any) => task.assigneeId === input.assigneeId);
+        filteredTasks = filteredTasks.filter(
+          (task: any) => task.assigneeId === input.assigneeId
+        );
       }
-      
+
       // Add computed display status to each task
       return filteredTasks.map((task: any) => {
         const displayStatus = getTaskDisplayStatus(task);
@@ -922,7 +994,6 @@ const taskRouter = router({
     }),
 });
 
-
 /**
  * Checklist Router - QC Management
  */
@@ -931,7 +1002,8 @@ const checklistRouter = router({
     // Return all templates grouped by stage
     const preExecution = await db.getChecklistTemplatesByStage("pre_execution");
     const inProgress = await db.getChecklistTemplatesByStage("in_progress");
-    const postExecution = await db.getChecklistTemplatesByStage("post_execution");
+    const postExecution =
+      await db.getChecklistTemplatesByStage("post_execution");
 
     return { preExecution, inProgress, postExecution };
   }),
@@ -958,7 +1030,7 @@ const checklistRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         // Create checklist template
-        
+
         const templateResult = await db.createChecklistTemplate({
           name: input.name,
           category: input.category,
@@ -986,10 +1058,13 @@ const checklistRouter = router({
 
         return { success: true };
       } catch (error) {
-        console.error('[createTemplate] Error:', error);
+        console.error("[createTemplate] Error:", error);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : 'Failed to create template',
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to create template",
         });
       }
     }),
@@ -1000,7 +1075,9 @@ const checklistRouter = router({
         id: z.number(),
         name: z.string().min(1).optional(),
         category: z.string().optional(),
-        stage: z.enum(["pre_execution", "in_progress", "post_execution"]).optional(),
+        stage: z
+          .enum(["pre_execution", "in_progress", "post_execution"])
+          .optional(),
         description: z.string().optional(),
         allowGeneralComments: z.boolean().optional(),
         allowPhotos: z.boolean().optional(),
@@ -1050,11 +1127,13 @@ const checklistRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         // Check if template is in use (has associated task checklists)
-        const checklistsUsingTemplate = await db.getTaskChecklistsByTemplateId(input.id);
-        
+        const checklistsUsingTemplate = await db.getTaskChecklistsByTemplateId(
+          input.id
+        );
+
         if (checklistsUsingTemplate && checklistsUsingTemplate.length > 0) {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
+            code: "BAD_REQUEST",
             message: `Cannot delete template. It is currently used in ${checklistsUsingTemplate.length} task checklist(s). Please remove the template from all tasks first.`,
           });
         }
@@ -1071,10 +1150,13 @@ const checklistRouter = router({
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        console.error('[deleteTemplate] Error:', error);
+        console.error("[deleteTemplate] Error:", error);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : 'Failed to delete template',
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to delete template",
         });
       }
     }),
@@ -1098,7 +1180,9 @@ const checklistRouter = router({
   getTaskChecklistsByTemplateId: protectedProcedure
     .input(z.object({ templateId: z.number() }))
     .query(async ({ input }) => {
-      const checklists = await db.getTaskChecklistsByTemplateId(input.templateId);
+      const checklists = await db.getTaskChecklistsByTemplateId(
+        input.templateId
+      );
       // Get task details for each checklist
       const result: any[] = [];
       for (const checklist of checklists) {
@@ -1181,20 +1265,30 @@ const checklistRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["not_started", "pending_inspection", "in_progress", "completed", "failed"]),
+        status: z.enum([
+          "not_started",
+          "pending_inspection",
+          "in_progress",
+          "completed",
+          "failed",
+        ]),
         generalComments: z.string().optional(),
         photoUrls: z.string().optional(),
         signature: z.string().optional(),
-        itemResults: z.array(z.object({
-          templateItemId: z.number(),
-          result: z.enum(["pass", "fail", "na"]),
-        })).optional(),
+        itemResults: z
+          .array(
+            z.object({
+              templateItemId: z.number(),
+              result: z.enum(["pass", "fail", "na"]),
+            })
+          )
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const checklist = await db.getTaskChecklistById(input.id);
       if (!checklist) throw new Error("Checklist not found");
-      
+
       // Validate inspection submission if itemResults provided
       if (input.itemResults && input.itemResults.length > 0) {
         const validation = validateInspectionSubmission({
@@ -1208,11 +1302,11 @@ const checklistRouter = router({
           signatureUrl: input.signature,
           photoUrls: input.photoUrls ? JSON.parse(input.photoUrls) : undefined,
         });
-        
+
         if (!validation.valid) {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: validation.errors?.join(', ') || 'Invalid inspection data',
+            code: "BAD_REQUEST",
+            message: validation.errors?.join(", ") || "Invalid inspection data",
           });
         }
       }
@@ -1242,11 +1336,16 @@ const checklistRouter = router({
         userId: ctx.user!.id,
         taskId: checklist.taskId,
         action: "checklist_status_updated",
-        details: JSON.stringify({ checklistId: input.id, status: input.status }),
+        details: JSON.stringify({
+          checklistId: input.id,
+          status: input.status,
+        }),
       });
 
       // Auto-update task progress based on checklist completion
-      const { calculateAndUpdateTaskProgress } = await import("./taskProgressHelper");
+      const { calculateAndUpdateTaskProgress } = await import(
+        "./taskProgressHelper"
+      );
       await calculateAndUpdateTaskProgress(checklist.taskId);
 
       return { success: true };
@@ -1338,7 +1437,9 @@ const checklistRouter = router({
       if (results.length === 0) return [];
 
       // Get template items for reference
-      const templateItems = await db.getChecklistTemplateItems(checklist.templateId);
+      const templateItems = await db.getChecklistTemplateItems(
+        checklist.templateId
+      );
 
       // Group results by inspection (assuming one inspection per checklist for now)
       // In the future, we might want to track multiple inspections with timestamps
@@ -1351,10 +1452,12 @@ const checklistRouter = router({
         generalComments: checklist.generalComments,
         photoUrls: checklist.photoUrls ? JSON.parse(checklist.photoUrls) : [],
         items: results.map((r: any) => {
-          const templateItem = templateItems.find((ti: any) => ti.id === r.templateItemId);
+          const templateItem = templateItems.find(
+            (ti: any) => ti.id === r.templateItemId
+          );
           return {
             id: r.id,
-            itemText: templateItem?.itemText || 'Unknown item',
+            itemText: templateItem?.itemText || "Unknown item",
             result: r.result,
             photoUrls: r.photoUrls ? JSON.parse(r.photoUrls) : [],
           };
@@ -1369,7 +1472,7 @@ const checklistRouter = router({
     .input(z.object({ checklistId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const result = await db.createReinspection(input.checklistId);
-      
+
       // Send notification to assignee
       const checklist = await db.getTaskChecklistById(input.checklistId);
       if (checklist) {
@@ -1385,7 +1488,7 @@ const checklistRouter = router({
           });
         }
       }
-      
+
       return result;
     }),
 
@@ -1428,7 +1531,9 @@ const checklistRouter = router({
   generateInspectionPDF: protectedProcedure
     .input(z.object({ inspectionId: z.number() }))
     .query(async ({ input }) => {
-      const { generateInspectionPDF } = await import("./inspectionPdfGenerator");
+      const { generateInspectionPDF } = await import(
+        "./inspectionPdfGenerator"
+      );
       const htmlContent = await generateInspectionPDF(input.inspectionId);
       return { html: htmlContent };
     }),
@@ -1438,7 +1543,7 @@ const checklistRouter = router({
     const checklists = await db.getAllTaskChecklists();
     const tasks = await db.getAllTasks();
     const templates = await db.getAllChecklistTemplates();
-    
+
     // Get all template items for all templates
     const allTemplateItems = await Promise.all(
       templates.map(async (template: any) => ({
@@ -1446,13 +1551,17 @@ const checklistRouter = router({
         items: await db.getChecklistTemplateItems(template.id),
       }))
     );
-    
+
     // Map checklists with task and template info
     return checklists.map((checklist: any) => {
       const task = tasks.find((t: any) => t.id === checklist.taskId);
-      const template = templates.find((t: any) => t.id === checklist.templateId);
-      const templateItems = allTemplateItems.find((t: any) => t.templateId === checklist.templateId)?.items || [];
-      
+      const template = templates.find(
+        (t: any) => t.id === checklist.templateId
+      );
+      const templateItems =
+        allTemplateItems.find((t: any) => t.templateId === checklist.templateId)
+          ?.items || [];
+
       return {
         ...checklist,
         name: template?.name || "Unknown Template",
@@ -1494,11 +1603,26 @@ const defectRouter = router({
 
   // Get defects by status
   listByStatus: protectedProcedure
-    .input(z.object({ 
-      status: z.enum(["reported", "rca_pending", "action_plan", "assigned", "in_progress", "implemented", "verification", "effectiveness_check", "closed", "rejected", "analysis", "resolved"]) 
-    }))
+    .input(
+      z.object({
+        status: z.enum([
+          "reported",
+          "rca_pending",
+          "action_plan",
+          "assigned",
+          "in_progress",
+          "implemented",
+          "verification",
+          "effectiveness_check",
+          "closed",
+          "rejected",
+          "analysis",
+          "resolved",
+        ]),
+      })
+    )
     .query(async ({ input }) => {
-    // @ts-ignore
+      // @ts-ignore
       return await db.getDefectsByStatus(input.status);
     }),
 
@@ -1520,7 +1644,7 @@ const defectRouter = router({
       const defects = await db.getAllDefects();
       return Array.isArray(defects) ? defects : [];
     } catch (error) {
-      console.error('[defectRouter.allDefects] Error:', error);
+      console.error("[defectRouter.allDefects] Error:", error);
       return [];
     }
   }),
@@ -1533,7 +1657,7 @@ const defectRouter = router({
     }),
 
   // Create new CAR/PAR/NCR
-  create: roleBasedProcedure('defects', 'create')
+  create: roleBasedProcedure("defects", "create")
     .input(
       z.object({
         taskId: z.number(),
@@ -1566,14 +1690,14 @@ const defectRouter = router({
         assignedToId: input.assignedTo,
         dueDate: input.dueDate,
       });
-      
+
       if (!validation.valid) {
         throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: validation.errors?.join(', ') || 'Invalid defect data',
+          code: "BAD_REQUEST",
+          message: validation.errors?.join(", ") || "Invalid defect data",
         });
       }
-      
+
       const result = await db.createDefect({
         ...input,
         reportedBy: ctx.user!.id,
@@ -1586,7 +1710,12 @@ const defectRouter = router({
           type: "defect_created",
           title: `มี ${input.type} ใหม่มอบหมาย`,
           content: `คุณได้รับมอบหมาย ${input.type}: "${input.title}" ระดับความรุนแรง: ${input.severity}`,
-          priority: input.severity === "critical" ? "urgent" : input.severity === "high" ? "high" : "normal",
+          priority:
+            input.severity === "critical"
+              ? "urgent"
+              : input.severity === "high"
+                ? "high"
+                : "normal",
           relatedDefectId: (result as any).insertId,
           relatedTaskId: input.taskId,
           sendEmail: true, // Always send email for defect assignments
@@ -1605,7 +1734,16 @@ const defectRouter = router({
         title: z.string().optional(),
         description: z.string().optional(),
         severity: z.enum(["low", "medium", "high", "critical"]).optional(),
-        status: z.enum(["reported", "analysis", "in_progress", "resolved", "pending_reinspection", "closed"]).optional(),
+        status: z
+          .enum([
+            "reported",
+            "analysis",
+            "in_progress",
+            "resolved",
+            "pending_reinspection",
+            "closed",
+          ])
+          .optional(),
         assignedTo: z.number().optional(),
         resolutionComment: z.string().optional(),
         resolutionPhotoUrls: z.string().optional(),
@@ -1633,99 +1771,110 @@ const defectRouter = router({
         const { id, ...updateData } = input;
         const defect = await db.getDefectById(id);
         if (!defect) throw new Error("Defect not found");
-        
+
         // Check edit permission
         if (!canEditDefect(ctx.user.role, ctx.user!.id, defect)) {
           throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'คุณไม่มีสิทธิ์แก้ไข defect นี้',
+            code: "FORBIDDEN",
+            message: "คุณไม่มีสิทธิ์แก้ไข defect นี้",
           });
         }
 
         const dataToUpdate = {
-        ...updateData,
-        resolvedBy: updateData.status === "resolved" ? ctx.user!.id : undefined,
-        resolvedAt: updateData.status === "resolved" ? new Date() : undefined,
-        verifiedBy: updateData.status === "closed" ? ctx.user!.id : undefined,
-        verifiedAt: updateData.status === "closed" ? new Date() : undefined,
-      };
-      // Validation: If beforePhotos exists, afterPhotos is required when status is resolved
-      if (updateData.status === "resolved") {
-        const defect = await db.getDefectById(id);
-        if (defect && defect.beforePhotos) {
-          try {
-            const beforePhotosArray = JSON.parse(defect.beforePhotos);
-            if (beforePhotosArray && beforePhotosArray.length > 0) {
-              if (!input.afterPhotos) {
-                throw new TRPCError({
-                  code: "BAD_REQUEST",
-                  message: "After photos are required when before photos exist",
-                });
+          ...updateData,
+          resolvedBy:
+            updateData.status === "resolved" ? ctx.user!.id : undefined,
+          resolvedAt: updateData.status === "resolved" ? new Date() : undefined,
+          verifiedBy: updateData.status === "closed" ? ctx.user!.id : undefined,
+          verifiedAt: updateData.status === "closed" ? new Date() : undefined,
+        };
+        // Validation: If beforePhotos exists, afterPhotos is required when status is resolved
+        if (updateData.status === "resolved") {
+          const defect = await db.getDefectById(id);
+          if (defect && defect.beforePhotos) {
+            try {
+              const beforePhotosArray = JSON.parse(defect.beforePhotos);
+              if (beforePhotosArray && beforePhotosArray.length > 0) {
+                if (!input.afterPhotos) {
+                  throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message:
+                      "After photos are required when before photos exist",
+                  });
+                }
+                const afterPhotosArray = JSON.parse(input.afterPhotos);
+                if (!afterPhotosArray || afterPhotosArray.length === 0) {
+                  throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message:
+                      "After photos are required when before photos exist",
+                  });
+                }
               }
-              const afterPhotosArray = JSON.parse(input.afterPhotos);
-              if (!afterPhotosArray || afterPhotosArray.length === 0) {
-                throw new TRPCError({
-                  code: "BAD_REQUEST",
-                  message: "After photos are required when before photos exist",
-                });
-              }
+            } catch (e) {
+              if (e instanceof TRPCError) throw e;
+              // If JSON parse fails, ignore validation
             }
-          } catch (e) {
-            if (e instanceof TRPCError) throw e;
-            // If JSON parse fails, ignore validation
           }
         }
-      }
-      
-      const result = await db.updateDefect(id, dataToUpdate);
 
-      // Notify assignee if assigned
-      if (updateData.assignedTo && updateData.assignedTo !== defect.assignedTo) {
-        await createNotification({
-          userId: updateData.assignedTo,
-          type: "defect_created",
-          title: `${defect.type} มอบหมายให้คุณ`,
-          content: `คุณได้รับมอบหมาย ${defect.type}: "${defect.title}"`,
-          priority: defect.severity === "critical" ? "urgent" : defect.severity === "high" ? "high" : "normal",
-          relatedDefectId: defect.id,
-          relatedTaskId: defect.taskId,
-          sendEmail: true,
-        });
-      }
+        const result = await db.updateDefect(id, dataToUpdate);
 
-      // Notify when status changes
-      if (updateData.status && updateData.status !== defect.status) {
-        const statusLabels: Record<string, string> = {
-          reported: "รายงานแล้ว",
-          analysis: "กำลังวิเคราะห์",
-          in_progress: "กำลังดำเนินการ",
-          resolved: "แก้ไขเสร็จแล้ว",
-          pending_reinspection: "รอตรวจสอบซ้ำ",
-          closed: "ปิดแล้ว",
-        };
-
-        // Notify assignee about status change
-        if (defect.assignedTo) {
+        // Notify assignee if assigned
+        if (
+          updateData.assignedTo &&
+          updateData.assignedTo !== defect.assignedTo
+        ) {
           await createNotification({
-            userId: defect.assignedTo,
-            type: "defect_status_changed",
-            title: `${defect.type} เปลี่ยนสถานะ`,
-            content: `${defect.type} "${defect.title}" เปลี่ยนสถานะเป็น: ${statusLabels[updateData.status]}`,
-            priority: "normal",
+            userId: updateData.assignedTo,
+            type: "defect_created",
+            title: `${defect.type} มอบหมายให้คุณ`,
+            content: `คุณได้รับมอบหมาย ${defect.type}: "${defect.title}"`,
+            priority:
+              defect.severity === "critical"
+                ? "urgent"
+                : defect.severity === "high"
+                  ? "high"
+                  : "normal",
             relatedDefectId: defect.id,
             relatedTaskId: defect.taskId,
-            sendEmail: false,
+            sendEmail: true,
           });
         }
 
-        // Notify owner/admin when defect is resolved
-        if (updateData.status === "resolved") {
-          await notifyOwner({
-            title: `${defect.type} แก้ไขเสร็จแล้ว`,
-            content: `${defect.title} - รอตรวจสอบผลการแก้ไข`,
-          });
+        // Notify when status changes
+        if (updateData.status && updateData.status !== defect.status) {
+          const statusLabels: Record<string, string> = {
+            reported: "รายงานแล้ว",
+            analysis: "กำลังวิเคราะห์",
+            in_progress: "กำลังดำเนินการ",
+            resolved: "แก้ไขเสร็จแล้ว",
+            pending_reinspection: "รอตรวจสอบซ้ำ",
+            closed: "ปิดแล้ว",
+          };
+
+          // Notify assignee about status change
+          if (defect.assignedTo) {
+            await createNotification({
+              userId: defect.assignedTo,
+              type: "defect_status_changed",
+              title: `${defect.type} เปลี่ยนสถานะ`,
+              content: `${defect.type} "${defect.title}" เปลี่ยนสถานะเป็น: ${statusLabels[updateData.status]}`,
+              priority: "normal",
+              relatedDefectId: defect.id,
+              relatedTaskId: defect.taskId,
+              sendEmail: false,
+            });
+          }
+
+          // Notify owner/admin when defect is resolved
+          if (updateData.status === "resolved") {
+            await notifyOwner({
+              title: `${defect.type} แก้ไขเสร็จแล้ว`,
+              content: `${defect.title} - รอตรวจสอบผลการแก้ไข`,
+            });
+          }
         }
-      }
 
         return result;
       } catch (error) {
@@ -1742,31 +1891,41 @@ const defectRouter = router({
     }),
 
   getAttachmentsByType: protectedProcedure
-    .input(z.object({ 
-      defectId: z.number(),
-      attachmentType: z.enum(["before", "after", "supporting"])
-    }))
+    .input(
+      z.object({
+        defectId: z.number(),
+        attachmentType: z.enum(["before", "after", "supporting"]),
+      })
+    )
     .query(async ({ input }) => {
-      return await db.getDefectAttachmentsByType(input.defectId, input.attachmentType);
+      return await db.getDefectAttachmentsByType(
+        input.defectId,
+        input.attachmentType
+      );
     }),
 
   hasAfterPhotos: protectedProcedure
     .input(z.object({ defectId: z.number() }))
     .query(async ({ input }) => {
-      const photos = await db.getDefectAttachmentsByType(input.defectId, 'after');
+      const photos = await db.getDefectAttachmentsByType(
+        input.defectId,
+        "after"
+      );
       return photos.length > 0;
     }),
 
   uploadAttachment: protectedProcedure
-    .input(z.object({
-      defectId: z.number(),
-      fileUrl: z.string(),
-      fileKey: z.string(),
-      fileName: z.string(),
-      fileType: z.string(),
-      fileSize: z.number(),
-      attachmentType: z.enum(["before", "after", "supporting"])
-    }))
+    .input(
+      z.object({
+        defectId: z.number(),
+        fileUrl: z.string(),
+        fileKey: z.string(),
+        fileName: z.string(),
+        fileType: z.string(),
+        fileSize: z.number(),
+        attachmentType: z.enum(["before", "after", "supporting"]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const attachmentId = await db.createDefectAttachment({
         ...input,
@@ -1789,60 +1948,70 @@ const defectRouter = router({
       // Check delete permission
       if (!canDeleteDefect(ctx.user!.role)) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้',
+          code: "FORBIDDEN",
+          message: "เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้",
         });
       }
-      
+
       await db.deleteDefect(input.id);
       return { success: true };
     }),
 
   // Dashboard Statistics
-  getStatsByStatus: protectedProcedure
-    .query(async () => {
-      try {
-        const stats = await db.getDefectStatsByStatus();
-        return Array.isArray(stats) ? stats : [];
-      } catch (error) {
-        console.error('[defectRouter.getStatsByStatus] Error:', error);
-        return [];
-      }
-    }),
+  getStatsByStatus: protectedProcedure.query(async () => {
+    try {
+      const stats = await db.getDefectStatsByStatus();
+      return Array.isArray(stats) ? stats : [];
+    } catch (error) {
+      console.error("[defectRouter.getStatsByStatus] Error:", error);
+      return [];
+    }
+  }),
 
-  getStatsByType: protectedProcedure
-    .query(async () => {
-      try {
-        const stats = await db.getDefectStatsByType();
-        return Array.isArray(stats) ? stats : [];
-      } catch (error) {
-        console.error('[defectRouter.getStatsByType] Error:', error);
-        return [];
-      }
-    }),
+  getStatsByType: protectedProcedure.query(async () => {
+    try {
+      const stats = await db.getDefectStatsByType();
+      return Array.isArray(stats) ? stats : [];
+    } catch (error) {
+      console.error("[defectRouter.getStatsByType] Error:", error);
+      return [];
+    }
+  }),
 
-  getStatsByPriority: protectedProcedure
-    .query(async () => {
-      try {
-        const stats = await db.getDefectStatsByPriority();
-        return Array.isArray(stats) ? stats : [];
-      } catch (error) {
-        console.error('[defectRouter.getStatsByPriority] Error:', error);
-        return [];
-      }
-    }),
+  getStatsByPriority: protectedProcedure.query(async () => {
+    try {
+      const stats = await db.getDefectStatsByPriority();
+      return Array.isArray(stats) ? stats : [];
+    } catch (error) {
+      console.error("[defectRouter.getStatsByPriority] Error:", error);
+      return [];
+    }
+  }),
 
-  getMetrics: protectedProcedure
-    .query(async () => {
-      try {
-        const metrics = await db.getDefectMetrics();
-        // Ensure we always return a valid metrics object
-        return metrics || { total: 0, open: 0, closed: 0, pendingVerification: 0, overdue: 0 };
-      } catch (error) {
-        console.error('[defectRouter.getMetrics] Error:', error);
-        return { total: 0, open: 0, closed: 0, pendingVerification: 0, overdue: 0 };
-      }
-    }),
+  getMetrics: protectedProcedure.query(async () => {
+    try {
+      const metrics = await db.getDefectMetrics();
+      // Ensure we always return a valid metrics object
+      return (
+        metrics || {
+          total: 0,
+          open: 0,
+          closed: 0,
+          pendingVerification: 0,
+          overdue: 0,
+        }
+      );
+    } catch (error) {
+      console.error("[defectRouter.getMetrics] Error:", error);
+      return {
+        total: 0,
+        open: 0,
+        closed: 0,
+        pendingVerification: 0,
+        overdue: 0,
+      };
+    }
+  }),
 
   getRecent: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
@@ -1852,20 +2021,22 @@ const defectRouter = router({
 
   // Re-inspection workflow
   requestReinspection: protectedProcedure
-    .input(z.object({ 
-      defectId: z.number(),
-      comments: z.string().optional()
-    }))
+    .input(
+      z.object({
+        defectId: z.number(),
+        comments: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       try {
-        
         const defect = await db.getDefectById(input.defectId);
         if (!defect) throw new Error("Defect not found");
-        
+
         if (defect.status !== "resolved") {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'เฉพาะ defect ที่มีสถานะ resolved เท่านั้นที่สามารถขอตรวจสอบซ้ำได้',
+            code: "BAD_REQUEST",
+            message:
+              "เฉพาะ defect ที่มีสถานะ resolved เท่านั้นที่สามารถขอตรวจสอบซ้ำได้",
           });
         }
 
@@ -1892,25 +2063,27 @@ const defectRouter = router({
 
         return { success: true };
       } catch (error) {
-        console.error('[requestReinspection] Error:', error);
+        console.error("[requestReinspection] Error:", error);
         throw error;
       }
     }),
 
   submitReinspection: protectedProcedure
-    .input(z.object({
-      defectId: z.number(),
-      result: z.enum(["passed", "failed"]),
-      comments: z.string().optional(),
-      photoUrls: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        defectId: z.number(),
+        result: z.enum(["passed", "failed"]),
+        comments: z.string().optional(),
+        photoUrls: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const defect = await db.getDefectById(input.defectId);
       if (!defect) throw new Error("Defect not found");
       if (defect.status !== "pending_reinspection") {
         throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Defect ต้องอยู่ในสถานะ pending_reinspection',
+          code: "BAD_REQUEST",
+          message: "Defect ต้องอยู่ในสถานะ pending_reinspection",
         });
       }
 
@@ -1934,10 +2107,11 @@ const defectRouter = router({
 
       // Notify assignee
       if (defect.assignedTo) {
-        const message = input.result === "passed" 
-          ? `${defect.type} ผ่านการตรวจสอบซ้ำแล้ว`
-          : `${defect.type} ไม่ผ่านการตรวจสอบซ้ำ - ต้องแก้ไขใหม่`;
-        
+        const message =
+          input.result === "passed"
+            ? `${defect.type} ผ่านการตรวจสอบซ้ำแล้ว`
+            : `${defect.type} ไม่ผ่านการตรวจสอบซ้ำ - ต้องแก้ไขใหม่`;
+
         await db.createNotification({
           userId: defect.assignedTo,
           type: "defect_reinspected",
@@ -1960,6 +2134,120 @@ const defectRouter = router({
     .input(z.object({ defectId: z.number() }))
     .query(async ({ input }) => {
       return await db.getLatestInspection(input.defectId);
+    }),
+
+  // Bulk Operations
+  bulkUpdateStatus: roleBasedProcedure("defects", "edit")
+    .input(
+      z.object({
+        defectIds: z.array(z.number()).min(1),
+        status: z.enum([
+          "reported",
+          "rca_completed",
+          "action_plan_approved",
+          "in_progress",
+          "resolved",
+          "pending_reinspection",
+          "closed",
+          "analysis",
+        ]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectIds, status } = input;
+      let successCount = 0;
+
+      for (const defectId of defectIds) {
+        try {
+          const defect = await db.getDefectById(defectId);
+          if (!defect) continue;
+
+          await db.updateDefect(defectId, { status: status as any });
+          await db.logActivity({
+            userId: ctx.user!.id,
+            projectId: defect.projectId,
+            action: "defect_updated",
+            details: JSON.stringify({ defectId, status, bulkUpdate: true }),
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to update defect ${defectId}:`, error);
+        }
+      }
+
+      return { success: true, updated: successCount, total: defectIds.length };
+    }),
+
+  bulkAssign: roleBasedProcedure("defects", "edit")
+    .input(
+      z.object({
+        defectIds: z.array(z.number()).min(1),
+        assigneeId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectIds, assigneeId } = input;
+      let successCount = 0;
+
+      for (const defectId of defectIds) {
+        try {
+          const defect = await db.getDefectById(defectId);
+          if (!defect) continue;
+
+          await db.updateDefect(defectId, { assignedTo: assigneeId });
+          await db.logActivity({
+            userId: ctx.user!.id,
+            projectId: defect.projectId,
+            action: "defect_updated",
+            details: JSON.stringify({ defectId, assigneeId, bulkAssign: true }),
+          });
+
+          // Create notification for assignee
+          await db.createNotification({
+            userId: assigneeId,
+            type: "defect_assigned",
+            title: "New Defect Assigned",
+            content: defect.title,
+            relatedProjectId: defect.projectId,
+            // metadata: JSON.stringify({ defectId }), // metadata not supported in CreateNotificationParams
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to assign defect ${defectId}:`, error);
+        }
+      }
+
+      return { success: true, assigned: successCount, total: defectIds.length };
+    }),
+
+  bulkDelete: protectedProcedure
+    .input(
+      z.object({
+        defectIds: z.array(z.number()).min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Check delete permission
+      if (!canDeleteDefect(ctx.user!.role)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้",
+        });
+      }
+
+      const { defectIds } = input;
+      let successCount = 0;
+
+      for (const defectId of defectIds) {
+        try {
+          await db.deleteDefect(defectId);
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to delete defect ${defectId}:`, error);
+        }
+      }
+
+      return { success: true, deleted: successCount, total: defectIds.length };
     }),
 });
 
@@ -1993,11 +2281,11 @@ const commentRouter = router({
       if (input.mentions && input.mentions.length > 0) {
         const task = await db.getTaskById(input.taskId);
         const commenter = ctx.user!;
-        
+
         for (const userId of input.mentions) {
           // Don't notify the commenter themselves
           if (userId === ctx.user!.id) continue;
-          
+
           await createNotification({
             userId,
             type: "comment_mention",
@@ -2035,19 +2323,18 @@ const attachmentRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      
       // Generate unique file key
       const timestamp = Date.now();
       const randomSuffix = Math.random().toString(36).substring(7);
       const fileKey = `task-${input.taskId}/${timestamp}-${randomSuffix}-${input.fileName}`;
-      
+
       // Convert base64 to buffer
       const fileBuffer = Buffer.from(input.fileContent, "base64");
       const fileSize = fileBuffer.length;
-      
+
       // Upload to S3
       const { url } = await storagePut(fileKey, fileBuffer, input.mimeType);
-      
+
       // Save to database
       const result = await db.addTaskAttachment({
         taskId: input.taskId,
@@ -2058,7 +2345,7 @@ const attachmentRouter = router({
         mimeType: input.mimeType,
         uploadedBy: ctx.user!.id,
       });
-      
+
       // Log activity
       const task = await db.getTaskById(input.taskId);
       if (task) {
@@ -2070,7 +2357,7 @@ const attachmentRouter = router({
           details: JSON.stringify({ fileName: input.fileName }),
         });
       }
-      
+
       return { success: true, id: (result as any).insertId, url };
     }),
 
@@ -2091,7 +2378,7 @@ const attachmentRouter = router({
         uploadedBy: ctx.user!.id,
       });
     }),
-    
+
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
@@ -2100,20 +2387,20 @@ const attachmentRouter = router({
       if (!attachment) {
         throw new Error("Attachment not found");
       }
-      
+
       // Check permission: only uploader, admin, or PM can delete
       const canDelete =
         attachment.uploadedBy === ctx.user!.id ||
         ctx.user!.role === "admin" ||
         ctx.user!.role === "project_manager";
-      
+
       if (!canDelete) {
         throw new Error("Permission denied");
       }
-      
+
       // Delete from database
       await db.deleteTaskAttachment(input.id);
-      
+
       // Log activity
       await db.logActivity({
         userId: ctx.user!.id,
@@ -2121,7 +2408,7 @@ const attachmentRouter = router({
         action: "attachment_deleted",
         details: JSON.stringify({ fileName: attachment.fileName }),
       });
-      
+
       return { success: true };
     }),
 });
@@ -2136,7 +2423,7 @@ const notificationRouter = router({
       // Ensure we always return an array
       return Array.isArray(notifications) ? notifications : [];
     } catch (error) {
-      console.error('[notificationRouter.list] Error:', error);
+      console.error("[notificationRouter.list] Error:", error);
       // Return empty array instead of throwing to prevent frontend crashes
       return [];
     }
@@ -2148,51 +2435,52 @@ const notificationRouter = router({
       try {
         return await db.markNotificationAsRead(input.id);
       } catch (error) {
-        console.error('[notificationRouter.markAsRead] Error:', error);
+        console.error("[notificationRouter.markAsRead] Error:", error);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to mark notification as read',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to mark notification as read",
         });
       }
     }),
 
-  markAllAsRead: protectedProcedure
-    .mutation(async ({ ctx }) => {
-      try {
-        return await db.markAllNotificationsAsRead(ctx.user!.id);
-      } catch (error) {
-        console.error('[notificationRouter.markAllAsRead] Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to mark all notifications as read',
-        });
-      }
-    }),
+  markAllAsRead: protectedProcedure.mutation(async ({ ctx }) => {
+    try {
+      return await db.markAllNotificationsAsRead(ctx.user!.id);
+    } catch (error) {
+      console.error("[notificationRouter.markAllAsRead] Error:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to mark all notifications as read",
+      });
+    }
+  }),
 
   /**
    * Create System Alert Notification
    * ใช้สำหรับส่ง notification จาก health check หรือ system monitoring
    */
   createSystemAlert: protectedProcedure
-    .input(z.object({
-      severity: z.enum(['info', 'warning', 'critical']),
-      title: z.string(),
-      content: z.string(),
-      targetUserId: z.number().optional(), // ถ้าไม่ระบุจะส่งให้ owner/admin
-    }))
+    .input(
+      z.object({
+        severity: z.enum(["info", "warning", "critical"]),
+        title: z.string(),
+        content: z.string(),
+        targetUserId: z.number().optional(), // ถ้าไม่ระบุจะส่งให้ owner/admin
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       try {
         // Map severity to notification type and priority
         const typeMap = {
-          info: 'system_health_info' as const,
-          warning: 'system_health_warning' as const,
-          critical: 'system_health_critical' as const,
+          info: "system_health_info" as const,
+          warning: "system_health_warning" as const,
+          critical: "system_health_critical" as const,
         };
-        
+
         const priorityMap = {
-          info: 'normal' as const,
-          warning: 'high' as const,
-          critical: 'urgent' as const,
+          info: "normal" as const,
+          warning: "high" as const,
+          critical: "urgent" as const,
         };
 
         // ถ้าไม่ระบุ targetUserId ให้ส่งให้ owner (user ID 1)
@@ -2211,9 +2499,9 @@ const notificationRouter = router({
         if (notification?.id) {
           emitNotification(targetUserId, {
             id: String(notification.id),
-            type: 'task_status',
+            type: "task_status",
             title: notification.title,
-            message: notification.content || '',
+            message: notification.content || "",
             timestamp: notification.createdAt,
             read: notification.isRead,
           });
@@ -2221,10 +2509,10 @@ const notificationRouter = router({
 
         return { success: true, notificationId: notification?.id };
       } catch (error) {
-        console.error('[notificationRouter.createSystemAlert] Error:', error);
+        console.error("[notificationRouter.createSystemAlert] Error:", error);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to create system alert',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create system alert",
         });
       }
     }),
@@ -2274,38 +2562,50 @@ const dashboardRouter = router({
     // 2. on_track = no delayed tasks, not past endDate
     // 3. delayed = has delayed tasks, not past endDate
     // 4. overdue = past endDate and not completed
-    const onTrackProjects = projectsWithStats.filter(p => p.stats?.projectStatus === 'on_track');
-    const delayedProjects = projectsWithStats.filter(p => p.stats?.projectStatus === 'delayed');
-    const overdueProjects = projectsWithStats.filter(p => p.stats?.projectStatus === 'overdue');
-    
+    const onTrackProjects = projectsWithStats.filter(
+      p => p.stats?.projectStatus === "on_track"
+    );
+    const delayedProjects = projectsWithStats.filter(
+      p => p.stats?.projectStatus === "delayed"
+    );
+    const overdueProjects = projectsWithStats.filter(
+      p => p.stats?.projectStatus === "overdue"
+    );
+
     const projectStats = {
       total: projectsWithStats.length,
       on_track: onTrackProjects.length,
       delayed: delayedProjects.length,
       overdue: overdueProjects.length,
-      completed: projectsWithStats.filter(p => p.status === 'completed').length,
+      completed: projectsWithStats.filter(p => p.status === "completed").length,
       // Keep old fields for backward compatibility
-      active: projectsWithStats.filter(p => p.status === 'active').length,
-      on_hold: projectsWithStats.filter(p => p.status === 'on_hold').length,
+      active: projectsWithStats.filter(p => p.status === "active").length,
+      on_hold: projectsWithStats.filter(p => p.status === "on_hold").length,
       at_risk: 0, // Deprecated
       onTrack: onTrackProjects.length, // Alias for on_track
     };
 
     // @ts-ignore
     // Calculate average progress across all projects
-    const totalProgress = projectsWithStats.reduce((sum: any, p) => sum + p.stats.progressPercentage, 0);
-    const averageProgress = projectsWithStats.length > 0 ? Math.round(totalProgress / projectsWithStats.length) : 0;
+    const totalProgress = projectsWithStats.reduce(
+      (sum: any, p) => sum + p.stats.progressPercentage,
+      0
+    );
+    const averageProgress =
+      projectsWithStats.length > 0
+        ? Math.round(totalProgress / projectsWithStats.length)
+        : 0;
 
     // Get tasks from user's projects only (consistent with Tasks page)
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
     const projectIds = userProjects.map((p: any) => p.projects.id);
-    
+
     const allTasks: any[] = [];
     for (const projectId of projectIds) {
       const projectTasks = await db.getTasksByProject(projectId);
       allTasks.push(...projectTasks);
     }
-    
+
     const tasksWithStatus = allTasks.map(task => ({
       ...task,
       displayStatus: getTaskDisplayStatus(task),
@@ -2313,23 +2613,34 @@ const dashboardRouter = router({
 
     // Count tasks by display status
     const taskStats = {
-      not_started: tasksWithStatus.filter(t => t.displayStatus === 'not_started').length,
-      in_progress: tasksWithStatus.filter(t => t.displayStatus === 'in_progress').length,
-      delayed: tasksWithStatus.filter(t => t.displayStatus === 'delayed').length,
-      completed: tasksWithStatus.filter(t => t.displayStatus === 'completed').length,
+      not_started: tasksWithStatus.filter(
+        t => t.displayStatus === "not_started"
+      ).length,
+      in_progress: tasksWithStatus.filter(
+        t => t.displayStatus === "in_progress"
+      ).length,
+      delayed: tasksWithStatus.filter(t => t.displayStatus === "delayed")
+        .length,
+      completed: tasksWithStatus.filter(t => t.displayStatus === "completed")
+        .length,
       total: tasksWithStatus.length,
     };
 
     // Get all checklists
     const allChecklists = await db.getAllTaskChecklists();
-    
+
     // Count checklists by status
     const checklistStats = {
-      not_started: allChecklists.filter((c: any) => c.status === 'not_started').length,
-      pending_inspection: allChecklists.filter((c: any) => c.status === 'pending_inspection').length,
-      in_progress: allChecklists.filter((c: any) => c.status === 'in_progress').length,
-      completed: allChecklists.filter((c: any) => c.status === 'completed').length,
-      failed: allChecklists.filter((c: any) => c.status === 'failed').length,
+      not_started: allChecklists.filter((c: any) => c.status === "not_started")
+        .length,
+      pending_inspection: allChecklists.filter(
+        (c: any) => c.status === "pending_inspection"
+      ).length,
+      in_progress: allChecklists.filter((c: any) => c.status === "in_progress")
+        .length,
+      completed: allChecklists.filter((c: any) => c.status === "completed")
+        .length,
+      failed: allChecklists.filter((c: any) => c.status === "failed").length,
       total: allChecklists.length,
     };
 
@@ -2368,7 +2679,7 @@ const dashboardRouter = router({
 /**
  * Category Color Router - Manage category colors
  */
-const categoryColorRouter = router({  
+const categoryColorRouter = router({
   getByProject: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
@@ -2379,18 +2690,31 @@ const categoryColorRouter = router({
     .input(
       z.object({
         projectId: z.number(),
-        category: z.enum(["preparation", "structure", "architecture", "mep", "other"]),
+        category: z.enum([
+          "preparation",
+          "structure",
+          "architecture",
+          "mep",
+          "other",
+        ]),
         color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await db.updateCategoryColor(input.projectId, input.category, input.color);
-      
+      await db.updateCategoryColor(
+        input.projectId,
+        input.category,
+        input.color
+      );
+
       await db.logActivity({
         userId: ctx.user!.id,
         projectId: input.projectId,
         action: "category_color_updated",
-        details: JSON.stringify({ category: input.category, color: input.color }),
+        details: JSON.stringify({
+          category: input.category,
+          color: input.color,
+        }),
       });
 
       return { success: true };
@@ -2404,6 +2728,8 @@ export const appRouter = router({
   // Team Management Router
   team: teamRouter,
 
+  // Dashboard Statistics Router (merged into dashboardRouter below)
+
   // Archive notifications check endpoint
   checkArchiveNotifications: protectedProcedure.mutation(async () => {
     const result = await checkArchiveWarnings();
@@ -2411,7 +2737,7 @@ export const appRouter = router({
   }),
 
   // Advanced Analytics Router
-  analytics: router({ 
+  analytics: router({
     // Predictive Analytics
     predictive: protectedProcedure
       .input(z.object({ projectId: z.number() }))
@@ -2435,10 +2761,12 @@ export const appRouter = router({
 
     // Quality Trend Analysis
     qualityTrend: protectedProcedure
-      .input(z.object({ 
-        projectId: z.number(),
-        days: z.number().optional().default(30),
-      }))
+      .input(
+        z.object({
+          projectId: z.number(),
+          days: z.number().optional().default(30),
+        })
+      )
       .query(async ({ input }) => {
         return await db.getQualityTrendAnalysis(input.projectId, input.days);
       }),
@@ -2463,6 +2791,36 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getComparativeAnalysis(input.projectIds);
       }),
+
+    // Progress Chart Data
+    progressChart: protectedProcedure
+      .input(z.object({ projectIds: z.array(z.number()).optional() }))
+      .query(async ({ input, ctx }) => {
+        return await db.getProgressChartData(input.projectIds, ctx.user!.id);
+      }),
+
+    // Defect Trends Data
+    defectTrends: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number().optional(),
+          days: z.enum(["7", "30", "90"]).optional().default("30"),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        return await db.getDefectTrendsData(
+          input.projectId,
+          parseInt(input.days),
+          ctx.user!.id
+        );
+      }),
+
+    // Timeline Data
+    timelineData: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getTimelineData(input.projectId);
+      }),
   }),
 
   archiveRules: router({
@@ -2470,26 +2828,37 @@ export const appRouter = router({
       return await db.getArchiveRules();
     }),
     create: protectedProcedure
-      .input(z.object({
-        name: z.string().min(1),
-        description: z.string().optional(),
-        projectStatus: z.enum(["planning", "active", "on_hold", "completed", "cancelled"]).optional(),
-        daysAfterCompletion: z.number().optional(),
-        daysAfterEndDate: z.number().optional(),
-      }))
+      .input(
+        z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+          projectStatus: z
+            .enum(["planning", "active", "on_hold", "completed", "cancelled"])
+            .optional(),
+          daysAfterCompletion: z.number().optional(),
+          daysAfterEndDate: z.number().optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
-        return await db.createArchiveRule({ ...input, createdBy: ctx.user!.id });
+        return await db.createArchiveRule({
+          ...input,
+          createdBy: ctx.user!.id,
+        });
       }),
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        name: z.string().min(1).optional(),
-        description: z.string().optional(),
-        enabled: z.boolean().optional(),
-        projectStatus: z.enum(["planning", "active", "on_hold", "completed", "cancelled"]).optional(),
-        daysAfterCompletion: z.number().optional(),
-        daysAfterEndDate: z.number().optional(),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          name: z.string().min(1).optional(),
+          description: z.string().optional(),
+          enabled: z.boolean().optional(),
+          projectStatus: z
+            .enum(["planning", "active", "on_hold", "completed", "cancelled"])
+            .optional(),
+          daysAfterCompletion: z.number().optional(),
+          daysAfterEndDate: z.number().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
         return await db.updateArchiveRule(id, data);
@@ -2503,7 +2872,7 @@ export const appRouter = router({
 
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query((opts) => opts.ctx.user),
+    me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const { COOKIE_NAME } = require("@shared/const");
       const { getSessionCookieOptions } = require("./_core/cookies");
@@ -2518,11 +2887,17 @@ export const appRouter = router({
       return await db.getAllUsers();
     }),
 
-    updateRole: roleBasedProcedure('users', 'edit')
+    updateRole: roleBasedProcedure("users", "edit")
       .input(
         z.object({
           userId: z.number(),
-          role: z.enum(["owner", "admin", "project_manager", "qc_inspector", "worker"]),
+          role: z.enum([
+            "owner",
+            "admin",
+            "project_manager",
+            "qc_inspector",
+            "worker",
+          ]),
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -2531,7 +2906,10 @@ export const appRouter = router({
         await db.logActivity({
           userId: ctx.user!.id,
           action: "user_role_updated",
-          details: JSON.stringify({ targetUserId: input.userId, newRole: input.role }),
+          details: JSON.stringify({
+            targetUserId: input.userId,
+            newRole: input.role,
+          }),
         });
 
         return { success: true };
@@ -2559,7 +2937,7 @@ export const appRouter = router({
     getNotificationSettings: protectedProcedure.query(async ({ ctx }) => {
       const user = await db.getUserById(ctx.user!.id);
       if (!user) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
       return {
         notificationDaysAdvance: user.notificationDaysAdvance,
@@ -2577,7 +2955,10 @@ export const appRouter = router({
           enableInAppNotifications: z.boolean().optional(),
           enableEmailNotifications: z.boolean().optional(),
           enableDailySummaryEmail: z.boolean().optional(),
-          dailySummaryTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:mm format
+          dailySummaryTime: z
+            .string()
+            .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+            .optional(), // HH:mm format
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -2633,21 +3014,23 @@ export const appRouter = router({
   cache: cacheRouter,
   database: databaseRouter,
   performance: performanceRouter,
-  
+
   // System Monitor for Admin
   systemMonitor: router({
-    getMetrics: roleBasedProcedure('system', 'view').query(async () => {
-      const { getSystemMetrics } = await import('./monitoring/startMonitoring');
+    getMetrics: roleBasedProcedure("system", "view").query(async () => {
+      const { getSystemMetrics } = await import("./monitoring/startMonitoring");
       return await getSystemMetrics();
     }),
-    
-    getDatabaseStats: roleBasedProcedure('system', 'view').query(async () => {
-      const { getDatabaseStats } = await import('./monitoring/startMonitoring');
+
+    getDatabaseStats: roleBasedProcedure("system", "view").query(async () => {
+      const { getDatabaseStats } = await import("./monitoring/startMonitoring");
       return await getDatabaseStats();
     }),
-    
-    applyIndexes: roleBasedProcedure('system', 'edit').mutation(async () => {
-      const { applyRecommendedIndexes } = await import('./monitoring/startMonitoring');
+
+    applyIndexes: roleBasedProcedure("system", "edit").mutation(async () => {
+      const { applyRecommendedIndexes } = await import(
+        "./monitoring/startMonitoring"
+      );
       return await applyRecommendedIndexes();
     }),
   }),
@@ -2780,7 +3163,11 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input, ctx }) => {
-        return await db.resolveOomEvent(input.eventId, ctx.user!.id, input.resolutionNotes);
+        return await db.resolveOomEvent(
+          input.eventId,
+          ctx.user!.id,
+          input.resolutionNotes
+        );
       }),
 
     // ดึง OOM event statistics
