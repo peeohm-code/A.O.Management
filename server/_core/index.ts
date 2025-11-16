@@ -2,22 +2,11 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import multer from "multer";
-import sharp from "sharp";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { storagePut } from "../storage";
-import { initializeSocket } from "./socket";
-import { initializeCronJobs } from "../cron/scheduler";
-import { initializeMonitoring } from "../monitoring/startMonitoring";
-import { initializeCronJobs as initializeMonitoringCronJobs } from "../monitoring/cronJobs";
-import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
-import { validateFile, sanitizeFilename } from "../utils/sanitize";
-import { setupProcessErrorHandlers, startMemoryMonitoring, errorMiddleware } from "../errorHandler";
-import { handleSSE } from "../sse";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,91 +28,13 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
-  // Setup process-level error handlers
-  setupProcessErrorHandlers();
-  
-  // Start memory monitoring (check every minute)
-  startMemoryMonitoring(60000);
-  
   const app = express();
   const server = createServer(app);
-  
-  // Initialize Socket.io
-  initializeSocket(server);
-  // Apply rate limiting to all API routes
-  app.use("/api", apiRateLimit);
-  
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  
-  // Configure multer for file uploads (memory storage)
-  const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
-  });
-  
-  // File upload endpoint with image compression (with stricter rate limit)
-  app.post("/api/upload", strictRateLimit, upload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-      
-      // Validate file
-      const validation = validateFile(req.file);
-      if (!validation.valid) {
-        return res.status(400).json({ error: validation.error });
-      }
-      
-      let fileBuffer = req.file.buffer;
-      let contentType = req.file.mimetype;
-      
-      // If it's an image, compress and resize it
-      if (req.file.mimetype.startsWith('image/')) {
-        try {
-          fileBuffer = await sharp(req.file.buffer)
-            .resize(1920, 1920, {
-              fit: 'inside',
-              withoutEnlargement: true,
-            })
-            .jpeg({
-              quality: 85,
-              progressive: true,
-            })
-            .toBuffer();
-          contentType = 'image/jpeg';
-        } catch (sharpError) {
-          console.warn('Image compression failed, uploading original:', sharpError);
-          // If compression fails, upload original
-        }
-      }
-      
-      // Generate unique file key
-      const timestamp = Date.now();
-      const randomStr = Math.random().toString(36).substring(7);
-      const fileExt = contentType === 'image/jpeg' ? 'jpg' : req.file.originalname.split('.').pop();
-      const fileKey = `inspections/${timestamp}-${randomStr}.${fileExt}`;
-      
-      // Upload to S3
-      const { url } = await storagePut(
-        fileKey,
-        fileBuffer,
-        contentType
-      );
-      
-      res.json({ url, key: fileKey });
-    } catch (error) {
-      console.error('Upload error:', error);
-      res.status(500).json({ error: "Upload failed" });
-    }
-  });
-  
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
-  
-  // SSE endpoint for real-time notifications
-  app.get("/api/notifications/stream", handleSSE);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -138,9 +49,6 @@ async function startServer() {
   } else {
     serveStatic(app);
   }
-  
-  // Error handling middleware (must be last)
-  app.use(errorMiddleware);
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
@@ -151,64 +59,7 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
-    
-    // Initialize cron jobs after server starts
-    initializeCronJobs();
-    
-    // Initialize system monitoring
-    initializeMonitoring();
-    
-    // Initialize monitoring cron jobs (memory check every hour)
-    initializeMonitoringCronJobs();
-    
-    // Initialize notification scheduler
-    import('../notificationScheduler').then(({ startNotificationScheduler }) => {
-      startNotificationScheduler();
-    }).catch(err => {
-      console.error('[Server] Failed to start notification scheduler:', err);
-    });
   });
-
-  // Graceful shutdown handler
-  const gracefulShutdown = async (signal: string) => {
-    console.log(`\n${signal} received. Starting graceful shutdown...`);
-    
-    // Force shutdown after 30 seconds
-    const forceShutdownTimer = setTimeout(() => {
-      console.error('Forced shutdown after timeout');
-      process.exit(1);
-    }, 30000);
-    
-    try {
-      // Stop accepting new connections
-      await new Promise<void>((resolve) => {
-        server.close(() => {
-          console.log('HTTP server closed');
-          resolve();
-        });
-      });
-      
-      // Close database connections
-      console.log('Closing database connections...');
-      const { closeDbConnection } = await import('../db');
-      await closeDbConnection();
-      
-      // Clear force shutdown timer
-      clearTimeout(forceShutdownTimer);
-      
-      // Exit process
-      console.log('Graceful shutdown completed');
-      process.exit(0);
-    } catch (error) {
-      console.error('Error during graceful shutdown:', error);
-      clearTimeout(forceShutdownTimer);
-      process.exit(1);
-    }
-  };
-
-  // Register shutdown handlers
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 startServer().catch(console.error);

@@ -1,1 +1,0 @@
-ALTER TABLE `tasks` ADD `priority` enum('low','medium','high','urgent') DEFAULT 'medium' NOT NULL;
