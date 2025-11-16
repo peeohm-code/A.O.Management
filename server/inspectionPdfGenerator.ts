@@ -433,7 +433,7 @@ export async function generateInspectionPDF(inspectionId: number): Promise<strin
     <h2>รายการตรวจสอบ</h2>
     ${inspection.itemResults
       .map(
-        (item, index) => `
+        (item: any, index: any) => `
       <div class="item item-${item.result}">
         <div class="item-header">
           <div class="item-text">${index + 1}. ${item.itemText}</div>
@@ -480,7 +480,7 @@ export async function generateInspectionPDF(inspectionId: number): Promise<strin
     <h2>ข้อบกพร่องที่พบ (${inspection.defects.length} รายการ)</h2>
     ${inspection.defects
       .map(
-        (defect) => `
+        (defect: any) => `
       <div class="defect-item">
         <div class="defect-header">
           <span class="defect-title">${defect.title}</span>

@@ -57,7 +57,7 @@ export function AllProjectsTable({ projects }: AllProjectsTableProps) {
                   </td>
                 </tr>
               ) : (
-                projects.map((project) => (
+                projects.map((project: any) => (
                   <tr key={project.id} className="border-b hover:bg-gray-50 transition">
                     <td className="py-3 px-4">
                       <Link href={`/projects/${project.id}`}>

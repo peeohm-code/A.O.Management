@@ -144,7 +144,7 @@ export function ProgressVsPlan({ projects }: ProgressVsPlanProps) {
 
         {/* Project Progress List */}
         <div className="space-y-4">
-          {progressData.map((project) => (
+          {progressData.map((project: any) => (
             <div key={project.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">

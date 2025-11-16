@@ -102,7 +102,7 @@ export function ProgressReportExport({ projects }: ProgressReportExportProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทุกโครงการ</SelectItem>
-              {projects.map((project) => (
+              {projects.map((project: any) => (
                 <SelectItem key={project.id} value={project.id.toString()}>
                   {project.name}
                 </SelectItem>

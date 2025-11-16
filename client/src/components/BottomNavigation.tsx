@@ -22,7 +22,7 @@ export default function BottomNavigation() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden">
       <div className="grid grid-cols-5 h-16">
-        {navItems.map((item) => {
+        {navItems.map((item: any) => {
           const Icon = item.icon;
           const isActive = location === item.path;
 

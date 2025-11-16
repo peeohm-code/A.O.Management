@@ -173,7 +173,7 @@ export function ImageUpload({ value = [], onChange, maxImages = 10, disabled = f
       {/* Image Preview Grid */}
       {value.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {value.map((url, index) => (
+          {value.map((url, index: any) => (
             <div key={index} className="relative group aspect-square">
               <img
                 src={url}

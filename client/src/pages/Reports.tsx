@@ -85,7 +85,7 @@ export default function Reports() {
     }
   };
 
-  const selectedProject = projects.find((p) => p.id === parseInt(selectedProjectId || "0"));
+  const selectedProject = projects.find((p: any) => p.id === parseInt(selectedProjectId || "0"));
 
   return (
     <div className="space-y-6">
@@ -110,7 +110,7 @@ export default function Reports() {
                   <SelectValue placeholder="Choose a project..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map((project) => (
+                  {projects.map((project: any) => (
                     <SelectItem key={project.id} value={project.id.toString()}>
                       {project.name}
                     </SelectItem>

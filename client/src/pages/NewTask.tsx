@@ -127,7 +127,7 @@ export default function NewTask() {
                       <SelectValue placeholder="เลือกโครงการ" />
                     </SelectTrigger>
                     <SelectContent>
-                      {projects.map((project) => (
+                      {projects.map((project: any) => (
                         <SelectItem key={project.id} value={project.id.toString()}>
                           {project.name}
                         </SelectItem>

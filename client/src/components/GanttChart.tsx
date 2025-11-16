@@ -163,7 +163,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   // Create color map from fetched data
   const categoryColorMap = useMemo(() => {
     const map: Record<string, string> = {};
-    categoryColors.forEach((cc) => {
+    categoryColors.forEach((cc: any) => {
       map[cc.category] = cc.color;
     });
     return map;
@@ -200,7 +200,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   );
 
   const chartData = useMemo(() => {
-    if (!tasks || tasks.length === 0) return { groups: [], minDate: new Date(), maxDate: new Date(), dateRange: [] };
+    if (!tasks || tasks.length === 0) return { groups: [] as TaskGroup[], minDate: new Date(), maxDate: new Date(), dateRange: [] as Date[] };
 
     // Helper function to safely parse dates (handles both string and Date object)
     const parseDate = (date: string | Date | undefined): Date => {
@@ -217,7 +217,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
     const maxDate = new Date(Math.max(...endDates));
 
     // Generate array of dates for header based on view mode
-    const dateRange = [];
+    const dateRange: Date[] = [];
     const currentDate = new Date(minDate);
     
     if (viewMode === 'daily') {
@@ -243,7 +243,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
     // Group tasks by category
     const groupMap = new Map<string, GanttTask[]>();
-    tasks.forEach((task) => {
+    tasks.forEach((task: any) => {
       const category = task.category || "other";
       if (!groupMap.has(category)) {
         groupMap.set(category, []);
@@ -253,7 +253,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
     // Create groups with calculated data
     const groups: TaskGroup[] = Array.from(groupMap.entries()).map(([category, groupTasks]) => {
-      const tasksWithIndices = groupTasks.map((task) => {
+      const tasksWithIndices = groupTasks.map((task: any) => {
         const start = parseDate(task.startDate);
         const end = parseDate(task.endDate);
         const startIndex = Math.floor((start.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -269,7 +269,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
 
       const minStartIndex = Math.min(...tasksWithIndices.map(t => t.startIndex));
       const maxEndIndex = Math.max(...tasksWithIndices.map(t => t.endIndex));
-      const avgProgress = Math.round(tasksWithIndices.reduce((sum, t) => sum + t.progress, 0) / tasksWithIndices.length);
+      const avgProgress = Math.round(tasksWithIndices.reduce((sum: any, t: any) => sum + t.progress, 0) / tasksWithIndices.length);
 
       return {
         category,
@@ -311,7 +311,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
   const sortedGroups = useMemo(() => {
     if (groupOrder.length === 0) return chartData.groups;
     
-    const orderedGroups = [...chartData.groups].sort((a, b) => {
+    const orderedGroups = [...chartData.groups].sort((a: any, b: any) => {
       const aIndex = groupOrder.indexOf(a.category);
       const bIndex = groupOrder.indexOf(b.category);
       
@@ -517,7 +517,7 @@ export default function GanttChart({ tasks, projectId }: GanttChartProps) {
             ความสัมพันธ์ระหว่างงาน (Dependencies)
           </h4>
           <div className="space-y-2">
-            {dependencies.map((dep) => {
+            {dependencies.map((dep: any) => {
               const fromTask = tasks.find((t) => t.id === dep.dependsOnTaskId);
               const toTask = tasks.find((t) => t.id === dep.taskId);
               const typeLabel =

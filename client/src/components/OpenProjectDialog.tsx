@@ -101,7 +101,7 @@ export function OpenProjectDialog({ projectId, projectName, onSuccess }: OpenPro
             <div className="space-y-3">
               <Label>รายละเอียดความสมบูรณ์</Label>
               <div className="space-y-2">
-                {validation.details.map((detail, index) => (
+                {validation.details.map((detail, index: any) => (
                   <div
                     key={index}
                     className={`flex items-start gap-3 p-3 rounded-lg border ${

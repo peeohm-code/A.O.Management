@@ -298,7 +298,7 @@ export default function InspectionDetail() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {inspection.itemResults.map((item, index) => {
+              {inspection.itemResults.map((item: any, index: any) => {
                 const photos = parsePhotoUrls(item.photoUrls);
                 return (
                   <Card
@@ -330,7 +330,7 @@ export default function InspectionDetail() {
                                   รูปภาพ ({photos.length})
                                 </p>
                                 <div className="flex gap-2 flex-wrap">
-                                  {photos.map((url, idx) => (
+                                  {photos.map((url, idx: any) => (
                                     <img
                                       key={idx}
                                       src={url}
@@ -372,7 +372,7 @@ export default function InspectionDetail() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {inspection.defects.map((defect) => (
+                {inspection.defects.map((defect: any) => (
                   <Card key={defect.id} className="border-l-4 border-l-orange-500">
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between">

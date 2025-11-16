@@ -238,7 +238,7 @@ export function KeyMetrics({ stats, projects = [] }: KeyMetricsProps) {
                 ไม่มีโครงการในหมวดนี้
               </div>
             ) : (
-              getFilteredProjects(selectedMetric || "").map((project) => (
+              getFilteredProjects(selectedMetric || "").map((project: any) => (
                 <Card
                   key={project.id}
                   onClick={() => handleProjectClick(project.id)}

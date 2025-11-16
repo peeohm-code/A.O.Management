@@ -187,7 +187,7 @@ export default function InspectionHistory() {
               </div>
             ) : (
               <div className="space-y-4">
-                {inspections.map((inspection) => (
+                {inspections.map((inspection: any) => (
                   <Card key={inspection.id} className="border-l-4 border-l-primary">
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">

@@ -162,10 +162,10 @@ export default function Tasks() {
 
   const stats = {
     total: tasks.length,
-    not_started: tasks.filter((t) => (t as any).displayStatus === "not_started").length,
-    in_progress: tasks.filter((t) => (t as any).displayStatus === "in_progress").length,
-    delayed: tasks.filter((t) => (t as any).displayStatus === "delayed").length,
-    completed: tasks.filter((t) => (t as any).displayStatus === "completed").length,
+    not_started: tasks.filter((t: any) => (t as any).displayStatus === "not_started").length,
+    in_progress: tasks.filter((t: any) => (t as any).displayStatus === "in_progress").length,
+    delayed: tasks.filter((t: any) => (t as any).displayStatus === "delayed").length,
+    completed: tasks.filter((t: any) => (t as any).displayStatus === "completed").length,
   };
 
   const getStatusColor = (status: string) => {
@@ -204,7 +204,7 @@ export default function Tasks() {
     if (selectedTasks.size === filteredTasks.length) {
       setSelectedTasks(new Set());
     } else {
-      setSelectedTasks(new Set(filteredTasks.map((t) => t.id)));
+      setSelectedTasks(new Set(filteredTasks.map((t: any) => t.id)));
     }
   };
 
@@ -332,7 +332,7 @@ export default function Tasks() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">ทุกโครงการ</SelectItem>
-                {projects.map((project) => (
+                {projects.map((project: any) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.name}
                   </SelectItem>
@@ -438,7 +438,7 @@ export default function Tasks() {
                       { name: 'กำลังทำ', value: stats.in_progress, color: '#00366D' },
                       { name: 'ล่าช้า', value: stats.delayed, color: '#EF4444' },
                       { name: 'เสร็จสมบูรณ์', value: stats.completed, color: '#00CE81' },
-                    ].map((entry, index) => (
+                    ].map((entry, index: any) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>

@@ -46,7 +46,7 @@ export function AllProjectsCards({ projects }: AllProjectsCardsProps) {
           </CardContent>
         </Card>
       ) : (
-        projects.map((project) => (
+        projects.map((project: any) => (
           <Link key={project.id} href={`/projects/${project.id}`}>
             <Card className="hover:shadow-md transition cursor-pointer">
               <CardHeader className="pb-3">

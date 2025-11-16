@@ -19,7 +19,7 @@ export function ArchiveAnalytics({ projects }: ArchiveAnalyticsProps) {
       approaching5Years: 0, // 4.5-5 years
     };
 
-    projects.forEach((project) => {
+    projects.forEach((project: any) => {
       if (!project.archivedAt) return;
       
       const archivedDate = new Date(project.archivedAt);
@@ -40,7 +40,7 @@ export function ArchiveAnalytics({ projects }: ArchiveAnalyticsProps) {
 
   // Calculate next deletion date (earliest project that will reach 5 years)
   const getNextDeletionDate = () => {
-    const projectsUnder5Years = projects.filter((p) => {
+    const projectsUnder5Years = projects.filter((p: any) => {
       if (!p.archivedAt) return false;
       const years = (new Date().getTime() - new Date(p.archivedAt).getTime()) / (1000 * 60 * 60 * 24 * 365);
       return years < 5;

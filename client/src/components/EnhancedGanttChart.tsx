@@ -58,12 +58,12 @@ export default function EnhancedGanttChart({
     if (!tasks || tasks.length === 0) return [];
 
     return tasks
-      .filter((task) => !task.isMilestone || showMilestones)
-      .map((task) => {
+      .filter((task: any) => !task.isMilestone || showMilestones)
+      .map((task: any) => {
         // Find dependencies for this task
         const taskDeps = dependencies
-          .filter((dep) => dep.taskId === task.id)
-          .map((dep) => String(dep.dependsOnTaskId));
+          .filter((dep: any) => dep.taskId === task.id)
+          .map((dep: any) => String(dep.dependsOnTaskId));
 
         // Check if task is on critical path
         const isCritical = criticalPath.includes(task.id);
@@ -330,7 +330,7 @@ export default function EnhancedGanttChart({
             ความสัมพันธ์ระหว่างงาน ({dependencies.length})
           </h4>
           <div className="space-y-2 max-h-60 overflow-y-auto">
-            {dependencies.map((dep) => {
+            {dependencies.map((dep: any) => {
               const fromTask = tasks.find((t) => t.id === dep.dependsOnTaskId);
               const toTask = tasks.find((t) => t.id === dep.taskId);
               const typeLabel =

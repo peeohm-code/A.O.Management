@@ -438,7 +438,7 @@ export async function validateProjectCompleteness(projectId: number) {
     details.push({ category: 'Checklist Templates', status: 'incomplete', message: 'แนะนำให้มี checklist template อย่างน้อย 1 อัน' });
   }
 
-  const totalPercentage = Object.values(checks).reduce((sum, val) => sum + val, 0);
+  const totalPercentage = Object.values(checks).reduce((sum: any, val) => sum + val, 0);
 
   return {
     percentage: totalPercentage,
@@ -511,7 +511,7 @@ export async function getProjectStats(projectId: number) {
   ).length;
 
   // Calculate overall progress (average of all task progress)
-  const totalProgress = projectTasks.reduce((sum, t) => sum + (t.progress || 0), 0);
+  const totalProgress = projectTasks.reduce((sum: any, t: any) => sum + (t.progress || 0), 0);
   const progress = Math.round(totalProgress / totalTasks);
 
   // Determine project status based on new logic:
@@ -698,7 +698,7 @@ export async function getArchivedProjects(userId: number) {
     )
     .orderBy(desc(projects.archivedAt));
 
-  return result.map((r) => r.projects);
+  return result.map((r: any) => r.projects);
 }
 
 export async function addProjectMember(data: {
@@ -957,7 +957,7 @@ export async function getChecklistTemplatesByStage(stage: "pre_execution" | "in_
 
   // Fetch items for each template
   const templatesWithItems = await Promise.all(
-    templates.map(async (template) => {
+    templates.map(async (template: any) => {
       const items = await db
         .select()
         .from(checklistTemplateItems)
@@ -1039,7 +1039,7 @@ export async function getTaskChecklistsByTask(taskId: number) {
     .where(eq(taskChecklists.taskId, taskId));
 
   // Get items for each checklist
-  const result = [];
+  const result: any[] = [];
   for (const checklist of checklists) {
     const items = await db
       .select()
@@ -1090,7 +1090,7 @@ export async function getTaskChecklistsByProject(projectId: number) {
     .where(eq(tasks.projectId, projectId));
 
   // Get items for each checklist
-  const result = [];
+  const result: any[] = [];
   for (const checklist of checklists) {
     const items = await db
       .select()
@@ -1678,7 +1678,7 @@ export async function submitInspection(data: {
 
   try {
     // 1. Save all checklist item results with photos
-    const itemResultPromises = data.itemResults.map((item) =>
+    const itemResultPromises = data.itemResults.map((item: any) =>
       db.insert(checklistItemResults).values({
         taskChecklistId: data.taskChecklistId,
         templateItemId: item.templateItemId,
@@ -1710,7 +1710,7 @@ export async function submitInspection(data: {
     const failedItems = data.itemResults.filter((r) => r.result === "fail");
     if (failedItems.length > 0) {
       // Get the corresponding result IDs
-      const defectPromises = failedItems.map(async (item, index) => {
+      const defectPromises = failedItems.map(async (item, index: any) => {
   // @ts-ignore
         // Find the result ID for this item
     // @ts-ignore
@@ -3114,7 +3114,7 @@ export async function getMemoryStatistics(params: {
     if (logs.length === 0) return null;
 
     const usagePercentages = logs.map(log => log.usagePercentage);
-    const avgUsage = Math.round(usagePercentages.reduce((a, b) => a + b, 0) / usagePercentages.length);
+    const avgUsage = Math.round(usagePercentages.reduce((a: any, b: any) => a + b, 0) / usagePercentages.length);
     const maxUsage = Math.max(...usagePercentages);
     const minUsage = Math.min(...usagePercentages);
 
@@ -3572,9 +3572,9 @@ export async function getInspectionDetail(inspectionId: number) {
     .orderBy(desc(defects.createdAt));
 
   // Calculate statistics
-  const passCount = itemResults.filter((item) => item.result === "pass").length;
-  const failCount = itemResults.filter((item) => item.result === "fail").length;
-  const naCount = itemResults.filter((item) => item.result === "na").length;
+  const passCount = itemResults.filter((item: any) => item.result === "pass").length;
+  const failCount = itemResults.filter((item: any) => item.result === "fail").length;
+  const naCount = itemResults.filter((item: any) => item.result === "na").length;
   const totalItems = itemResults.length;
   const passRate = totalItems > 0 ? Math.round((passCount / totalItems) * 100) : 0;
 
@@ -3608,19 +3608,19 @@ export async function getInspectionSummaryByTask(taskId: number) {
   const summary = {
     total: inspections.length,
     byStage: {
-      pre_execution: inspections.filter((i) => i.stage === "pre_execution").length,
-      in_progress: inspections.filter((i) => i.stage === "in_progress").length,
-      post_execution: inspections.filter((i) => i.stage === "post_execution").length,
+      pre_execution: inspections.filter((i: any) => i.stage === "pre_execution").length,
+      in_progress: inspections.filter((i: any) => i.stage === "in_progress").length,
+      post_execution: inspections.filter((i: any) => i.stage === "post_execution").length,
     },
     byStatus: {
-      not_started: inspections.filter((i) => i.status === "not_started").length,
-      pending_inspection: inspections.filter((i) => i.status === "pending_inspection").length,
-      in_progress: inspections.filter((i) => i.status === "in_progress").length,
-      completed: inspections.filter((i) => i.status === "completed").length,
-      failed: inspections.filter((i) => i.status === "failed").length,
+      not_started: inspections.filter((i: any) => i.status === "not_started").length,
+      pending_inspection: inspections.filter((i: any) => i.status === "pending_inspection").length,
+      in_progress: inspections.filter((i: any) => i.status === "in_progress").length,
+      completed: inspections.filter((i: any) => i.status === "completed").length,
+      failed: inspections.filter((i: any) => i.status === "failed").length,
     },
-    completedCount: inspections.filter((i) => i.status === "completed").length,
-    failedCount: inspections.filter((i) => i.status === "failed").length,
+    completedCount: inspections.filter((i: any) => i.status === "completed").length,
+    failedCount: inspections.filter((i: any) => i.status === "failed").length,
   };
 
   return summary;
@@ -4129,26 +4129,26 @@ export async function getRoleDashboardData(userId: number, role: string) {
           )
         );
 
-      const pmProjectIds = pmProjects.map((p) => p.projects.id);
+      const pmProjectIds = pmProjects.map((p: any) => p.projects.id);
       const [pmTasks, pmDefects, pmTeamMembers] = await Promise.all([
         pmProjectIds.length > 0
-          ? db.select().from(tasks).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
+          ? db.select().from(tasks).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id: any) => sql`${id}`), sql`, `)})`)
           : [],
         pmProjectIds.length > 0
-          ? db.select().from(defects).leftJoin(tasks, eq(tasks.id, defects.taskId)).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`).then(results => results.map(r => r.defects))
+          ? db.select().from(defects).leftJoin(tasks, eq(tasks.id, defects.taskId)).where(sql`${tasks.projectId} IN (${sql.join(pmProjectIds.map((id: any) => sql`${id}`), sql`, `)})`).then(results => results.map(r => r.defects))
           : [],
         pmProjectIds.length > 0
           ? db
               .select()
               .from(projectMembers)
               .leftJoin(users, eq(users.id, projectMembers.userId))
-              .where(sql`${projectMembers.projectId} IN (${sql.join(pmProjectIds.map((id) => sql`${id}`), sql`, `)})`)
+              .where(sql`${projectMembers.projectId} IN (${sql.join(pmProjectIds.map((id: any) => sql`${id}`), sql`, `)})`)
           : [],
       ]);
 
       return {
         ...baseData,
-        projects: pmProjects.map((p) => p.projects),
+        projects: pmProjects.map((p: any) => p.projects),
         tasks: pmTasks,
         defects: pmDefects,
         teamMembers: pmTeamMembers,
@@ -4172,12 +4172,12 @@ export async function getRoleDashboardData(userId: number, role: string) {
 
       return {
         ...baseData,
-        defects: qcDefects.map((d) => d.defects),
-        inspections: qcInspections.map((i) => i.taskChecklists),
+        defects: qcDefects.map((d: any) => d.defects),
+        inspections: qcInspections.map((i: any) => i.taskChecklists),
         totalDefects: qcDefects.length,
         totalInspections: qcInspections.length,
         pendingInspections: qcInspections.filter(
-          (i) => i.taskChecklists && i.taskChecklists.status === "pending_inspection"
+          (i: any) => i.taskChecklists && i.taskChecklists.status === "pending_inspection"
         ).length,
       };
 
@@ -4192,14 +4192,14 @@ export async function getRoleDashboardData(userId: number, role: string) {
 
       return {
         ...baseData,
-        tasks: workerTasks.map((t) => ({ ...t.tasks, projectName: t.projects?.name })),
+        tasks: workerTasks.map((t: any) => ({ ...t.tasks, projectName: t.projects?.name })),
         totalTasks: workerTasks.length,
         todoTasks: workerTasks.filter(
-          (t) => t.tasks.status === "todo" || t.tasks.status === "not_started"
+          (t: any) => t.tasks.status === "todo" || t.tasks.status === "not_started"
         ).length,
-        inProgressTasks: workerTasks.filter((t) => t.tasks.status === "in_progress")
+        inProgressTasks: workerTasks.filter((t: any) => t.tasks.status === "in_progress")
           .length,
-        completedTasks: workerTasks.filter((t) => t.tasks.status === "completed")
+        completedTasks: workerTasks.filter((t: any) => t.tasks.status === "completed")
           .length,
       };
 

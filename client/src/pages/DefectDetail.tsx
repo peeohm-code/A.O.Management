@@ -1172,7 +1172,7 @@ export default function DefectDetail() {
                     </div>
                   ) : beforePhotosQuery.data && beforePhotosQuery.data.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2">
-                      {beforePhotosQuery.data.map((photo, index) => (
+                      {beforePhotosQuery.data.map((photo: any, index: any) => (
                         <div key={photo.id} className="relative group">
                           <img
                             src={photo.fileUrl}
@@ -1254,7 +1254,7 @@ export default function DefectDetail() {
                     </div>
                   ) : afterPhotosQuery.data && afterPhotosQuery.data.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2">
-                      {afterPhotosQuery.data.map((photo, index) => (
+                      {afterPhotosQuery.data.map((photo: any, index: any) => (
                         <div key={photo.id} className="relative group">
                           <img
                             src={photo.fileUrl}
@@ -1606,7 +1606,7 @@ export default function DefectDetail() {
                     ก่อนแก้ไข (Before)
                   </h3>
                   <div className="space-y-2">
-                    {beforePhotosQuery.data.map((photo) => (
+                    {beforePhotosQuery.data.map((photo: any) => (
                       <div key={photo.id} className="relative group">
                         <img
                           src={photo.fileUrl}
@@ -1626,7 +1626,7 @@ export default function DefectDetail() {
                     หลังแก้ไข (After)
                   </h3>
                   <div className="space-y-2">
-                    {afterPhotosQuery.data.map((photo) => (
+                    {afterPhotosQuery.data.map((photo: any) => (
                       <div key={photo.id} className="relative group">
                         <img
                           src={photo.fileUrl}

@@ -35,7 +35,7 @@ const projectRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const projects = await db.getAllProjects();
     const projectsWithStats = await Promise.all(
-      projects.map(async (p) => {
+      projects.map(async (p: any) => {
         const stats = await db.getProjectStats(p.id);
         return {
           ...p,
@@ -133,7 +133,7 @@ const projectRouter = router({
         
         // Notify all project members
         if (members && members.length > 0) {
-          members.forEach((member) => {
+          members.forEach((member: any) => {
             emitNotification(member.userId, notification);
           });
         }
@@ -180,7 +180,7 @@ const projectRouter = router({
   listArchived: protectedProcedure.query(async ({ ctx }) => {
     const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
     const projectsWithStats = await Promise.all(
-      archivedProjects.map(async (project) => {
+      archivedProjects.map(async (project: any) => {
         const stats = await db.getProjectStats(project.id);
         return {
           ...project,
@@ -196,7 +196,7 @@ const projectRouter = router({
   exportArchiveExcel: protectedProcedure.query(async ({ ctx }) => {
     const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
     
-    const exportData = archivedProjects.map((project) => {
+    const exportData = archivedProjects.map((project: any) => {
       const archivedYears = project.archivedAt
         ? (Date.now() - new Date(project.archivedAt).getTime()) / (1000 * 60 * 60 * 24 * 365)
         : 0;
@@ -410,7 +410,7 @@ const projectRouter = router({
   listWithStats: protectedProcedure.query(async ({ ctx }) => {
     const projects = await db.getProjectsByUser(ctx.user!.id);
     const projectsWithStats = await Promise.all(
-      projects.map(async (p) => {
+      projects.map(async (p: any) => {
         const stats = await db.getProjectStats(p.projects.id);
         return {
           ...p.projects,
@@ -469,7 +469,7 @@ const taskRouter = router({
     const projectIds = userProjects.map((p: any) => p.projects.id);
     
     // Get all tasks from those projects
-    const allTasks = [];
+    const allTasks: any[] = [];
     for (const projectId of projectIds) {
       const projectTasks = await db.getTasksByProject(projectId);
       allTasks.push(...projectTasks);
@@ -589,7 +589,7 @@ const taskRouter = router({
         
         // Notify task followers
         const followers = await db.getTaskFollowers(id);
-        followers.forEach((follower) => {
+        followers.forEach((follower: any) => {
           if (follower.userId !== ctx.user!.id) {
             emitNotification(follower.userId, notification);
           }
@@ -865,7 +865,7 @@ const taskRouter = router({
         const userProjects = await db.getProjectsByUser(ctx.user!.id);
         const projectIds = userProjects.map((p: any) => p.projects.id);
         
-        const allTasks = [];
+        const allTasks: any[] = [];
         for (const projectId of projectIds) {
           const projectTasks = await db.getTasksByProject(projectId);
           allTasks.push(...projectTasks);
@@ -1086,7 +1086,7 @@ const checklistRouter = router({
     .query(async ({ input }) => {
       const checklists = await db.getTaskChecklistsByTemplateId(input.templateId);
       // Get task details for each checklist
-      const result = [];
+      const result: any[] = [];
       for (const checklist of checklists) {
         const task = await db.getTaskById(checklist.taskId);
         if (task) {
@@ -2238,14 +2238,14 @@ const dashboardRouter = router({
 
     // @ts-ignore
     // Calculate average progress across all projects
-    const totalProgress = projectsWithStats.reduce((sum, p) => sum + p.stats.progressPercentage, 0);
+    const totalProgress = projectsWithStats.reduce((sum: any, p) => sum + p.stats.progressPercentage, 0);
     const averageProgress = projectsWithStats.length > 0 ? Math.round(totalProgress / projectsWithStats.length) : 0;
 
     // Get tasks from user's projects only (consistent with Tasks page)
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
     const projectIds = userProjects.map((p: any) => p.projects.id);
     
-    const allTasks = [];
+    const allTasks: any[] = [];
     for (const projectId of projectIds) {
       const projectTasks = await db.getTasksByProject(projectId);
       allTasks.push(...projectTasks);

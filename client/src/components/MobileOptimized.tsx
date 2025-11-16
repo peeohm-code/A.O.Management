@@ -142,7 +142,7 @@ export default function MobileOptimized({
           {/* Quick Actions */}
           {showQuickMenu && (
             <div className="fixed bottom-36 right-4 z-40 flex flex-col gap-3">
-              {quickActions.map((action, index) => (
+              {quickActions.map((action, index: any) => (
                 <Button
                   key={index}
                   size="icon"

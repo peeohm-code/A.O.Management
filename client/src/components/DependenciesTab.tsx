@@ -116,7 +116,7 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
   const blockingDeps = blockingQuery.data || [];
   const validation = validateQuery.data;
   const availableTasks = (projectTasksQuery.data || []).filter(
-    (task) => task.id !== taskId && !dependencies.some((dep) => dep.dependsOnTaskId === task.id)
+    (task: any) => task.id !== taskId && !dependencies.some((dep: any) => dep.dependsOnTaskId === task.id)
   );
 
   return (
@@ -137,7 +137,7 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {blockingDeps.map((blocking) => (
+              {blockingDeps.map((blocking: any) => (
                 <div
                   key={blocking.id}
                   className="flex items-center justify-between p-3 bg-white border border-yellow-300 rounded-lg"
@@ -202,7 +202,7 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
                         <SelectValue placeholder="เลือกงาน" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableTasks.map((task) => (
+                        {availableTasks.map((task: any) => (
                           <SelectItem key={task.id} value={task.id.toString()}>
                             {task.name}
                           </SelectItem>
@@ -257,9 +257,9 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {dependencies.map((dep) => {
+              {dependencies.map((dep: any) => {
                 const dependsOnTask = projectTasksQuery.data?.find(
-                  (t) => t.id === dep.dependsOnTaskId
+                  (t: any) => t.id === dep.dependsOnTaskId
                 );
                 return (
                   <div

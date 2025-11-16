@@ -174,7 +174,7 @@ export default function MyTasks() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {tasks.map((task) => (
+                  {tasks.map((task: any) => (
                     <div
                       key={task.id}
                       className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors"

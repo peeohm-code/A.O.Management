@@ -57,7 +57,7 @@ async function sendDailySummaryToUser(userId: number, userName: string, userEmai
     .from(projects);
 
   const projectsData = await Promise.all(
-    userProjects.map(async (project) => {
+    userProjects.map(async (project: any) => {
       // นับงานที่ล่าช้า (endDate < today และ progress < 100)
       const tasksOverdueResult = await db
         .select({ count: sql<number>`count(*)` })
@@ -141,7 +141,7 @@ async function sendDailySummaryToUser(userId: number, userName: string, userEmai
     .orderBy(tasks.endDate)
     .limit(10);
 
-  const upcomingDeadlines = upcomingTasks.map((task) => {
+  const upcomingDeadlines = upcomingTasks.map((task: any) => {
     const dueDate = new Date(task.dueDate || todayStr);
     const daysRemaining = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return {
@@ -169,7 +169,7 @@ async function sendDailySummaryToUser(userId: number, userName: string, userEmai
     .orderBy(desc(activityLog.createdAt))
     .limit(10);
 
-  const recentActivities = recentActivitiesRaw.map((activity) => ({
+  const recentActivities = recentActivitiesRaw.map((activity: any) => ({
     action: translateAction(activity.action),
     details: activity.details || "",
     time: formatTime(activity.createdAt),

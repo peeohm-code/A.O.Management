@@ -134,8 +134,8 @@ export default function Analytics() {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t: any) => t.progress === 100).length;
     const avgProgress = tasks.reduce((sum: number, t: any) => sum + (t.progress || 0), 0) / totalTasks;
-    const onTrackTasks = progressVsPlanData.filter((d) => d.status === "ahead").length;
-    const behindTasks = progressVsPlanData.filter((d) => d.status === "behind").length;
+    const onTrackTasks = progressVsPlanData.filter((d: any) => d.status === "ahead").length;
+    const behindTasks = progressVsPlanData.filter((d: any) => d.status === "behind").length;
 
     return {
       totalTasks,

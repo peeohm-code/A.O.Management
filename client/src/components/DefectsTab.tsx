@@ -95,7 +95,7 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
             <div className="text-center">
               <p className="text-sm text-gray-500">CAR</p>
               <p className="text-2xl font-bold text-yellow-600">
-                {defects.filter((d) => d.type === "CAR").length}
+                {defects.filter((d: any) => d.type === "CAR").length}
               </p>
             </div>
           </CardContent>
@@ -105,7 +105,7 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
             <div className="text-center">
               <p className="text-sm text-gray-500">PAR</p>
               <p className="text-2xl font-bold text-blue-600">
-                {defects.filter((d) => d.type === "PAR").length}
+                {defects.filter((d: any) => d.type === "PAR").length}
               </p>
             </div>
           </CardContent>
@@ -115,7 +115,7 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
             <div className="text-center">
               <p className="text-sm text-gray-500">NCR</p>
               <p className="text-2xl font-bold text-red-600">
-                {defects.filter((d) => d.type === "NCR").length}
+                {defects.filter((d: any) => d.type === "NCR").length}
               </p>
             </div>
           </CardContent>
@@ -124,7 +124,7 @@ export function DefectsTab({ taskId }: DefectsTabProps) {
 
       {/* Defects List */}
       <div className="space-y-3">
-        {defects.map((defect) => (
+        {defects.map((defect: any) => (
           <Link key={defect.id} href={`/defects/${defect.id}`}>
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="pt-4">

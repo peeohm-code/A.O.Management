@@ -91,7 +91,7 @@ export default function WorkloadBalancing() {
     const activeTasks = (m.todoTasks || 0) + (m.inProgressTasks || 0);
     return activeTasks > 8;
   }).length || 0;
-  const totalActiveTasks = workloadStats?.reduce((sum, m) => 
+  const totalActiveTasks = workloadStats?.reduce((sum: any, m: any) => 
     sum + (m.todoTasks || 0) + (m.inProgressTasks || 0), 0
   ) || 0;
 
@@ -114,7 +114,7 @@ export default function WorkloadBalancing() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทุกโครงการ</SelectItem>
-              {projects.map((project) => (
+              {projects.map((project: any) => (
                 <SelectItem key={project.id} value={project.id.toString()}>
                   {project.name}
                 </SelectItem>
@@ -182,7 +182,7 @@ export default function WorkloadBalancing() {
             </div>
           ) : (
             <div className="space-y-6">
-              {workloadStats.map((member) => {
+              {workloadStats.map((member: any) => {
                 const workload = getWorkloadLevel(member.todoTasks || 0, member.inProgressTasks || 0);
                 const progress = getWorkloadProgress(member.todoTasks || 0, member.inProgressTasks || 0);
                 const activeTasks = (member.todoTasks || 0) + (member.inProgressTasks || 0);

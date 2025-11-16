@@ -109,22 +109,22 @@ export default function Defects() {
 
   const defects = allDefectsQuery.data || [];
 
-  let filteredDefects = defects.filter((d) =>
+  let filteredDefects = defects.filter((d: any) =>
     d.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (d.taskName && d.taskName.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (d.checklistTemplateName && d.checklistTemplateName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (statusFilter !== "all") {
-    filteredDefects = filteredDefects.filter((d) => d.status === statusFilter);
+    filteredDefects = filteredDefects.filter((d: any) => d.status === statusFilter);
   }
 
   if (typeFilter !== "all") {
-    filteredDefects = filteredDefects.filter((d) => d.type === typeFilter);
+    filteredDefects = filteredDefects.filter((d: any) => d.type === typeFilter);
   }
 
   if (severityFilter !== "all") {
-    filteredDefects = filteredDefects.filter((d) => d.severity === severityFilter);
+    filteredDefects = filteredDefects.filter((d: any) => d.severity === severityFilter);
   }
 
   const getSeverityColor = (severity: string) => {
@@ -431,9 +431,9 @@ export default function Defects() {
 
   const stats = {
     total: defects.length,
-    critical: defects.filter((d) => d.severity === "critical").length,
-    high: defects.filter((d) => d.severity === "high").length,
-    open: defects.filter((d) => d.status === "reported").length,
+    critical: defects.filter((d: any) => d.severity === "critical").length,
+    high: defects.filter((d: any) => d.severity === "high").length,
+    open: defects.filter((d: any) => d.status === "reported").length,
   };
 
   if (allDefectsQuery.isLoading) {
@@ -496,7 +496,7 @@ export default function Defects() {
                       { name: 'เปิดอยู่', value: metrics.open, color: '#F97316' },
                       { name: 'ปิดแล้ว', value: metrics.closed, color: '#10B981' },
                       { name: 'เกินกำหนด', value: metrics.overdue, color: '#EF4444' },
-                    ].map((entry, index) => (
+                    ].map((entry, index: any) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -614,7 +614,7 @@ export default function Defects() {
             </CardContent>
           </Card>
         ) : (
-          filteredDefects.map((defect) => {
+          filteredDefects.map((defect: any) => {
             const nextStatus = getNextStatus(defect.status);
             const canEdit = permissions.canEdit;
             

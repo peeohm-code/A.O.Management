@@ -42,7 +42,7 @@ export function OfflineIndicator() {
         </DialogHeader>
 
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {queueItems.map((item) => (
+          {queueItems.map((item: any) => (
             <div
               key={item.id}
               className="p-3 border rounded-lg space-y-2"

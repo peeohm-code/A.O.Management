@@ -76,7 +76,7 @@ export function WorkflowGuide({ currentStatus, type }: WorkflowGuideProps) {
         <div className="space-y-4">
           {/* Progress Steps */}
           <div className="flex items-center justify-between relative">
-            {workflowSteps.map((step, index) => {
+            {workflowSteps.map((step, index: any) => {
               const Icon = step.icon;
               const isActive = index === currentStepIndex;
               const isCompleted = index < currentStepIndex;

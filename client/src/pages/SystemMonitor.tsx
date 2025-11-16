@@ -120,7 +120,7 @@ export default function SystemMonitor() {
         <CardContent>
           {healthStatus?.issues && healthStatus.issues.length > 0 && (
             <div className="space-y-2">
-              {healthStatus.issues.map((issue, idx) => (
+              {healthStatus.issues.map((issue, idx: any) => (
                 <div
                   key={idx}
                   className="p-3 rounded-lg border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20"
@@ -444,7 +444,7 @@ export default function SystemMonitor() {
             <CardContent>
               {recommendations?.recommendations && recommendations.recommendations.length > 0 ? (
                 <div className="space-y-3">
-                  {recommendations.recommendations.map((rec, idx) => (
+                  {recommendations.recommendations.map((rec, idx: any) => (
                     <div
                       key={idx}
                       className={`p-4 rounded-lg border ${

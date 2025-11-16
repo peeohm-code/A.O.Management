@@ -216,7 +216,7 @@ export async function applyRecommendedIndexes() {
     'CREATE INDEX IF NOT EXISTS idx_activity_log_timestamp ON activityLog(timestamp)',
   ];
 
-  const results = [];
+  const results: Array<{ query: string; success: boolean; error?: string }> = [];
   for (const query of indexQueries) {
     try {
       await db.execute(query);

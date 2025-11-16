@@ -157,8 +157,8 @@ export default function Dashboard() {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t: any) => t.progress === 100).length;
     const avgProgress = tasks.reduce((sum: number, t: any) => sum + (t.progress || 0), 0) / totalTasks;
-    const onTrackTasks = progressVsPlanData.filter((d) => d.status === "ahead").length;
-    const behindTasks = progressVsPlanData.filter((d) => d.status === "behind").length;
+    const onTrackTasks = progressVsPlanData.filter((d: any) => d.status === "ahead").length;
+    const behindTasks = progressVsPlanData.filter((d: any) => d.status === "behind").length;
 
     return {
       totalTasks,
@@ -218,7 +218,7 @@ export default function Dashboard() {
     const filterDate = getDateRangeFilter(dateRange);
     if (!filterDate) return projects;
 
-    return projects.filter((project) => {
+    return projects.filter((project: any) => {
       const projectDate = project.createdAt ? new Date(project.createdAt) : null;
       return projectDate && projectDate >= filterDate;
     });

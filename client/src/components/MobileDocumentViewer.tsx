@@ -381,7 +381,7 @@ export function ImageGalleryViewer({
               </div>
             ) : (
               <div className="flex gap-2 overflow-x-auto">
-                {images.map((img, idx) => (
+                {images.map((img, idx: any) => (
                   <button
                     key={idx}
                     onClick={() => {

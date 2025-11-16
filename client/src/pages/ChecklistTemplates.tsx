@@ -149,7 +149,7 @@ export default function ChecklistTemplates() {
         description: templateDescriptionInput.value || undefined,
         allowGeneralComments,
         allowPhotos,
-        items: validItems.map((item, index) => ({
+        items: validItems.map((item, index: any) => ({
           itemText: item.itemText,
           order: index,
         })),
@@ -227,7 +227,7 @@ export default function ChecklistTemplates() {
         description: templateDescriptionInput.value || undefined,
         allowGeneralComments,
         allowPhotos,
-        items: validItems.map((item, index) => ({
+        items: validItems.map((item, index: any) => ({
           itemText: item.itemText,
           order: index,
         })),
@@ -329,7 +329,7 @@ export default function ChecklistTemplates() {
         </div>
 
         <div className="space-y-3">
-          {items.map((item, index) => (
+          {items.map((item, index: any) => (
             <div key={index} className="flex gap-2 items-start p-4 border rounded-lg">
               <div className="flex-1 space-y-2">
                 <Label>รายการที่ {index + 1}</Label>

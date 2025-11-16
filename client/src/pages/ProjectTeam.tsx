@@ -130,7 +130,7 @@ export default function ProjectTeam() {
 
   // Filter out users who are already members
   const availableUsers = allUsers?.filter(
-    (u) => !members?.some((m) => m.userId === u.id)
+    (u: any) => !members?.some((m: any) => m.userId === u.id)
   );
 
   if (membersLoading) {
@@ -182,7 +182,7 @@ export default function ProjectTeam() {
                       <SelectValue placeholder="เลือกผู้ใช้" />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableUsers?.map((user) => (
+                      {availableUsers?.map((user: any) => (
                         <SelectItem key={user.id} value={user.id.toString()}>
                           {user.name || user.email || `User ${user.id}`}
                         </SelectItem>
@@ -236,7 +236,7 @@ export default function ProjectTeam() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {teamStats.reduce((sum, m) => sum + (m.taskStats?.inProgressTasks || 0), 0)}
+                {teamStats.reduce((sum: any, m: any) => sum + (m.taskStats?.inProgressTasks || 0), 0)}
               </div>
             </CardContent>
           </Card>
@@ -247,7 +247,7 @@ export default function ProjectTeam() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {teamStats.reduce((sum, m) => sum + (m.taskStats?.completedTasks || 0), 0)}
+                {teamStats.reduce((sum: any, m: any) => sum + (m.taskStats?.completedTasks || 0), 0)}
               </div>
             </CardContent>
           </Card>
@@ -269,7 +269,7 @@ export default function ProjectTeam() {
             </div>
           ) : (
             <div className="space-y-4">
-              {members.map((member) => {
+              {members.map((member: any) => {
                 const memberStats = teamStats?.find((s) => s.userId === member.userId);
                 return (
                   <div

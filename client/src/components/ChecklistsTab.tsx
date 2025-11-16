@@ -243,7 +243,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
   const { data: templates } = trpc.checklist.listTemplates.useQuery();
 
   // Filter templates based on search query
-  const filteredTemplates = templates?.filter((template) =>
+  const filteredTemplates = templates?.filter((template: any) =>
     template.name.toLowerCase().includes(templateSearchQuery.toLowerCase())
   ) || [];
 
@@ -345,18 +345,18 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
 
   // Sort checklists by priority: failed > pending_inspection > in_progress > not_started > completed
   const priorityOrder = { failed: 1, pending_inspection: 2, in_progress: 3, not_started: 4, completed: 5 };
-  const sortedChecklists = [...(taskChecklists || [])].sort((a, b) => {
+  const sortedChecklists = [...(taskChecklists || [])].sort((a: any, b: any) => {
     return (priorityOrder[a.status as keyof typeof priorityOrder] || 99) - (priorityOrder[b.status as keyof typeof priorityOrder] || 99);
   });
 
   // Calculate statistics
   const stats = {
     total: taskChecklists?.length || 0,
-    not_started: taskChecklists?.filter(c => c.status === 'not_started').length || 0,
-    pending: taskChecklists?.filter(c => c.status === 'pending_inspection').length || 0,
-    in_progress: taskChecklists?.filter(c => c.status === 'in_progress').length || 0,
-    completed: taskChecklists?.filter(c => c.status === 'completed').length || 0,
-    failed: taskChecklists?.filter(c => c.status === 'failed').length || 0,
+    not_started: taskChecklists?.filter((c: any) => c.status === 'not_started').length || 0,
+    pending: taskChecklists?.filter((c: any) => c.status === 'pending_inspection').length || 0,
+    in_progress: taskChecklists?.filter((c: any) => c.status === 'in_progress').length || 0,
+    completed: taskChecklists?.filter((c: any) => c.status === 'completed').length || 0,
+    failed: taskChecklists?.filter((c: any) => c.status === 'failed').length || 0,
   };
 
   const getStatusIcon = (status: string) => {
@@ -431,7 +431,7 @@ export function ChecklistsTab({ taskId }: ChecklistsTabProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {filteredTemplates.length > 0 ? (
-                        filteredTemplates.map((template) => (
+                        filteredTemplates.map((template: any) => (
                           <SelectItem key={template.id} value={template.id.toString()}>
                             {template.name} ({getStageLabel(template.stage)})
                           </SelectItem>

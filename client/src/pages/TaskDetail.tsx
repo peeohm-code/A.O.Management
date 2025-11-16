@@ -563,7 +563,7 @@ export default function TaskDetail() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {attachments
                     .filter((a: any) => a.mimeType?.startsWith('image/'))
-                    .map((photo) => (
+                    .map((photo: any) => (
                       <div
                         key={photo.id}
                         className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden"
@@ -645,7 +645,7 @@ export default function TaskDetail() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {attachments.filter((a: any) => !a.mimeType?.startsWith('image/')).map((attachment) => (
+                  {attachments.filter((a: any) => !a.mimeType?.startsWith('image/')).map((attachment: any) => (
                     <div
                       key={attachment.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
@@ -720,7 +720,7 @@ export default function TaskDetail() {
                 <p className="text-gray-500 text-center py-8">ยังไม่มีความเห็น</p>
               ) : (
                 <div className="space-y-4">
-                  {comments.map((comment) => (
+                  {comments.map((comment: any) => (
                     <div key={comment.id} className="border-b pb-4 last:border-b-0">
                       <div className="flex items-center gap-2 mb-2">
                         <User className="w-4 h-4 text-gray-400" />
@@ -750,7 +750,7 @@ export default function TaskDetail() {
                 <p className="text-gray-500 text-center py-8">ยังไม่มีกิจกรรม</p>
               ) : (
                 <div className="space-y-3">
-                  {activities.map((activity) => (
+                  {activities.map((activity: any) => (
                     <div key={activity.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
                       <div className="w-2 h-2 bg-[#00366D] rounded-full mt-2 flex-shrink-0" />
                       <div className="flex-1 min-w-0">

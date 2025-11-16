@@ -46,13 +46,13 @@ export function ArchivedProjectsList() {
   const utils = trpc.useUtils();
 
   // Filter projects based on search
-  const filteredProjects = archivedProjects.filter((project) =>
+  const filteredProjects = archivedProjects.filter((project: any) =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.code?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate projects ready to delete (> 5 years)
-  const projectsReadyToDelete = archivedProjects.filter((project) => {
+  const projectsReadyToDelete = archivedProjects.filter((project: any) => {
     if (!project.archivedAt) return false;
     const archivedDate = new Date(project.archivedAt);
     const now = new Date();
@@ -310,7 +310,7 @@ export function ArchivedProjectsList() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {filteredProjects.map((project) => {
+          {filteredProjects.map((project: any) => {
             const yearsArchived = parseFloat(getYearsArchived(project.archivedAt!));
             const isReadyToDelete = yearsArchived >= 5;
 

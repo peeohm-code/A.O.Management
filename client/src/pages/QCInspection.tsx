@@ -96,7 +96,7 @@ export default function QCInspection() {
 
   // Calculate real stats from all checklists
   const checklistStats = React.useMemo(() => {
-    return allChecklists.reduce((acc, checklist: any) => {
+    return allChecklists.reduce((acc: any, checklist: any) => {
       const status = checklist.status || 'not_started';
       acc[status] = (acc[status] || 0) + 1;
       return acc;
@@ -353,7 +353,7 @@ export default function QCInspection() {
                       { name: 'รอตรวจสอบ', value: stats.pending_inspection, color: '#FBBF24' },
                       { name: 'ผ่าน', value: stats.completed, color: '#10B981' },
                       { name: 'ไม่ผ่าน', value: stats.failed, color: '#EF4444' },
-                    ].map((entry, index) => (
+                    ].map((entry, index: any) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -468,7 +468,7 @@ export default function QCInspection() {
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredChecklists.map((checklist) => (
+          {filteredChecklists.map((checklist: any) => (
             <SwipeableCard
               key={checklist.id}
               leftActions={[
@@ -573,7 +573,7 @@ export default function QCInspection() {
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-4">รายการตรวจสอบ</h3>
                 <div className="space-y-4">
-                  {(selectedChecklist?.items as any[] || []).map((item, index) => (
+                  {(selectedChecklist?.items as any[] || []).map((item, index: any) => (
                     <div key={item.id} className="pb-4 border-b last:border-b-0 last:pb-0">
                       <div className="space-y-3">
                         <div>

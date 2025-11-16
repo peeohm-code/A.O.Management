@@ -71,7 +71,7 @@ export function CategoryColorPicker({ projectId }: CategoryColorPickerProps) {
   };
 
   const getCategoryColor = (category: string) => {
-    const colorObj = categoryColors.find((c) => c.category === category);
+    const colorObj = categoryColors.find((c: any) => c.category === category);
     return colorObj?.color || "#6B7280";
   };
 

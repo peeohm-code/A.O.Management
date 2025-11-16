@@ -72,7 +72,7 @@ export default function UserManagement() {
 
   const users = usersQuery.data || [];
   const filteredUsers = users.filter(
-    (u) =>
+    (u: any) =>
       u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -133,7 +133,7 @@ export default function UserManagement() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {Object.entries(roleLabels).map(([role, label]) => {
-          const count = users.filter((u) => u.role === role).length;
+          const count = users.filter((u: any) => u.role === role).length;
           return (
             <Card key={role}>
               <CardHeader className="pb-3">
@@ -182,7 +182,7 @@ export default function UserManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {filteredUsers.map((user: any) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name || "-"}</TableCell>
                   <TableCell>{user.email || "-"}</TableCell>

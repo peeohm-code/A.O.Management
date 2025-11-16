@@ -153,7 +153,7 @@ export default function TeamManagement() {
     const activeTasks = (m.todoTasks || 0) + (m.inProgressTasks || 0);
     return activeTasks > 8;
   }).length || 0;
-  const totalActiveTasks = workloadStats?.reduce((sum, m) => 
+  const totalActiveTasks = workloadStats?.reduce((sum: any, m: any) => 
     sum + (m.todoTasks || 0) + (m.inProgressTasks || 0), 0
   ) || 0;
 
@@ -193,7 +193,7 @@ export default function TeamManagement() {
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-5">
             {Object.entries(roleLabels).map(([role, label]) => {
-              const count = users?.filter((u) => u.role === role).length || 0;
+              const count = users?.filter((u: any) => u.role === role).length || 0;
               const Icon = roleIcons[role as keyof typeof roleIcons];
               return (
                 <Card key={role}>
@@ -230,7 +230,7 @@ export default function TeamManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users?.map((user) => {
+                  {users?.map((user: any) => {
                     const Icon = roleIcons[user.role as keyof typeof roleIcons];
                     const isEditing = editingUserId === user.id;
                     const canEdit = canEditRole(user);
@@ -338,7 +338,7 @@ export default function TeamManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ทุกโครงการ</SelectItem>
-                  {projects.map((project) => (
+                  {projects.map((project: any) => (
                     <SelectItem key={project.id} value={project.id.toString()}>
                       {project.name}
                     </SelectItem>
@@ -410,7 +410,7 @@ export default function TeamManagement() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {workloadStats.map((member) => {
+                  {workloadStats.map((member: any) => {
                     const workload = getWorkloadLevel(member.todoTasks || 0, member.inProgressTasks || 0);
                     const progress = getWorkloadProgress(member.todoTasks || 0, member.inProgressTasks || 0);
                     const activeTasks = (member.todoTasks || 0) + (member.inProgressTasks || 0);

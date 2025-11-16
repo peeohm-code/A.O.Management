@@ -206,7 +206,7 @@ export default function MemoryMonitoring() {
               <div className="mt-4">
                 <p className="text-sm font-medium text-orange-800 mb-2">Peak Usage Times:</p>
                 <div className="space-y-1">
-                  {stats.peakTimes.slice(0, 5).map((peak, idx) => (
+                  {stats.peakTimes.slice(0, 5).map((peak: any, idx: any) => (
                     <div key={idx} className="text-xs text-orange-700">
                       {new Date(peak.timestamp).toLocaleString("th-TH")} - {peak.usage}%
                     </div>
@@ -230,7 +230,7 @@ export default function MemoryMonitoring() {
               <div className="text-center py-8 text-muted-foreground">ยังไม่มีข้อมูล</div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {logs.map((log) => (
+                {logs.map((log: any) => (
                   <div
                     key={log.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
@@ -274,7 +274,7 @@ export default function MemoryMonitoring() {
               </div>
             ) : (
               <div className="space-y-3">
-                {oomEvents.map((event) => (
+                {oomEvents.map((event: any) => (
                   <div
                     key={event.id}
                     className="border rounded-lg p-4 space-y-2"

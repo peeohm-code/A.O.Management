@@ -27,7 +27,7 @@ export function BeforeAfterComparison({
     setIsLightboxOpen(true);
   };
   // Auto-pair photos by index
-  const pairs = beforePhotos.map((before, index) => ({
+  const pairs = beforePhotos.map((before, index: any) => ({
     before: before,
     after: afterPhotos[index] || null
   }));
@@ -37,7 +37,7 @@ export function BeforeAfterComparison({
       <h3 className="text-lg font-semibold">{title}</h3>
       
       <div className="grid grid-cols-1 gap-6">
-        {pairs.map((pair, index) => (
+        {pairs.map((pair, index: any) => (
           <Card key={index} className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Before Photo */}
@@ -85,7 +85,7 @@ export function BeforeAfterComparison({
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-600">รูปภาพหลังแก้ไขเพิ่มเติม</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {afterPhotos.slice(beforePhotos.length).map((photo, index) => (
+            {afterPhotos.slice(beforePhotos.length).map((photo, index: any) => (
               <div key={index} className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 <img
                   src={photo}

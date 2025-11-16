@@ -156,7 +156,7 @@ export function FileUpload({
         <div className="mt-4 space-y-2">
           <p className="text-sm font-medium">ไฟล์ที่เลือก ({selectedFiles.length}/{maxFiles})</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {selectedFiles.map((file, index) => (
+            {selectedFiles.map((file, index: any) => (
               <Card key={index} className="relative group overflow-hidden">
                 {previews[index] ? (
                   <img

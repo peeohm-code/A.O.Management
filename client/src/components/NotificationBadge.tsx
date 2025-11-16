@@ -133,7 +133,7 @@ export default function NotificationBadge() {
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map((notification, index) => (
+              {notifications.map((notification, index: any) => (
                 <div
                   key={index}
                   className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"

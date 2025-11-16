@@ -63,7 +63,7 @@ export async function sendPushNotification(
     let failed = 0;
 
     // Send to all subscriptions
-    const promises = subscriptions.map(async (sub) => {
+    const promises = subscriptions.map(async (sub: any) => {
       try {
         const pushSubscription = {
           endpoint: sub.endpoint,

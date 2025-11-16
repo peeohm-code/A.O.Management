@@ -14,7 +14,7 @@ export function DashboardSkeleton() {
 
       {/* Key Metrics Skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
+        {[1, 2, 3, 4].map((i: any) => (
           <Card key={i}>
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-32" />

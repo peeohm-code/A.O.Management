@@ -142,7 +142,7 @@ export function SwipeableCard({
             style={{ width: `${Math.max(0, swipeOffset)}px` }}
           >
             {hasLeftActions ? (
-              leftActions.map((action, idx) => (
+              leftActions.map((action, idx: any) => (
                 <div
                   key={idx}
                   className={cn(
@@ -179,7 +179,7 @@ export function SwipeableCard({
             style={{ width: `${Math.abs(Math.min(0, swipeOffset))}px` }}
           >
             {hasRightActions ? (
-              rightActions.map((action, idx) => (
+              rightActions.map((action, idx: any) => (
                 <div
                   key={idx}
                   className={cn(
