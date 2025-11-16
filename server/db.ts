@@ -39,8 +39,9 @@ import {
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 
-let _db: any = null; // Use any to avoid mysql2 type incompatibility issues
-let _pool: any = null; // Use any to avoid mysql2 type incompatibility issues
+// Use any for mysql2 pool to avoid type incompatibility between mysql2/promise and mysql2 typings
+let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: any = null;
 
 // Lazily create the drizzle instance with connection pooling
 export async function getDb() {
@@ -58,7 +59,7 @@ export async function getDb() {
         idleTimeout: 60000, // Close idle connections after 60s
       });
       console.log("[Database] Connection pool created with limit: 10");
-      // Fix TypeScript type error by properly typing the pool
+      // Create drizzle instance
       _db = drizzle(_pool as any);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
@@ -179,7 +180,7 @@ export async function updateUserRole(userId: number, role: string) {
     throw new Error("Database not available");
   }
 
-  await db.update(users).set({ role: role as any }).where(eq(users.id, userId));
+  await db.update(users).set({ role }).where(eq(users.id, userId));
 }
 
 export async function updateUserProfile(userId: number, data: { name: string; email?: string }) {
@@ -188,7 +189,7 @@ export async function updateUserProfile(userId: number, data: { name: string; em
     throw new Error("Database not available");
   }
 
-  const updateData: any = { name: data.name };
+  const updateData: Partial<typeof users.$inferInsert> = { name: data.name };
   if (data.email !== undefined) {
     updateData.email = data.email || null;
   }
@@ -289,7 +290,7 @@ export async function createProject(data: {
   if (!db) throw new Error("Database not available");
 
   // Convert date strings to Date objects
-  const values: any = {
+  const values: Partial<typeof projects.$inferInsert> = {
     name: data.name,
     createdBy: data.createdBy,
   };
