@@ -35,6 +35,8 @@ import {
   scheduledNotifications,
   notificationSettings,
   taskAssignments,
+  alertThresholds,
+  InsertAlertThreshold,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -4212,4 +4214,552 @@ export async function getRoleDashboardData(userId: number, role: string) {
     default:
       return baseData;
   }
+}
+
+// ============================================
+// Alert Thresholds Functions
+// ============================================
+
+export async function getAlertThresholds(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const thresholds = await db
+    .select()
+    .from(alertThresholds)
+    .where(eq(alertThresholds.userId, userId));
+
+  return thresholds;
+}
+
+export async function createAlertThreshold(data: InsertAlertThreshold) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if threshold already exists for this user and metric type
+  const existing = await db
+    .select()
+    .from(alertThresholds)
+    .where(
+      and(
+        eq(alertThresholds.userId, data.userId),
+        eq(alertThresholds.metricType, data.metricType)
+      )
+    );
+
+  if (existing.length > 0) {
+    throw new Error(`Alert threshold for ${data.metricType} already exists`);
+  }
+
+  const result = await db.insert(alertThresholds).values(data);
+  return result;
+}
+
+export async function updateAlertThreshold(
+  id: number,
+  data: Partial<{
+    threshold: number;
+    isEnabled: boolean;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(alertThresholds).set(data).where(eq(alertThresholds.id, id));
+}
+
+export async function deleteAlertThreshold(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(alertThresholds).where(eq(alertThresholds.id, id));
+}
+
+export async function checkAlertThresholds(userId: number, currentMetrics: { cpu: number; memory: number }) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const thresholds = await db
+    .select()
+    .from(alertThresholds)
+    .where(
+      and(
+        eq(alertThresholds.userId, userId),
+        eq(alertThresholds.isEnabled, true)
+      )
+    );
+
+  const exceededThresholds = [];
+
+  for (const threshold of thresholds) {
+    const currentValue = currentMetrics[threshold.metricType];
+    if (currentValue >= threshold.threshold) {
+      exceededThresholds.push({
+        metricType: threshold.metricType,
+        threshold: threshold.threshold,
+        currentValue,
+        exceeded: currentValue - threshold.threshold,
+      });
+    }
+  }
+
+  return exceededThresholds;
+}
+
+
+// ============================================
+// Advanced Analytics Functions
+// ============================================
+
+/**
+ * Predictive Analytics - คาดการณ์ความล่าช้าของโครงการ
+ */
+export async function getPredictiveAnalytics(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // ดึงข้อมูลโครงการและงาน
+  const project = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  if (project.length === 0) return null;
+
+  const projectData = project[0];
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  // คำนวณสถิติ
+  const totalTasks = allTasks.length;
+  const completedTasks = allTasks.filter(t => t.status === 'completed').length;
+  const inProgressTasks = allTasks.filter(t => t.status === 'in_progress').length;
+  const delayedTasks = allTasks.filter(t => {
+    if (!t.endDate) return false;
+    const endDate = new Date(t.endDate);
+    const today = new Date();
+    return t.status !== 'completed' && endDate < today;
+  }).length;
+
+  // คำนวณ velocity (อัตราการทำงานเสร็จ)
+  const completionRate = totalTasks > 0 ? completedTasks / totalTasks : 0;
+  
+  // คำนวณวันที่เหลือ
+  const today = new Date();
+  const endDate = new Date(projectData.endDate || today);
+  const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  
+  // คำนวณงานที่เหลือ
+  const remainingTasks = totalTasks - completedTasks;
+  
+  // คาดการณ์วันที่จะเสร็จจริง (ถ้า velocity คงที่)
+  const averageTasksPerDay = daysRemaining > 0 ? completionRate * totalTasks / Math.max(1, daysRemaining) : 0;
+  const predictedDaysToComplete = averageTasksPerDay > 0 ? remainingTasks / averageTasksPerDay : daysRemaining;
+  
+  // คำนวณความเสี่ยงล่าช้า
+  const delayRisk = delayedTasks / Math.max(1, totalTasks);
+  let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+  if (delayRisk > 0.3) riskLevel = 'critical';
+  else if (delayRisk > 0.2) riskLevel = 'high';
+  else if (delayRisk > 0.1) riskLevel = 'medium';
+
+  // คาดการณ์วันที่เสร็จ
+  const predictedEndDate = new Date(today);
+  predictedEndDate.setDate(predictedEndDate.getDate() + Math.ceil(predictedDaysToComplete));
+
+  return {
+    projectId,
+    projectName: projectData.name,
+    totalTasks,
+    completedTasks,
+    inProgressTasks,
+    delayedTasks,
+    completionRate: Math.round(completionRate * 100),
+    daysRemaining,
+    remainingTasks,
+    predictedDaysToComplete: Math.ceil(predictedDaysToComplete),
+    predictedEndDate: predictedEndDate.toISOString(),
+    plannedEndDate: projectData.endDate,
+    delayRisk: Math.round(delayRisk * 100),
+    riskLevel,
+    isOnTrack: predictedEndDate <= endDate,
+    delayDays: Math.max(0, Math.ceil((predictedEndDate.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24))),
+  };
+}
+
+/**
+ * Cost Analysis - วิเคราะห์ต้นทุน (ถ้ามีข้อมูล budget)
+ */
+export async function getCostAnalysis(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const project = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  if (project.length === 0) return null;
+
+  const projectData = project[0];
+  
+  // ในอนาคตสามารถเพิ่ม budget tracking ได้
+  // ตอนนี้ return placeholder data
+  return {
+    projectId,
+    projectName: projectData.name,
+    budgetPlanned: 0,
+    budgetActual: 0,
+    budgetRemaining: 0,
+    costVariance: 0,
+    costPerformanceIndex: 1.0,
+    estimatedCostAtCompletion: 0,
+  };
+}
+
+/**
+ * Resource Utilization - วิเคราะห์การใช้ทรัพยากร
+ */
+export async function getResourceUtilization(projectId?: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // ดึงข้อมูลการ assign งาน
+  const baseQuery = db
+    .select({
+      userId: taskAssignments.userId,
+      userName: users.name,
+      taskId: tasks.id,
+      taskName: tasks.name,
+      taskStatus: tasks.status,
+      projectId: tasks.projectId,
+      projectName: projects.name,
+    })
+    .from(taskAssignments)
+    .innerJoin(tasks, eq(taskAssignments.taskId, tasks.id))
+    .innerJoin(users, eq(taskAssignments.userId, users.id))
+    .innerJoin(projects, eq(tasks.projectId, projects.id));
+
+  const assignments = projectId
+    ? await baseQuery.where(eq(tasks.projectId, projectId))
+    : await baseQuery;
+
+  // จัดกลุ่มตาม user
+  const userStats = new Map<number, {
+    userId: number;
+    userName: string;
+    totalTasks: number;
+    activeTasks: number;
+    completedTasks: number;
+    utilizationRate: number;
+    projects: Set<number>;
+  }>();
+
+  for (const assignment of assignments) {
+    if (!userStats.has(assignment.userId)) {
+      userStats.set(assignment.userId, {
+        userId: assignment.userId,
+        userName: assignment.userName || 'Unknown',
+        totalTasks: 0,
+        activeTasks: 0,
+        completedTasks: 0,
+        utilizationRate: 0,
+        projects: new Set(),
+      });
+    }
+
+    const stats = userStats.get(assignment.userId)!;
+    stats.totalTasks++;
+    stats.projects.add(assignment.projectId);
+    
+    if (assignment.taskStatus === 'completed') {
+      stats.completedTasks++;
+    } else if (assignment.taskStatus === 'in_progress') {
+      stats.activeTasks++;
+    }
+  }
+
+  // คำนวณ utilization rate
+  const result = Array.from(userStats.values()).map(stats => {
+    const utilizationRate = stats.totalTasks > 0 
+      ? (stats.activeTasks + stats.completedTasks) / stats.totalTasks * 100 
+      : 0;
+    
+    return {
+      ...stats,
+      utilizationRate: Math.round(utilizationRate),
+      projectCount: stats.projects.size,
+      projects: undefined, // ลบ Set ออก
+    };
+  });
+
+  return result;
+}
+
+/**
+ * Quality Trend Analysis - วิเคราะห์แนวโน้ม QC Issues
+ */
+export async function getQualityTrendAnalysis(projectId: number, days: number = 30) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+
+  // ดึงข้อมูล defects ย้อนหลัง
+  const defectsList = await db
+    .select({
+      id: defects.id,
+      severity: defects.severity,
+      status: defects.status,
+      createdAt: defects.createdAt,
+      taskId: defects.taskId,
+    })
+    .from(defects)
+    .innerJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(
+      and(
+        eq(tasks.projectId, projectId),
+        gte(defects.createdAt, startDate)
+      )
+    );
+
+  // จัดกลุ่มตามวัน
+  const dailyDefects = new Map<string, {
+    date: string;
+    total: number;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    resolved: number;
+  }>();
+
+  for (const defect of defectsList) {
+    const dateKey = defect.createdAt.toISOString().split('T')[0];
+    
+    if (!dailyDefects.has(dateKey)) {
+      dailyDefects.set(dateKey, {
+        date: dateKey,
+        total: 0,
+        critical: 0,
+        high: 0,
+        medium: 0,
+        low: 0,
+        resolved: 0,
+      });
+    }
+
+    const stats = dailyDefects.get(dateKey)!;
+    stats.total++;
+    
+    if (defect.severity === 'critical') stats.critical++;
+    else if (defect.severity === 'high') stats.high++;
+    else if (defect.severity === 'medium') stats.medium++;
+    else if (defect.severity === 'low') stats.low++;
+    
+    if (defect.status === 'resolved') stats.resolved++;
+  }
+
+  // เรียงตามวันที่
+  const trend = Array.from(dailyDefects.values()).sort((a, b) => 
+    a.date.localeCompare(b.date)
+  );
+
+  // คำนวณสถิติรวม
+  const totalDefects = defectsList.length;
+  const resolvedDefects = defectsList.filter(d => d.status === 'resolved').length;
+  const resolutionRate = totalDefects > 0 ? (resolvedDefects / totalDefects) * 100 : 0;
+
+  return {
+    projectId,
+    days,
+    totalDefects,
+    resolvedDefects,
+    resolutionRate: Math.round(resolutionRate),
+    trend,
+  };
+}
+
+/**
+ * Risk Assessment - ประเมินความเสี่ยงโครงการ
+ */
+export async function getRiskAssessment(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const project = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  if (project.length === 0) return null;
+
+  const projectData = project[0];
+  
+  // ดึงข้อมูลที่เกี่ยวข้อง
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  const allDefects = await db
+    .select()
+    .from(defects)
+    .innerJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(eq(tasks.projectId, projectId));
+
+  // คำนวณความเสี่ยงด้านต่างๆ
+  const totalTasks = allTasks.length;
+  const delayedTasks = allTasks.filter(t => {
+    if (!t.endDate || t.status === 'completed') return false;
+    return new Date(t.endDate) < new Date();
+  }).length;
+
+  const scheduleRisk = totalTasks > 0 ? (delayedTasks / totalTasks) * 100 : 0;
+
+  const criticalDefects = allDefects.filter(d => d.defects.severity === 'critical').length;
+  const unresolvedDefects = allDefects.filter(d => d.defects.status !== 'resolved').length;
+  const qualityRisk = allDefects.length > 0 ? (unresolvedDefects / allDefects.length) * 100 : 0;
+
+  // ความเสี่ยงด้านทรัพยากร (จำนวนงานที่ยังไม่ assign)
+  const unassignedTasks = await db
+    .select({ id: tasks.id })
+    .from(tasks)
+    .leftJoin(taskAssignments, eq(tasks.id, taskAssignments.taskId))
+    .where(
+      and(
+        eq(tasks.projectId, projectId),
+
+        isNull(taskAssignments.userId)
+      )
+    );
+
+  const resourceRisk = totalTasks > 0 ? (unassignedTasks.length / totalTasks) * 100 : 0;
+
+  // คำนวณความเสี่ยงรวม
+  const overallRisk = (scheduleRisk + qualityRisk + resourceRisk) / 3;
+
+  let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+  if (overallRisk > 50) riskLevel = 'critical';
+  else if (overallRisk > 30) riskLevel = 'high';
+  else if (overallRisk > 15) riskLevel = 'medium';
+
+  return {
+    projectId,
+    projectName: projectData.name,
+    overallRisk: Math.round(overallRisk),
+    riskLevel,
+    scheduleRisk: Math.round(scheduleRisk),
+    qualityRisk: Math.round(qualityRisk),
+    resourceRisk: Math.round(resourceRisk),
+    risks: [
+      {
+        category: 'schedule',
+        level: scheduleRisk > 30 ? 'high' : scheduleRisk > 15 ? 'medium' : 'low',
+        description: `${delayedTasks} งานล่าช้าจากทั้งหมด ${totalTasks} งาน`,
+        impact: scheduleRisk,
+      },
+      {
+        category: 'quality',
+        level: qualityRisk > 30 ? 'high' : qualityRisk > 15 ? 'medium' : 'low',
+        description: `${unresolvedDefects} ข้อบกพร่องที่ยังไม่แก้ไข (${criticalDefects} critical)`,
+        impact: qualityRisk,
+      },
+      {
+        category: 'resource',
+        level: resourceRisk > 30 ? 'high' : resourceRisk > 15 ? 'medium' : 'low',
+        description: `${unassignedTasks.length} งานที่ยังไม่ได้มอบหมาย`,
+        impact: resourceRisk,
+      },
+    ],
+  };
+}
+
+/**
+ * Performance KPIs - ตัวชี้วัดประสิทธิภาพ
+ */
+export async function getPerformanceKPIs(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const project = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  if (project.length === 0) return null;
+
+  const projectData = project[0];
+  
+  // ดึงข้อมูลงานทั้งหมด
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  const totalTasks = allTasks.length;
+  const completedTasks = allTasks.filter(t => t.status === 'completed').length;
+  
+  // Schedule Performance Index (SPI)
+  const today = new Date();
+  const startDate = new Date(projectData.startDate || today);
+  const endDate = new Date(projectData.endDate || today);
+  const totalDuration = Math.max(1, (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const elapsedDuration = Math.max(0, (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  
+  const plannedProgress = Math.min(100, (elapsedDuration / totalDuration) * 100);
+  const actualProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+  const spi = plannedProgress > 0 ? actualProgress / plannedProgress : 1;
+
+  // On-time Delivery Rate
+  const tasksWithDeadline = allTasks.filter(t => t.endDate && t.status === 'completed');
+  const onTimeTasks = tasksWithDeadline.filter(t => {
+    const completedDate = t.updatedAt ? new Date(t.updatedAt) : new Date();
+    const deadline = new Date(t.endDate!);
+    return completedDate <= deadline;
+  }).length;
+  const onTimeRate = tasksWithDeadline.length > 0 ? (onTimeTasks / tasksWithDeadline.length) * 100 : 0;
+
+  // Defect Density
+  const allDefects = await db
+    .select()
+    .from(defects)
+    .innerJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(eq(tasks.projectId, projectId));
+  
+  const defectDensity = completedTasks > 0 ? allDefects.length / completedTasks : 0;
+
+  // Quality Score (based on defects and resolution)
+  const resolvedDefects = allDefects.filter(d => d.defects.status === 'resolved').length;
+  const qualityScore = allDefects.length > 0 
+    ? (resolvedDefects / allDefects.length) * 100 
+    : 100;
+
+  return {
+    projectId,
+    projectName: projectData.name,
+    schedulePerformanceIndex: Math.round(spi * 100) / 100,
+    onTimeDeliveryRate: Math.round(onTimeRate),
+    defectDensity: Math.round(defectDensity * 100) / 100,
+    qualityScore: Math.round(qualityScore),
+    totalTasks,
+    completedTasks,
+    totalDefects: allDefects.length,
+    resolvedDefects,
+    plannedProgress: Math.round(plannedProgress),
+    actualProgress: Math.round(actualProgress),
+  };
+}
+
+/**
+ * Comparative Analysis - เปรียบเทียบหลายโครงการ
+ */
+export async function getComparativeAnalysis(projectIds: number[]) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await Promise.all(
+    projectIds.map(async (projectId) => {
+      const kpis = await getPerformanceKPIs(projectId);
+      const risk = await getRiskAssessment(projectId);
+      const predictive = await getPredictiveAnalytics(projectId);
+
+      return {
+        projectId,
+        projectName: kpis?.projectName || '',
+        kpis,
+        risk,
+        predictive,
+      };
+    })
+  );
+
+  return results.filter(r => r.kpis !== null);
 }

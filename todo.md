@@ -747,3 +747,133 @@
 - [x] ตั้งค่า GitHub Actions CI/CD - สร้าง workflow สำหรับ automated testing และ type checking
 - [x] สร้าง README.md พร้อมคำแนะนำการใช้งาน
 - [x] ตั้งค่า ESLint configuration
+
+## 🔄 System Monitoring Consolidation (New Request - Nov 16, 2025)
+
+### Goal
+- [x] รวม DB Monitor, System Monitor และ Memory Monitoring เป็นหน้า System Monitoring เดียวกันด้วย tabs
+- [x] ลดเมนูในกลุ่ม Monitoring จาก 3 เหลือ 1 เมนู
+
+### Implementation Tasks
+- [x] สร้างหน้า SystemMonitoring.tsx ใหม่พร้อม Tabs component
+- [x] ย้ายเนื้อหาจาก DatabaseMonitoring.tsx มาเป็น Database Tab
+- [x] ย้ายเนื้อหาจาก SystemMonitoring.tsx มาเป็น System Resources Tab
+- [x] ย้ายเนื้อหาจาก MemoryMonitoring.tsx มาเป็น Memory Usage Tab
+- [x] อัปเดต DashboardLayout navigation - เปลี่ยนจาก 3 เมนูเป็น 1 เมนู "System Monitoring"
+- [x] อัปเดต routing ใน App.tsx - เพิ่ม route ใหม่ /system-monitoring และรักษา legacy routes
+- [x] ทดสอบการทำงานของทุก tab
+- [x] ตรวจสอบ responsive design
+- [x] ทดสอบการนำทางและ UX flow
+
+## 🔔 Alert Thresholds System (New Feature Request)
+
+### Database Schema
+- [x] สร้าง alertThresholds table ใน drizzle/schema.ts
+- [x] เพิ่ม columns: id, userId, metricType (cpu/memory), threshold (%), isEnabled, createdAt, updatedAt
+
+### Backend API
+- [x] สร้าง database helpers ใน server/db.ts (getAlertThresholds, createAlertThreshold, updateAlertThreshold, deleteAlertThreshold)
+- [x] สร้าง alertThresholds router ใน server/routers.ts (list, create, update, delete procedures)
+- [x] เพิ่มฟังก์ชันตรวจสอบ CPU/Memory usage และเปรียบเทียบกับ threshold
+- [x] เพิ่มการส่งแจ้งเตือนเมื่อค่าเกิน threshold ที่กำหนด
+
+### Frontend UI
+- [x] สร้างหน้า Alert Settings สำหรับตั้งค่า thresholds
+- [x] เพิ่ม UI สำหรับกำหนด threshold สำหรับ CPU (%)
+- [x] เพิ่ม UI สำหรับกำหนด threshold สำหรับ Memory (%)
+- [x] เพิ่มสวิตช์ enable/disable alert สำหรับแต่ละ metric
+- [x] แสดงสถานะปัจจุบันและเปรียบเทียบกับ threshold (visual indicator)
+- [x] เพิ่ม navigation link ไปหน้า Alert Settings
+
+### Integration
+- [x] เชื่อมต่อระบบ alert กับ monitoring system ที่มีอยู่
+- [x] ทดสอบการแจ้งเตือนเมื่อค่าเกิน threshold
+- [x] เพิ่มการแสดงประวัติการแจ้งเตือน (alert history)
+
+## 📊 Dashboard Analysis Enhancement (New Feature Request - Nov 16, 2025)
+
+### Advanced Analytics & Insights
+
+- [ ] เพิ่ม Predictive Analytics - คาดการณ์ความล่าช้าของโครงการ
+- [ ] สร้าง Cost Analysis Dashboard - วิเคราะห์ต้นทุนจริง vs งบประมาณ
+- [ ] เพิ่ม Resource Utilization Analytics - วิเคราะห์การใช้ทรัพยากร
+- [ ] สร้าง Quality Trend Analysis - วิเคราะห์แนวโน้ม QC Issues
+- [ ] เพิ่ม Risk Assessment Dashboard - ประเมินความเสี่ยงโครงการ
+
+### Performance Metrics & KPIs
+
+- [ ] สร้าง KPI Dashboard สำหรับแต่ละโครงการ
+- [ ] เพิ่ม Performance Scorecard - คะแนนประสิทธิภาพทีม
+- [ ] สร้าง Productivity Metrics - วัดผลผลิตของทีมงาน
+- [ ] เพิ่ม On-time Delivery Rate - อัตราการส่งมอบตรงเวลา
+- [ ] สร้าง Defect Density Metrics - ความหนาแน่นของข้อบกพร่อง
+
+### Comparative Analysis
+
+- [ ] เพิ่ม Project Comparison Tool - เปรียบเทียบโครงการหลายโครงการ
+- [ ] สร้าง Benchmark Analysis - เปรียบเทียบกับมาตรฐานอุตสาหกรรม
+- [ ] เพิ่ม Historical Trend Comparison - เปรียบเทียบแนวโน้มย้อนหลัง
+- [ ] สร้าง Team Performance Comparison - เปรียบเทียบประสิทธิภาพทีม
+
+### Advanced Visualizations
+
+- [ ] เพิ่ม Interactive Charts - กราฟแบบ interactive (drill-down)
+- [ ] สร้าง Heatmap Visualization - แสดง hotspots ของปัญหา
+- [ ] เพิ่ม Network Diagram - แสดงความสัมพันธ์ระหว่างงาน
+- [ ] สร้าง Timeline Visualization - แสดง timeline แบบ interactive
+- [ ] เพิ่ม Geographical Visualization - แสดงโครงการบนแผนที่
+
+### Real-time Monitoring
+
+- [ ] เพิ่ม Real-time Dashboard Updates - อัปเดตข้อมูลแบบ real-time
+- [ ] สร้าง Live Progress Tracking - ติดตามความคืบหน้าแบบ live
+- [ ] เพิ่ม Alert System - แจ้งเตือนเมื่อมีความผิดปกติ
+- [ ] สร้าง Live Feed - แสดง activities แบบ real-time
+
+### Export & Reporting
+
+- [ ] เพิ่ม Custom Report Builder - สร้างรายงานแบบกำหนดเอง
+- [ ] สร้าง Automated Report Scheduling - กำหนดเวลาส่งรายงานอัตโนมัติ
+- [ ] เพิ่ม Multi-format Export - export เป็น PDF, Excel, PowerPoint
+- [ ] สร้าง Executive Summary Report - รายงานสรุปสำหรับผู้บริหาร
+
+### AI-Powered Insights
+
+- [ ] เพิ่ม AI Recommendations - แนะนำการปรับปรุงด้วย AI
+- [ ] สร้าง Anomaly Detection - ตรวจจับความผิดปกติอัตโนมัติ
+- [ ] เพิ่ม Predictive Maintenance - คาดการณ์การบำรุงรักษา
+- [ ] สร้าง Smart Alerts - แจ้งเตือนอัจฉริยะตามบริบท
+
+## ✅ Dashboard Analysis Implementation Progress (Nov 16, 2025)
+
+### Backend Development - ✅ Completed
+- [x] เพิ่ม Advanced Analytics functions ใน server/db.ts
+- [x] สร้าง getPredictiveAnalytics() - คาดการณ์ความล่าช้า
+- [x] สร้าง getCostAnalysis() - วิเคราะห์ต้นทุน
+- [x] สร้าง getResourceUtilization() - วิเคราะห์ทรัพยากร
+- [x] สร้าง getQualityTrendAnalysis() - วิเคราะห์แนวโน้ม QC
+- [x] สร้าง getRiskAssessment() - ประเมินความเสี่ยง
+- [x] สร้าง getPerformanceKPIs() - ตัวชี้วัดประสิทธิภาพ
+- [x] สร้าง getComparativeAnalysis() - เปรียบเทียบโครงการ
+- [x] สร้าง analytics router ใน server/routers.ts พร้อม 7 endpoints
+- [x] แก้ไข TypeScript errors ทั้งหมด
+
+### Frontend Development - ✅ Completed
+- [x] สร้างหน้า AdvancedAnalytics.tsx
+- [x] เพิ่ม Predictive Analytics Tab
+- [x] เพิ่ม Risk Assessment Tab
+- [x] เพิ่ม Performance KPIs Tab
+- [x] เพิ่ม Quality Trend Tab
+- [x] เพิ่ม Resource Utilization Tab
+- [x] เพิ่ม route /advanced-analytics ใน App.tsx
+- [x] เพิ่ม navigation menu item ใน DashboardLayout
+
+### Features Implemented
+- [x] Project selector with date range filter
+- [x] Interactive tabs for different analytics views
+- [x] Real-time data visualization
+- [x] Risk level indicators with color coding
+- [x] Progress bars and charts
+- [x] KPI metrics display
+- [x] Quality trend analysis with daily breakdown
+- [x] Resource utilization tracking

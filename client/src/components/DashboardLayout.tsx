@@ -23,7 +23,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useRoleLabel } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick, Moon, Sun, Scale } from "lucide-react";
+import { LayoutDashboard, PanelLeft, FolderKanban, ListTodo, ClipboardCheck, AlertTriangle, FileText, BarChart3, UserCircle, LogOut, Users, Archive, CheckSquare, Database, TrendingUp, Activity, MemoryStick, Moon, Sun, Scale, Monitor, Bell, LineChart } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
@@ -77,9 +77,9 @@ const menuItems = [
   { icon: FileText, label: "Checklist Templates", path: "/checklist-templates", roles: ["admin", "qc_inspector"] },
   { icon: Users, label: "Team & Workload", path: "/team", roles: ["admin", "pm"] },
   { icon: BarChart3, label: "Reports", path: "/reports", roles: ["admin", "pm"] },
-  { icon: Database, label: "DB Monitoring", path: "/monitoring", roles: ["admin"] },
-  { icon: Activity, label: "System Monitor", path: "/system-monitor", roles: ["admin"] },
-  { icon: MemoryStick, label: "Memory Monitoring", path: "/memory-monitoring", roles: ["admin"] },
+  { icon: LineChart, label: "Advanced Analytics", path: "/advanced-analytics", roles: ["admin", "pm"] },
+  { icon: Monitor, label: "System Monitoring", path: "/system-monitoring", roles: ["admin"] },
+  { icon: Bell, label: "Alert Settings", path: "/alert-settings", roles: ["admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

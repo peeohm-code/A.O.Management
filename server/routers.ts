@@ -2410,6 +2410,61 @@ export const appRouter = router({
     return result;
   }),
 
+  // Advanced Analytics Router
+  analytics: router({ 
+    // Predictive Analytics
+    predictive: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPredictiveAnalytics(input.projectId);
+      }),
+
+    // Cost Analysis
+    costAnalysis: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCostAnalysis(input.projectId);
+      }),
+
+    // Resource Utilization
+    resourceUtilization: protectedProcedure
+      .input(z.object({ projectId: z.number().optional() }))
+      .query(async ({ input }) => {
+        return await db.getResourceUtilization(input.projectId);
+      }),
+
+    // Quality Trend Analysis
+    qualityTrend: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        days: z.number().optional().default(30),
+      }))
+      .query(async ({ input }) => {
+        return await db.getQualityTrendAnalysis(input.projectId, input.days);
+      }),
+
+    // Risk Assessment
+    riskAssessment: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getRiskAssessment(input.projectId);
+      }),
+
+    // Performance KPIs
+    performanceKPIs: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPerformanceKPIs(input.projectId);
+      }),
+
+    // Comparative Analysis
+    comparative: protectedProcedure
+      .input(z.object({ projectIds: z.array(z.number()) }))
+      .query(async ({ input }) => {
+        return await db.getComparativeAnalysis(input.projectIds);
+      }),
+  }),
+
   archiveRules: router({
     list: protectedProcedure.query(async () => {
       return await db.getArchiveRules();
@@ -2732,6 +2787,65 @@ export const appRouter = router({
     getOomStatistics: protectedProcedure.query(async () => {
       return await db.getOomEventStatistics();
     }),
+  }),
+
+  // Alert Thresholds Router
+  alertThresholds: router({
+    // ดึงรายการ alert thresholds ของผู้ใช้
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getAlertThresholds(ctx.user!.id);
+    }),
+
+    // สร้าง alert threshold ใหม่
+    create: protectedProcedure
+      .input(
+        z.object({
+          metricType: z.enum(["cpu", "memory"]),
+          threshold: z.number().min(0).max(100),
+          isEnabled: z.boolean().default(true),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await db.createAlertThreshold({
+          userId: ctx.user!.id,
+          ...input,
+        });
+      }),
+
+    // อัปเดต alert threshold
+    update: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          threshold: z.number().min(0).max(100).optional(),
+          isEnabled: z.boolean().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await db.updateAlertThreshold(id, data);
+        return { success: true };
+      }),
+
+    // ลบ alert threshold
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteAlertThreshold(input.id);
+        return { success: true };
+      }),
+
+    // ตรวจสอบว่าค่าปัจจุบันเกิน threshold หรือไม่
+    check: protectedProcedure
+      .input(
+        z.object({
+          cpu: z.number(),
+          memory: z.number(),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        return await db.checkAlertThresholds(ctx.user!.id, input);
+      }),
   }),
 });
 

@@ -38,8 +38,11 @@ const ArchiveRules = lazy(() => import("./pages/ArchiveRules"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
 const SystemMonitor = lazy(() => import("./pages/SystemMonitor"));
 const MemoryMonitoring = lazy(() => import("./pages/MemoryMonitoring"));
+const SystemMonitoring = lazy(() => import("./pages/SystemMonitoring"));
 const InspectionHistory = lazy(() => import("./pages/InspectionHistory"));
 const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
+const AlertSettings = lazy(() => import("./pages/AlertSettings"));
+const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
 
 // Loading component
 const PageLoader = () => (
@@ -65,6 +68,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <NewProject />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/advanced-analytics"}>
+        {() => (
+          <DashboardLayout>
+            <AdvancedAnalytics />
           </DashboardLayout>
         )}
       </Route>
@@ -262,25 +272,40 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
-      {/* Temporarily disabled - needs proper implementation */}
-      {/* <Route path={"/monitoring"}>
+      {/* System Monitoring - รวม DB, System, Memory ในหน้าเดียว */}
+      <Route path={"/system-monitoring"}>
         {() => (
           <DashboardLayout>
-            <DatabaseMonitoring />
+            <SystemMonitoring />
           </DashboardLayout>
         )}
-      </Route> */}
+      </Route>
+      <Route path={"/alert-settings"}>
+        {() => (
+          <DashboardLayout>
+            <AlertSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      {/* Legacy routes - redirect to new unified page */}
+      <Route path={"/monitoring"}>
+        {() => (
+          <DashboardLayout>
+            <SystemMonitoring />
+          </DashboardLayout>
+        )}
+      </Route>
       <Route path={"/system-monitor"}>
         {() => (
           <DashboardLayout>
-            <SystemMonitor />
+            <SystemMonitoring />
           </DashboardLayout>
         )}
       </Route>
       <Route path={"/memory-monitoring"}>
         {() => (
           <DashboardLayout>
-            <MemoryMonitoring />
+            <SystemMonitoring />
           </DashboardLayout>
         )}
       </Route>

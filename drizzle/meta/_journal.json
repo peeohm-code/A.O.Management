@@ -253,6 +253,13 @@
       "when": 1763254682569,
       "tag": "0035_chief_ronan",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1763266455539,
+      "tag": "0036_sudden_black_knight",
+      "breakpoints": true
     }
   ]
 }

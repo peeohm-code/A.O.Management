@@ -492,6 +492,24 @@ export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
 
 /**
+ * Alert Thresholds - user-defined thresholds for system metrics (CPU/Memory)
+ */
+export const alertThresholds = mysqlTable("alertThresholds", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  metricType: mysqlEnum("metricType", ["cpu", "memory"]).notNull(),
+  threshold: int("threshold").notNull(), // Percentage (0-100)
+  isEnabled: boolean("isEnabled").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userMetricIdx: index("userMetricIdx").on(table.userId, table.metricType),
+}));
+
+export type AlertThreshold = typeof alertThresholds.$inferSelect;
+export type InsertAlertThreshold = typeof alertThresholds.$inferInsert;
+
+/**
  * Database Query Logs - tracks slow queries and database performance
  */
 export const queryLogs = mysqlTable("queryLogs", {
