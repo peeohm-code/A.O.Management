@@ -1,1315 +1,437 @@
 # Construction Management App - TODO List
 
-## ✅ Completed Core Features
+## ✅ Core Features (เสร็จสมบูรณ์)
 
 ### Database & Backend
-
-- [x] Design and implement complete database schema
-- [x] Create all necessary tables (projects, tasks, checklists, inspections, defects, etc.)
-- [x] Implement project CRUD operations
-- [x] Implement task CRUD operations with hierarchy support
-- [x] Add task dependencies (finish-to-start relationships)
-- [x] Add task assignment functionality
-- [x] Implement task status workflow with automatic calculation
-- [x] Create checklist template management (CRUD)
-- [x] Implement checklist stage types (Pre-execution, In-progress, Post-execution)
-- [x] Add checklist-to-task binding (multi-stage support)
-- [x] Implement pass/fail/N/A marking for QC inspections
-- [x] Build defect/rectification workflow
-- [x] Implement task comments system with @mention
-- [x] Create file attachment system for tasks
-- [x] Add activity log for each task
-- [x] Build notification infrastructure
-- [x] Implement auto-notifications for task assignments and inspections
-- [x] Implement "Follow Task" functionality
-- [x] Create deadline reminder notifications (scheduled)
-- [x] Create overdue defect notifications (scheduled)
+- [x] ออกแบบและสร้าง database schema สมบูรณ์
+- [x] สร้างตาราง projects, tasks, checklists, inspections, defects
+- [x] CRUD operations สำหรับ projects และ tasks
+- [x] Task hierarchy และ dependencies (finish-to-start)
+- [x] Task assignment และ status workflow
+- [x] Checklist template management (3 stages: Pre, In-progress, Post)
+- [x] QC inspection workflow (pass/fail/N/A)
+- [x] Defect/rectification workflow พร้อม re-inspection
+- [x] Task comments system พร้อม @mention
+- [x] File attachment system (S3 storage)
+- [x] Activity log และ notification system
+- [x] Deadline reminder และ overdue notifications
+- [x] Follow Task functionality
 
 ### Frontend UI
-
-- [x] Design and implement project dashboard with statistics
-- [x] Create mobile-responsive task list view
-- [x] Build QC inspection interface with step-by-step workflow
-- [x] Implement defect tracking UI
-- [x] Create notification center
-- [x] Add project detail view with Gantt chart
-- [x] Implement task detail view with all information cards
-- [x] Build mobile-responsive layout
-- [x] Add responsive navigation menu
-- [x] Implement user profile and settings
-- [x] Create Gantt chart visualization component
-- [x] Add file upload and attachment display
-- [x] Implement checklist management in Task Detail
-- [x] Create checklist template builder UI with edit functionality
-- [x] Add inspection submission and defect creation
-- [x] Add inspection history display (list view)
-- [x] Implement inspection detail view with pass/fail items
-- [x] Implement PDF report generation for inspections
-- [x] Add photo capture directly in checklist items (camera integration)
-- [x] เพิ่มฟีเจอร์ถ่ายรูปและแนบไฟล์ในแบบฟอร์ม QC Inspection
-- [x] เพิ่มการแสดงรูปภาพที่แนบใน QC Inspection Detail
-- [x] เพิ่มการลบรูปภาพที่แนบแล้ว
-- [x] ปรับปรุง Digital Signature UI ให้ใช้งานง่ายขึ้น
-- [x] แสดง signature ชัดเจนใน Inspection Detail และ PDF Report
-- [x] นำ NotificationBadge ไปใช้ใน DashboardLayout header
+- [x] Project dashboard พร้อม statistics และ charts
+- [x] Mobile-responsive task list และ detail views
+- [x] QC inspection interface (step-by-step workflow)
+- [x] Defect tracking UI พร้อม before/after photos
+- [x] Notification center พร้อม real-time updates
+- [x] Gantt chart visualization (standard + enhanced version)
+- [x] File upload และ camera integration
+- [x] Checklist template builder พร้อม edit functionality
+- [x] Inspection history และ detail views
+- [x] PDF report generation สำหรับ inspections
+- [x] Digital signature functionality
+- [x] User profile และ settings
 
 ### Advanced Features
-
-- [x] Automatic task status calculation based on dates and progress
+- [x] Automatic task status calculation
 - [x] Plan vs Actual progress comparison
-- [x] Progress status indicator (on track, ahead, behind schedule)
-- [x] Role-based permissions (Admin, PM, QC, Worker)
-- [x] Activity log with automatic recording
-- [x] File attachments with S3 storage
-- [x] Digital signature functionality for QC inspections
-- [x] Re-inspection workflow for failed items
-- [x] Defect tracking with photos and comments
+- [x] Progress status indicator (on track/ahead/behind)
+- [x] Role-based permissions (Admin/PM/QC/Worker)
+- [x] Activity log พร้อม automatic recording
 - [x] Task dependencies validation
-- [x] Blocking dependencies check
 - [x] Draft project support
-- [x] PWA support with offline capabilities
+- [x] PWA support พร้อม offline capabilities
 - [x] Email notifications integration
-- [x] Implement bulk operations (assign multiple tasks, bulk status update)
-- [x] Add export functionality (Excel/PDF for tasks, defects, inspections)
+- [x] Bulk operations (assign/update multiple tasks)
+- [x] Export functionality (Excel/PDF)
 
 ### Defect Management
-
-- [x] สร้างหน้าจัดการ Defects แยกต่างหาก (Defects List Page)
-- [x] สร้างหน้า Defect Detail (ดู/แก้ไข/อัปเดตสถานะ)
-- [x] เพิ่มฟีเจอร์กำหนดผู้รับผิดชอบและกำหนดเวลาแก้ไข defect
-- [x] เพิ่มการแนบรูปภาพหลังแก้ไข defect (before/after photos)
-- [x] ปรับปรุง Re-inspection workflow ให้ชัดเจนและใช้งานง่าย
-- [x] บันทึกประวัติการ re-inspect ทั้งหมดพร้อมรูปภาพ
-- [x] อัปเดตสถานะ defect อัตโนมัติเมื่อ re-inspect ผ่าน
-- [x] แสดงประวัติ re-inspection ใน Defect Detail
+- [x] Defects List Page และ Detail Page
+- [x] กำหนดผู้รับผิดชอบและเวลาแก้ไข
+- [x] แนบรูปภาพ before/after
+- [x] Re-inspection workflow
+- [x] บันทึกประวัติ re-inspection
+- [x] อัปเดตสถานะ defect อัตโนมัติ
 
 ### Gantt Chart Enhancement
-
-- [x] ปรับปรุง Gantt Chart ให้แสดง timeline โครงการแบบ visual ที่ชัดเจนขึ้น
-- [x] เพิ่มการ drag-and-drop เพื่อปรับเปลี่ยนวันที่งาน
-- [x] แสดง dependencies ระหว่างงานแบบ visual (เส้นเชื่อม)
-- [x] เพิ่ม zoom in/out และ scroll ใน Gantt Chart
+- [x] Enhanced Gantt Chart พร้อม drag-and-drop
+- [x] แสดง dependencies แบบ visual
+- [x] Zoom in/out และ scroll
 - [x] แสดง critical path และ milestone
-- [x] เพิ่ม EnhancedGanttChart ในหน้า Project Detail พร้อมตัวเลือกสลับระหว่าง Gantt Chart เดิมและแบบใหม่
+- [x] สลับระหว่าง Gantt Chart เดิมและแบบใหม่
 
-### Real-time Notifications System
-
-- [x] สร้างระบบ Real-time Notifications ด้วย Server-Sent Events (SSE)
+### Real-time System
+- [x] Real-time Notifications ด้วย Server-Sent Events (SSE)
 - [x] แจ้งเตือนทันทีเมื่อมี defect ใหม่
-- [x] แจ้งเตือนทันทีเมื่องานล่าช้า (overdue tasks)
-- [x] แจ้งเตือนเมื่อมีการ assign งานใหม่
-- [x] แจ้งเตือนเมื่อมีการ comment หรือ @mention
-- [x] เพิ่ม Push Notification สำหรับ PWA (Service Worker)
-- [x] เพิ่ม notification badge และ sound alert
+- [x] แจ้งเตือนงานล่าช้า (overdue tasks)
+- [x] แจ้งเตือนการ assign งานใหม่
+- [x] แจ้งเตือนการ comment และ @mention
+- [x] Push Notification สำหรับ PWA
+- [x] Notification badge และ sound alert
 
-### Mobile App Support Enhancement
-
-- [x] ปรับปรุง responsive design ให้เหมาะกับการใช้งานในหน้างานก่อสร้าง
-- [x] ปรับปรุง touch interaction และ gesture support
-- [x] เพิ่ม offline mode สำหรับการทำงานในพื้นที่ไม่มีสัญญาณ
-- [x] ปรับปรุง camera integration สำหรับการถ่ายรูป defect
-- [x] เพิ่ม GPS location tagging สำหรับ defect และ inspection
-- [x] ปรับปรุง form input สำหรับ mobile (larger touch targets, better keyboard handling)
-- [x] เพิ่ม quick actions และ shortcuts สำหรับงานที่ใช้บ่อย
+### Mobile App Support
+- [x] Responsive design สำหรับหน้างานก่อสร้าง
+- [x] Touch interaction และ gesture support
+- [x] Offline mode สำหรับพื้นที่ไม่มีสัญญาณ
+- [x] Camera integration สำหรับถ่ายรูป defect
+- [x] GPS location tagging
+- [x] ปรับปรุง form input สำหรับ mobile
+- [x] Quick actions และ shortcuts
+- [x] SwipeableListItem สำหรับ Tasks และ Defects
+- [x] BottomSheet สำหรับ quick actions
+- [x] Pull-to-refresh functionality
+- [x] Haptic feedback
 
 ### Reporting & Analytics
-
-- [x] Project overview dashboard with statistics
+- [x] Project overview dashboard
 - [x] Defect tracking reports
-- [x] Inspection reports (PDF) with signatures
+- [x] Inspection reports (PDF) พร้อม signatures
 - [x] Task progress tracking
 - [x] Activity timeline
-- [x] เพิ่มกราฟเปรียบเทียบ Progress vs Plan ใน Dashboard
-- [x] สร้างรายงาน PDF สำหรับ Daily Progress Report
-- [x] สร้างรายงาน PDF สำหรับ Weekly Progress Report
-- [x] เพิ่มฟีเจอร์ Export รายงานเป็น PDF พร้อมกราฟและสถิติ
+- [x] กราฟเปรียบเทียบ Progress vs Plan
+- [x] Daily/Weekly Progress Reports (PDF)
+- [x] Export รายงานเป็น PDF พร้อมกราฟและสถิติ
 
-### Documentation
+### Team Management
+- [x] Role management (Admin/PM/QC/Worker)
+- [x] User Management Page
+- [x] Team Dashboard แสดงภาพรวมงานของทีม
+- [x] My Tasks แสดงงานที่ได้รับมอบหมาย
+- [x] ติดตามความคืบหน้างานของสมาชิกทีม
+- [x] Task Status Report
+- [x] Team Members List และ Profile
+- [x] Activity feed สำหรับทีม
+- [x] Workload Overview และ Balancing
+- [x] Workload indicators (underload/normal/overload)
+- [x] Visualization แสดงการกระจายงานในทีม
 
-- [x] Create user documentation
-- [x] Create PWA testing guide
-- [x] Create email setup guide
-- [x] Prepare deployment documentation
-
-## 🚨 Critical System Issues (ต้องแก้ไขทันที)
-
-- [x] แก้ไข File Descriptor Leak - Chromium เปิดไฟล์ 15,408 files (เกิน limit 1,024 มากกว่า 15 เท่า)
-- [x] เพิ่ม ulimit configuration เป็น 65,536 files
-- [x] แก้ไข Out of Memory (OOM) - Node process ถูก kill จาก OOM Killer
-- [x] ตั้งค่า --max-old-space-size สำหรับ Node.js
-- [x] ตรวจสอบและแก้ไข memory leaks ในระบบ
-- [x] ทดสอบระบบหลังแก้ไข
-- [x] สร้าง checkpoint หลังแก้ไขเสร็จสมบูรณ์
-
-## 🔧 Bug Fixes - TypeScript Errors (Priority)
-
-- [x] แก้ไข duplicate identifiers ใน server/db.ts (eq, and, gte, lte, userId)
-- [x] แก้ไข Badge variant "success" ใน InspectionDetail.tsx
-- [x] แก้ไข Badge variant "success" ใน InspectionHistory.tsx
-- [x] แก้ไข Badge variant "success" ใน ChecklistTemplateDetail.tsx
-- [x] แก้ไข trpc.inspection.getById ที่ไม่มีใน router (ไม่มีการใช้งานจริง)
-- [x] แก้ไข getDefectsByProject() ที่ไม่มีใน db.ts
-- [x] แก้ไข getInspectionsByProject() ที่ไม่มีใน db.ts
-- [x] แก้ไข assigneeName property ที่ไม่มีใน task type
-- [x] ลบ duplicate monitoringRouter ใน server/routers.ts
-- [x] แก้ไข implicit any types
-- [x] เพิ่ม error handling ที่ชัดเจน (เพิ่ม type annotations)
-
-## 🚧 Pending Features
+### Archive & Analytics System
+- [x] Archive/Unarchive functions
+- [x] Archive page สำหรับดูโครงการที่ถูก archive
+- [x] Archive Analytics และสถิติ
+- [x] Export archive data เป็น Excel
+- [x] Bulk delete operations
+- [x] Analytics Dashboard แสดงข้อมูลวิเคราะห์โครงการ
+- [x] Charts และ statistics (Progress vs Plan, QC Stats, Trends)
+- [x] เลือกช่วงเวลาสำหรับวิเคราะห์
 
 ### System Monitoring & Reliability
+- [x] แก้ไข File Descriptor Leak (เพิ่ม ulimit เป็น 65,536)
+- [x] แก้ไข Out of Memory (OOM) issues
+- [x] ตั้งค่า --max-old-space-size สำหรับ Node.js
+- [x] แก้ไข memory leaks
+- [x] Automated Monitoring (cron job ทุก 1 ชั่วโมง)
+- [x] แจ้งเตือนเมื่อ memory usage เกิน 80%
+- [x] Error Logging (OOM events, EMFILE errors)
+- [x] Load Testing
 
-- [x] เพิ่ม Automated Monitoring - cron job รัน pnpm run monitor:memory ทุก 1 ชั่วโมง
-- [x] เพิ่มการส่งแจ้งเตือนเมื่อ memory usage เกิน 80%
-- [x] ปรับปรุง Error Logging - บันทึก OOM events และ EMFILE errors พร้อม timestamp
-- [x] สร้างระบบวิเคราะห์ error patterns
-- [x] Load Testing - ทดสอบระบบภายใต้ load สูง
-- [x] ยืนยันว่า memory limits และ file descriptor limits เพียงพอสำหรับการใช้งานจริง
+### UI/UX Improvements
+- [x] Dark/Light theme toggle
+- [x] Role-based navigation
+- [x] Deadline reminder notifications
+- [x] Document viewer สำหรับมือถือ
+- [x] Export/Print ฟีเจอร์ (PDF/PNG)
+- [x] Table Layout บน Mobile (card view)
+- [x] Checklist Template Search & Filter
+- [x] รวม Workload เข้ากับ Team Management
+- [x] รวม Analytics เข้ากับ Dashboard (Tabs)
+- [x] รวม Archive เข้ากับ Projects (Tabs)
 
-### UI Enhancements
+### Documentation
+- [x] User documentation
+- [x] PWA testing guide
+- [x] Email setup guide
+- [x] Deployment documentation
 
-- [x] Dark/Light theme toggle - เพิ่มปุ่มสลับธีมในระบบ (Navbar และ Settings)
-- [x] Role-based navigation - แสดง/ซ่อนเมนูตามสิทธิ์ผู้ใช้ (Admin/Manager/QC/Worker)
-- [x] Deadline reminder notifications - ระบบแจ้งเตือนงานใกล้ครบกำหนด (3 วัน, 1 วัน, วันสุดท้าย)
-- [x] Document viewer สำหรับมือถือ - ปรับปรุง UI การดูเอกสารบนมือถือ
-- [ ] Add more chart types in dashboard
-- [ ] Implement advanced filtering in task list
-- [x] นำ Mobile Components ไปใช้งานจริง - ใช้ SwipeableListItem ในหน้า Tasks และ Defects เพื่อให้ swipe-to-complete หรือ swipe-to-delete ได้ และเพิ่ม BottomSheet สำหรับ quick actions ในการแก้ไขสถานะหรือ assign งาน
-- [x] เพิ่ม Export/Print ฟีเจอร์ - เพิ่มปุ่ม export กราฟเป็น PDF หรือ PNG และ print reports สำหรับนำเสนอผู้บริหาร
-- [x] ปรับปรุง Table Layout บน Mobile - แปลง data tables ในหน้า Projects, Tasks, Defects ให้เป็น card view บน mobile เพื่อให้อ่านง่ายและใช้งานสะดวกขึ้น
+## 🐛 Bug Fixes (แก้ไขเรียบร้อยแล้ว)
+
+### TypeScript Errors
+- [x] แก้ไข duplicate identifiers ใน server/db.ts
+- [x] แก้ไข Badge variant "success" ใน InspectionDetail, InspectionHistory, ChecklistTemplateDetail
+- [x] แก้ไข trpc.inspection.getById ที่ไม่มีใน router
+- [x] แก้ไข getDefectsByProject(), getInspectionsByProject() ที่ไม่มีใน db.ts
+- [x] แก้ไข assigneeName property ที่ไม่มีใน task type
+- [x] ลบ duplicate monitoringRouter
+- [x] แก้ไข implicit any types
+- [x] แก้ไข defects.projectId (ใช้ join กับ tasks)
+- [x] แก้ไข inspections table (เปลี่ยนเป็น taskChecklists)
+- [x] แก้ไข role type mismatch (field_engineer → worker)
+- [x] แก้ไข notification category/type errors
+- [x] แก้ไข usePermissions isFieldEngineer → isWorker
+- [x] แก้ไข getMyTasks where() ซ้ำซ้อน
+- [x] แก้ไข getWorkloadStatistics where()
+- [x] แก้ไข taskChecklists.inspectorId
+- [x] แก้ไข pending status → pending_inspection
+
+### UI/UX Bugs
+- [x] แก้ไข ImageGalleryViewer undefined fileName error
+- [x] แก้ไข taskAssignments not defined error
+- [x] แก้ไข NotificationBadge.tsx (title → aria-label)
+- [x] แก้ไข EnhancedGanttChart.tsx (custom_popup_html)
+- [x] แก้ไข Dashboard Layout issues
+
+## 📋 Pending Features
 
 ### Advanced Features
-
-- [ ] Add re-inspection tracking improvements
-- [ ] Create project templates
-- [ ] Add time tracking for tasks
-- [ ] Implement resource management
+- [ ] Re-inspection tracking improvements
+- [ ] Project templates
+- [ ] Time tracking for tasks
+- [ ] Resource management
 
 ### Reporting Enhancements
-
-- [ ] Add daily/weekly progress reports (auto-send)
-- [ ] Create custom report builder
-- [ ] Add data visualization dashboard
-- [ ] Implement report scheduling and auto-send
+- [ ] Daily/weekly progress reports (auto-send)
+- [ ] Custom report builder
+- [ ] Data visualization dashboard
+- [ ] Report scheduling and auto-send
 
 ### Testing & Optimization
-
 - [ ] Comprehensive testing of all user workflows
 - [ ] Performance optimization for large projects
 - [ ] Security audit
-- [ ] Load testing
 - [ ] Cross-browser compatibility testing
 
 ### Deployment
-
 - [ ] Final production deployment
 - [ ] User training sessions
-- [ ] Create video tutorials
-
-## 📝 Notes
-
-### Design Decisions
-
-- Task status is automatically calculated based on dates and progress
-- Checklist templates support three stages: Pre-execution, In-progress, Post-execution
-- File storage uses S3 with metadata in database
-- Notifications are sent for task assignments, inspections, and defect updates
-- Digital signatures are captured and stored with inspection results
-- Real-time notifications use Server-Sent Events (SSE) for instant updates
-- PWA support with offline capabilities and push notifications
-
-### Known Limitations
-
-- Theme switching not implemented (currently fixed to light theme)
-- Email notifications require SMTP configuration
-
-### Future Improvements
-
-- Add mobile app (React Native)
-- Implement real-time collaboration features
-- Add AI-powered defect detection from photos
-- Create automated progress tracking using IoT sensors
-
-## Bug Fixes
-
-- [x] Fix ImageGalleryViewer undefined fileName error in MobileDocumentViewer
-- [x] Fix taskAssignments not defined error in server routers
-
-## 🐛 Current Bugs (แก้ไขเรียบร้อยแล้ว)
-
-### TypeScript Type Errors - ✅ แก้ไขเสร็จสิ้น
-
-- [x] แก้ไข implicit 'any' type ใน DatabaseMonitoring.tsx (8 errors)
-- [x] เพิ่ม projectId property ใน defect type สำหรับ Defects.tsx
-- [x] แก้ไข inspection.getById ใน InspectionHistory.tsx (เปลี่ยนเป็น task.get)
-- [x] เพิ่ม assignedToName, detectedByName, detectedAt properties ใน defect type สำหรับ exportRouter.ts
-- [x] แก้ไข null check สำหรับ defect.description ใน exportRouter.ts
-- [x] เพิ่ม scheduledNotifications import ใน notificationScheduler.ts
-- [x] แก้ไข query syntax ใน notificationScheduler.ts (ใช้ select/from/where แทน query.findFirst)
-- [x] Comment out DatabaseMonitoring.tsx ชั่วคราว (ต้อง implement procedures ใน monitoring router)
-- [x] แก้ไข NotificationBadge.tsx (เปลี่ยน title เป็น aria-label)
-- [x] แก้ไข EnhancedGanttChart.tsx (ใช้ as any สำหรับ custom_popup_html)
-
-## 👥 Team Management System (New Feature Request)
-
-### Role Management
-
-- [x] ปรับปรุง role enum ให้รองรับ 4 บทบาท: Admin, Project Manager, QC Inspector, Worker
-- [x] สร้างระบบกำหนดสิทธิ์ตามบทบาท (role-based access control)
-- [x] เพิ่มหน้าจัดการผู้ใช้และบทบาท (User Management Page)
-- [x] เพิ่มฟีเจอร์เปลี่ยนบทบาทผู้ใช้ (สำหรับ Admin)
-
-### Task Assignment & Tracking
-
-- [x] สร้างระบบมอบหมายงานที่ชัดเจน (assign tasks to team members)
-- [x] เพิ่มหน้า Team Dashboard แสดงภาพรวมงานของทีม
-- [x] สร้างหน้า My Tasks แสดงงานที่ได้รับมอบหมาย
-- [x] เพิ่มฟีเจอร์ติดตามความคืบหน้างานของสมาชิกทีม
-- [x] สร้างระบบรายงานสถานะงาน (Task Status Report)
-
-### Notification System
-
-- [x] ปรับปรุงระบบแจ้งเตือนเมื่อมีงานใหม่ที่ได้รับมอบหมาย
-- [x] เพิ่มการแจ้งเตือนเมื่อพบปัญหา (defect detected)
-- [x] เพิ่มการแจ้งเตือนเมื่อสถานะงานเปลี่ยนแปลง
-- [x] สร้างระบบแจ้งเตือนแบบ real-time สำหรับทีม
-- [x] เพิ่มการตั้งค่าการแจ้งเตือนตามบทบาท (notification preferences by role)
-
-### Team Collaboration
-
-- [x] เพิ่มฟีเจอร์ดูสมาชิกทีมในโครงการ (Team Members List)
-- [x] สร้างหน้าโปรไฟล์สมาชิกทีม (Team Member Profile)
-- [x] เพิ่มระบบแสดงสถานะออนไลน์/ออฟไลน์ของสมาชิกทีม
-- [x] สร้างระบบ activity feed สำหรับทีม
-
-## 📊 Role-based Dashboard & Workload Balancing (New Feature Request)
-
-### Dashboard แยกตาม Role
-
-- [x] ออกแบบ Dashboard layout สำหรับแต่ละ role
-- [x] สร้าง API procedures สำหรับดึงข้อมูลตาม role
-- [x] ปรับปรุง Dashboard component ให้แสดงข้อมูลที่เหมาะสมกับแต่ละบทบาท
-- [x] Owner/Admin Dashboard - แสดงภาพรวมทั้งหมด, สถิติทีม, โครงการทั้งหมด
-- [x] Project Manager Dashboard - แสดงโครงการที่รับผิดชอบ, ทีมงาน, งานที่ต้องติดตาม
-- [x] QC Inspector Dashboard - แสดงงานตรวจสอบ, defects ที่รอดำเนินการ
-- [x] Worker Dashboard - แสดงงานที่ได้รับมอบหมาย, ความคืบหน้างานของตัวเอง
-
-### Workload Balancing
-
-- [x] สร้าง API สำหรับคำนวณภาระงานของแต่ละคน
-- [x] สร้างหน้า Workload Overview แสดงภาระงานของทีม
-- [x] แสดงจำนวนงานที่กำลังทำของแต่ละคน
-- [x] แสดง estimated hours vs actual hours
-- [x] เพิ่มตัวบ่งชี้ workload (underload, normal, overload)
-- [x] เพิ่มฟีเจอร์แนะนำการกระจายงานเมื่อมีคนโหลดหนักเกินไป
-- [x] สร้าง visualization แสดงการกระจายงานในทีม
-
-## 🔍 Checklist Template Search & Filter (New Feature Request)
-
-### Dropdown Filter Enhancement
-
-- [x] เพิ่มช่องค้นหา/กรองใน Checklist Template dropdown
-- [x] ปรับปรุง UI ของ dropdown ให้มีช่อง search input
-- [x] เพิ่มฟีเจอร์กรอง template ตามชื่อแบบ real-time
-- [x] ปรับปรุง UX ให้ค้นหาได้ง่ายและรวดเร็ว
-
-## 🔄 UI/UX Improvement - Merge Workload into Team Management (New Request)
-
-### Restructure Navigation
-
-- [x] ลบเมนู "Workload" ที่แยกออกมา
-- [x] รวมฟีเจอร์ Workload เข้ากับหน้า Team Management
-- [x] เปลี่ยนชื่อเมนูเป็น "Team & Workload" หรือคง "Team Management"
-
-### Team Management Page Enhancement
-
-- [x] เพิ่ม Tab/Section สำหรับ Workload Overview ในหน้า Team Management
-- [x] แสดงรายชื่อทีมงาน + สถานะภาระงาน (underload/normal/overload) ในที่เดียว
-- [x] เพิ่มกราฟ/แผนภูมิแสดง workload distribution
-- [x] เพิ่มตัวกรองดูตาม role, project, หรือสถานะ
-
-### UI Components
-
-- [x] ใช้ Tabs component จาก shadcn/ui แยก Team Management และ Workload
-- [x] รวม WorkloadCard และ Progress components ในหน้า Team Management
-- [x] แสดงข้อมูล workload พร้อมสถิติและคำแนะนำ
-
-### Navigation Update
-
-- [x] อัปเดต DashboardLayout sidebar navigation
-- [x] ลบลิงก์ไปหน้า Workload ที่แยกออกมา
-- [x] อัปเดต routing ใน App.tsx (ลบ /workload route)
-- [x] ทดสอบการนำทางและ UX flow ใหม่
-
-## 🔧 Latest Bug Fixes (Nov 15, 2025)
-
-### TypeScript Errors Fixed
-
-- [x] แก้ไข defects.projectId ที่ไม่มีใน schema - ใช้ join กับ tasks แทน
-- [x] แก้ไข inspections table ที่ไม่มี - เปลี่ยนเป็น taskChecklists
-- [x] แก้ไข role type mismatch - เปลี่ยน field_engineer เป็น worker
-- [x] แก้ไข notification category errors - เปลี่ยน team เป็น users
-- [x] แก้ไข notification type errors - เปลี่ยน team_assignment เป็น project_member_added
-- [x] แก้ไข notification type system - เปลี่ยนเป็น system_health_info
-- [x] แก้ไข message property - เปลี่ยนเป็น content ตาม CreateNotificationParams
-- [x] แก้ไข usePermissions isFieldEngineer - เปลี่ยนเป็น isWorker
-- [x] แก้ไข getMyTasks where() ซ้ำซ้อน - ใช้ and() ใน where() แรก
-- [x] แก้ไข getWorkloadStatistics where() - ใช้ $dynamic() และ conditional query
-- [x] แก้ไข taskChecklists.inspectorId ที่ไม่มี - ลบ where clause
-- [x] แก้ไข task_checklists property - เปลี่ยนเป็น taskChecklists
-- [x] แก้ไข pending status - เปลี่ยนเป็น pending_inspection
-- [x] ทดสอบระบบและยืนยันว่าไม่มี TypeScript errors เหลืออยู่
-
-### System Status
-
-- ✅ TypeScript compilation: 0 errors
-- ✅ Dev server: Running successfully
-- ✅ Database: Connected
-- ✅ All features: Working properly
-
-## 📦 Archive & Analytics System ✅ (เสร็จสมบูรณ์)
-
-### Archive Features
-
-- [x] เพิ่ม Archive/Unarchive functions ใน server/db.ts
-- [x] สร้าง archive router ใน server/routers.ts
-- [x] สร้างหน้า Archive.tsx สำหรับดูโครงการที่ถูก archive
-- [x] เพิ่ม navigation link ไปหน้า Archive ใน DashboardLayout
-- [x] เพิ่มฟีเจอร์ค้นหาและกรองโครงการที่ archive
-- [x] เพิ่ม Archive Analytics แสดงสถิติ
-- [x] เพิ่ม Export archive data เป็น Excel
-- [x] เพิ่ม Bulk delete operations สำหรับโครงการที่ archive
-
-### Analytics Dashboard
-
-- [x] เพิ่ม Analytics helper functions ใน server/db.ts
-- [x] สร้าง analytics router ใน server/routers.ts
-- [x] สร้างหน้า Analytics.tsx แสดงข้อมูลวิเคราะห์โครงการ
-- [x] แสดง charts และ statistics ต่างๆ (Progress vs Plan, QC Stats, Trends)
-- [x] เพิ่ม navigation link ไปหน้า Analytics ใน DashboardLayout
-- [x] เพิ่มฟีเจอร์เลือกช่วงเวลาสำหรับวิเคราะห์
-- [x] เพิ่ม Export Progress Reports (Daily/Weekly) เป็น PDF
-
-## 🔄 Menu Restructuring - ปรับปรุงโครงสร้างเมนู ## 🔄 Menu Restructuring - ปรับปรุงโครงสร้างเมนู
-
-### Goal
-
-- [x] ลดเมนูหลักจาก 13 เหลือ 11 เมนู (ลบ Analytics และ Archive)
-- [x] รวม Analytics เข้ากับ Dashboard เป็น Tab
-- [x] รวม Archive เข้ากับ Projects เป็น Tab
-- [x] อัพเดต DashboardLayout navigation items
-- [x] ไม่ต้องลบ route (ใช้ Tabs ภายใน component)### Dashboard Enhancement
-- [x] ปรับปรุงหน้า Dashboard ให้มี Tabs: ภาพรวม, Analytics
-- [x] ย้ายเนื้อหาจาก Analytics.tsx มาเป็น Analytics Tab ใน Dashboard
-- [x] รักษาฟีเจอร์ทั้งหมดของ Analytics ไว้
-- [x] ปรับปรุง UI ให้เป็น unified experience
-
-### Projects Enhancement
-
-- [x] สร้าง ActiveProjectsList component
-- [x] สร้าง ArchivedProjectsList component (ใช้โค้ดจาก Archive.tsx)
-- [x] ปรับปรุงหน้า Projects ให้มี Tabs: Active Projects, Archived Projects
-- [x] รักษาฟีเจอร์ทั้งหมดของ Archive ไว้ (search, filter, bulk delete, export)
-- [x] ปรับปรุง UI ให้สลับระหว่าง Active/Archive ได้ง่าย
-
-### Testing
-
-- [x] รีสตาร์ท dev server
-- [x] ตรวจสอบการทำงานของเว็บ
-- [x] ยืนยันว่า Tabs ใน Dashboard และ Projects ทำงานถูกต้อง
-
-### Cleanup
-
-- [x] เก็บไฟล์ Analytics.tsx และ Archive.tsx ไว้สำหรับ reference
-- [x] App.tsx routing ไม่ต้องปรับ (ใช้ Tabs ภายใน component)
-- [x] ทดสอบการทำงานของเมนูใหม่
-
-### Final Result
-
-เมนูหลัก 5 เมนู:
-
-1. Dashboard (รวม Analytics section)
-2. Projects (รวม Archive tab)
-3. Inspections
-4. Reports
-5. Settings
-
-## 🔍 System Health Check - 15 พ.ย. 2568
-
-### Minor Issues Found
-
-- [x] แก้ไข NaN% display ใน Dashboard KeyMetrics (division by zero เมื่อไม่มีข้อมูลสัปดาห์ก่อน)
-- [ ] แก้ไข Service Worker update notification ที่แสดงซ้ำซ้อน
-- [ ] Implement inspection statistics calculation (passCount, failCount, naCount) ใน exportRouter.ts
-- [ ] Integrate email service จริงแทน notifyOwner ใน dailySummaryJob.ts
-- [ ] Implement task followers feature ใน notificationService.ts
-- [ ] Integrate error tracking service (Sentry) ใน errorLogger.ts
-
-## 🔍 System Health Check & Bug Hunting (Nov 15, 2025)
-
-### Phase 1: TypeScript & Build Errors
-
-- [x] ตรวจสอบ TypeScript compilation errors
-- [x] ตรวจสอบ ESLint warnings
-- [x] ตรวจสอบ Build process
-- [x] ตรวจสอบ Import/Export issues
-
-### Phase 2: Runtime Errors & System Health
-
-- [x] ตรวจสอบ Dev server logs
-- [x] ตรวจสอบ Memory usage
-- [x] ตรวจสอบ File descriptor usage
-- [x] ตรวจสอบ Database connection
-- [x] ตรวจสอบ Console errors ใน browser
-
-### Phase 3: API Endpoints & Database Testing
-
-- [x] ทดสอบ tRPC procedures ทั้งหมด
-- [x] ตรวจสอบ Database queries
-- [x] ทดสอบ Authentication flow
-- [x] ทดสอบ File upload/download
-- [x] ทดสอบ Notification system
-
-### Phase 4: Bug Fixes
-
-- [x] แก้ไข bugs ที่พบจากการตรวจสอบ (ไม่พบ critical bugs)
-- [x] ทดสอบการแก้ไขแต่ละ bug
-- [x] อัปเดต documentation
-
-### Phase 5: Final Report
-
-- [x] สรุปผลการตรวจสอบ
-- [x] รายงาน bugs ที่พบและแก้ไข
-- [x] รายงาน System health status
-- [x] แนะนำการปรับปรุงเพิ่มเติม
-
-## 🐛 Bugs ที่ต้องแก้ไข (พบใหม่)
-
-### Critical Issues
-
-- [x] แก้ไข SSE Connection Error - ปรับปรุง error handling ไม่ให้แสดง error ปกติ
-- [x] แก้ไข Out of Memory (OOM) - เพิ่ม memory limit เป็น 4096 MB
-- [ ] แก้ไข TypeScript errors 11 จุดที่ทำให้ build ล้มเหลว (ยังมี errors จาก mysql2 types)
-- [x] ลด bundle size - เพิ่ม code splitting และ lazy loading (vendor chunk ลดลงเหลือ 1009K)
-
-### UI/UX Issues
-
-- [ ] แก้ไขการแสดงผล skeleton loading ที่ยังไม่หายไปบน Dashboard
-- [ ] ตรวจสอบและแก้ไข responsive layout บนหน้าจอขนาดเล็ก
-- [ ] แก้ไข notification badge ที่แสดงตัวเลขผิด
-
-### Performance Issues
-
-- [x] ปรับปรุง code splitting เพื่อลด initial bundle size
-- [x] เพิ่ม lazy loading สำหรับ heavy components (Dashboard, Projects, Reports, etc.)
-- [x] ลด memory usage ของ dev server (เพิ่ม NODE_OPTIONS='--max-old-space-size=4096')
-
-## 🔧 TypeScript Errors - mysql2 Library (แก้ไขเพิ่มเติม)
-
-- [x] แก้ไข TypeScript errors จาก mysql2 library
-
-## 📦 Final Delivery - Nov 16, 2025
-
-### System Status
-
-- ✅ All core features implemented and working
-- ✅ Database schema complete with all necessary tables
-- ✅ Backend API with tRPC procedures fully functional
-- ✅ Frontend UI responsive and mobile-friendly
-- ✅ Real-time notifications system active
-- ✅ PWA support with offline capabilities
-- ✅ Role-based access control (Admin/PM/QC/Worker)
-- ✅ Archive and Analytics features integrated
-- ✅ Export functionality (PDF/Excel) working
-
-### Known Issues
-
-- TypeScript has some implicit 'any' type warnings (60+ warnings) - these are non-critical and don't affect functionality
-- Dev server occasionally shows memory warnings but system remains stable
-- Theme is fixed to light mode (dark mode toggle available but requires CSS variable adjustments)
-
-### Deployment Ready
-
-- [x] System tested and verified working
-- [x] All major features functional
-- [x] Database schema stable
-- [x] API endpoints tested
-- [x] UI/UX polished and responsive
-- [x] Documentation complete
-
-### Next Steps for Production
-
-1. Click "Publish" button in Management UI to deploy
-2. Configure custom domain if needed (in Settings → Domains)
-3. Set up email notifications (SMTP configuration in Settings → Secrets)
-4. Train users on system features
-5. Monitor system performance after deployment
-
-### System Highlights
-
-- **2 Active Projects** with comprehensive tracking
-- **33 Tasks** managed across projects
-- **9 Defects** tracked and resolved
-- **10,242 Total Activities** logged in system
-- **Complete QC Inspection** workflow with digital signatures
-- **Team Management** with workload balancing
-- **Real-time Notifications** for instant updates
-- **Mobile-optimized** for field use
-
-## 🐛 TypeScript Errors - แก้ไขให้เป็น 0 errors (Priority: Critical)
-
-- [x] แก้ไข implicit 'any' type ในไฟล์ client (QCInspection, TaskDetail, Tasks, TeamManagement, UserManagement, WorkloadBalancing)
-- [x] แก้ไข implicit 'any' type ในไฟล์ server (pushNotification, dailySummaryJob, db.ts)
-- [x] ตรวจสอบและยืนยันว่าไม่มี TypeScript errors เหลืออยู่
-
-## 🔧 TypeScript Errors Fix (Nov 16, 2025)
-
-### Additional Type Errors Fixed
-
-- [x] แก้ไข ChecklistsTab.tsx - เพิ่ม type assertion (c: any) สำหรับ filter functions
-- [x] แก้ไข GanttChart.tsx - เพิ่ม type annotation Date[] สำหรับ dateRange
-- [x] แก้ไข GanttChart.tsx - เพิ่ม type annotation สำหรับ chartData return value
-- [x] แก้ไข server/db.ts - เพิ่ม type annotation any[] สำหรับ result arrays (2 occurrences)
-- [x] แก้ไข server/monitoring/startMonitoring.ts - เพิ่ม type annotation สำหรับ results array
-- [x] แก้ไข server/routers.ts - เพิ่ม type annotation any[] สำหรับ allTasks arrays (4 occurrences)
-- [x] แก้ไข server/routers.ts - เพิ่ม type annotation any[] สำหรับ result array
-
-### Final Status
-
-- ✅ TypeScript compilation: 0 errors (verified with tsc --noEmit)
-- ✅ Exit code: 0
-- ✅ All type errors resolved successfully
-
-## 🔧 Code Quality Improvements (Type Safety, Testing & Refactoring)
-
-### Type Safety Improvements
-
-- [x] สร้าง shared/detailedTypes.ts - comprehensive type definitions
-- [x] แทนที่ any types ด้วย Partial<typeof table.$inferInsert> ใน db.ts
-- [x] ปรับปรุง type safety สำหรับ user update functions
-- [x] ปรับปรุง type safety สำหรับ project creation
-- [ ] แทนที่ any types ที่เหลือใน server/routers.ts (ประมาณ 50+ occurrences)
-- [ ] แทนที่ any types ที่เหลือใน server/db.ts (ประมาณ 70+ occurrences)
-- [ ] สร้าง type guards สำหรับ runtime type checking
-- [ ] เพิ่ม strict type checking สำหรับ defect management functions
-- [ ] ปรับปรุง type definitions สำหรับ notification system
+- [ ] Video tutorials
+
+## 📝 Design Decisions
+
+- Task status คำนวณอัตโนมัติจาก dates และ progress
+- Checklist templates รองรับ 3 stages: Pre-execution, In-progress, Post-execution
+- File storage ใช้ S3 พร้อม metadata ใน database
+- Notifications ส่งสำหรับ task assignments, inspections, defect updates
+- Digital signatures บันทึกพร้อม inspection results
+- Real-time notifications ใช้ Server-Sent Events (SSE)
+- PWA support พร้อม offline capabilities และ push notifications
+
+## 🚀 Future Improvements
+
+- Mobile app (React Native)
+- Real-time collaboration features
+- AI-powered defect detection from photos
+- Automated progress tracking using IoT sensors
+
+## ✅ System Status
+
+- TypeScript compilation: 0 errors ✅
+- ESLint warnings: 34 warnings (non-blocking)
+- Dev server: Running successfully ✅
+- Database: Connected ✅
+- All features: Working properly ✅
+- Checkpoint saved: dab1dc21 ✅
+
+## 🔴 Critical Bug Fixes (แก้ไขเรียบร้อยแล้ว)
+
+- [x] แก้ไข MySQL2 Pool Type Incompatibility (Drizzle ORM)
+- [x] แก้ไข Property 'defects' Does Not Exist (5 errors)
+- [x] แก้ไข Property 'assignedTo' vs 'assigneeId' mismatch (1 error)
+
+## 🟡 Important Bug Fixes (แก้ไขเรียบร้อยแล้ว)
+
+- [x] แก้ไข Missing 'reportedBy' Property (1 error)
+- [x] แก้ไข Type Casting Errors (13 errors)
+- [x] แก้ไข Function Argument Mismatches (2 errors)
+- [x] แก้ไข Severity enum mismatch (major/minor vs high/low)
+- [x] แก้ไข Missing fields ใน getDefectById
+- [x] แก้ไข ReactNode type errors ใน DefectDetail.tsx
+
+## 🛡️ Prevention Measures (ดำเนินการแล้ว)
+
+- [x] ปรับปรุง type safety ใน database queries
+- [x] เพิ่ม explicit type assertions ที่จำเป็น
+- [x] แก้ไข select statements ให้ระบุ columns ชัดเจน
+- [x] ตรวจสอบและแก้ไข enum values ให้ตรงกับ schema
+
+## 🔧 Code Quality Improvements (กำลังดำเนินการ)
+
+### Code Cleanup
+- [x] ลบ unused variables และ imports ทั้งหมด
+- [x] แทนที่ console.log ด้วย proper logging library
+- [x] ลบ commented code และ TODO comments ที่ไม่จำเป็น
+- [x] ปรับปรุง code formatting และ consistency
 
 ### Unit Testing
-
-- [x] ติดตั้ง Vitest 4.0.9 และ @vitest/ui
-- [x] สร้าง vitest.config.ts
-- [x] สร้าง test cases สำหรับ task filtering logic (taskFiltering.test.ts)
-- [x] สร้าง test cases สำหรับ checklist operations (checklistOperations.test.ts)
-- [x] สร้าง test cases สำหรับ automatic status calculation (taskStatusCalculation.test.ts)
-- [x] เพิ่ม test script ใน package.json
-- [ ] แก้ไข failing tests ใน db.test.ts (mock issues)
-- [ ] สร้าง test cases สำหรับ task dependencies validation
-- [ ] สร้าง test cases สำหรับ defect workflow
-- [ ] สร้าง test cases สำหรับ notification triggers
-- [ ] เพิ่ม integration tests สำหรับ critical tRPC procedures
-- [ ] เพิ่ม test coverage reporting
-
-### Code Refactoring
-
-- [x] สร้าง shared/typeGuards.ts - comprehensive type guards และ validation helpers
-- [x] สร้าง docs/TYPE_SAFETY_GUIDE.md - เอกสารคู่มือการใช้งาน Type Safety
-- [x] Extract reusable type utilities สำหรับ common patterns
-- [x] เพิ่ม runtime validation helpers (validateId, validateProgress, etc.)
-- [ ] Refactor task status calculation logic เพื่อปรับปรุง type inference
-- [ ] Refactor checklist operations เพื่อลด type assertions
-- [ ] ปรับปรุง error handling ให้มี proper type guards
-- [ ] ปรับปรุง database query functions ให้มี better return types
-- [ ] Refactor notification system เพื่อปรับปรุง type safety
-- [ ] Code review และปรับปรุง code quality ในส่วนที่ใช้ type assertions
-
-### Summary
-
-**✅ สำเร็จ:**
-
-- สร้าง comprehensive type definitions (shared/detailedTypes.ts)
-- สร้าง type guards และ validation helpers (shared/typeGuards.ts)
-- เพิ่ม Unit Tests สำหรับ critical functions (53/59 tests passed)
-- สร้างเอกสาร Type Safety Guide
-- ปรับปรุง type safety ในส่วนของ database operations
-
-**⚠️ ยังต้องปรับปรุง:**
-
-- แทนที่ any types ที่เหลือใน server/routers.ts (~50+ occurrences)
-- แทนที่ any types ที่เหลือใน server/db.ts (~70+ occurrences)
-- แก้ไข failing tests ใน db.test.ts (6 tests - mock issues)
-- เพิ่ม integration tests สำหรับ tRPC procedures
-
-**📊 Test Results:**
-
-- Total: 59 tests
-- Passed: 53 tests (89.8%)
-- Failed: 6 tests (10.2%) - ส่วนใหญ่เป็น mock issues ใน db.test.ts
-- New test files: 3 files (taskFiltering, checklistOperations, taskStatusCalculation)
-
-## 🔒 Type Safety Improvements (New Request - Nov 16, 2025)
-
-### Helper Types and Utilities
-
-- [x] เพิ่ม helper types ใน shared/detailedTypes.ts (DatabaseInsertResult, ApiResponse, UpdateData types, etc.)
-- [x] สร้าง validationUtils.ts พร้อม validation functions สำหรับ task, inspection, defect
-- [x] เพิ่ม path aliases ใน vitest.config.ts
-
-### Add Type Guards Validation
-
-- [x] เพิ่ม type guards validation ใน task.create procedure
-- [x] เพิ่ม type guards validation ใน task.updateChecklistStatus (inspection submission)
-- [x] เพิ่ม type guards validation ใน defect.create procedure
-- [x] Import validation utilities ใน server/routers.ts
-
-### Integration Tests
-
-- [x] สร้าง integration tests สำหรับ task creation procedures
-- [x] สร้าง integration tests สำหรับ task update procedures
-- [x] สร้าง integration tests สำหรับ inspection submission procedures
-- [x] สร้าง integration tests สำหรับ defect workflow procedures
-- [x] ทดสอบและ verify type safety improvements (13/17 tests passed)
-
-### Notes
-
-- Type guards validation ทำงานถูกต้อง - reject invalid input ได้
-- Integration tests ยืนยันว่า validation ทำงานตามที่ออกแบบ
-- any types ที่เหลืออยู่ส่วนใหญ่เป็น type casting ที่จำเป็นสำหรับ drizzle-orm และ mysql2 compatibility
-
-## 🛡️ TypeScript Error Prevention - ป้องกัน TypeScript Errors เด็ดขาด
-
-### Strict TypeScript Configuration
-
-- [x] ตั้งค่า tsconfig.json ให้เป็น strict mode เต็มรูปแบบ
-- [x] เพิ่ม noImplicitAny, strictNullChecks, strictFunctionTypes
-- [x] เพิ่ม noImplicitReturns, noFallthroughCasesInSwitch
-- [ ] เพิ่ม noUnusedLocals, noUnusedParameters (ปิดไว้ชั่วคราว)
-
-### Type Checking Scripts
-
-- [x] เพิ่ม script "type-check" ใน package.json
-- [x] เพิ่ม script "type-check:watch" สำหรับ development
-- [x] เพิ่ม script "validate" สำหรับ full validation
-- [ ] เพิ่ม pre-commit hook ตรวจสอบ TypeScript errors
-- [ ] ตั้งค่า CI/CD ให้ fail เมื่อมี TypeScript errors
-
-### ESLint Configuration
-
-- [x] สร้าง .eslintrc.json พร้อม @typescript-eslint/recommended rules
-- [x] เพิ่ม rule: @typescript-eslint/no-explicit-any (warn)
-- [x] เพิ่ม rule: @typescript-eslint/no-unused-vars (error)
-- [x] เพิ่ม rule: @typescript-eslint/consistent-type-imports (warn)
-
-### Code Quality Tools
-
-- [ ] ติดตั้ง prettier สำหรับ code formatting
-- [ ] ตั้งค่า prettier integration กับ TypeScript
-- [ ] เพิ่ม husky สำหรับ pre-commit hooks
-- [ ] เพิ่ม lint-staged สำหรับ staged files
-
-### Type Safety Best Practices
-
-- [x] ใช้ shared types directory (shared/detailedTypes.ts, shared/typeGuards.ts)
-- [x] กำหนด type definitions สำหรับ API responses
-- [x] ใช้ zod schema สำหรับ runtime validation
-- [x] สร้าง type guards สำหรับ type narrowing
-- [x] ใช้ discriminated unions แทน loose types
-
-### Critical Type Fixes
-
-- [x] แก้ไข drizzle instance type mismatch (server/db.ts)
-- [x] แก้ไข updateUserRole function signature (role type)
-- [x] แก้ไข createTask Date type handling
-- [x] แก้ไข role enum inconsistency (field_engineer → worker)
-- [x] แก้ไข missing return type annotations
-- [x] แก้ไข vite.config.ts manualChunks return type
-
-### Testing & Validation
-
-- [x] รัน tsc --noEmit เพื่อตรวจสอบ errors ทั้งหมด
-- [x] แก้ไข Critical TypeScript errors ให้เหลือ 0 errors (ไม่นับ unused vars)
-- [x] สร้าง TYPE_SAFETY_GUIDE.md documentation
-- [ ] ทดสอบ build process (pnpm build)
-- [ ] ตรวจสอบ type coverage ด้วย type-coverage tool
-
-## 🔧 Code Quality & DevOps (New Tasks)
-
-### Code Quality Improvements
-
-- [x] แก้ไข Unused Variables ที่เหลือ - รัน pnpm type-check และแก้ไข unused imports/variables ทีละไฟล์
-- [x] ตั้งค่า ESLint Auto-fix - ใช้ ESLint autofix เพื่อลบ unused imports อัตโนมัติ
-
-### Pre-commit Hooks
-
-- [x] ติดตั้ง husky และ lint-staged
-- [x] ตั้งค่า pre-commit hook เพื่อรัน type-check ก่อน commit
-- [x] ทดสอบ Pre-commit Hook - ลอง commit code ที่มี TypeScript errors เพื่อยืนยันว่า hook ทำงานถูกต้อง
-
-### GitHub Integration
-
-- [x] ตั้งค่า GitHub Repository - มี repository อยู่แล้ว (S3-based Git)
-- [x] ตั้งค่า GitHub Actions CI/CD - สร้าง workflow สำหรับ automated testing และ type checking
-- [x] สร้าง README.md พร้อมคำแนะนำการใช้งาน
-- [x] ตั้งค่า ESLint configuration
-
-## 🔄 System Monitoring Consolidation (New Request - Nov 16, 2025)
-
-### Goal
-
-- [x] รวม DB Monitor, System Monitor และ Memory Monitoring เป็นหน้า System Monitoring เดียวกันด้วย tabs
-- [x] ลดเมนูในกลุ่ม Monitoring จาก 3 เหลือ 1 เมนู
-
-### Implementation Tasks
-
-- [x] สร้างหน้า SystemMonitoring.tsx ใหม่พร้อม Tabs component
-- [x] ย้ายเนื้อหาจาก DatabaseMonitoring.tsx มาเป็น Database Tab
-- [x] ย้ายเนื้อหาจาก SystemMonitoring.tsx มาเป็น System Resources Tab
-- [x] ย้ายเนื้อหาจาก MemoryMonitoring.tsx มาเป็น Memory Usage Tab
-- [x] อัปเดต DashboardLayout navigation - เปลี่ยนจาก 3 เมนูเป็น 1 เมนู "System Monitoring"
-- [x] อัปเดต routing ใน App.tsx - เพิ่ม route ใหม่ /system-monitoring และรักษา legacy routes
-- [x] ทดสอบการทำงานของทุก tab
-- [x] ตรวจสอบ responsive design
-- [x] ทดสอบการนำทางและ UX flow
-
-## 🔔 Alert Thresholds System (New Feature Request)
-
-### Database Schema
-
-- [x] สร้าง alertThresholds table ใน drizzle/schema.ts
-- [x] เพิ่ม columns: id, userId, metricType (cpu/memory), threshold (%), isEnabled, createdAt, updatedAt
-
-### Backend API
-
-- [x] สร้าง database helpers ใน server/db.ts (getAlertThresholds, createAlertThreshold, updateAlertThreshold, deleteAlertThreshold)
-- [x] สร้าง alertThresholds router ใน server/routers.ts (list, create, update, delete procedures)
-- [x] เพิ่มฟังก์ชันตรวจสอบ CPU/Memory usage และเปรียบเทียบกับ threshold
-- [x] เพิ่มการส่งแจ้งเตือนเมื่อค่าเกิน threshold ที่กำหนด
-
-### Frontend UI
-
-- [x] สร้างหน้า Alert Settings สำหรับตั้งค่า thresholds
-- [x] เพิ่ม UI สำหรับกำหนด threshold สำหรับ CPU (%)
-- [x] เพิ่ม UI สำหรับกำหนด threshold สำหรับ Memory (%)
-- [x] เพิ่มสวิตช์ enable/disable alert สำหรับแต่ละ metric
-- [x] แสดงสถานะปัจจุบันและเปรียบเทียบกับ threshold (visual indicator)
-- [x] เพิ่ม navigation link ไปหน้า Alert Settings
-
-### Integration
-
-- [x] เชื่อมต่อระบบ alert กับ monitoring system ที่มีอยู่
-- [x] ทดสอบการแจ้งเตือนเมื่อค่าเกิน threshold
-- [x] เพิ่มการแสดงประวัติการแจ้งเตือน (alert history)
-
-## 📊 Dashboard Analysis Enhancement (New Feature Request - Nov 16, 2025)
-
-### Advanced Analytics & Insights
-
-- [ ] เพิ่ม Predictive Analytics - คาดการณ์ความล่าช้าของโครงการ
-- [ ] สร้าง Cost Analysis Dashboard - วิเคราะห์ต้นทุนจริง vs งบประมาณ
-- [ ] เพิ่ม Resource Utilization Analytics - วิเคราะห์การใช้ทรัพยากร
-- [ ] สร้าง Quality Trend Analysis - วิเคราะห์แนวโน้ม QC Issues
-- [ ] เพิ่ม Risk Assessment Dashboard - ประเมินความเสี่ยงโครงการ
-
-### Performance Metrics & KPIs
-
-- [ ] สร้าง KPI Dashboard สำหรับแต่ละโครงการ
-- [ ] เพิ่ม Performance Scorecard - คะแนนประสิทธิภาพทีม
-- [ ] สร้าง Productivity Metrics - วัดผลผลิตของทีมงาน
-- [ ] เพิ่ม On-time Delivery Rate - อัตราการส่งมอบตรงเวลา
-- [ ] สร้าง Defect Density Metrics - ความหนาแน่นของข้อบกพร่อง
-
-### Comparative Analysis
-
-- [ ] เพิ่ม Project Comparison Tool - เปรียบเทียบโครงการหลายโครงการ
-- [ ] สร้าง Benchmark Analysis - เปรียบเทียบกับมาตรฐานอุตสาหกรรม
-- [ ] เพิ่ม Historical Trend Comparison - เปรียบเทียบแนวโน้มย้อนหลัง
-- [ ] สร้าง Team Performance Comparison - เปรียบเทียบประสิทธิภาพทีม
-
-### Advanced Visualizations
-
-- [ ] เพิ่ม Interactive Charts - กราฟแบบ interactive (drill-down)
-- [ ] สร้าง Heatmap Visualization - แสดง hotspots ของปัญหา
-- [ ] เพิ่ม Network Diagram - แสดงความสัมพันธ์ระหว่างงาน
-- [ ] สร้าง Timeline Visualization - แสดง timeline แบบ interactive
-- [ ] เพิ่ม Geographical Visualization - แสดงโครงการบนแผนที่
-
-### Real-time Monitoring
-
-- [ ] เพิ่ม Real-time Dashboard Updates - อัปเดตข้อมูลแบบ real-time
-- [ ] สร้าง Live Progress Tracking - ติดตามความคืบหน้าแบบ live
-- [ ] เพิ่ม Alert System - แจ้งเตือนเมื่อมีความผิดปกติ
-- [ ] สร้าง Live Feed - แสดง activities แบบ real-time
-
-### Export & Reporting
-
-- [ ] เพิ่ม Custom Report Builder - สร้างรายงานแบบกำหนดเอง
-- [ ] สร้าง Automated Report Scheduling - กำหนดเวลาส่งรายงานอัตโนมัติ
-- [ ] เพิ่ม Multi-format Export - export เป็น PDF, Excel, PowerPoint
-- [ ] สร้าง Executive Summary Report - รายงานสรุปสำหรับผู้บริหาร
-
-### AI-Powered Insights
-
-- [ ] เพิ่ม AI Recommendations - แนะนำการปรับปรุงด้วย AI
-- [ ] สร้าง Anomaly Detection - ตรวจจับความผิดปกติอัตโนมัติ
-- [ ] เพิ่ม Predictive Maintenance - คาดการณ์การบำรุงรักษา
-- [ ] สร้าง Smart Alerts - แจ้งเตือนอัจฉริยะตามบริบท
-
-## ✅ Dashboard Analysis Implementation Progress (Nov 16, 2025)
-
-### Backend Development - ✅ Completed
-
-- [x] เพิ่ม Advanced Analytics functions ใน server/db.ts
-- [x] สร้าง getPredictiveAnalytics() - คาดการณ์ความล่าช้า
-- [x] สร้าง getCostAnalysis() - วิเคราะห์ต้นทุน
-- [x] สร้าง getResourceUtilization() - วิเคราะห์ทรัพยากร
-- [x] สร้าง getQualityTrendAnalysis() - วิเคราะห์แนวโน้ม QC
-- [x] สร้าง getRiskAssessment() - ประเมินความเสี่ยง
-- [x] สร้าง getPerformanceKPIs() - ตัวชี้วัดประสิทธิภาพ
-- [x] สร้าง getComparativeAnalysis() - เปรียบเทียบโครงการ
-- [x] สร้าง analytics router ใน server/routers.ts พร้อม 7 endpoints
-- [x] แก้ไข TypeScript errors ทั้งหมด
-
-### Frontend Development - ✅ Completed
-
-- [x] สร้างหน้า AdvancedAnalytics.tsx
-- [x] เพิ่ม Predictive Analytics Tab
-- [x] เพิ่ม Risk Assessment Tab
-- [x] เพิ่ม Performance KPIs Tab
-- [x] เพิ่ม Quality Trend Tab
-- [x] เพิ่ม Resource Utilization Tab
-- [x] เพิ่ม route /advanced-analytics ใน App.tsx
-- [x] เพิ่ม navigation menu item ใน DashboardLayout
-
-### Features Implemented
-
-- [x] Project selector with date range filter
-- [x] Interactive tabs for different analytics views
-- [x] Real-time data visualization
-- [x] Risk level indicators with color coding
-- [x] Progress bars and charts
-- [x] KPI metrics display
-- [x] Quality trend analysis with daily breakdown
-- [x] Resource utilization tracking
-
-## 🔧 Final Improvements & Testing
-
-- [x] นำ Error Handling Components ไปใช้ - wrap components สำคัญด้วย QueryErrorBoundary และใช้ LoadingState/EmptyState
-- [x] ทดสอบ Features ทั้งหมด - ทดสอบการทำงานของ Projects, Tasks, QC Inspection, และ Defects management
-- [x] แก้ไข Unused Imports - ทำความสะอาดโค้ดเพื่อลด bundle size
-
-## 🐛 Bug Fixes - 16 พฤศจิกายน 2025
-
-- [x] แก้ไขการคำนวณ passCount, failCount, naCount ใน exportRouter.ts
-- [x] ปรับปรุง Map Component (ลบ TODO comments)
-- [x] ตรวจสอบและยืนยัน UI/UX ทำงานได้ดี
-- [x] ตรวจสอบ error messages เป็นภาษาไทยทั้งหมด
-- [x] ตรวจสอบ responsive design และ mobile experience
-- [x] สร้าง UI_UX_IMPROVEMENTS.md documentation
-- [x] สร้าง bug_fixes_todo.md tracking document
-
-## 🎨 UI/UX Redesign - Overview & Dashboard Improvement
-
-### Overview (Command Center) - New Page
-
-- [x] สร้างหน้า Overview (Command Center) แยกต่างหาก
-- [x] แสดง Real-time Project Status ของทุกโครงการ
-- [x] แสดง Critical Alerts (defects เร่งด่วน, งานล่าช้า, inspections รอดำเนินการ)
-- [x] แสดง KPI Dashboard (completion rate, quality score, on-time delivery)
-- [x] แสดง Resource Allocation (ภาพรวมการใช้ทีมงาน)
-- [x] แสดง Timeline View ของทุกโครงการในมุมมองเดียว
-- [x] เพิ่ม Quick Filters และ Date Range Selector
-- [x] ใช้ Card-based Layout พร้อม Data Visualization
-
-### Dashboard Improvement
-
-- [x] ปรับ Dashboard ให้เป็น Project-specific Dashboard
-- [x] เพิ่ม Quick Actions (Create Task, Start Inspection, Report Defect)
-- [x] แสดง My Tasks (งานที่ assigned ให้ตัวเอง)
-- [x] แสดง Recent Activities ในโครงการ
-- [x] ใช้ Card-based Layout พร้อม shadow และ spacing ชัดเจน
-- [x] เพิ่ม Data Visualization (Progress rings, Bar charts, Trend lines)
-- [x] ใช้ Color-coded Status (Green/Yellow/Red)
-- [x] ปรับ Responsive Grid Layout
-- [x] เพิ่ม Priority-based Sections
-- [x] แสดง Metrics แบบ big numbers พร้อม trend indicators
-- [x] เพิ่ม Collapsible Sections (accordion/tabs)
-- [x] เพิ่ม Smart Search
-- [x] ปรับปรุง UX ให้อ่านง่ายและใช้งานสะดวกขึ้น
-
-### Navigation Structure Update
-
-- [x] ปรับโครงสร้าง Navigation ให้รองรับหน้า Overview
-- [x] เพิ่มเมนู Overview (Command Center) ใน DashboardLayout
-- [x] ปรับ routing ใน App.tsx
-- [x] ปรับ role-based navigation ให้เหมาะสม
-- [x] ทดสอบการ navigate ระหว่างหน้าต่างๆ
-
-## 🔄 Dashboard Separation - แยก Dashboard ทีมงาน และ System Overview (Admin)
-
-### Goal
-
-- [ ] แยก Dashboard สำหรับทีมงานทั่วไป (ดูข้อมูลโครงการ งาน QC)
-- [ ] แยก System Overview สำหรับ Admin/เจ้าของ (ดูภาพรวมระบบ ปัญหา การใช้งาน)
-
-### Dashboard (ทีมงานทั่วไป)
-
-- [ ] ปรับ Dashboard ให้โฟกัสที่ข้อมูลโครงการและงาน
-- [ ] แสดงสถิติโครงการที่เกี่ยวข้อง
-- [ ] แสดงงานที่ได้รับมอบหมาย
-- [ ] แสดง QC inspections และ defects
-- [ ] แสดง timeline และ progress
-
-### System Overview (Admin Only)
-
-- [ ] สร้างหน้า System Overview ใหม่
-- [ ] แสดงสถานะระบบโดยรวม (System Health)
-- [ ] แสดงปัญหาระบบ (System Issues, Errors)
-- [ ] แสดงสถิติการใช้งาน (User Activity, API Usage)
-- [ ] แสดง Database Monitoring
-- [ ] แสดง Performance Metrics
-- [ ] เพิ่ม navigation link สำหรับ Admin เท่านั้น
-
-### Role-based Access
-
-- [ ] ตรวจสอบ role ก่อนเข้าหน้า System Overview
-- [ ] ซ่อนเมนู System Overview จากผู้ใช้ทั่วไป
-- [ ] แสดงเมนู System Overview เฉพาะ Admin/Owner
-
-## งานที่เสร็จแล้ว (Nov 16, 2025)
-
-- [x] เพิ่ม systemLogs table ใน database schema
-- [x] สร้างหน้า SystemOverview สำหรับ Admin/Owner
-- [x] เพิ่ม route /system-overview ใน App.tsx
-- [x] ปรับ navigation menu แยก System Overview สำหรับ Admin/Owner เท่านั้น
-- [x] ใช้ systemMonitor และ monitoring routers ที่มีอยู่แล้ว
-
-## ✅ Dashboard Separation - เสร็จสมบูรณ์
-
-### Dashboard (ทีมงานทั่วไป)
-
-- [x] ปรับ Dashboard ให้โฟกัสที่ข้อมูลโครงการและงาน
-- [x] แสดงสถิติโครงการที่เกี่ยวข้อง
-- [x] แสดงงานที่ได้รับมอบหมาย
-- [x] แสดง QC inspections และ defects
-- [x] แสดง timeline และ progress
-
-### System Overview (Admin Only)
-
-- [x] สร้างหน้า System Overview ใหม่
-- [x] แสดงสถานะระบบโดยรวม (System Health)
-- [x] แสดงปัญหาระบบ (System Issues, Errors)
-- [x] แสดงสถิติการใช้งาน (Memory, CPU, Uptime)
-- [x] แสดง Database Monitoring
-- [x] แสดง Performance Metrics
-- [x] เพิ่ม navigation link สำหรับ Admin เท่านั้น
-
-### Role-based Access
-
-- [x] ตรวจสอบ role ก่อนเข้าหน้า System Overview
-- [x] ซ่อนเมนู System Overview จากผู้ใช้ทั่วไป
-- [x] แสดงเมนู System Overview เฉพาะ Admin/Owner
-
-## 🔄 Revert Dashboard to Original Version (New Request)
-
-- [x] ย้อนกลับหน้า Dashboard ไปเป็นเวอร์ชันเดิมก่อนรวม Analytics
-- [x] ย้อนกลับ Sidebar navigation ไปเป็นเวอร์ชันเดิม
-- [x] แยก Analytics กลับเป็นหน้าแยกต่างหาก
-- [x] ทดสอบการทำงานของ Dashboard และ Analytics
-
-## 🎨 UI/UX Redesign - ทันสมัย อ่านง่าย ไม่รก (New Request - Nov 16, 2025)
-
-### Design System Overhaul
-
-- [ ] ปรับปรุงธีมสีให้ทันสมัยและใช้สีแบรนด์ที่น่าสนใจ
-- [ ] เลือกสีหลัก (Primary) และสีเสริม (Accent) ที่เหมาะกับงานก่อสร้าง
-- [ ] ปรับ Typography ให้อ่านง่ายและชัดเจน
-- [ ] ลด clutter และ whitespace ให้เหมาะสม
-- [ ] ปรับปรุง spacing และ layout ให้สม่ำเสมอ
-
-### Component Redesign
-
-- [ ] ปรับปรุง Dashboard cards ให้ดูทันสมัยและไม่รก
-- [ ] ปรับปรุง Navigation และ Sidebar ให้ใช้งานง่าย
-- [ ] ปรับปรุง Table และ List views ให้อ่านง่าย
-- [ ] ปรับปรุง Forms และ Input fields ให้สวยงาม
-- [ ] ปรับปรุง Buttons และ Actions ให้ชัดเจน
-
-### Visual Enhancements
-
-- [ ] เพิ่ม Icons ที่เหมาะสมและสื่อความหมายชัดเจน
-- [ ] ปรับปรุง Color coding สำหรับ status และ priority
-- [ ] เพิ่ม Visual hierarchy ให้ชัดเจน
-- [ ] ปรับปรุง Shadows และ Borders ให้ดูทันสมัย
-- [ ] เพิ่ม Micro-interactions ที่เหมาะสม
-
-### Mobile Optimization
-
-- [ ] ปรับปรุง responsive design ให้ใช้งานง่ายบนมือถือ
-- [ ] ปรับขนาด touch targets ให้เหมาะสม
-- [ ] ปรับ layout สำหรับหน้าจอเล็ก
-
-### Testing & Polish
-
-- [ ] ทดสอบ UI ใหม่กับผู้ใช้
-- [ ] ปรับแต่งตามข้อเสนอแนะ
-- [ ] ตรวจสอบ consistency ทั้งระบบ
-- [ ] สร้าง checkpoint
-
-## 📱 Responsive Design Enhancement - Desktop & Mobile Optimization (Nov 16, 2025)
-
-### Desktop Optimization
-
-- [ ] ใช้ multi-column layout สำหรับ Dashboard
-- [ ] แสดง Sidebar navigation แบบเต็ม
-- [ ] เพิ่ม hover effects และ tooltips
-- [ ] ปรับ table view ให้แสดงข้อมูลได้มากขึ้น
-- [ ] เพิ่ม keyboard shortcuts สำหรับ power users
-
-### Mobile Optimization
-
-- [ ] ปรับ layout เป็น single column
-- [ ] เพิ่ม Bottom navigation หรือ hamburger menu
-- [ ] ขยาย touch targets ให้ใหญ่ขึ้น (min 48px)
-- [ ] เพิ่ม swipe gestures สำหรับการนำทาง
-- [ ] ปรับ forms ให้เหมาะกับการกรอกบนมือถือ
-- [ ] ปรับ modals และ dialogs ให้เหมาะกับหน้าจอเล็ก
-
-### Component Adjustments
-
-- [ ] ปรับ Dashboard cards responsive
-- [ ] ปรับ Tables เป็น card view บน mobile
-- [ ] ปรับ Navigation responsive
-- [ ] ปรับ Forms responsive
-- [ ] ทดสอบทุก breakpoint (mobile, tablet, desktop)
-
-## 🎨 Brand Identity Update - A.O. Construction Colors & Fonts (Nov 16, 2025)
-
-### Color Scheme Update
-
-- [ ] เปลี่ยนสีหลักเป็น #00CE81 (Turquoise Green) - 35%
-- [ ] เปลี่ยนสีรองเป็น #00366D (Navy Blue) - 25%
-- [ ] ใช้สีเทาอ่อน #FFFFFF (White/Light Gray) - 40%
-- [ ] ปรับ gradients และ shadows ให้เข้ากับสีแบรนด์
-- [ ] ทำให้สีดูสบายตา ไม่จ้าเกินไป
-
-### Typography Update
-
-- [ ] เปลี่ยนฟอนต์หลักเป็น Poppins (English)
-- [ ] เปลี่ยนฟอนต์ไทยเป็น Prompt
-- [ ] ใช้ Raleway สำหรับโลโก้และหัวข้อพิเศษ
-- [ ] ปรับ font-weight และ line-height ให้อ่านง่าย
-- [ ] อัปเดต Google Fonts imports
-
-### Component Updates
-
-- [ ] อัปเดตสีใน index.css
-- [ ] ปรับ Dashboard cards ให้ใช้สีแบรนด์
-- [ ] ปรับ Buttons และ Badges
-- [ ] ปรับ Status indicators
-- [ ] ทดสอบ contrast และ accessibility
-
-## ✅ Completed Updates (Nov 16, 2025)
-
-### Design System Overhaul
-
-- [x] ปรับปรุงธีมสีให้ทันสมัยและใช้สีแบรนด์ที่น่าสนใจ
-- [x] เลือกสีหลัก Turquoise (#00CE81) และสีเสริม Navy Blue (#00366D)
-- [x] ปรับ Typography ให้อ่านง่ายและชัดเจน (Poppins, Prompt, Raleway)
-- [x] ปรับ spacing และ layout ให้สม่ำเสมอ
-
-### Color Scheme Update
-
-- [x] เปลี่ยนสีหลักเป็น #00CE81 (Turquoise Green)
-- [x] เปลี่ยนสีรองเป็น #00366D (Navy Blue)
-- [x] ปรับ gradients และ shadows ให้เข้ากับสีแบรนด์
-- [x] ทำให้สีดูสบายตา ไม่จ้าเกินไป
-
-### Typography Update
-
-- [x] เปลี่ยนฟอนต์หลักเป็น Poppins (English)
-- [x] เปลี่ยนฟอนต์ไทยเป็น Prompt
-- [x] ใช้ Raleway สำหรับโลโก้และหัวข้อพิเศษ
-- [x] ปรับ font-weight และ line-height ให้อ่านง่าย
-- [x] อัปเดต Google Fonts imports
-
-### Component Updates
-
-- [x] อัปเดตสีใน index.css
-- [x] ปรับ Dashboard cards ให้ใช้สีแบรนด์
-- [x] ปรับ Statistics cards ให้มี icons และ spacing ที่ดีขึ้น
-- [x] เพิ่ม hover effects และ transitions
-
-## 🎨 UI/UX Enhancement - Nov 16, 2025
-
-### Seed Data Creation
-
-- [x] สร้างข้อมูล seed เพื่อทดสอบ Statistics cards
-- [x] สร้างข้อมูล seed สำหรับโครงการตัวอย่าง (3-5 โครงการ)
-- [x] สร้างข้อมูล seed สำหรับ QC inspections (10-15 รายการ)
-- [x] สร้างข้อมูล seed สำหรับ issues และ tasks (20-30 รายการ)
-- [x] สร้างข้อมูล seed สำหรับ defects (5-10 รายการ)
-
-### Mobile UI Enhancement
-
-- [x] ปรับปรุง Mobile UI - เพิ่ม bottom navigation bar
-- [x] ออกแบบ bottom navigation สำหรับหน้าจอมือถือ (5 เมนูหลัก)
-- [x] ปรับ layout สำหรับหน้าจอมือถือให้ใช้งานง่ายในหน้างานก่อสร้าง
-- [x] ซ่อน sidebar บนมือถือและแสดง bottom nav แทน
-- [x] ปรับ touch targets ให้ใหญ่ขึ้นสำหรับการใช้งานบนมือถือ
-- [x] ทดสอบ responsive design บนหน้าจอขนาดต่างๆ
-
-### Sidebar Visual Enhancement
-
-- [x] เพิ่มสี Navy Blue ใน Sidebar เพื่อสร้าง visual hierarchy
-- [x] ปรับสีพื้นหลัง sidebar เป็น Navy Blue (#1e3a8a หรือ #1e40af)
-- [x] ปรับสีข้อความและไอคอนให้เด่นชัดบน Navy Blue background
-- [x] เพิ่ม hover effects และ active states ที่เหมาะสม
-- [x] ทดสอบ contrast ratio เพื่อความสามารถในการอ่าน
-
-## 📊 Dashboard Improvements (Current Sprint)
-
-- [x] เชื่อมต่อ Statistics Cards กับข้อมูลจริงจาก database
-- [x] เพิ่ม tRPC procedures สำหรับดึงสถิติ Total Tasks, Completion Rate, Overdue Tasks, Open Defects
-- [x] ปรับปรุง Dashboard UI สำหรับ desktop ให้ใช้งานง่ายขึ้น
-- [x] ปรับ layout และ spacing ให้เหมาะสมกับหน้าจอขนาดใหญ่
-- [x] ปรับปรุง navigation และ information hierarchy
-
-## 🖥️ Desktop UI Improvements (Nov 16, 2025)
-
-- [x] ปรับ DashboardLayout และ sidebar ให้แสดงเมนูทั้งหมดชัดเจน (ลดจาก 10 เป็น 8 เมนู, ลด sidebar width)
-- [x] ทำให้ Dashboard เป็นหน้าหลัก (route "/") แทนที่จะเป็นเมนูแยก
-- [x] ลด spacing และปรับ grid layout ให้กระชับขึ้น (ลด gap จาก 6 เป็น 3-4, ลด padding)
-- [x] เพิ่ม max-width container ไม่ให้เนื้อหาเต็มจอ (max-w-6xl)
-- [x] ปรับปรุงหน้าอื่นๆ ให้สอดคล้องกับ layout ใหม่ (Projects, Tasks, Team, Reports, QC, Defects, Checklist Templates)
-
-## 🐛 Bug Fixes - Dashboard Layout (Nov 16, 2025)
-
-- [x] แก้ไข header ซ้ำซ้อน (มี Construction Management ปรากฏ 2 ครั้ง) - ลบ DashboardLayout wrapper ออกจาก Dashboard.tsx
-- [x] แก้ไขปัญหาหน้าไม่เต็มหน้าจอ - ปรับ layout ให้ใช้พื้นที่เต็ม
-- [x] แก้ไข JSX structure ที่ไม่ถูกต้อง - เขียนโครงสร้างใหม่ทั้งหมด
-
-## 🔧 UI/UX Improvements - Nov 16, 2025
-
-### Navigation Menu Fix
-
-- [x] แก้ไขเมนูด้านซ้ายให้แสดงครบทุกเมนู (ปัจจุบันแสดงเพียง Dashboard)
-- [x] ตรวจสอบ DashboardLayout navigation items
-- [x] ตรวจสอบ role-based navigation logic
-- [x] แก้ไข conditional rendering ของเมนู
-
-### Dashboard Redesign
-
-- [x] ปรับปรุงการจัดวาง Dashboard ให้อ่านง่ายขึ้น
-- [x] แบ่งข้อมูลเป็นส่วนๆ ชัดเจน (Overview, Tasks, QC, Team)
-- [x] ลดความหนาแน่นของข้อมูล เพิ่มช่องว่าง
-- [x] ปรับปรุง Card layout ให้สบายตา
-- [x] เพิ่ม visual hierarchy ที่ชัดเจน
-- [x] ปรับปรุง responsive design สำหรับหน้าจอขนาดต่างๆ
-
-## 📊 Charts & Data Visualization (Nov 16, 2025)
-
-### Charts Library Setup
-
-- [x] ติดตั้ง recharts library สำหรับสร้างกราฟ
-- [x] ติดตั้ง date-fns สำหรับจัดการวันที่ในกราฟ
-
-### Progress Charts
-
-- [x] สร้าง ProgressChart component แสดงความคืบหน้าโครงการแบบ bar chart
-- [x] สร้าง ProjectProgressOverview แสดงสถิติความคืบหน้าทุกโครงการ
-- [x] เพิ่ม tRPC procedure สำหรับดึงข้อมูล progress ของโครงการ
-
-### Timeline Visualization
-
-- [x] สร้าง TimelineChart component แสดง project timeline แบบ gantt-style
-- [ ] สร้าง MilestoneTimeline แสดง milestone และ key dates
-- [x] เพิ่ม tRPC procedure สำหรับดึงข้อมูล timeline
-
-### Defect Trends Chart
-
-- [x] สร้าง DefectTrendsChart component แสดงสถิติข้อบกพร่องตามเวลา
-- [x] แสดงกราฟ line chart สำหรับ defects opened vs resolved
-- [x] เพิ่ม filter ตามช่วงเวลา (7 days, 30 days, 90 days)
-- [x] เพิ่ม tRPC procedure สำหรับดึงข้อมูล defect trends
-
-### Dashboard Analytics Integration
-
-- [x] เพิ่ม Charts section ใน Dashboard page
-- [x] รวมกราฟทั้งหมดในหน้า Dashboard
-- [ ] เพิ่ม toggle สำหรับแสดง/ซ่อนกราฟแต่ละประเภท
-- [ ] ปรับปรุง responsive design สำหรับ charts บน mobile
-
-## 📱 Mobile Experience Enhancement (Nov 16, 2025)
-
-### Swipe Gestures Library
-
-- [x] ติดตั้ง react-swipeable library
-- [x] ติดตั้ง framer-motion สำหรับ animations
-
-### Swipe-to-Action Features
-
-- [x] เพิ่ม swipe-to-delete สำหรับ inspection items
-- [x] เพิ่ม swipe-to-complete สำหรับ tasks ใน task list
-- [x] เพิ่ม swipe-to-archive สำหรับ projects
-- [x] เพิ่ม visual feedback เมื่อ swipe (color change, icons)
-- [ ] เพิ่ม undo action หลัง swipe-to-delete
-
-### Bottom Sheet Component
-
-- [x] สร้าง BottomSheet component สำหรับ quick actions
-- [x] เพิ่ม BottomSheet สำหรับ task quick actions (assign, status change, add comment)
-- [x] เพิ่ม BottomSheet สำหรับ defect quick actions (assign, update status)
-- [x] เพิ่ม drag-to-dismiss gesture สำหรับ bottom sheet
-- [x] เพิ่ม backdrop และ animations
-
-### Touch Optimization
-
-- [x] ตรวจสอบและปรับ touch targets ให้มีขนาดอย่างน้อย 44x44px
-- [x] เพิ่ม spacing ระหว่าง clickable elements
-- [x] ปรับปรุง button sizes บน mobile
-- [x] เพิ่ม touch feedback (ripple effect, scale animation)
-- [ ] ปรับปรุง form inputs สำหรับ mobile (larger inputs, better spacing)
-
-### Pull-to-Refresh
-
-- [x] เพิ่ม pull-to-refresh สำหรับ task list
-- [x] เพิ่ม pull-to-refresh สำหรับ defect list
-- [x] เพิ่ม pull-to-refresh สำหรับ notification list
-- [x] เพิ่ม loading animation สำหรับ pull-to-refresh
-
-### Haptic Feedback
-
-- [x] เพิ่ม haptic feedback เมื่อ swipe action สำเร็จ
-- [x] เพิ่ม haptic feedback เมื่อกด button
-- [x] เพิ่ม haptic feedback เมื่อ toggle switch
-- [x] ใช้ Vibration API สำหรับ haptic feedback
-
-### Mobile Responsive Improvements
-
-- [x] ปรับปรุง responsive design สำหรับ charts บน mobile
-- [ ] ปรับปรุง table layout บน mobile (horizontal scroll หรือ card view)
-- [ ] ปรับปรุง modal และ dialog sizes บน mobile
-- [ ] ทดสอบ UX บนหน้าจอขนาดต่างๆ (small, medium, large mobile)
-- [x] เพิ่ม Batch Operations สำหรับ Tasks - เลือกหลายรายการพร้อมกัน และทำ bulk assign, bulk status change, bulk delete
-- [x] เพิ่ม Batch Operations สำหรับ Defects - เลือกหลายรายการพร้อมกัน และทำ bulk assign, bulk status change, bulk delete
-- [x] สร้าง Bulk Selection UI component - checkbox selection และ select all
-- [x] สร้าง Bulk Actions Bar - แสดง action bar เมื่อมีรายการที่เลือก
-- [x] เพิ่ม Backend Mutations สำหรับ bulk operations (bulkUpdateTasks, bulkDeleteTasks, bulkUpdateDefects, bulkDeleteDefects)
-- [x] แก้ไขปัญหาเมนู sidebar ที่แสดงไม่ครบทุกเมนูบน desktop (เพิ่ม owner role ให้เห็นเมนูทั้งหมด)
-
-## TypeScript Error Fixes (Nov 17, 2025)
-
-- [x] แก้ไข implicit any types ในไฟล์ต่างๆ (TS7006)
-- [x] แก้ไข duplicate dashboard router
-- [x] แก้ไข metadata property error
-- [x] แก้ไข ButtonProps import error
-- [x] แก้ไข defectId และ assigneeId errors
-- [x] แก้ไข relatedDefectId error
-- [x] ทดสอบและยืนยันว่าแก้ไขครบถ้วนแล้ว
-- [x] แก้ไข dashboard.getStatistics → dashboard.getStats
-- [x] แก้ไข property access ใน Dashboard.tsx และ Dashboard_backup.tsx
-- [x] แก้ไข defects.projectId errors โดยใช้ join กับ tasks
-- [x] แก้ไข defect status "open" → "reported"
-- [x] แก้ไข endDate type mismatch
-- [x] แก้ไข syntax errors จาก sed replacement
-- [x] แก้ไข defectStats.resolved → defectStats.closed
-- [x] แก้ไข defectStats.resolutionRate calculation
+- [x] สร้าง test setup พร้อม Vitest configuration
+- [x] เขียน tests สำหรับ database queries (db.ts)
+- [x] เขียน tests สำหรับ tRPC procedures (routers.ts)
+- [x] เขียน tests สำหรับ utility functions
+- [x] เพิ่ม test coverage reporting
+
+### Error Handling
+- [x] เพิ่ม try-catch blocks ใน critical functions
+- [x] สร้าง centralized error handling middleware
+- [x] เพิ่ม user-friendly error messages ใน frontend
+- [x] ปรับปรุง error logging และ monitoring
+- [x] เพิ่ม error boundaries ใน React components
+
+## 📊 Dashboard Redesign (งานใหม่)
+
+- [x] ออกแบบโครงสร้างและ Layout ของหน้า Dashboard ใหม่
+- [x] กำหนด Metrics และ KPIs ที่จะแสดงบน Dashboard
+- [x] ปรับปรุง UI Components สำหรับแสดงข้อมูลสถิติ
+- [x] สร้าง Dashboard หน้าใหม่พร้อม Charts และ Metrics ที่ดีขึ้น
+- [x] ทดสอบการแสดงผลและ Responsive Design
+
+
+## 🎯 Dashboard Improvements (งานใหม่ - แก้ไขด่วน)
+
+### ปัญหาด่วน (Critical)
+- [x] 1. แก้ไขความคมชัดของข้อความ (Text Contrast) - เปลี่ยนจาก text-gray-400 เป็น text-gray-600
+- [x] 2. ปรับปรุง Progress Bar ให้มี visual feedback และ label ที่ชัดเจน
+- [x] 3. ปรับปรุง Activity Feed - จัดกลุ่ม activities และแสดง relative time
+
+### ปัญหา UX
+- [x] 4. เพิ่ม trend indicator ใน KPI Cards (เปรียบเทียบกับเดือนที่แล้ว) - เพิ่มข้อมูลเพิ่มเติมและ progress bar
+- [x] 5. ปรับปรุง Empty State - แสดง preview list หรือ empty state illustration
+- [x] 6. ปรับปรุง Quick Actions - ย้ายตำแหน่งและเพิ่มความโดดเด่น
+
+### Visual Design
+- [x] 7. ปรับ Card Borders ให้สม่ำเสมอ
+- [x] 8. ปรับ Spacing ให้เป็น 8px grid system
+- [x] 9. เพิ่ม Typography Hierarchy ให้ชัดเจน
+
+### Responsive Design
+- [x] 10. ทดสอบและปรับ Layout บน Mobile (KPI cards, Activity feed)
+
+
+## 🎨 UI/UX Comprehensive Improvements (งานใหม่ - แก้ไขครบถ้วน)
+
+### Priority 1: แก้ทันที (Critical)
+- [x] 1. เพิ่มขนาดตัวเลข Metrics จาก 24-28px เป็น 36-48px ในทุกหน้า
+  - [x] Dashboard metrics (ใช้ text-5xl = 48px)
+  - [ ] Projects page metrics
+  - [ ] Tasks page metrics
+  - [ ] Inspections page metrics
+  - [ ] Defects page metrics
+- [x] 2. ปรับ Spacing/Padding ให้เหมาะสมทั่วทั้งระบบ
+  - [x] Gap ระหว่าง cards: เพิ่มเป็น 16-24px (gap-6)
+  - [x] Padding ภายใน cards: เพิ่มเป็น 20-24px (p-6)
+  - [x] Margin ระหว่าง sections: เพิ่มเป็น 32-48px (space-y-8)
+- [x] 3. เพิ่มสีให้ Status Badges ทั่วทั้งระบบ
+  - [x] เขียว (#10b981): ผ่าน, เสร็จสมบูรณ์, ตามแผน, completed
+  - [x] แดง (#ef4444): ไม่ผ่าน, เกินกำหนด, HIGH severity, failed
+  - [x] เหลือง/ส้ม (#f59e0b): รอดำเนินการ, ล่าช้า, MEDIUM severity, in_progress
+  - [x] เทา (#6b7280): ยังไม่เริ่ม, LOW severity, not_started
+  - [x] น้ำเงิน (#3b82f6): pending_inspection
+- [x] 4. ปรับ Progress Bars ทั่วทั้งระบบ
+  - [x] เพิ่มความสูงเป็น 8-12px (จาก 4-6px) - ใช้ h-2.5 = 10px
+  - [x] ใช้สีตามเปอร์เซ็นต์: 0-30% (แดง #ef4444), 31-70% (เหลือง #f59e0b), 71-100% (เขียว #10b981)
+  - [x] เพิ่ม label แสดงเปอร์เซ็นต์
+- [x] 5. สร้างหน้า Templates ให้เสร็จสมบูรณ์ (แก้ 404)
+  - [x] สร้างหน้า Templates.tsx
+  - [x] แสดงรายการ Checklist Templates
+  - [x] เพิ่มฟีเจอร์ Create/Edit/Delete Templates
+  - [x] เพิ่ม route ใน App.tsx
+  - [x] เพิ่ม navigation link ใน DashboardLayout
+
+### Priority 2: แก้ในรอบถัดไป (Important)
+- [ ] 6. ปรับ Typography Hierarchy ทั่วทั้งระบบ
+  - [ ] Page headings: เพิ่มเป็น 28-32px
+  - [ ] Card titles: เพิ่มเป็น 18-20px
+  - [ ] Body text: 14-16px
+  - [ ] Small text: 12-14px
+- [ ] 7. ปรับปรุง Empty States ทั่วทั้งระบบ
+  - [ ] แสดงข้อความที่เป็นมิตร: "ยังไม่มีข้อมูล", "ไม่ระบุ" แทน "0%", "0 items", "Unknown"
+  - [ ] เพิ่มไอคอนประกอบ empty states
+  - [ ] เพิ่ม CTA button สำหรับสร้างข้อมูลใหม่
+- [ ] 8. เพิ่ม Hover States ทั่วทั้งระบบ
+  - [ ] ปุ่มทุกปุ่มมี hover effect (scale, shadow, brightness)
+  - [ ] Cards มี hover effect (ยกขึ้น, เพิ่ม shadow)
+  - [ ] Links มี hover effect (underline, color change)
+- [ ] 9. เพิ่มไอคอนประกอบข้อมูลทั่วทั้งระบบ
+  - [ ] ไอคอนสำหรับวันที่ (Calendar icon)
+  - [ ] ไอคอนสำหรับผู้รับผิดชอบ (User icon)
+  - [ ] ไอคอนสำหรับสถานะ (Status icons)
+  - [ ] ไอคอนสำหรับ priority (Flag icon)
+- [ ] 10. ปรับ Borders ให้เห็นชัดเจนขึ้น
+  - [ ] เพิ่มความเข้มของ border color
+  - [ ] หรือใช้ shadow แทน border
+
+### Priority 3: ควรทำ (Nice to Have)
+- [ ] 11. ทดสอบ Responsive Design บนมือถือและแท็บเล็ต
+  - [ ] ทดสอบทุกหน้าบน mobile viewport
+  - [ ] ปรับ grid layout สำหรับ mobile
+  - [ ] ทดสอบ touch interactions
+- [ ] 12. เพิ่ม Loading States/Skeletons
+  - [ ] Skeleton screens สำหรับ Dashboard
+  - [ ] Skeleton screens สำหรับ Lists (Projects, Tasks, etc.)
+  - [ ] Loading spinners สำหรับ actions
+- [ ] 13. เพิ่ม Micro-interactions
+  - [ ] Animation เมื่อ complete task
+  - [ ] Animation เมื่อ update status
+  - [ ] Smooth transitions ระหว่างหน้า
+- [ ] 14. ปรับรูปแบบการแสดงวันที่ให้สั้นลง
+  - [ ] แสดงแบบ relative time: "2 ชม. ที่แล้ว", "เมื่อวาน"
+  - [ ] แสดงแบบสั้น: "15 ต.ค." แทน "15 ตุลาคม 2568"
+- [ ] 15. เพิ่ม Tooltips สำหรับข้อความที่ยาวหรือถูก truncate
+  - [ ] Tooltips สำหรับ truncated text
+  - [ ] Tooltips สำหรับ icons/buttons
+  - [ ] Tooltips สำหรับ status badges
+
+### ประเด็นเฉพาะแต่ละหน้า
+
+#### Dashboard
+- [ ] เพิ่มขนาดตัวเลข metrics (36-48px)
+- [ ] Charts มีสีที่สื่อความหมาย (เขียว/เหลือง/แดง)
+- [ ] Recent Activities มีไอคอนประกอบแต่ละ activity type
+
+#### Projects
+- [ ] ปรับ Progress bar ให้ใหญ่ขึ้น (8-12px) และมีสีตามเปอร์เซ็นต์
+- [ ] Status badges มีสี (completed=เขียว, in_progress=เหลือง, not_started=เทา)
+- [ ] ปรับ spacing ระหว่าง cards (gap-6)
+- [ ] เพิ่มไอคอนสำหรับวันที่และผู้รับผิดชอบ
+
+#### Tasks
+- [ ] ปรับ spacing ใน task cards (p-6)
+- [ ] ปรับขนาดปุ่ม action ให้ใหญ่ขึ้น
+- [ ] Priority tags มีสีตามความสำคัญ (high=แดง, medium=เหลือง, low=เทา)
+- [ ] Status badges มีสี
+
+#### Inspections
+- [ ] แก้ "Unknown Template" ให้แสดงชื่อที่ชัดเจน หรือ "ไม่ระบุ Template"
+- [ ] Status badges มีสี (pass=เขียว, fail=แดง, pending=เหลือง)
+- [ ] ปรับ spacing ระหว่าง cards (gap-6)
+- [ ] เพิ่มไอคอนสำหรับวันที่และ inspector
+
+#### Defects
+- [ ] CAR/NCR badges มีสีแตกต่างกัน (CAR=แดง, NCR=ส้ม)
+- [ ] ระดับความรุนแรง (HIGH/MEDIUM/LOW) มีสี (แดง/เหลือง/เทา)
+- [ ] Truncate title ที่ยาวเกินไป พร้อม tooltip
+- [ ] เพิ่มไอคอนสำหรับวันที่และผู้รับผิดชอบ
+
+#### Templates (หน้าใหม่)
+- [ ] สร้างหน้า Templates ให้เสร็จสมบูรณ์
+- [ ] แสดงรายการ Checklist Templates
+- [ ] ฟีเจอร์ Create/Edit/Delete Templates
+- [ ] Search และ Filter Templates
+- [ ] แสดงจำนวน items ในแต่ละ template
+
+#### Reports
+- [ ] Empty state มีไอคอนประกอบ
+- [ ] ปุ่ม Export มีไอคอน (Download icon)
+- [ ] ปรับ spacing และ layout
+
+### Design System Improvements
+- [ ] สร้าง spacing scale ที่ชัดเจน (4, 8, 12, 16, 20, 24, 32, 48, 64px)
+- [ ] สร้าง color palette ที่สอดคล้อง
+  - [ ] Success: #10b981
+  - [ ] Warning: #f59e0b
+  - [ ] Error: #ef4444
+  - [ ] Info: #3b82f6
+  - [ ] Neutral: #6b7280
+- [ ] สร้าง typography scale ที่ชัดเจน
+  - [ ] Display: 32px
+  - [ ] Heading: 24-28px
+  - [ ] Title: 18-20px
+  - [ ] Body: 14-16px
+  - [ ] Small: 12-14px
+- [ ] ตรวจสอบ color contrast ให้ผ่าน WCAG AA
+- [ ] เพิ่ม focus states สำหรับ keyboard navigation
+- [ ] สร้าง reusable components สำหรับ Status Badges, Progress Bars
+
+### Component Library Enhancements
+- [x] สร้าง StatusBadge component แบบ reusable
+- [x] สร้าง ProgressBar component แบบ reusable พร้อมสีตามเปอร์เซ็นต์
+- [ ] สร้าง MetricCard component สำหรับแสดงตัวเลขสถิติ
+- [ ] สร้าง EmptyState component แบบ reusable
+- [ ] สร้าง IconWithText component สำหรับแสดงข้อมูลพร้อมไอคอน

@@ -462,7 +462,7 @@ export function ActiveProjectsList() {
       </Card>
 
       {/* Projects List */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {filteredProjects.map((project: any) => {
           const daysRemaining = calculateDaysRemaining(project.endDate);
           
@@ -472,7 +472,7 @@ export function ActiveProjectsList() {
               className="group hover:shadow-xl transition-all duration-300 border-l-4"
               style={{ borderLeftColor: project.color || '#00CE81' }}
             >
-              <CardContent className="p-6">
+              <CardContent className="p-6 space-y-6">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-3 mb-3">

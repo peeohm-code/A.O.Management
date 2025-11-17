@@ -89,61 +89,36 @@ const menuItems = [
     icon: LayoutDashboard,
     label: "Dashboard",
     path: "/dashboard",
-    roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"],
   },
   {
     icon: FolderKanban,
     label: "Projects",
     path: "/projects",
-    roles: ["admin", "owner", "project_manager"],
   },
   {
     icon: ListTodo,
     label: "Tasks",
     path: "/tasks",
-    roles: ["admin", "owner", "project_manager", "qc_inspector", "worker"],
   },
   {
     icon: ClipboardCheck,
-    label: "QC Inspection",
-    path: "/qc",
-    roles: ["admin", "owner", "qc_inspector"],
+    label: "Inspections",
+    path: "/inspections",
   },
   {
     icon: AlertTriangle,
     label: "Defects",
     path: "/defects",
-    roles: ["admin", "owner", "qc_inspector", "project_manager"],
   },
   {
     icon: FileText,
-    label: "Checklist Templates",
-    path: "/checklist-templates",
-    roles: ["admin", "owner", "qc_inspector"],
-  },
-  {
-    icon: Users,
-    label: "Team & Workload",
-    path: "/team",
-    roles: ["admin", "owner", "project_manager"],
+    label: "Templates",
+    path: "/templates",
   },
   {
     icon: BarChart3,
     label: "Reports",
     path: "/reports",
-    roles: ["admin", "owner", "project_manager"],
-  },
-  {
-    icon: LineChart,
-    label: "Analytics",
-    path: "/analytics",
-    roles: ["admin", "owner", "project_manager"],
-  },
-  {
-    icon: LineChart,
-    label: "Advanced Analytics",
-    path: "/advanced-analytics",
-    roles: ["admin", "owner", "project_manager"],
   },
 ];
 
@@ -307,63 +282,28 @@ function DashboardLayoutContent({
     <>
       <div className="relative hidden md:block" ref={sidebarRef}>
         <Sidebar
-          collapsible="icon"
+          collapsible="none"
           className="border-r-0 bg-[#1e3a8a] text-white"
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 pl-2 group-data-[collapsible=icon]:px-0 transition-all w-full">
-              {isCollapsed ? (
-                <div className="relative h-8 w-8 shrink-0 group">
-                  <img
-                    src={APP_LOGO}
-                    className="h-8 w-8 rounded-md object-contain bg-white p-1 ring-1 ring-border"
-                    alt="Logo"
-                  />
-                  <button
-                    onClick={toggleSidebar}
-                    className="absolute inset-0 flex items-center justify-center bg-accent rounded-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <PanelLeft className="h-4 w-4 text-white" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3 min-w-0">
-                    <img
-                      src={APP_LOGO}
-                      className="h-8 w-8 rounded-md object-contain bg-white p-1 ring-1 ring-border shrink-0"
-                      alt="Logo"
-                    />
-                    <span className="font-semibold tracking-tight truncate">
-                      {APP_TITLE}
-                    </span>
-                  </div>
-                  <button
-                    onClick={toggleSidebar}
-                    className="ml-auto h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
-                  >
-                    <PanelLeft className="h-4 w-4 text-white/70" />
-                  </button>
-                </>
-              )}
+            <div className="flex items-center gap-3 pl-2 w-full">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={APP_LOGO}
+                  className="h-8 w-8 rounded-md object-contain bg-white p-1 ring-1 ring-border shrink-0"
+                  alt="Logo"
+                />
+                <span className="font-semibold tracking-tight truncate text-white">
+                  {APP_TITLE}
+                </span>
+              </div>
             </div>
           </SidebarHeader>
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems
-                .filter(item => {
-                  // Admin and owner see everything
-                  if (user?.role === "admin" || user?.role === "owner")
-                    return true;
-                  // Filter by role if specified
-                  if (item.roles) {
-                    return item.roles.includes(user?.role || "user");
-                  }
-                  return true;
-                })
-                .map(item => {
+              {menuItems.map(item => {
                   const isActive = location === item.path;
                   return (
                     <SidebarMenuItem key={item.path}>
@@ -385,13 +325,13 @@ function DashboardLayoutContent({
           <SidebarFooter className="p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-9 w-9 border shrink-0">
                     <AvatarFallback className="text-xs font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium truncate leading-none">
                         {user?.name || "-"}
@@ -424,9 +364,8 @@ function DashboardLayoutContent({
           </SidebarFooter>
         </Sidebar>
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${isCollapsed ? "hidden" : ""}`}
+          className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors"
           onMouseDown={() => {
-            if (isCollapsed) return;
             setIsResizing(true);
           }}
           style={{ zIndex: 50 }}

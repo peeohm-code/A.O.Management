@@ -9,10 +9,12 @@ interface ProgressBarProps {
 }
 
 /**
- * Visual Progress Bar Component
+ * Enhanced Visual Progress Bar Component
+ * - Color-coded based on percentage: 0-30% (red), 31-70% (yellow), 71-100% (green)
+ * - Larger height (8-12px) for better visibility
  * - Animated gradient fill
  * - Mobile-friendly sizing
- * - Color variants based on progress status
+ * - Optional percentage label
  */
 export function ProgressBar({
   value,
@@ -27,33 +29,66 @@ export function ProgressBar({
   // Auto-determine variant based on value if not specified
   const autoVariant =
     variant === "default"
-      ? clampedValue >= 70
+      ? clampedValue >= 71
         ? "default"
-        : clampedValue >= 40
+        : clampedValue >= 31
         ? "warning"
         : "danger"
       : variant;
 
+  // Enhanced size classes with larger heights (8-12px)
   const sizeClasses = {
-    sm: "h-2",
-    md: "h-3 md:h-3",
-    lg: "h-4 md:h-5",
+    sm: "h-2", // 8px
+    md: "h-2.5 md:h-3", // 10-12px
+    lg: "h-3 md:h-3.5", // 12-14px
   };
 
+  // Color classes based on percentage
+  const getColorClasses = () => {
+    if (autoVariant === "danger" || clampedValue <= 30) {
+      return {
+        bg: "bg-red-500/10",
+        fill: "bg-gradient-to-r from-red-500 to-red-600",
+      };
+    } else if (autoVariant === "warning" || (clampedValue > 30 && clampedValue <= 70)) {
+      return {
+        bg: "bg-amber-500/10",
+        fill: "bg-gradient-to-r from-amber-500 to-amber-600",
+      };
+    } else {
+      return {
+        bg: "bg-emerald-500/10",
+        fill: "bg-gradient-to-r from-emerald-500 to-emerald-600",
+      };
+    }
+  };
+
+  const colors = getColorClasses();
+
   return (
-    <div className={cn("space-y-1", className)}>
+    <div className={cn("space-y-2", className)}>
       {showLabel && (
-        <div className="flex justify-between items-center text-sm font-medium">
-          <span>ความคืบหน้า</span>
-          <span className="text-base font-bold">{clampedValue}%</span>
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            ความคืบหน้า
+          </span>
+          <span className="text-base font-bold text-gray-900 dark:text-gray-100">
+            {clampedValue.toFixed(0)}%
+          </span>
         </div>
       )}
-      <div className={cn("progress-bar", sizeClasses[size])}>
+      <div 
+        className={cn(
+          "w-full rounded-full overflow-hidden",
+          colors.bg,
+          sizeClasses[size]
+        )}
+      >
         <div
-          className={cn("progress-bar-fill", {
-            warning: autoVariant === "warning",
-            danger: autoVariant === "danger",
-          })}
+          className={cn(
+            "h-full rounded-full transition-all duration-500 ease-out",
+            colors.fill
+          )}
           style={{ width: `${clampedValue}%` }}
         />
       </div>

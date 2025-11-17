@@ -49,7 +49,7 @@ export default function DefectDetail() {
   const inspectionHistoryQuery = trpc.defect.getInspectionHistory.useQuery({ defectId });
   
   // Permission check - MUST be called before any early returns
-  const canEdit = useCanEditDefect(defectQuery.data);
+  const canEdit = useCanEditDefect(defectQuery.data as any);
 
   // Photo upload state
   const [uploadingBefore, setUploadingBefore] = useState(false);
@@ -101,9 +101,9 @@ export default function DefectDetail() {
 
   const handleEdit = () => {
     if (!defectQuery.data) return;
-    setEditTitle(defectQuery.data.title);
-    setEditDescription(defectQuery.data.description || "");
-    setEditSeverity(defectQuery.data.severity);
+    setEditTitle(defectQuery.data.title as string);
+    setEditDescription((defectQuery.data.description as string) || "");
+    setEditSeverity(defectQuery.data.severity as any);
     setShowEditDialog(true);
   };
 
@@ -435,30 +435,30 @@ export default function DefectDetail() {
       };
 
       // Title
-      addText(`Defect Report: ${defect.type} - ${defect.title}`, 18, true);
+      addText(`Defect Report: ${defect.type as any} - ${defect.title as string}`, 18, true);
       yPos += 5;
 
       // Basic Info
       addText("Basic Information", 14, true);
-      addText(`Type: ${defect.type}`);
-      addText(`Severity: ${getSeverityLabel(defect.severity)}`);
-      addText(`Status: ${getStatusLabel(defect.status)}`);
-      addText(`Created: ${new Date(defect.createdAt).toLocaleDateString('th-TH')}`);
+      addText(`Type: ${defect.type as any}`);
+      addText(`Severity: ${getSeverityLabel(defect.severity as any)}`);
+      addText(`Status: ${getStatusLabel(defect.status as any)}`);
+      addText(`Created: ${new Date(defect.createdAt as any).toLocaleDateString('th-TH')}`);
       // Note: assignedToName doesn't exist in schema, only assignedTo (user ID)
-      // if (defect.assignedToName) addText(`Assigned To: ${defect.assignedToName}`);
+      // if (defect.assignedToName as string) addText(`Assigned To: ${defect.assignedToName as string}`);
       yPos += 5;
 
       // Description
       checkNewPage(30);
       addText("Description", 14, true);
-      addText(defect.description || "N/A");
+      addText(defect.description as string || "N/A");
       yPos += 5;
 
       // Root Cause Analysis
       if (defect.rootCause) {
         checkNewPage(30);
         addText("Root Cause Analysis", 14, true);
-        addText(defect.rootCause);
+        addText(defect.rootCause as string);
         yPos += 5;
       }
 
@@ -466,7 +466,7 @@ export default function DefectDetail() {
       if (defect.correctiveAction) {
         checkNewPage(30);
         addText("Corrective Action", 14, true);
-        addText(defect.correctiveAction);
+        addText(defect.correctiveAction as string);
         yPos += 5;
       }
 
@@ -474,7 +474,7 @@ export default function DefectDetail() {
       if (defect.preventiveAction) {
         checkNewPage(30);
         addText("Preventive Action", 14, true);
-        addText(defect.preventiveAction);
+        addText(defect.preventiveAction as string);
         yPos += 5;
       }
 
@@ -482,7 +482,7 @@ export default function DefectDetail() {
       if (defect.verificationComment) {
         checkNewPage(30);
         addText("Verification Comment", 14, true);
-        addText(defect.verificationComment);
+        addText(defect.verificationComment as string);
         yPos += 5;
       }
 
@@ -539,7 +539,7 @@ export default function DefectDetail() {
       }
 
       // Save PDF
-      pdf.save(`Defect_Report_${defect.type}_${defect.id}.pdf`);
+      pdf.save(`Defect_Report_${defect.type as any}_${defect.id}.pdf`);
       toast.success("สร้าง PDF สำเร็จ");
     } catch (error) {
       console.error("PDF generation error:", error);
@@ -643,15 +643,15 @@ export default function DefectDetail() {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className={getTypeColor(defect.type)}>{defect.type}</Badge>
-                <Badge className={getStatusColor(defect.status)}>
-                  {getStatusLabel(defect.status)}
+                <Badge className={getTypeColor(defect.type as any)}>{defect.type as any}</Badge>
+                <Badge className={getStatusColor(defect.status as any)}>
+                  {getStatusLabel(defect.status as any)}
                 </Badge>
-                <Badge className={getSeverityColor(defect.severity)}>
-                  {getSeverityLabel(defect.severity)}
+                <Badge className={getSeverityColor(defect.severity as any)}>
+                  {getSeverityLabel(defect.severity as any)}
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">{defect.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{defect.title as string}</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleExportPDF}>
@@ -723,28 +723,28 @@ export default function DefectDetail() {
                 </div> */}
                 <div>
                   <p className="text-sm text-gray-500 mb-1">ประเภท</p>
-                  <p className="font-medium">{defect.type}</p>
+                  <p className="font-medium">{defect.type as any}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">ระดับความรุนแรง</p>
-                  <p className="font-medium">{getSeverityLabel(defect.severity)}</p>
+                  <p className="font-medium">{getSeverityLabel(defect.severity as any)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">สถานะ</p>
-                  <p className="font-medium">{getStatusLabel(defect.status)}</p>
+                  <p className="font-medium">{getStatusLabel(defect.status as any)}</p>
                 </div>
                 {defect.taskId && (
                   <div>
                     <p className="text-sm text-gray-500 mb-1">งาน</p>
-                    <Link href={`/tasks/${defect.taskId}`} className="font-medium text-[#00366D] hover:underline">
-                      Task #{defect.taskId}
+                    <Link href={`/tasks/${defect.taskId as any}`} className="font-medium text-[#00366D] hover:underline">
+                      Task #{defect.taskId as any}
                     </Link>
                   </div>
                 )}
                 {defect.checklistId && (
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Checklist</p>
-                    <p className="font-medium">Checklist #{defect.checklistId}</p>
+                    <p className="font-medium">Checklist #{defect.checklistId as any}</p>
                   </div>
                 )}
               </div>
@@ -752,16 +752,16 @@ export default function DefectDetail() {
           </Card>
 
           {/* Workflow Guide */}
-          <WorkflowGuide currentStatus={defect.status} type={defect.type} />
+          <WorkflowGuide currentStatus={defect.status} type={defect.type as any} />
 
           {/* Description */}
-          {defect.description && (
+          {defect.description as string && (
             <Card>
               <CardHeader>
                 <CardTitle>รายละเอียด</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.description}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.description as string}</p>
               </CardContent>
             </Card>
           )}
@@ -835,7 +835,7 @@ export default function DefectDetail() {
                 <CardTitle>การวิเคราะห์สาเหตุต้นตอ (RCA)</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.rootCause}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.rootCause as any}</p>
               </CardContent>
             </Card>
           )}
@@ -847,7 +847,7 @@ export default function DefectDetail() {
                 <CardTitle>การแก้ไข (Corrective Action)</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.correctiveAction}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.correctiveAction as any}</p>
               </CardContent>
             </Card>
           )}
@@ -859,7 +859,7 @@ export default function DefectDetail() {
                 <CardTitle>การป้องกัน (Preventive Action)</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.preventiveAction}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.preventiveAction as any}</p>
               </CardContent>
             </Card>
           )}
@@ -1023,7 +1023,7 @@ export default function DefectDetail() {
                 <CardTitle>ความคิดเห็นผู้ตรวจสอบ</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{defect.verificationComment}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{defect.verificationComment as any}</p>
               </CardContent>
             </Card>
           )}
@@ -1040,7 +1040,7 @@ export default function DefectDetail() {
                     <User className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-500">รายงานโดย</p>
-                      <p className="font-medium">User #{defect.reportedBy}</p>
+                      <p className="font-medium">User #{defect.reportedBy as any}</p>
                     </div>
                   </div>
                 )}
@@ -1050,7 +1050,7 @@ export default function DefectDetail() {
                     <div>
                       <p className="text-sm text-gray-500">วันที่รายงาน</p>
                       <p className="font-medium">
-                        {new Date(defect.createdAt).toLocaleDateString("th-TH", {
+                        {new Date(defect.createdAt as any).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -1064,7 +1064,7 @@ export default function DefectDetail() {
                     <User className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-500">มอบหมายให้</p>
-                      <p className="font-medium">User #{defect.assignedTo}</p>
+                      <p className="font-medium">User #{defect.assignedTo as any}</p>
                     </div>
                   </div>
                 )}
@@ -1074,7 +1074,7 @@ export default function DefectDetail() {
                     <div>
                       <p className="text-sm text-gray-500">กำหนดเสร็จ</p>
                       <p className="font-medium">
-                        {new Date(defect.dueDate).toLocaleDateString("th-TH", {
+                        {new Date(defect.dueDate as any).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -1089,7 +1089,7 @@ export default function DefectDetail() {
                     <div>
                       <p className="text-sm text-gray-500">ปิดเมื่อ</p>
                       <p className="font-medium">
-                        {new Date(defect.verifiedAt).toLocaleDateString("th-TH", {
+                        {new Date(defect.verifiedAt as any).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -1307,13 +1307,13 @@ export default function DefectDetail() {
                     <div key={inspection.id} className="flex gap-3 pb-4 border-b last:border-0 last:pb-0">
                       <div className="flex-shrink-0">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          inspection.result === 'passed' ? 'bg-green-100' :
-                          inspection.result === 'failed' ? 'bg-red-100' :
+                          inspection.result as any === 'passed' ? 'bg-green-100' :
+                          inspection.result as any === 'failed' ? 'bg-red-100' :
                           'bg-yellow-100'
                         }`}>
-                          {inspection.result === 'passed' && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-                          {inspection.result === 'failed' && <XCircle className="w-5 h-5 text-red-600" />}
-                          {inspection.result === 'pending' && <Clock className="w-5 h-5 text-yellow-600" />}
+                          {inspection.result as any === 'passed' && <CheckCircle2 className="w-5 h-5 text-green-600" />}
+                          {inspection.result as any === 'failed' && <XCircle className="w-5 h-5 text-red-600" />}
+                          {inspection.result as any === 'pending' && <Clock className="w-5 h-5 text-yellow-600" />}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1328,16 +1328,16 @@ export default function DefectDetail() {
                           </div>
                           <div className="text-right">
                             <Badge variant={
-                              inspection.result === 'passed' ? 'default' :
-                              inspection.result === 'failed' ? 'destructive' :
+                              inspection.result as any === 'passed' ? 'default' :
+                              inspection.result as any === 'failed' ? 'destructive' :
                               'secondary'
                             }>
-                              {inspection.result === 'passed' && '✅ ผ่าน'}
-                              {inspection.result === 'failed' && '❌ ไม่ผ่าน'}
-                              {inspection.result === 'pending' && '⏳ รอตรวจสอบ'}
+                              {inspection.result as any === 'passed' && '✅ ผ่าน'}
+                              {inspection.result as any === 'failed' && '❌ ไม่ผ่าน'}
+                              {inspection.result as any === 'pending' && '⏳ รอตรวจสอบ'}
                             </Badge>
                             <p className="text-xs text-gray-500 mt-1">
-                              {new Date(inspection.inspectedAt).toLocaleDateString('th-TH', {
+                              {new Date(inspection.inspectedAt as any).toLocaleDateString('th-TH', {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric',
@@ -1347,9 +1347,9 @@ export default function DefectDetail() {
                             </p>
                           </div>
                         </div>
-                        {inspection.comments && (
+                        {inspection.comment as string && (
                           <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-700">{inspection.comments}</p>
+                            <p className="text-sm text-gray-700">{inspection.comment as string}</p>
                           </div>
                         )}
                       </div>
@@ -1427,7 +1427,7 @@ export default function DefectDetail() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>แก้ไขข้อมูล {defect.type}</DialogTitle>
+            <DialogTitle>แก้ไขข้อมูล {defect.type as any}</DialogTitle>
             <DialogDescription>
               แก้ไขข้อมูลพื้นฐานของ CAR/PAR/NCR
             </DialogDescription>
@@ -1486,7 +1486,7 @@ export default function DefectDetail() {
           <DialogHeader>
             <DialogTitle>อัปเดตสถานะ</DialogTitle>
             <DialogDescription>
-              เปลี่ยนสถานะของ {defect.type}: {defect.title}
+              เปลี่ยนสถานะของ {defect.type as any}: {defect.title as string}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -1504,7 +1504,7 @@ export default function DefectDetail() {
               </SelectContent>
             </Select>
             <p className="text-sm text-gray-500 mt-2">
-              สถานะปัจจุบัน: <span className="font-medium">{getStatusLabel(defect.status)}</span>
+              สถานะปัจจุบัน: <span className="font-medium">{getStatusLabel(defect.status as any)}</span>
             </p>
           </div>
           <DialogFooter>

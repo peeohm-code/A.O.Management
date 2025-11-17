@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, notInArray } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, lt, ne, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql, { type Pool } from "mysql2/promise";
 import {
@@ -40,6 +40,7 @@ import {
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
+import { logger } from "./logger";
 
 // Use Pool type from mysql2/promise for proper typing
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -4762,4 +4763,237 @@ export async function getComparativeAnalysis(projectIds: number[]) {
   );
 
   return results.filter(r => r.kpis !== null);
+}
+
+/**
+ * Dashboard Statistics Functions
+ */
+export async function getDashboardStats(userId?: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    // Get total active projects
+    const activeProjectsResult = await db
+      .select({ count: count() })
+      .from(projects)
+      .where(and(eq(projects.status, "active"), isNull(projects.archivedAt)));
+    
+    const totalActiveProjects = activeProjectsResult[0]?.count || 0;
+
+    // Get all tasks statistics
+    const allTasksResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(isNull(projects.archivedAt));
+    
+    const totalTasks = allTasksResult[0]?.count || 0;
+
+    const completedTasksResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(tasks.status, "completed"), isNull(projects.archivedAt)));
+    
+    const completedTasks = completedTasksResult[0]?.count || 0;
+
+    const inProgressTasksResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(tasks.status, "in_progress"), isNull(projects.archivedAt)));
+    
+    const inProgressTasks = inProgressTasksResult[0]?.count || 0;
+
+    // Get overdue tasks (tasks with endDate < today and not completed)
+    const today = new Date().toISOString().split('T')[0];
+    const overdueTasksResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          ne(tasks.status, "completed"),
+          lt(tasks.endDate, today),
+          isNull(projects.archivedAt)
+        )
+      );
+    
+    const overdueTasks = overdueTasksResult[0]?.count || 0;
+
+    // Get pending inspections
+    const pendingInspectionsResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(taskChecklists.status, "pending_inspection"),
+          isNull(projects.archivedAt)
+        )
+      );
+    
+    const pendingInspections = pendingInspectionsResult[0]?.count || 0;
+
+    // Get open defects
+    const openDefectsResult = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      );
+    
+    const openDefects = openDefectsResult[0]?.count || 0;
+
+    // Get critical defects
+    const criticalDefectsResult = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.severity, "critical"),
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      );
+    
+    const criticalDefects = criticalDefectsResult[0]?.count || 0;
+
+    // Get team members count
+    const teamMembersResult = await db
+      .select({ count: count() })
+      .from(users)
+      .where(ne(users.role, "owner"));
+    
+    const teamMembers = teamMembersResult[0]?.count || 0;
+
+    // Calculate completion rate
+    const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+    return {
+      totalActiveProjects,
+      totalTasks,
+      completedTasks,
+      inProgressTasks,
+      overdueTasks,
+      pendingInspections,
+      openDefects,
+      criticalDefects,
+      teamMembers,
+      completionRate,
+    };
+  } catch (error) {
+    logger.error('[getDashboardStats] Error:', error);
+    return null;
+  }
+}
+
+export async function getRecentActivitiesForDashboard(limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const activities = await db
+      .select({
+        id: activityLog.id,
+        userId: activityLog.userId,
+        userName: users.name,
+        action: activityLog.action,
+        details: activityLog.details,
+        projectId: activityLog.projectId,
+        taskId: activityLog.taskId,
+        createdAt: activityLog.createdAt,
+      })
+      .from(activityLog)
+      .leftJoin(users, eq(activityLog.userId, users.id))
+      .orderBy(desc(activityLog.createdAt))
+      .limit(limit);
+
+    return activities;
+  } catch (error) {
+    logger.error('[getRecentActivitiesForDashboard] Error:', error);
+    return [];
+  }
+}
+
+export async function getTaskStatusDistribution() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const distribution = await db
+      .select({
+        status: tasks.status,
+        count: count(),
+      })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(isNull(projects.archivedAt))
+      .groupBy(tasks.status);
+
+    return distribution;
+  } catch (error) {
+    logger.error('[getTaskStatusDistribution] Error:', error);
+    return [];
+  }
+}
+
+export async function getDefectSeverityDistribution() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const distribution = await db
+      .select({
+        severity: defects.severity,
+        count: count(),
+      })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      )
+      .groupBy(defects.severity);
+
+    return distribution;
+  } catch (error) {
+    logger.error('[getDefectSeverityDistribution] Error:', error);
+    return [];
+  }
+}
+
+export async function getProjectProgressForDashboard() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const projectsData = await db
+      .select({
+        id: projects.id,
+        name: projects.name,
+        completionPercentage: projects.completionPercentage,
+        status: projects.status,
+      })
+      .from(projects)
+      .where(and(eq(projects.status, "active"), isNull(projects.archivedAt)))
+      .limit(5);
+
+    return projectsData;
+  } catch (error) {
+    logger.error('[getProjectProgressForDashboard] Error:', error);
+    return [];
+  }
 }

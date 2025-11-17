@@ -47,6 +47,7 @@ import { getHealthStatus, formatBytes } from "./health";
 import { exportRouter } from "./exportRouter";
 import { monitoringRouter } from "./routers/monitoring";
 import { teamRouter } from "./routers/teamRouter";
+import { logger } from "./logger";
 
 /**
  * Project Router - Project Management
@@ -585,7 +586,7 @@ const taskRouter = router({
 
         return { success: true, id: taskId };
       } catch (error) {
-        console.error("[ERROR] Task create failed:", error);
+        logger.error("[ERROR] Task create failed:", error);
         throw error;
       }
     }),
@@ -822,7 +823,7 @@ const taskRouter = router({
           });
           successCount++;
         } catch (error) {
-          console.error(`Failed to update task ${taskId}:`, error);
+          logger.error(`Failed to update task ${taskId}:`, error);
         }
       }
 
@@ -865,7 +866,7 @@ const taskRouter = router({
           });
           successCount++;
         } catch (error) {
-          console.error(`Failed to assign task ${taskId}:`, error);
+          logger.error(`Failed to assign task ${taskId}:`, error);
         }
       }
 
@@ -1058,7 +1059,7 @@ const checklistRouter = router({
 
         return { success: true };
       } catch (error) {
-        console.error("[createTemplate] Error:", error);
+        logger.error("[createTemplate] Error:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
@@ -1150,7 +1151,7 @@ const checklistRouter = router({
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        console.error("[deleteTemplate] Error:", error);
+        logger.error("[deleteTemplate] Error:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
@@ -1644,7 +1645,7 @@ const defectRouter = router({
       const defects = await db.getAllDefects();
       return Array.isArray(defects) ? defects : [];
     } catch (error) {
-      console.error("[defectRouter.allDefects] Error:", error);
+      logger.error("[defectRouter.allDefects] Error:", error);
       return [];
     }
   }),
@@ -1780,7 +1781,7 @@ const defectRouter = router({
           });
         }
 
-        const dataToUpdate = {
+        const dataToUpdate: any = {
           ...updateData,
           resolvedBy:
             updateData.status === "resolved" ? ctx.user!.id : undefined,
@@ -1788,12 +1789,17 @@ const defectRouter = router({
           verifiedBy: updateData.status === "closed" ? ctx.user!.id : undefined,
           verifiedAt: updateData.status === "closed" ? new Date() : undefined,
         };
+        
+        // Ensure reportedBy is set if not present
+        if (!dataToUpdate.reportedBy && defect.reportedBy) {
+          dataToUpdate.reportedBy = defect.reportedBy;
+        }
         // Validation: If beforePhotos exists, afterPhotos is required when status is resolved
         if (updateData.status === "resolved") {
           const defect = await db.getDefectById(id);
           if (defect && defect.beforePhotos) {
             try {
-              const beforePhotosArray = JSON.parse(defect.beforePhotos);
+              const beforePhotosArray = JSON.parse(defect.beforePhotos as string);
               if (beforePhotosArray && beforePhotosArray.length > 0) {
                 if (!input.afterPhotos) {
                   throw new TRPCError({
@@ -1836,8 +1842,8 @@ const defectRouter = router({
                 : defect.severity === "high"
                   ? "high"
                   : "normal",
-            relatedDefectId: defect.id,
-            relatedTaskId: defect.taskId,
+            relatedDefectId: defect.id as number,
+            relatedTaskId: defect.taskId as number,
             sendEmail: true,
           });
         }
@@ -1856,13 +1862,13 @@ const defectRouter = router({
           // Notify assignee about status change
           if (defect.assignedTo) {
             await createNotification({
-              userId: defect.assignedTo,
+              userId: defect.assignedTo as number,
               type: "defect_status_changed",
               title: `${defect.type} เปลี่ยนสถานะ`,
               content: `${defect.type} "${defect.title}" เปลี่ยนสถานะเป็น: ${statusLabels[updateData.status]}`,
-              priority: "normal",
-              relatedDefectId: defect.id,
-              relatedTaskId: defect.taskId,
+                   priority: "normal",
+              relatedDefectId: defect.id as number,
+              relatedTaskId: defect.taskId as number,
               sendEmail: false,
             });
           }
@@ -1878,7 +1884,7 @@ const defectRouter = router({
 
         return result;
       } catch (error) {
-        console.error("[defect.update] Error:", error);
+        logger.error("[defect.update] Error:", error);
         throw error;
       }
     }),
@@ -1963,7 +1969,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByStatus();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      console.error("[defectRouter.getStatsByStatus] Error:", error);
+      logger.error("[defectRouter.getStatsByStatus] Error:", error);
       return [];
     }
   }),
@@ -1973,7 +1979,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByType();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      console.error("[defectRouter.getStatsByType] Error:", error);
+      logger.error("[defectRouter.getStatsByType] Error:", error);
       return [];
     }
   }),
@@ -1983,7 +1989,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByPriority();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      console.error("[defectRouter.getStatsByPriority] Error:", error);
+      logger.error("[defectRouter.getStatsByPriority] Error:", error);
       return [];
     }
   }),
@@ -2002,7 +2008,7 @@ const defectRouter = router({
         }
       );
     } catch (error) {
-      console.error("[defectRouter.getMetrics] Error:", error);
+      logger.error("[defectRouter.getMetrics] Error:", error);
       return {
         total: 0,
         open: 0,
@@ -2063,7 +2069,7 @@ const defectRouter = router({
 
         return { success: true };
       } catch (error) {
-        console.error("[requestReinspection] Error:", error);
+        logger.error("[requestReinspection] Error:", error);
         throw error;
       }
     }),
@@ -2113,11 +2119,11 @@ const defectRouter = router({
             : `${defect.type} ไม่ผ่านการตรวจสอบซ้ำ - ต้องแก้ไขใหม่`;
 
         await db.createNotification({
-          userId: defect.assignedTo,
+          userId: defect.assignedTo as number,
           type: "defect_reinspected",
           title: `ผลการตรวจสอบซ้ำ ${defect.type}`,
           content: message,
-          relatedTaskId: defect.taskId,
+          relatedTaskId: defect.taskId as number,
         });
       }
 
@@ -2165,13 +2171,13 @@ const defectRouter = router({
           await db.updateDefect(defectId, { status: status as any });
           await db.logActivity({
             userId: ctx.user!.id,
-            projectId: defect.projectId,
+            projectId: defect.projectId as number,
             action: "defect_updated",
             details: JSON.stringify({ defectId, status, bulkUpdate: true }),
           });
           successCount++;
         } catch (error) {
-          console.error(`Failed to update defect ${defectId}:`, error);
+          logger.error(`Failed to update defect ${defectId}:`, error);
         }
       }
 
@@ -2197,23 +2203,22 @@ const defectRouter = router({
           await db.updateDefect(defectId, { assignedTo: assigneeId });
           await db.logActivity({
             userId: ctx.user!.id,
-            projectId: defect.projectId,
+            projectId: defect.projectId as number,
             action: "defect_updated",
             details: JSON.stringify({ defectId, assigneeId, bulkAssign: true }),
           });
 
           // Create notification for assignee
           await db.createNotification({
-            userId: assigneeId,
+            userId: assigneeId as number,
             type: "defect_assigned",
             title: "New Defect Assigned",
-            content: defect.title,
-            relatedProjectId: defect.projectId,
-            // metadata: JSON.stringify({ defectId }), // metadata not supported in CreateNotificationParams
+            content: defect.title as string,
+            relatedProjectId: defect.projectId as number,
           });
           successCount++;
         } catch (error) {
-          console.error(`Failed to assign defect ${defectId}:`, error);
+          logger.error(`Failed to assign defect ${defectId}:`, error);
         }
       }
 
@@ -2243,7 +2248,7 @@ const defectRouter = router({
           await db.deleteDefect(defectId);
           successCount++;
         } catch (error) {
-          console.error(`Failed to delete defect ${defectId}:`, error);
+          logger.error(`Failed to delete defect ${defectId}:`, error);
         }
       }
 
@@ -2423,7 +2428,7 @@ const notificationRouter = router({
       // Ensure we always return an array
       return Array.isArray(notifications) ? notifications : [];
     } catch (error) {
-      console.error("[notificationRouter.list] Error:", error);
+      logger.error("[notificationRouter.list] Error:", error);
       // Return empty array instead of throwing to prevent frontend crashes
       return [];
     }
@@ -2435,7 +2440,7 @@ const notificationRouter = router({
       try {
         return await db.markNotificationAsRead(input.id);
       } catch (error) {
-        console.error("[notificationRouter.markAsRead] Error:", error);
+        logger.error("[notificationRouter.markAsRead] Error:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to mark notification as read",
@@ -2447,7 +2452,7 @@ const notificationRouter = router({
     try {
       return await db.markAllNotificationsAsRead(ctx.user!.id);
     } catch (error) {
-      console.error("[notificationRouter.markAllAsRead] Error:", error);
+      logger.error("[notificationRouter.markAllAsRead] Error:", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to mark all notifications as read",
@@ -2509,7 +2514,7 @@ const notificationRouter = router({
 
         return { success: true, notificationId: notification?.id };
       } catch (error) {
-        console.error("[notificationRouter.createSystemAlert] Error:", error);
+        logger.error("[notificationRouter.createSystemAlert] Error:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create system alert",
@@ -2796,7 +2801,8 @@ export const appRouter = router({
     progressChart: protectedProcedure
       .input(z.object({ projectIds: z.array(z.number()).optional() }))
       .query(async ({ input, ctx }) => {
-        return await db.getProgressChartData(input.projectIds, ctx.user!.id);
+        const projectId = input.projectIds && input.projectIds.length > 0 ? input.projectIds[0] : 0;
+        return await db.getProgressChartData(projectId);
       }),
 
     // Defect Trends Data
@@ -2808,11 +2814,7 @@ export const appRouter = router({
         })
       )
       .query(async ({ input, ctx }) => {
-        return await db.getDefectTrendsData(
-          input.projectId,
-          parseInt(input.days),
-          ctx.user!.id
-        );
+        return await db.getDefectTrendsData(input.projectId || 0);
       }),
 
     // Timeline Data
@@ -3233,6 +3235,35 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         return await db.checkAlertThresholds(ctx.user!.id, input);
       }),
+  }),
+
+  dashboard: router({
+    // Get overall dashboard statistics
+    stats: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getDashboardStats(ctx.user?.id);
+    }),
+
+    // Get recent activities
+    recentActivities: protectedProcedure
+      .input(z.object({ limit: z.number().optional().default(10) }))
+      .query(async ({ input }) => {
+        return await db.getRecentActivitiesForDashboard(input.limit);
+      }),
+
+    // Get task status distribution
+    taskStatusDistribution: protectedProcedure.query(async () => {
+      return await db.getTaskStatusDistribution();
+    }),
+
+    // Get defect severity distribution
+    defectSeverityDistribution: protectedProcedure.query(async () => {
+      return await db.getDefectSeverityDistribution();
+    }),
+
+    // Get project progress data
+    projectProgress: protectedProcedure.query(async () => {
+      return await db.getProjectProgressForDashboard();
+    }),
   }),
 });
 

@@ -15,6 +15,7 @@ import { PWAInstallBanner } from "./components/PWAInstallBanner";
 // Lazy load heavy pages
 const Overview = lazy(() => import("./pages/Overview"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NewDashboard = lazy(() => import("./pages/NewDashboard"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const QCInspection = lazy(() => import("./pages/QCInspection"));
@@ -29,6 +30,7 @@ const Analytics = lazy(() => import("./pages/Analytics"));
 const NewProject = lazy(() => import("./pages/NewProject"));
 const NewTask = lazy(() => import("./pages/NewTask"));
 const ChecklistTemplates = lazy(() => import("./pages/ChecklistTemplates"));
+const Templates = lazy(() => import("./pages/Templates"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const TeamManagement = lazy(() => import("./pages/TeamManagement"));
@@ -95,6 +97,13 @@ function Router() {
       <Route path={"/dashboard"}>
         {() => (
           <DashboardLayout>
+            <NewDashboard />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/dashboard-old"}>
+        {() => (
+          <DashboardLayout>
             <Dashboard />
           </DashboardLayout>
         )}
@@ -147,10 +156,29 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
+      <Route path={"/inspections"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="Inspections"
+              fallbackPath="/dashboard"
+            >
+              <QCInspection />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
       <Route path={"/checklist-templates"}>
         {() => (
           <DashboardLayout>
             <ChecklistTemplates />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/templates"}>
+        {() => (
+          <DashboardLayout>
+            <Templates />
           </DashboardLayout>
         )}
       </Route>

@@ -16,7 +16,7 @@ import { initializeMonitoring } from "../monitoring/startMonitoring";
 import { initializeCronJobs as initializeMonitoringCronJobs } from "../monitoring/cronJobs";
 import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
 import { validateFile, sanitizeFilename } from "../utils/sanitize";
-import { setupProcessErrorHandlers, startMemoryMonitoring, errorMiddleware } from "../errorHandler";
+
 import { handleSSE } from "../sse";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -39,11 +39,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
-  // Setup process-level error handlers
-  setupProcessErrorHandlers();
-  
-  // Start memory monitoring (check every minute)
-  startMemoryMonitoring(60000);
+  // Memory monitoring is handled by initializeMonitoring()
   
   const app = express();
   const server = createServer(app);
@@ -139,8 +135,7 @@ async function startServer() {
     serveStatic(app);
   }
   
-  // Error handling middleware (must be last)
-  app.use(errorMiddleware);
+  // Error handling is handled by tRPC middleware
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);

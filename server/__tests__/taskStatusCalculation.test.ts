@@ -165,12 +165,7 @@ describe('Task Status Calculation', () => {
         endDate: new Date('2025-01-31'),
       };
       
-      // Calculate expected progress manually for testing
-      const totalDuration = task.endDate!.getTime() - task.startDate!.getTime();
-      const elapsed = now.getTime() - task.startDate!.getTime();
-      const expectedProgress = (elapsed / totalDuration) * 100; // ~48%
-      
-      // Task with 10% progress when 48% expected should be behind
+      // Task with 10% progress when ~48% expected should be behind
       const result = calculateTaskDisplayStatus(task);
       expect(result.progressStatus).toBe('behind');
     });

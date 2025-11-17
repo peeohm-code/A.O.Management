@@ -3,6 +3,7 @@ import { notifications, users, type Notification } from "../drizzle/schema";
 import { emitNotification, type Notification as SocketNotification } from "./_core/socket";
 // import { sendNotificationEmail } from "./emailService"; // Disabled - email service removed
 import { eq } from "drizzle-orm";
+import { logger } from "./logger";
 
 /**
  * Centralized Notification Service
@@ -42,7 +43,7 @@ export async function createNotification(
   try {
     const db = await getDb();
     if (!db) {
-      console.error("[NotificationService] Database not available");
+      logger.error("[NotificationService] Database not available");
       return null;
     }
 
@@ -71,7 +72,7 @@ export async function createNotification(
     // Get the created notification
     const notificationId = result[0]?.insertId;
     if (!notificationId) {
-      console.error("[NotificationService] Failed to get notification ID");
+      logger.error("[NotificationService] Failed to get notification ID");
       return null;
     }
 
@@ -82,7 +83,7 @@ export async function createNotification(
       .limit(1);
 
     if (createdNotification.length === 0) {
-      console.error("[NotificationService] Failed to fetch created notification");
+      logger.error("[NotificationService] Failed to fetch created notification");
       return null;
     }
 
@@ -102,7 +103,7 @@ export async function createNotification(
       };
       emitNotification(params.userId, socketNotification);
     } catch (error) {
-      console.error("[NotificationService] Failed to emit socket notification:", error);
+      logger.error("[NotificationService] Failed to emit socket notification:", error);
       // Don't fail the whole operation if socket fails
     }
 
@@ -127,14 +128,14 @@ export async function createNotification(
         }
         */
       } catch (error) {
-        console.error("[NotificationService] Failed to send email:", error);
+        logger.error("[NotificationService] Failed to send email:", error);
         // Don't fail the whole operation if email fails
       }
     }
 
     return notification;
   } catch (error) {
-    console.error("[NotificationService] Failed to create notification:", error);
+    logger.error("[NotificationService] Failed to create notification:", error);
     return null;
   }
 }
@@ -178,7 +179,7 @@ export async function notifyTaskFollowers(params: {
     // For now, just notify task assignee
     // TODO: Implement task followers feature
   } catch (error) {
-    console.error("[NotificationService] Failed to notify task followers:", error);
+    logger.error("[NotificationService] Failed to notify task followers:", error);
   }
 }
 
