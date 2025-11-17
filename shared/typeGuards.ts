@@ -9,7 +9,7 @@ import type { TaskStatus, TaskPriority, DefectStatus, DefectSeverity, ChecklistS
 
 export function isValidTaskStatus(value: unknown): value is TaskStatus {
   return typeof value === 'string' && 
-    ['not_started', 'todo', 'in_progress', 'completed', 'cancelled'].includes(value);
+    ['todo', 'pending_pre_inspection', 'ready_to_start', 'in_progress', 'pending_final_inspection', 'rectification_needed', 'completed', 'not_started', 'delayed'].includes(value);
 }
 
 export function isValidTaskPriority(value: unknown): value is TaskPriority {

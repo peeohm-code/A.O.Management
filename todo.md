@@ -946,3 +946,5 @@
 - [x] Loading States
 - [ ] Cache Dashboard Data (5-10 นาที)
 - [ ] Debouncing สำหรับ Real-time Updates
+
+- [x] Fix task creation bug - "Invalid task status: ready_to_start" error
