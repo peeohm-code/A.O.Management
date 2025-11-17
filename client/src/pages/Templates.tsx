@@ -42,7 +42,7 @@ export default function Templates() {
   const [stageFilter, setStageFilter] = useState<string>("all");
 
   // Fetch templates
-  const { data: templates = [], isLoading } = trpc.checklist.list.useQuery();
+  const { data: templates = [], isLoading } = trpc.templates.list.useQuery();
 
   // Filter templates
   const filteredTemplates = useMemo(() => {

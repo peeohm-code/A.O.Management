@@ -243,14 +243,12 @@ export default function Tasks() {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold">งาน</h1>
-            <p className="text-gray-500">จัดการงานทั้งหมด</p>
+          <h1 className="text-3xl font-bold text-gray-900">งานของฉัน</h1>
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          <TaskCardSkeleton count={8} />
-        </div>
+        <TaskCardSkeleton />
       </div>
     );
   }

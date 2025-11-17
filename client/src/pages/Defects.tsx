@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus } from "lucide-react";
-import { CardSkeleton } from "@/components/skeletons";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus, CheckSquare, Trash2, Edit, UserPlus } from "lucide-react";
+import { DefectCardSkeleton } from "@/components/skeletons";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "@/components/LazyChart";
 import { SwipeableCard } from "@/components/SwipeableCard";
@@ -37,6 +37,8 @@ import { usePermissions, useCanDeleteDefect } from "@/hooks/usePermissions";
 import { BeforeAfterComparison } from "@/components/BeforeAfterComparison";
 import { FileUpload } from "@/components/FileUpload";
 import { ExportButton } from "@/components/ExportButton";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkActionToolbar } from "@/components/BulkActionToolbar";
 
 export default function Defects() {
   const [, setLocation] = useLocation();
@@ -49,6 +51,10 @@ export default function Defects() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
+  const [selectedDefects, setSelectedDefects] = useState<Set<number>>(new Set());
+  const [showBulkStatusDialog, setShowBulkStatusDialog] = useState(false);
+  const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [resolutionComment, setResolutionComment] = useState("");
   
   // Dashboard queries
@@ -110,7 +116,83 @@ export default function Defects() {
   const updateDefectMutation = trpc.defect.update.useMutation();
   const usersQuery = trpc.user.list.useQuery();
 
+  // Bulk operations mutations
+  const bulkUpdateStatusMutation = trpc.defect.bulkUpdateStatus.useMutation({
+    onSuccess: (data) => {
+      toast.success(`อัปเดตสถานะสำเร็จ ${data.updated}/${data.total} รายการ`);
+      setSelectedDefects(new Set());
+      setShowBulkStatusDialog(false);
+      allDefectsQuery.refetch();
+    },
+    onError: () => {
+      toast.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+    },
+  });
+
+  const bulkAssignMutation = trpc.defect.bulkAssign.useMutation({
+    onSuccess: (data) => {
+      toast.success(`มอบหมายสำเร็จ ${data.assigned}/${data.total} รายการ`);
+      setSelectedDefects(new Set());
+      setShowBulkAssignDialog(false);
+      allDefectsQuery.refetch();
+    },
+    onError: () => {
+      toast.error("เกิดข้อผิดพลาดในการมอบหมาย");
+    },
+  });
+
+  const bulkDeleteMutation = trpc.defect.bulkDelete.useMutation({
+    onSuccess: (data) => {
+      toast.success(`ลบสำเร็จ ${data.deleted}/${data.total} รายการ`);
+      setSelectedDefects(new Set());
+      setShowBulkDeleteDialog(false);
+      allDefectsQuery.refetch();
+    },
+    onError: () => {
+      toast.error("เกิดข้อผิดพลาดในการลบ");
+    },
+  });
+
   const defects = allDefectsQuery.data || [];
+
+  // Bulk operation handlers
+  const toggleDefectSelection = (defectId: number) => {
+    const newSelection = new Set(selectedDefects);
+    if (newSelection.has(defectId)) {
+      newSelection.delete(defectId);
+    } else {
+      newSelection.add(defectId);
+    }
+    setSelectedDefects(newSelection);
+  };
+
+  const selectAllDefects = () => {
+    if (selectedDefects.size === filteredDefects.length) {
+      setSelectedDefects(new Set());
+    } else {
+      setSelectedDefects(new Set(filteredDefects.map((d: any) => d.id)));
+    }
+  };
+
+  const handleBulkAssign = (assigneeId: number) => {
+    bulkAssignMutation.mutate({
+      defectIds: Array.from(selectedDefects),
+      assigneeId,
+    });
+  };
+
+  const handleBulkUpdateStatus = (status: string) => {
+    bulkUpdateStatusMutation.mutate({
+      defectIds: Array.from(selectedDefects),
+      status: status as any,
+    });
+  };
+
+  const handleBulkDelete = () => {
+    bulkDeleteMutation.mutate({
+      defectIds: Array.from(selectedDefects),
+    });
+  };
 
   let filteredDefects = defects.filter((d: any) =>
     d.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -443,14 +525,12 @@ export default function Defects() {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold">CAR/PAR/NCR</h1>
-            <p className="text-gray-500">จัดการข้อบกพร่องและการแก้ไข</p>
+          <h1 className="text-3xl font-bold text-gray-900">ข้อบกพร่อง</h1>
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <CardSkeleton count={6} />
-        </div>
+        <DefectCardSkeleton />
       </div>
     );
   }
@@ -617,12 +697,29 @@ export default function Defects() {
             </CardContent>
           </Card>
         ) : (
-          filteredDefects.map((defect: any) => {
-            const nextStatus = getNextStatus(defect.status);
-            const canEdit = permissions.canEdit;
-            
-            const swipeLeftActions: any[] = [];
-            const swipeRightActions: any[] = [];
+          <>
+            {/* Select All Checkbox */}
+            {permissions.canEdit && filteredDefects.length > 0 && (
+              <div className="flex items-center gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
+                <Checkbox
+                  checked={selectedDefects.size === filteredDefects.length && filteredDefects.length > 0}
+                  onCheckedChange={selectAllDefects}
+                  className="border-2"
+                />
+                <span className="text-sm font-medium">
+                  {selectedDefects.size === filteredDefects.length && filteredDefects.length > 0
+                    ? `เลือกแล้ว ${selectedDefects.size} รายการ`
+                    : `เลือกทั้งหมด (${filteredDefects.length} รายการ)`}
+                </span>
+              </div>
+            )}
+
+            {filteredDefects.map((defect: any) => {
+              const nextStatus = getNextStatus(defect.status);
+              const canEdit = permissions.canEdit;
+              
+              const swipeLeftActions: any[] = [];
+              const swipeRightActions: any[] = [];
             
             // Add status change action if available
             if (canEdit && nextStatus) {
@@ -665,12 +762,24 @@ export default function Defects() {
             }
             
             return (
-              <SwipeableCard
-                key={defect.id}
-                leftActions={swipeLeftActions}
-                rightActions={swipeRightActions}
-                disabled={updatingDefectId === defect.id}
-              >
+              <div key={defect.id} className="relative">
+                {/* Selection Checkbox */}
+                {permissions.canEdit && (
+                  <div className="absolute top-3 left-3 z-10">
+                    <Checkbox
+                      checked={selectedDefects.has(defect.id)}
+                      onCheckedChange={() => toggleDefectSelection(defect.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="bg-white border-2 shadow-sm"
+                    />
+                  </div>
+                )}
+
+                <SwipeableCard
+                  leftActions={swipeLeftActions}
+                  rightActions={swipeRightActions}
+                  disabled={updatingDefectId === defect.id}
+                >
                 <Card 
                   className="hover:shadow-md transition cursor-pointer"
                   onClick={() => setLocation(`/defects/${defect.id}`)}
@@ -738,8 +847,28 @@ export default function Defects() {
                   </div>
                 )}
               </SwipeableCard>
+              </div>
             );
-          })
+          })}
+
+          {/* Bulk Action Toolbar */}
+          <BulkActionToolbar
+            selectedCount={selectedDefects.size}
+            onClearSelection={() => setSelectedDefects(new Set())}
+            onBulkAssign={handleBulkAssign}
+            onBulkUpdateStatus={handleBulkUpdateStatus}
+            onBulkDelete={handleBulkDelete}
+            assigneeOptions={usersQuery.data?.map((u: any) => ({ id: u.id, name: u.name || u.email })) || []}
+            statusOptions={[
+              { value: 'reported', label: 'รายงานแล้ว' },
+              { value: 'assigned', label: 'มอบหมายแล้ว' },
+              { value: 'in_progress', label: 'กำลังดำเนินการ' },
+              { value: 'resolved', label: 'แก้ไขแล้ว' },
+              { value: 'verified', label: 'ตรวจสอบแล้ว' },
+              { value: 'closed', label: 'ปิดแล้ว' },
+            ]}
+          />
+          </>
         )}
       </div>
 

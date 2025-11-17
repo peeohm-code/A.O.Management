@@ -31,6 +31,7 @@ import { Link } from "wouter";
 import { useMemo } from "react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { DashboardFullSkeleton } from "@/components/skeletons";
 
 /**
  * Dashboard หลัก - แสดงภาพรวมของระบบบริหารโครงการก่อสร้างและ QC
@@ -94,11 +95,8 @@ export default function NewDashboard() {
 
   if (statsLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#00366D] mx-auto mb-4"></div>
-          <p className="text-muted-foreground text-lg">กำลังโหลดข้อมูล...</p>
-        </div>
+      <div className="container mx-auto py-6">
+        <DashboardFullSkeleton />
       </div>
     );
   }

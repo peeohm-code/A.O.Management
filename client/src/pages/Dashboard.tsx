@@ -351,10 +351,10 @@ export default function Dashboard() {
 
       {/* Project Statistics - สถิติสำคัญ */}
       {projectStats && (
-        <div className="grid gap-6 grid-cols-2 lg:grid-cols-4">
-          <Card className="border-l-4 border-l-[#00366D] shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle className="text-sm font-bold text-gray-600 uppercase tracking-wider">
+        <div className="grid card-spacing grid-cols-2 lg:grid-cols-4">
+          <Card className="card-border card-shadow hover-lift">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 งานทั้งหมด
               </CardTitle>
               <div className="p-2.5 rounded-lg bg-[#00366D]/10">
@@ -362,19 +362,19 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="text-5xl font-bold text-[#00366D]">
+              <div className="metric-value text-[#00366D]">
                 {projectStats.totalTasks}
               </div>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <Activity className="h-4 w-4" />
                 {projectStats.inProgressTasks} กำลังดำเนินการ · {projectStats.completedTasks} เสร็จสิ้น
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-[#00CE81] shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle className="text-sm font-bold text-gray-600 uppercase tracking-wider">
+          <Card className="card-border card-shadow hover-lift">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 ความสำเร็จ
               </CardTitle>
               <div className="p-2.5 rounded-lg bg-[#00CE81]/10">
@@ -382,30 +382,28 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="text-5xl font-bold text-[#00CE81]">
+              <div className="metric-value text-[#00CE81]">
                 {projectStats.completionRate.toFixed(0)}%
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-gray-600 flex items-center gap-2">
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4" />
                   {projectStats.completedTasks} จาก {projectStats.totalTasks} งาน
                 </p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="progress-bar">
                   <div 
-                    className="h-2.5 rounded-full transition-all duration-500" 
-                    style={{ 
-                      width: `${projectStats.completionRate}%`,
-                      background: projectStats.completionRate >= 71 ? '#10b981' : projectStats.completionRate >= 31 ? '#f59e0b' : '#ef4444'
-                    }}
+                    className="progress-bar-fill" 
+                    style={{ width: `${projectStats.completionRate}%` }}
+                    {...{ [projectStats.completionRate <= 30 ? 'data-progress-low' : projectStats.completionRate <= 70 ? 'data-progress-medium' : 'data-progress-high']: '' }}
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-amber-500 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle className="text-sm font-bold text-gray-600 uppercase tracking-wider">
+          <Card className="card-border card-shadow hover-lift">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 งานล่าช้า
               </CardTitle>
               <div className="p-2.5 rounded-lg bg-amber-500/10">
@@ -413,19 +411,19 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="text-5xl font-bold text-amber-600">
+              <div className="metric-value text-amber-600">
                 {projectStats.overdueTasks}
               </div>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
                 {projectStats.overdueTasks > 0 ? 'ต้องดำเนินการทันที' : 'ไม่มีงานล่าช้า'}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-red-500 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle className="text-sm font-bold text-gray-600 uppercase tracking-wider">
+          <Card className="card-border card-shadow hover-lift">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 ข้อบกพร่อง
               </CardTitle>
               <div className="p-2.5 rounded-lg bg-red-500/10">
@@ -433,10 +431,10 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="text-5xl font-bold text-red-600">
+              <div className="metric-value text-red-600">
                 {projectStats.openDefects}
               </div>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 {projectStats.criticalDefects} วิกฤต · {projectStats.openDefects - projectStats.criticalDefects} ทั่วไป
               </p>

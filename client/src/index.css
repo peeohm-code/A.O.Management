@@ -181,16 +181,27 @@
     letter-spacing: -0.01em;
   }
   
+  /* Priority 2: Enhanced Typography Hierarchy */
   h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl;
+    @apply text-3xl md:text-4xl lg:text-5xl; /* Page headings: 28-32px */
   }
   
   h2 {
-    @apply text-2xl md:text-3xl lg:text-4xl;
+    @apply text-2xl md:text-3xl lg:text-4xl; /* Section headings */
   }
   
   h3 {
-    @apply text-xl md:text-2xl lg:text-3xl;
+    @apply text-xl md:text-2xl lg:text-3xl; /* Card titles: 18-20px */
+  }
+  
+  /* Body text: 14-16px (Tailwind default is 16px) */
+  body {
+    @apply text-base; /* 16px */
+  }
+  
+  /* Small text: 12-14px */
+  small, .text-small {
+    @apply text-sm; /* 14px */
   }
   
   /* Safe area for mobile notch and gesture bar */
@@ -222,6 +233,93 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Priority 1: Large Metrics */
+  .metric-value {
+    @apply text-4xl md:text-5xl font-bold;
+  }
+  
+  .metric-label {
+    @apply text-sm text-muted-foreground;
+  }
+  
+  /* Priority 1: Enhanced Spacing System (8px grid) */
+  .card-spacing {
+    @apply gap-4 md:gap-6;
+  }
+  
+  .card-padding {
+    @apply p-5 md:p-6;
+  }
+  
+  .section-spacing {
+    @apply space-y-8 md:space-y-10;
+  }
+  
+  /* Priority 2: Enhanced Hover States */
+  .hover-lift {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  /* Priority 2: Enhanced Borders */
+  .card-border {
+    @apply border-2 border-gray-200 dark:border-gray-700;
+  }
+  
+  .card-shadow {
+    @apply shadow-md hover:shadow-xl transition-shadow duration-200;
+  }
+  
+  /* Priority 3: Micro-interactions & Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-success {
+    animation: successPulse 0.5s ease-out;
+  }
+  
+  @keyframes successPulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  /* Priority 3: Text truncation with ellipsis */
+  .truncate-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .truncate-3-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
@@ -351,7 +449,7 @@
     }
   }
 
-  /* Enhanced Status Badges for Mobile */
+  /* Priority 1: Enhanced Status Badges with Colors */
   .status-badge {
     @apply inline-flex items-center justify-center px-3 py-1.5 rounded-full font-semibold text-sm;
     min-width: 80px;
@@ -365,18 +463,73 @@
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
   }
+  
+  /* Priority 1: Status Colors - Green/Red/Yellow/Gray */
+  .status-success, .status-passed, .status-completed {
+    @apply bg-emerald-500 text-white;
+  }
+  
+  .status-danger, .status-failed, .status-overdue, .status-high {
+    @apply bg-red-500 text-white;
+  }
+  
+  .status-warning, .status-pending, .status-medium {
+    @apply bg-amber-500 text-white;
+  }
+  
+  .status-default, .status-not-started, .status-low {
+    @apply bg-gray-400 text-white;
+  }
+  
+  .dark .status-success, .dark .status-passed, .dark .status-completed {
+    @apply bg-emerald-600;
+  }
+  
+  .dark .status-danger, .dark .status-failed, .dark .status-overdue, .dark .status-high {
+    @apply bg-red-600;
+  }
+  
+  .dark .status-warning, .dark .status-pending, .dark .status-medium {
+    @apply bg-amber-600;
+  }
+  
+  .dark .status-default, .dark .status-not-started, .dark .status-low {
+    @apply bg-gray-600;
+  }
 
-  /* Visual Progress Bar */
+  /* Priority 1: Enhanced Progress Bar - Larger with Color Coding */
   .progress-bar {
     @apply relative w-full h-3 bg-gray-200 rounded-full overflow-hidden;
+  }
+  
+  /* Desktop: 10px height */
+  @media (min-width: 769px) {
+    .progress-bar {
+      @apply h-[10px];
+    }
   }
 
   .progress-bar-fill {
     @apply h-full transition-all duration-500 ease-out;
-    background: linear-gradient(90deg, oklch(0.72 0.14 165) 0%, oklch(0.78 0.14 165) 100%);
-    box-shadow: 0 2px 4px rgba(0, 206, 129, 0.3);
   }
-
+  
+  /* Progress color based on percentage */
+  .progress-bar-fill[data-progress-low] {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  }
+  
+  .progress-bar-fill[data-progress-medium] {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+  }
+  
+  .progress-bar-fill[data-progress-high] {
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  }
+  
+  /* Legacy support */
   .progress-bar-fill.warning {
     background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
     box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);

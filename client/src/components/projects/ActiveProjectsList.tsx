@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Download, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
-import { ProjectCardSkeleton } from "@/components/skeletons";
+import { ProjectListSkeleton } from "@/components/skeletons";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
@@ -207,13 +207,7 @@ export function ActiveProjectsList() {
   };
 
   if (projectsQuery.isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <ProjectCardSkeleton count={6} />
-        </div>
-      </div>
-    );
+    return <ProjectListSkeleton />;
   }
 
   if (projectsQuery.error) {
@@ -335,13 +329,13 @@ export function ActiveProjectsList() {
       </div>
 
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-[#00366D] hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
+      <div className="grid card-spacing grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">โครงการทั้งหมด</p>
-                <p className="text-3xl font-bold text-[#00366D] mt-1">{stats.total}</p>
+                <p className="metric-label">โครงการทั้งหมด</p>
+                <p className="metric-value text-[#00366D]">{stats.total}</p>
               </div>
               <div className="p-3 bg-[#00366D]/10 rounded-full">
                 <Building2 className="w-6 h-6 text-[#00366D]" />
@@ -350,12 +344,12 @@ export function ActiveProjectsList() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-[#00CE81] hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">กำลังดำเนินการ</p>
-                <p className="text-3xl font-bold text-[#00CE81] mt-1">{stats.on_track}</p>
+                <p className="metric-label">กำลังดำเนินการ</p>
+                <p className="metric-value text-[#00CE81]">{stats.on_track}</p>
               </div>
               <div className="p-3 bg-[#00CE81]/10 rounded-full">
                 <TrendingUp className="w-6 h-6 text-[#00CE81]" />
@@ -364,12 +358,12 @@ export function ActiveProjectsList() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">ล่าช้า</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-1">{stats.delayed}</p>
+                <p className="metric-label">ล่าช้า</p>
+                <p className="metric-value text-yellow-600">{stats.delayed}</p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-full">
                 <AlertTriangle className="w-6 h-6 text-yellow-600" />
@@ -378,12 +372,12 @@ export function ActiveProjectsList() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">เลยกำหนด</p>
-                <p className="text-3xl font-bold text-red-600 mt-1">{stats.overdue}</p>
+                <p className="metric-label">เลยกำหนด</p>
+                <p className="metric-value text-red-600">{stats.overdue}</p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">
                 <Clock className="w-6 h-6 text-red-600" />

@@ -20,8 +20,15 @@ const navItems: NavItem[] = [
 export default function BottomNavigation() {
   const [location] = useLocation();
 
+  const handleNavClick = () => {
+    // Haptic feedback for mobile devices
+    if ('vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+  };
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border md:hidden shadow-lg">
       <div className="grid grid-cols-5 h-16 safe-area-inset-bottom">
         {navItems.map((item: any) => {
           const Icon = item.icon;
@@ -31,16 +38,24 @@ export default function BottomNavigation() {
             <Link
               key={item.path}
               href={item.path}
+              onClick={handleNavClick}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-colors",
-                "active:bg-accent/50",
+                "flex flex-col items-center justify-center gap-1 transition-all duration-200",
+                "active:scale-95 active:bg-accent/50",
+                "touch-manipulation",
                 isActive
-                  ? "text-primary"
+                  ? "text-primary font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <Icon className={cn(
+                "h-5 w-5 transition-all",
+                isActive && "stroke-[2.5] scale-110"
+              )} />
+              <span className={cn(
+                "text-[10px] transition-all",
+                isActive ? "font-semibold" : "font-medium"
+              )}>{item.label}</span>
             </Link>
           );
         })}

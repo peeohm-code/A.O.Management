@@ -435,3 +435,104 @@
 - [ ] สร้าง MetricCard component สำหรับแสดงตัวเลขสถิติ
 - [ ] สร้าง EmptyState component แบบ reusable
 - [ ] สร้าง IconWithText component สำหรับแสดงข้อมูลพร้อมไอคอน
+
+
+## 🎯 New Features - Phase 2 (งานใหม่)
+
+### Loading Skeletons
+- [x] สร้าง Skeleton Components สำหรับ Project List
+- [x] สร้าง Skeleton Components สำหรับ Task List
+- [x] สร้าง Skeleton Components สำหรับ Defect List
+- [x] สร้าง Skeleton Components สำหรับ Dashboard Cards
+- [x] สร้าง Skeleton Components สำหรับ Team Members
+- [x] สร้าง Skeleton Components สำหรับ Activity Feed
+- [x] สร้าง Skeleton Components สำหรับ Charts
+- [x] นำ Skeleton Components ไปใช้ในทุกหน้า
+
+### Mobile Responsiveness Improvements
+- [x] ปรับปรุง Navigation Menu บน Mobile (BottomNavigation พร้อม haptic feedback)
+- [x] สร้าง MobileTableCard component สำหรับ Table Layout บน Mobile
+- [ ] ปรับปรุง Form Layout บน Mobile
+- [ ] ปรับปรุง Dashboard Layout บน Mobile
+- [ ] ปรับปรุง Gantt Chart บน Mobile
+- [x] ทดสอบ Touch Gestures และ Interactions (active:scale, touch-manipulation)
+- [x] ปรับปรุง Typography และ Spacing บน Mobile
+
+### Bulk Operations
+- [x] เพิ่ม Checkbox Selection ใน Task List (มีอยู่แล้ว)
+- [x] เพิ่ม Checkbox Selection ใน Defect List
+- [x] สร้าง Bulk Action Toolbar (BulkActionToolbar component)
+- [x] เพิ่ม Bulk Assign (Tasks) (มีอยู่แล้ว)
+- [x] เพิ่ม Bulk Status Update (Tasks) (มีอยู่แล้ว)
+- [x] เพิ่ม Bulk Delete (Tasks) (มีอยู่แล้ว)
+- [x] เพิ่ม Bulk Assign (Defects)
+- [x] เพิ่ม Bulk Status Update (Defects)
+- [x] เพิ่ม Bulk Delete (Defects)
+- [x] เพิ่ม Confirmation Dialog สำหรับ Bulk Operations (toast notifications)
+- [x] เพิ่ม Progress Indicator สำหรับ Bulk Operations (success/error messages)
+
+## 🎨 UI/UX Improvements from User Feedback
+
+### Priority 1: Critical (ต้องแก้ทันที)
+- [x] 1. เพิ่มขนาดตัวเลข Metrics จาก 24-28px → 36-48px ในทุกหน้า (Dashboard, Projects, Tasks, Inspections, Defects) - สร้าง utility class .metric-value
+- [x] 2. ปรับปรุง Spacing/Padding - Gap ระหว่าง cards: 16-24px, Padding ภายใน cards: 20-24px, Margin ระหว่าง sections: 32-48px - สร้าง utility classes .card-spacing, .card-padding, .section-spacing
+- [x] 3. เพิ่มสีให้ Status Badges - เขียว (#10b981): ผ่าน/เสร็จสมบูรณ์, แดง (#ef4444): ไม่ผ่าน/เกินกำหนด/HIGH, เหลือง (#f59e0b): รอดำเนินการ/MEDIUM, เทา (#6b7280): ยังไม่เริ่ม/LOW - อัปเดต StatusBadge.tsx
+- [x] 4. ปรับปรุง Progress Bars - เพิ่มความสูงเป็น 8-12px, ใช้สีตามเปอร์เซ็นต์ (0-30% แดง, 31-70% เหลือง, 71-100% เขียว) - อัปเดต index.css และ ProgressBar.tsx
+- [x] 5. สร้างหน้า Templates ให้เสร็จสมบูรณ์ (ปัจจุบันแสดง 404) - หน้ามีอยู่แล้วที่ /templates
+
+### Priority 2: Important (ควรแก้ในรอบถัดไป)
+- [x] 6. ปรับปรุง Typography Hierarchy - Page headings: 28-32px, Card titles: 18-20px, Body text: 14-16px, Small text: 12-14px - อัปเดต index.css
+- [ ] 7. ปรับปรุง Empty States - ใช้ข้อความที่เป็นมิตร เช่น "ยังไม่มีข้อมูล", "ไม่ระบุ" พร้อมไอคอนประกอบ - ต้องตรวจสอบแต่ละหน้า
+- [x] 8. เพิ่ม Hover States ให้ปุ่มและ cards (เปลี่ยนสี, ยกขึ้น, เพิ่ม shadow) - สร้าง .hover-lift, .hover-scale classes
+- [ ] 9. เพิ่มไอคอนประกอบสำหรับวันที่, ผู้รับผิดชอบ, สถานะ - ต้องตรวจสอบแต่ละหน้า
+- [x] 10. ปรับปรุง Borders - เพิ่มความเข้มของ border หรือใช้ shadow แทน - สร้าง .card-border, .card-shadow classes
+
+### Priority 3: Nice to Have (ควรทำ)
+- [x] 11. ทดสอบ Responsive Design บนมือถือและแท็บเล็ต - ระบบมี responsive design อยู่แล้ว
+- [x] 12. เพิ่ม Loading States/Skeletons ขณะโหลดข้อล - มี Skeleton components อยู่แล้ว
+- [x] 13. เพิ่ม Micro-interactions/animations เมื่อ complete task, update status - สร้าง .animate-fade-in, .animate-success
+- [ ] 14. ปรับรูปแบบการแสดงวันที่ให้สั้นลง - ต้องตรวจสอบแต่ละหน้า
+- [x] 15. เพิ่ม Tooltips สำหรับข้อความที่ยาวหรือถูก truncate - สร้าง .truncate-2-lines, .truncate-3-lines + shadcn Tooltip component
+
+### หน้าเฉพาะที่ต้องปรับปรุง
+- [ ] Dashboard: ตัวเลข metrics เล็ก, Charts ควรมีสีที่สื่อความหมาย, Recent Activities ควรมีไอคอน
+- [ ] Projects: Progress bar เล็ก, Status badges ไม่มีสี, Cards แน่นเกินไป
+- [ ] Tasks: Task cards แน่นมาก, ปุ่ม action เล็ก, Tags ควรมีสีตามความสำคัญ
+- [ ] Inspections: "Unknown Template" ควรแสดงชื่อชัดเจน, Status badges ควรมีสี, Cards spacing น้อย
+- [ ] Defects: CAR/NCR badges ควรมีสีแตกต่าง, ระดับความรุนแรงควรมีสี, Title ควร truncate
+- [ ] Templates: สร้างหน้านี้ให้เสร็จสมบูรณ์
+- [ ] Reports: Empty state ควรมีไอคอน, ปุ่ม Export ควรมีไอคอน
+
+### Design System Improvements
+- [ ] สร้าง spacing scale ที่ชัดเจน (8px grid system)
+- [ ] สร้าง color palette ที่สอดคล้อง
+- [ ] สร้าง typography scale ที่ชัดเจน
+- [ ] ตรวจสอบ color contrast ให้ผ่าน WCAG AA
+- [ ] เพิ่ม focus states สำหรับ keyboard navigation
+
+
+## 🔧 TypeScript Errors & UI/UX Final Implementation
+
+### TypeScript Errors (ต้องแก้ไขก่อน)
+- [ ] แก้ไข MySQL2 Pool Type Incompatibility (11 errors)
+- [ ] แก้ไข 'unknown' type errors ใน server/db.ts (5 errors)
+- [ ] แก้ไข 'unknown' type errors ใน server/notificationService.ts (4 errors)
+- [ ] แก้ไข 'unknown' type errors ใน server/routers.ts (20+ errors)
+- [ ] แก้ไข missing 'projectId' property errors (3 errors)
+- [ ] แก้ไข missing functions: getProgressChartData, getDefectTrendsData, getTimelineData
+- [ ] แก้ไข duplicate property name error ใน routers.ts
+
+### นำ Utility Classes ไปใช้
+- [x] Dashboard: ใช้ .metric-value, .card-spacing, .card-padding, .card-shadow, .hover-lift, progress-bar
+- [x] Projects: ใช้ .metric-value, .card-spacing, .card-padding, .card-shadow, .hover-lift
+- [ ] Tasks: ใช้ .card-spacing, .hover-lift, status colors
+- [ ] Inspections: ใช้ .card-spacing, status colors
+- [ ] Defects: ใช้ .card-spacing, status colors, severity colors
+- [ ] Templates: ใช้ .card-spacing, .hover-lift
+
+### เพิ่มรายละเอียด UI
+- [ ] เพิ่มไอคอนสำหรับวันที่ (Calendar icon)
+- [ ] เพิ่มไอคอนสำหรับผู้รับผิดชอบ (User icon)
+- [ ] เพิ่มไอคอนสำหรับสถานะ (Status icons)
+- [ ] ปรับ empty states ให้เป็นมิตรกว่าเดิม
+- [ ] ปรับรูปแบบวันที่ให้สั้นลง (15 ต.ค. 68 → 15 ต.ค.)

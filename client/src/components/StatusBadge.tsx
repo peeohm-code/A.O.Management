@@ -7,159 +7,156 @@ interface StatusBadgeProps {
 }
 
 /**
- * Enhanced Status Badge Component
- * - Color-coded status indicators
- * - Mobile-friendly sizing (larger on mobile)
- * - High contrast colors for outdoor visibility
- * - Consistent styling across the app
- * 
- * Color Scheme:
- * - Green (#10b981): Pass, Completed, On Track
- * - Red (#ef4444): Fail, Overdue, HIGH severity
- * - Yellow/Orange (#f59e0b): Pending, Delayed, MEDIUM severity
- * - Gray (#6b7280): Not Started, LOW severity
- * - Blue (#3b82f6): Pending Inspection
+ * Priority 1: Enhanced Status Badge Component
+ * - Solid background colors for better visibility
+ * - Color Scheme (Priority 1 requirements):
+ *   🟢 Green (#10b981): Pass, Completed, On Track
+ *   🔴 Red (#ef4444): Fail, Overdue, HIGH severity
+ *   🟡 Yellow/Orange (#f59e0b): Pending, Delayed, MEDIUM severity
+ *   ⚪ Gray (#6b7280): Not Started, LOW severity
+ * - Mobile-friendly sizing
+ * - High contrast for outdoor visibility
  */
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const statusConfig: Record<string, { label: string; className: string }> = {
-    // Task/Project Status - with color coding
+    // Task/Project Status - Priority 1: Solid colors
     not_started: {
       label: "ยังไม่เริ่ม",
-      className: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+      className: "status-badge status-default",
     },
     in_progress: {
       label: "กำลังทำ",
-      className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20",
+      className: "status-badge status-warning",
     },
     delayed: {
       label: "ล่าช้า",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20",
+      className: "status-badge status-danger",
     },
     completed: {
       label: "เสร็จสมบูรณ์",
-      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+      className: "status-badge status-success",
     },
     pending: {
       label: "รอดำเนินการ",
-      className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20",
+      className: "status-badge status-warning",
     },
     pending_inspection: {
       label: "รอตรวจสอบ",
-      className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20",
+      className: "status-badge bg-blue-500 text-white",
     },
     failed: {
       label: "ไม่ผ่าน",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20",
+      className: "status-badge status-danger",
     },
     
-    // Project statuses
+    // Project statuses - Priority 1: Solid colors
     draft: {
       label: "แบบร่าง",
-      className: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+      className: "status-badge status-default",
     },
     planning: {
       label: "วางแผน",
-      className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20",
+      className: "status-badge bg-blue-500 text-white",
     },
     active: {
       label: "ดำเนินการ",
-      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+      className: "status-badge status-success",
     },
     on_hold: {
       label: "พักงาน",
-      className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20",
+      className: "status-badge status-warning",
     },
     cancelled: {
       label: "ยกเลิก",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20",
+      className: "status-badge status-danger",
     },
     
-    // Inspection statuses
+    // Inspection statuses - Priority 1: Solid colors
     pass: {
       label: "ผ่าน",
-      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+      className: "status-badge status-success",
     },
     fail: {
       label: "ไม่ผ่าน",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20",
+      className: "status-badge status-danger",
     },
     "N/A": {
       label: "ไม่ระบุ",
-      className: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+      className: "status-badge status-default",
     },
     
-    // Defect statuses
+    // Defect statuses - Priority 1: Solid colors
     open: {
       label: "เปิด",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20",
+      className: "status-badge status-danger",
     },
     in_review: {
       label: "กำลังตรวจสอบ",
-      className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20",
+      className: "status-badge bg-blue-500 text-white",
     },
     in_rectification: {
       label: "กำลังแก้ไข",
-      className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20",
+      className: "status-badge status-warning",
     },
     implemented: {
       label: "ดำเนินการแล้ว",
-      className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20",
+      className: "status-badge bg-blue-500 text-white",
     },
     verified: {
       label: "ตรวจสอบแล้ว",
-      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+      className: "status-badge status-success",
     },
     resolved: {
       label: "แก้ไขแล้ว",
-      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+      className: "status-badge status-success",
     },
     closed: {
       label: "ปิด",
-      className: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+      className: "status-badge status-default",
     },
     
-    // Severity levels
+    // Severity levels - Priority 1: Solid colors
     high: {
       label: "สูง",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20 font-semibold",
+      className: "status-badge status-high font-bold",
     },
     medium: {
       label: "ปานกลาง",
-      className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20",
+      className: "status-badge status-medium",
     },
     low: {
       label: "ต่ำ",
-      className: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+      className: "status-badge status-low",
     },
     
-    // Progress status
+    // Progress status - Priority 1: Solid colors
     on_track: {
       label: "ตามแผน",
-      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+      className: "status-badge status-success",
     },
     ahead: {
       label: "เร็วกว่าแผน",
-      className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20",
+      className: "status-badge bg-blue-500 text-white",
     },
     behind: {
       label: "ล่าช้า",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20",
+      className: "status-badge status-danger",
     },
     
-    // Defect types
+    // Defect types - Priority 1: Different colors for CAR/NCR
     CAR: {
       label: "CAR",
-      className: "bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20 font-bold",
+      className: "status-badge bg-red-600 text-white font-bold",
     },
     NCR: {
       label: "NCR",
-      className: "bg-orange-500/10 text-orange-700 dark:text-orange-300 border border-orange-500/20 font-bold",
+      className: "status-badge bg-orange-600 text-white font-bold",
     },
   };
 
   const config = statusConfig[status] || {
     label: status,
-    className: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+    className: "status-badge status-default",
   };
 
   return (
