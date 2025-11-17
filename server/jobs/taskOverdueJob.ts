@@ -17,6 +17,17 @@ export async function checkOverdueTasks() {
     return { success: false, message: "Database not available" };
   }
 
+  // Check if tables exist before querying
+  try {
+    await db.execute(sql.raw(`SELECT 1 FROM tasks LIMIT 1`));
+  } catch (tableError: any) {
+    if (tableError.message?.includes("doesn't exist")) {
+      console.warn("[Task Overdue] Tasks table doesn't exist yet, skipping check");
+      return { success: true, message: "Tables not ready yet" };
+    }
+    throw tableError;
+  }
+
   try {
     const today = new Date().toISOString().split('T')[0];
 

@@ -536,3 +536,93 @@
 - [ ] เพิ่มไอคอนสำหรับสถานะ (Status icons)
 - [ ] ปรับ empty states ให้เป็นมิตรกว่าเดิม
 - [ ] ปรับรูปแบบวันที่ให้สั้นลง (15 ต.ค. 68 → 15 ต.ค.)
+
+
+## 🔴 ปัญหาวิกฤต (Critical) - งานใหม่ที่ต้องแก้ไขด่วน
+
+### Memory & Process Issues
+- [ ] แก้ไข Out of Memory Event - kill Node.js process เมื่อวันที่ 15 พ.ย.
+- [ ] ทำความสะอาด 15 Zombie Processes (shell และ node defunct processes)
+- [ ] เพิ่ม memory monitoring และ cleanup mechanisms เพิ่มเติม
+
+### Security Vulnerabilities
+- [ ] อัพเดท esbuild เพื่อแก้ไข CORS vulnerability
+- [ ] อัพเดท xlsx package เพื่อแก้ไข security issues
+- [ ] อัพเดท tar package เพื่อแก้ไข security issues
+- [ ] ตรวจสอบและอัพเดท dependencies ที่มีช่องโหว
+
+## 🟡 ปัญหาสำคัญ (Warning) - งานใหม่ที่ต้องแก้ไข
+
+### Memory Leak Risks
+- [ ] แก้ไข setInterval ที่ไม่มี cleanup ใน 6+ ไฟล์
+- [ ] เพิ่ม cleanup สำหรับ EventEmitter ทั้งหมด
+- [ ] ตรวจสอบและแก้ไข memory leaks ทั้งหมดในระบบ
+- [ ] เพิ่ม proper cleanup ใน useEffect hooks
+
+### TypeScript Errors (ใหม่)
+- [ ] แก้ไข 11+ type errors ที่เหลืออยู่
+- [ ] แก้ไข unknown type assignments
+- [ ] แก้ไข missing functions และ properties
+- [ ] เพิ่ม type safety ให้กับ database queries
+
+### Database Performance
+- [ ] แก้ไข N+1 Query Problems ทั่วทั้งระบบ
+- [ ] เพิ่ม pagination สำหรับการโหลดข้อมูลทุกหน้า
+- [ ] ป้องกันการโหลดข้อมูลทั้งหมดเข้า memory
+- [ ] เพิ่ม database indexes สำหรับ queries ที่ช้า
+- [ ] ใช้ select() แทน .findMany() เพื่อเลือกเฉพาะ columns ที่ต้องการ
+
+### Database Connection
+- [ ] แก้ไข "Table doesn't exist" errors จาก cron jobs
+- [ ] ตรวจสอบ database schema และ migrations ให้ถูกต้อง
+- [ ] เพิ่ม error handling สำหรับ database connections
+- [ ] เพิ่ม connection pooling และ retry logic
+
+
+## ✅ แก้ไขเสร็จแล้ว (Completed Fixes)
+
+### Security Vulnerabilities
+- [x] แทนที่ xlsx package ด้วย ExcelJS (แก้ไข 2 security vulnerabilities)
+- [x] อัพเดท client/src/lib/excelExport.ts
+- [x] อัพเดท client/src/components/projects/ActiveProjectsList.tsx
+- [x] อัพเดท server/excelExport.ts
+- [x] ลบ xlsx package ออกจาก dependencies
+- [x] ตรวจสอบ pnpm audit - No known vulnerabilities found ✅
+
+### Memory Leak Fixes
+- [x] แก้ไข setInterval leaks ใน notificationScheduler.ts (เพิ่ม cleanup function)
+- [x] แก้ไข setInterval leaks ใน rateLimiter.ts (เพิ่ม cleanup function)
+- [x] เพิ่ม interval references สำหรับ cleanup
+
+### Database Connection Issues (Partial)
+- [x] เพิ่ม table existence check ใน deadlineReminders.ts
+- [x] เพิ่ม table existence check ใน checklistReminderJob.ts
+- [x] เพิ่ม table existence check ใน taskOverdueJob.ts
+- [x] เพิ่ม sql import ใน deadlineReminders.ts
+
+## 🔄 กำลังดำเนินการ (In Progress)
+
+### TypeScript Errors (11 errors remaining)
+- [ ] แก้ไข MySQL2 Pool Type Incompatibility (Types of property '$client' are incompatible)
+- [ ] แก้ไข generateArchiveExcel() signature (Expected 0 arguments, but got 1)
+- [ ] แก้ไข unknown type assignments (20+ occurrences)
+- [ ] แก้ไข missing properties (projectId, getProgressChartData, etc.)
+- [ ] แก้ไข duplicate property ใน routers.ts line 3240
+
+### Database Connection Issues
+- [ ] แก้ไข "Pool is closed" error
+- [ ] ตรวจสอบและแก้ไข database connection lifecycle
+- [ ] เพิ่ม connection retry logic
+
+## ⚠️ ปัญหาที่ยังไม่ได้แก้ไข (Remaining Issues)
+
+### Memory & Process Issues
+- [ ] Zombie Processes (15 processes) - เกิดจาก system process ไม่สามารถแก้ไขได้โดยตรง
+- [ ] Out of Memory Event - ต้องตรวจสอบ memory usage patterns
+- [ ] เพิ่ม memory monitoring และ cleanup mechanisms เพิ่มเติม
+
+### N+1 Query Problems
+- [ ] ตรวจสอบและแก้ไข N+1 queries ทั่วทั้งระบบ
+- [ ] เพิ่ม pagination สำหรับการโหลดข้อมูลทุกหน้า
+- [ ] ใช้ select() แทน .findMany() เพื่อเลือกเฉพาะ columns ที่ต้องการ
+- [ ] เพิ่ม database indexes สำหรับ queries ที่ช้า

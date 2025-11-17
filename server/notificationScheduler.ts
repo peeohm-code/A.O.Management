@@ -203,29 +203,45 @@ export async function scheduleDefectOverdueReminders() {
   }
 }
 
+// Store interval references for cleanup
+let notificationIntervals: NodeJS.Timeout[] = [];
+
 /**
  * เริ่มต้น scheduler (เรียกใช้ทุก 5 นาที)
  */
 export function startNotificationScheduler() {
+  // Clear existing intervals to prevent duplicates
+  stopNotificationScheduler();
 
   // ประมวลผล scheduled notifications ทุก 5 นาที
-  setInterval(async () => {
+  const interval1 = setInterval(async () => {
     await processScheduledNotifications();
   }, 5 * 60 * 1000); // 5 minutes
+  notificationIntervals.push(interval1);
 
   // สร้าง task deadline reminders ทุก 1 ชั่วโมง
-  setInterval(async () => {
+  const interval2 = setInterval(async () => {
     await scheduleTaskDeadlineReminders();
   }, 60 * 60 * 1000); // 1 hour
+  notificationIntervals.push(interval2);
 
   // สร้าง defect overdue reminders ทุก 6 ชั่วโมง
-  setInterval(async () => {
+  const interval3 = setInterval(async () => {
     await scheduleDefectOverdueReminders();
   }, 6 * 60 * 60 * 1000); // 6 hours
+  notificationIntervals.push(interval3);
 
   // รันครั้งแรกทันที
   processScheduledNotifications();
   scheduleTaskDeadlineReminders();
   scheduleDefectOverdueReminders();
+}
+
+/**
+ * Stop notification scheduler and clean up intervals
+ */
+export function stopNotificationScheduler() {
+  notificationIntervals.forEach(interval => clearInterval(interval));
+  notificationIntervals = [];
 
 }

@@ -17,6 +17,17 @@ export async function checkChecklistReminders() {
     return { success: false, message: "Database not available" };
   }
 
+  // Check if tables exist before querying
+  try {
+    await db.execute(sql.raw(`SELECT 1 FROM taskChecklists LIMIT 1`));
+  } catch (tableError: any) {
+    if (tableError.message?.includes("doesn't exist")) {
+      console.warn("[Checklist Reminder] TaskChecklists table doesn't exist yet, skipping check");
+      return { success: true, message: "Tables not ready yet" };
+    }
+    throw tableError;
+  }
+
   try {
     // คำนวณวันที่ 3 วันข้างหน้า
     const threeDaysFromNow = new Date();

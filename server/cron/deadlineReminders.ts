@@ -12,7 +12,7 @@
 import { getDb } from "../db";
 import { tasks, defects, users } from "../../drizzle/schema";
 import { createNotification } from "../notificationService";
-import { and, lte, gte, eq, isNull, or } from "drizzle-orm";
+import { and, lte, gte, eq, isNull, or, sql } from "drizzle-orm";
 
 /**
  * Check for tasks approaching deadline (configurable days before)
@@ -23,6 +23,17 @@ async function checkTasksApproachingDeadline(daysAdvance: number = 3) {
     if (!db) {
       console.error("[DeadlineReminders] Database not available");
       return;
+    }
+
+    // Check if tables exist before querying
+    try {
+      await db.execute(sql.raw(`SELECT 1 FROM tasks LIMIT 1`));
+    } catch (tableError: any) {
+      if (tableError.message?.includes("doesn't exist")) {
+        console.warn("[DeadlineReminders] Tasks table doesn't exist yet, skipping check");
+        return;
+      }
+      throw tableError;
     }
 
     const now = new Date();
@@ -81,6 +92,17 @@ async function checkOverdueTasks() {
     if (!db) {
       console.error("[DeadlineReminders] Database not available");
       return;
+    }
+
+    // Check if tables exist before querying
+    try {
+      await db.execute(sql.raw(`SELECT 1 FROM tasks LIMIT 1`));
+    } catch (tableError: any) {
+      if (tableError.message?.includes("doesn't exist")) {
+        console.warn("[DeadlineReminders] Tasks table doesn't exist yet, skipping check");
+        return;
+      }
+      throw tableError;
     }
 
     const today = new Date();

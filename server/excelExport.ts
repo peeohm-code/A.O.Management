@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export interface ArchiveExportData {
   id: number;
@@ -13,40 +13,48 @@ export interface ArchiveExportData {
   archivedYears: number;
 }
 
-export function generateArchiveExcel(projects: ArchiveExportData[]): Buffer {
+export async function generateArchiveExcel(projects: ArchiveExportData[]): Promise<Buffer> {
   // Create workbook
-  const workbook = XLSX.utils.book_new();
-
-  // Prepare data for main sheet
-  const mainData = projects.map((p) => ({
-    'รหัสโครงการ': p.code || '-',
-    'ชื่อโครงการ': p.name,
-    'สถานที่': p.location || '-',
-    'วันเริ่มต้น': p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '-',
-    'วันสิ้นสุด': p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '-',
-    'สถานะ': p.projectStatus,
-    'วันที่ Archive': p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('th-TH') : '-',
-    'เหตุผล': p.archivedReason || '-',
-    'อายุ (ปี)': p.archivedYears.toFixed(1),
-  }));
+  const workbook = new ExcelJS.Workbook();
 
   // Create main sheet
-  const mainSheet = XLSX.utils.json_to_sheet(mainData);
+  const mainSheet = workbook.addWorksheet('โครงการที่เก็บถาวร');
   
-  // Set column widths
-  mainSheet['!cols'] = [
-    { wch: 15 }, // รหัสโครงการ
-    { wch: 30 }, // ชื่อโครงการ
-    { wch: 20 }, // สถานที่
-    { wch: 15 }, // วันเริ่มต้น
-    { wch: 15 }, // วันสิ้นสุด
-    { wch: 15 }, // สถานะ
-    { wch: 15 }, // วันที่ Archive
-    { wch: 30 }, // เหตุผล
-    { wch: 10 }, // อายุ
+  // Define columns
+  mainSheet.columns = [
+    { header: 'รหัสโครงการ', key: 'code', width: 15 },
+    { header: 'ชื่อโครงการ', key: 'name', width: 30 },
+    { header: 'สถานที่', key: 'location', width: 20 },
+    { header: 'วันเริ่มต้น', key: 'startDate', width: 15 },
+    { header: 'วันสิ้นสุด', key: 'endDate', width: 15 },
+    { header: 'สถานะ', key: 'status', width: 15 },
+    { header: 'วันที่ Archive', key: 'archivedAt', width: 15 },
+    { header: 'เหตุผล', key: 'reason', width: 30 },
+    { header: 'อายุ (ปี)', key: 'years', width: 10 },
   ];
 
-  XLSX.utils.book_append_sheet(workbook, mainSheet, 'โครงการที่เก็บถาวร');
+  // Add rows
+  projects.forEach((p) => {
+    mainSheet.addRow({
+      code: p.code || '-',
+      name: p.name,
+      location: p.location || '-',
+      startDate: p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '-',
+      endDate: p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '-',
+      status: p.projectStatus,
+      archivedAt: p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('th-TH') : '-',
+      reason: p.archivedReason || '-',
+      years: p.archivedYears.toFixed(1),
+    });
+  });
+
+  // Style header row
+  mainSheet.getRow(1).font = { bold: true };
+  mainSheet.getRow(1).fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE0E0E0' },
+  };
 
   // Create summary sheet
   const total = projects.length;
@@ -54,23 +62,27 @@ export function generateArchiveExcel(projects: ArchiveExportData[]): Buffer {
   const readyToDelete = projects.filter(p => p.archivedYears >= 5).length;
   const estimatedStorage = total * 10; // 10MB per project
 
-  const summaryData = [
-    { 'รายการ': 'โครงการทั้งหมด', 'จำนวน': total },
-    { 'รายการ': 'ใกล้ครบ 5 ปี (4.5-5 ปี)', 'จำนวน': approaching5Years },
-    { 'รายการ': 'พร้อมลบ (>5 ปี)', 'จำนวน': readyToDelete },
-    { 'รายการ': 'Storage ประมาณการ (MB)', 'จำนวน': estimatedStorage },
-    { 'รายการ': 'Storage ประหยัดได้ (MB)', 'จำนวน': readyToDelete * 10 },
+  const summarySheet = workbook.addWorksheet('สรุป');
+  summarySheet.columns = [
+    { header: 'รายการ', key: 'item', width: 30 },
+    { header: 'จำนวน', key: 'count', width: 15 },
   ];
 
-  const summarySheet = XLSX.utils.json_to_sheet(summaryData);
-  summarySheet['!cols'] = [
-    { wch: 30 },
-    { wch: 15 },
-  ];
+  summarySheet.addRow({ item: 'โครงการทั้งหมด', count: total });
+  summarySheet.addRow({ item: 'ใกล้ครบ 5 ปี (4.5-5 ปี)', count: approaching5Years });
+  summarySheet.addRow({ item: 'พร้อมลบ (>5 ปี)', count: readyToDelete });
+  summarySheet.addRow({ item: 'Storage ประมาณการ (MB)', count: estimatedStorage });
+  summarySheet.addRow({ item: 'Storage ประหยัดได้ (MB)', count: readyToDelete * 10 });
 
-  XLSX.utils.book_append_sheet(workbook, summarySheet, 'สรุป');
+  // Style header row
+  summarySheet.getRow(1).font = { bold: true };
+  summarySheet.getRow(1).fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE0E0E0' },
+  };
 
   // Write to buffer
-  const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-  return Buffer.from(excelBuffer);
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }

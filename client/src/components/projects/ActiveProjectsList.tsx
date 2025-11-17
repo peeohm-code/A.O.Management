@@ -31,7 +31,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export function ActiveProjectsList() {
   const { canCreate } = usePermissions('projects');
@@ -426,23 +426,60 @@ export function ActiveProjectsList() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    const data = filteredProjects.map(p => ({
-                      'รหัสโครงการ': p.code || '',
-                      'ชื่อโครงการ': p.name || '',
-                      'สถานที่': p.location || '',
-                      'วันที่เริ่ม': p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '',
-                      'วันที่สิ้นสุด': p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '',
-                      'ความคืบหน้า (%)': p.progressPercentage || 0,
-                      'จำนวนงาน': p.taskCount || 0,
-                      'งานเสร็จ': p.completedTasks || 0,
-                      'สถานะ': getProjectStatusLabel(p.projectStatus),
-                    }));
-                    const ws = XLSX.utils.json_to_sheet(data);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, 'Projects');
-                    XLSX.writeFile(wb, 'projects.xlsx');
-                    toast.success('ส่งออกไฟล์ Excel สำเร็จ');
+                  onClick={async () => {
+                    try {
+                      const workbook = new ExcelJS.Workbook();
+                      const worksheet = workbook.addWorksheet('Projects');
+
+                      // Define columns
+                      worksheet.columns = [
+                        { header: 'รหัสโครงการ', key: 'code', width: 15 },
+                        { header: 'ชื่อโครงการ', key: 'name', width: 30 },
+                        { header: 'สถานที่', key: 'location', width: 20 },
+                        { header: 'วันที่เริ่ม', key: 'startDate', width: 15 },
+                        { header: 'วันที่สิ้นสุด', key: 'endDate', width: 15 },
+                        { header: 'ความคืบหน้า (%)', key: 'progress', width: 15 },
+                        { header: 'จำนวนงาน', key: 'taskCount', width: 12 },
+                        { header: 'งานเสร็จ', key: 'completedTasks', width: 12 },
+                        { header: 'สถานะ', key: 'status', width: 15 },
+                      ];
+
+                      // Add rows
+                      filteredProjects.forEach(p => {
+                        worksheet.addRow({
+                          code: p.code || '',
+                          name: p.name || '',
+                          location: p.location || '',
+                          startDate: p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '',
+                          endDate: p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '',
+                          progress: p.progressPercentage || 0,
+                          taskCount: p.taskCount || 0,
+                          completedTasks: p.completedTasks || 0,
+                          status: getProjectStatusLabel(p.projectStatus),
+                        });
+                      });
+
+                      // Style header row
+                      worksheet.getRow(1).font = { bold: true };
+                      worksheet.getRow(1).fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFE0E0E0' },
+                      };
+
+                      // Write to file
+                      const buffer = await workbook.xlsx.writeBuffer();
+                      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = 'projects.xlsx';
+                      link.click();
+                      window.URL.revokeObjectURL(url);
+                      toast.success('ส่งออกไฟล์ Excel สำเร็จ');
+                    } catch (error) {
+                      toast.error('เกิดข้อผิดพลาดในการส่งออกไฟล์');
+                    }
                   }}
                   className="whitespace-nowrap"
                 >
