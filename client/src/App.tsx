@@ -30,7 +30,6 @@ const Reports = lazy(() => import("./pages/Reports"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const NewProject = lazy(() => import("./pages/NewProject"));
 const NewTask = lazy(() => import("./pages/NewTask"));
-const ChecklistTemplates = lazy(() => import("./pages/ChecklistTemplates"));
 const Templates = lazy(() => import("./pages/Templates"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
@@ -166,13 +165,6 @@ function Router() {
             >
               <QCInspection />
             </PageErrorBoundary>
-          </DashboardLayout>
-        )}
-      </Route>
-      <Route path={"/checklist-templates"}>
-        {() => (
-          <DashboardLayout>
-            <ChecklistTemplates />
           </DashboardLayout>
         )}
       </Route>
