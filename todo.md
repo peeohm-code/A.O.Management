@@ -1019,3 +1019,7 @@
 - [x] ลบ route /checklist-templates ที่ซ้ำซ้อน
 - [x] ลบไฟล์ ChecklistTemplates.tsx
 - [x] ทดสอบการทำงานของหน้า Templates - ทำงานปกติ
+
+## 🐛 New Bug Report
+
+- [x] แก้ไข 404 error สำหรับ route /templates/new?from_webdev=1

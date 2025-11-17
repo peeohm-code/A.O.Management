@@ -31,6 +31,7 @@ const Analytics = lazy(() => import("./pages/Analytics"));
 const NewProject = lazy(() => import("./pages/NewProject"));
 const NewTask = lazy(() => import("./pages/NewTask"));
 const Templates = lazy(() => import("./pages/Templates"));
+const NewTemplate = lazy(() => import("./pages/NewTemplate"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const TeamManagement = lazy(() => import("./pages/TeamManagement"));
@@ -165,6 +166,13 @@ function Router() {
             >
               <QCInspection />
             </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/templates/new"}>
+        {() => (
+          <DashboardLayout>
+            <NewTemplate />
           </DashboardLayout>
         )}
       </Route>
