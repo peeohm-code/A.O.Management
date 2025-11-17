@@ -9,9 +9,8 @@ import viteConfig from "../../vite.config";
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
-    hmr: false,
+    hmr: { server },
     allowedHosts: true as const,
-    watch: null,
   };
 
   const vite = await createViteServer({
