@@ -828,3 +828,98 @@ export const notificationSettings = mysqlTable("notificationSettings", {
 
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
 export type InsertNotificationSetting = typeof notificationSettings.$inferInsert;
+
+/**
+ * Permissions - defines granular permissions for each module
+ */
+export const permissions = mysqlTable("permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  module: mysqlEnum("module", [
+    "projects",
+    "tasks", 
+    "inspections",
+    "defects",
+    "reports",
+    "users",
+    "settings",
+    "dashboard"
+  ]).notNull(),
+  action: mysqlEnum("action", ["view", "create", "edit", "delete"]).notNull(),
+  name: varchar("name", { length: 255 }).notNull(), // e.g., "View Projects", "Create Tasks"
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  moduleActionIdx: index("moduleActionIdx").on(table.module, table.action),
+}));
+
+export type Permission = typeof permissions.$inferSelect;
+export type InsertPermission = typeof permissions.$inferInsert;
+
+/**
+ * User Permissions - assigns specific permissions to users
+ */
+export const userPermissions = mysqlTable("userPermissions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  permissionId: int("permissionId").notNull(),
+  granted: boolean("granted").default(true).notNull(), // true = granted, false = explicitly denied
+  grantedBy: int("grantedBy").notNull(),
+  grantedAt: timestamp("grantedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userPermissionIdx: index("userPermissionIdx").on(table.userId, table.permissionId),
+  userIdx: index("userIdx").on(table.userId),
+}));
+
+export type UserPermission = typeof userPermissions.$inferSelect;
+export type InsertUserPermission = typeof userPermissions.$inferInsert;
+
+/**
+ * User Activity Logs - tracks detailed user activities for audit trail
+ */
+export const userActivityLogs = mysqlTable("userActivityLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "login", "logout", "create_project", "update_task"
+  module: varchar("module", { length: 50 }), // e.g., "projects", "tasks", "users"
+  entityType: varchar("entityType", { length: 50 }), // e.g., "project", "task", "user"
+  entityId: int("entityId"), // ID of the affected entity
+  details: text("details"), // JSON object with additional details
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("userIdx").on(table.userId),
+  actionIdx: index("actionIdx").on(table.action),
+  moduleIdx: index("moduleIdx").on(table.module),
+  entityIdx: index("entityIdx").on(table.entityType, table.entityId),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
+}));
+
+export type UserActivityLog = typeof userActivityLogs.$inferSelect;
+export type InsertUserActivityLog = typeof userActivityLogs.$inferInsert;
+
+/**
+ * Bulk Import Logs - tracks bulk user import operations
+ */
+export const bulkImportLogs = mysqlTable("bulkImportLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  importedBy: int("importedBy").notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileUrl: text("fileUrl"), // S3 URL of the uploaded file
+  totalRows: int("totalRows").notNull(),
+  successCount: int("successCount").default(0).notNull(),
+  failureCount: int("failureCount").default(0).notNull(),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  errorDetails: text("errorDetails"), // JSON array of errors
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+}, (table) => ({
+  importedByIdx: index("importedByIdx").on(table.importedBy),
+  statusIdx: index("statusIdx").on(table.status),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
+}));
+
+export type BulkImportLog = typeof bulkImportLogs.$inferSelect;
+export type InsertBulkImportLog = typeof bulkImportLogs.$inferInsert;

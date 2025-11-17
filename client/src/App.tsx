@@ -46,6 +46,9 @@ const AlertSettings = lazy(() => import("./pages/AlertSettings"));
 const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
 const SystemOverview = lazy(() => import("./pages/SystemOverview"));
 const GanttChartPage = lazy(() => import("./pages/GanttChartPage"));
+const BulkUserImport = lazy(() => import("./pages/BulkUserImport"));
+const PermissionsManagement = lazy(() => import("./pages/PermissionsManagement"));
+const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 
 // Loading component
 const PageLoader = () => (
@@ -255,6 +258,27 @@ function Router() {
         {() => (
           <DashboardLayout>
             <UserManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/bulk-user-import">
+        {() => (
+          <DashboardLayout>
+            <BulkUserImport />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/permissions-management">
+        {() => (
+          <DashboardLayout>
+            <PermissionsManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/user-activity-log">
+        {() => (
+          <DashboardLayout>
+            <UserActivityLog />
           </DashboardLayout>
         )}
       </Route>

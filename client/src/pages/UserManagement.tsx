@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, UserCog, Shield } from "lucide-react";
+import { Loader2, Search, UserCog, Shield, Upload, Key, Activity } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -155,9 +155,23 @@ export default function UserManagement() {
           </h1>
           <p className="text-gray-600 mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          + สร้างผู้ใช้ใหม่
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.location.href = '/bulk-user-import'} className="gap-2">
+            <Upload className="h-4 w-4" />
+            นำเข้าจำนวนมาก
+          </Button>
+          <Button variant="outline" onClick={() => window.location.href = '/permissions-management'} className="gap-2">
+            <Key className="h-4 w-4" />
+            จัดการสิทธิ์
+          </Button>
+          <Button variant="outline" onClick={() => window.location.href = '/user-activity-log'} className="gap-2">
+            <Activity className="h-4 w-4" />
+            ประวัติการใช้งาน
+          </Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            + สร้างผู้ใช้ใหม่
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

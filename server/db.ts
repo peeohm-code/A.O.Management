@@ -4997,3 +4997,301 @@ export async function getProjectProgressForDashboard() {
     return [];
   }
 }
+
+// ============================================
+// Permissions Management
+// ============================================
+
+export async function getAllPermissions() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { permissions } = await import("../drizzle/schema");
+  return await db.select().from(permissions);
+}
+
+export async function getUserPermissions(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { userPermissions, permissions } = await import("../drizzle/schema");
+  return await db
+    .select({
+      id: userPermissions.id,
+      permissionId: userPermissions.permissionId,
+      granted: userPermissions.granted,
+      grantedBy: userPermissions.grantedBy,
+      grantedAt: userPermissions.grantedAt,
+      module: permissions.module,
+      action: permissions.action,
+      name: permissions.name,
+      description: permissions.description,
+    })
+    .from(userPermissions)
+    .leftJoin(permissions, eq(userPermissions.permissionId, permissions.id))
+    .where(eq(userPermissions.userId, userId));
+}
+
+export async function setUserPermission(data: {
+  userId: number;
+  permissionId: number;
+  granted: boolean;
+  grantedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { userPermissions } = await import("../drizzle/schema");
+  
+  // Check if permission already exists
+  const existing = await db
+    .select()
+    .from(userPermissions)
+    .where(
+      and(
+        eq(userPermissions.userId, data.userId),
+        eq(userPermissions.permissionId, data.permissionId)
+      )
+    )
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update existing permission
+    await db
+      .update(userPermissions)
+      .set({
+        granted: data.granted,
+        grantedBy: data.grantedBy,
+        grantedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(userPermissions.id, existing[0].id));
+  } else {
+    // Insert new permission
+    await db.insert(userPermissions).values({
+      userId: data.userId,
+      permissionId: data.permissionId,
+      granted: data.granted,
+      grantedBy: data.grantedBy,
+      grantedAt: new Date(),
+    });
+  }
+}
+
+export async function bulkSetUserPermissions(data: {
+  userId: number;
+  permissions: Array<{ permissionId: number; granted: boolean }>;
+  grantedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { userPermissions } = await import("../drizzle/schema");
+  
+  // Delete all existing permissions for this user
+  await db.delete(userPermissions).where(eq(userPermissions.userId, data.userId));
+  
+  // Insert new permissions
+  if (data.permissions.length > 0) {
+    await db.insert(userPermissions).values(
+      data.permissions.map(p => ({
+        userId: data.userId,
+        permissionId: p.permissionId,
+        granted: p.granted,
+        grantedBy: data.grantedBy,
+        grantedAt: new Date(),
+      }))
+    );
+  }
+}
+
+// ============================================
+// User Activity Logs
+// ============================================
+
+export async function logUserActivity(data: {
+  userId: number;
+  action: string;
+  module?: string;
+  entityType?: string;
+  entityId?: number;
+  details?: any;
+  ipAddress?: string;
+  userAgent?: string;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const { userActivityLogs } = await import("../drizzle/schema");
+  
+  try {
+    await db.insert(userActivityLogs).values({
+      userId: data.userId,
+      action: data.action,
+      module: data.module,
+      entityType: data.entityType,
+      entityId: data.entityId,
+      details: data.details ? JSON.stringify(data.details) : null,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+    });
+  } catch (error) {
+    console.error("[Database] Failed to log user activity:", error);
+  }
+}
+
+export async function getUserActivityLogs(userId: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { userActivityLogs } = await import("../drizzle/schema");
+  return await db
+    .select()
+    .from(userActivityLogs)
+    .where(eq(userActivityLogs.userId, userId))
+    .orderBy(desc(userActivityLogs.createdAt))
+    .limit(limit);
+}
+
+export async function getAllActivityLogs(filters?: {
+  userId?: number;
+  action?: string;
+  module?: string;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { userActivityLogs } = await import("../drizzle/schema");
+  
+  let query = db.select().from(userActivityLogs);
+  
+  const conditions = [];
+  if (filters?.userId) {
+    conditions.push(eq(userActivityLogs.userId, filters.userId));
+  }
+  if (filters?.action) {
+    conditions.push(eq(userActivityLogs.action, filters.action));
+  }
+  if (filters?.module) {
+    conditions.push(eq(userActivityLogs.module, filters.module));
+  }
+  if (filters?.startDate) {
+    conditions.push(gte(userActivityLogs.createdAt, filters.startDate));
+  }
+  if (filters?.endDate) {
+    conditions.push(lte(userActivityLogs.createdAt, filters.endDate));
+  }
+  
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+  
+  return await query
+    .orderBy(desc(userActivityLogs.createdAt))
+    .limit(filters?.limit || 100);
+}
+
+// ============================================
+// Bulk User Import
+// ============================================
+
+export async function createBulkImportLog(data: {
+  importedBy: number;
+  fileName: string;
+  fileUrl?: string;
+  totalRows: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { bulkImportLogs } = await import("../drizzle/schema");
+  
+  const result = await db.insert(bulkImportLogs).values({
+    importedBy: data.importedBy,
+    fileName: data.fileName,
+    fileUrl: data.fileUrl,
+    totalRows: data.totalRows,
+    status: "pending",
+  });
+  
+  return result[0].insertId;
+}
+
+export async function updateBulkImportLog(
+  id: number,
+  data: {
+    status?: "pending" | "processing" | "completed" | "failed";
+    successCount?: number;
+    failureCount?: number;
+    errorDetails?: any;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { bulkImportLogs } = await import("../drizzle/schema");
+  
+  const updateData: any = {};
+  if (data.status) updateData.status = data.status;
+  if (data.successCount !== undefined) updateData.successCount = data.successCount;
+  if (data.failureCount !== undefined) updateData.failureCount = data.failureCount;
+  if (data.errorDetails) updateData.errorDetails = JSON.stringify(data.errorDetails);
+  if (data.status === "completed" || data.status === "failed") {
+    updateData.completedAt = new Date();
+  }
+  
+  await db.update(bulkImportLogs).set(updateData).where(eq(bulkImportLogs.id, id));
+}
+
+export async function getBulkImportLogs(limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { bulkImportLogs } = await import("../drizzle/schema");
+  return await db
+    .select()
+    .from(bulkImportLogs)
+    .orderBy(desc(bulkImportLogs.createdAt))
+    .limit(limit);
+}
+
+export async function bulkCreateUsers(usersData: Array<{
+  name: string;
+  email: string;
+  role: "owner" | "admin" | "project_manager" | "qc_inspector" | "worker";
+}>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const results = {
+    success: [] as any[],
+    failed: [] as any[],
+  };
+  
+  for (const userData of usersData) {
+    try {
+      // Generate a unique openId for bulk imported users
+      const openId = `bulk_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      
+      await db.insert(users).values({
+        openId,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        loginMethod: "bulk_import",
+      });
+      
+      results.success.push(userData);
+    } catch (error: any) {
+      results.failed.push({
+        ...userData,
+        error: error.message,
+      });
+    }
+  }
+  
+  return results;
+}

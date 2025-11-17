@@ -47,6 +47,7 @@ import { getHealthStatus, formatBytes } from "./health";
 import { exportRouter } from "./exportRouter";
 import { monitoringRouter } from "./routers/monitoring";
 import { teamRouter } from "./routers/teamRouter";
+import { userManagementRouter } from "./routers/userManagementRouter";
 import { logger } from "./logger";
 
 /**
@@ -2732,6 +2733,9 @@ export const appRouter = router({
 
   // Team Management Router
   team: teamRouter,
+
+  // User Management Enhancement Router
+  userManagement: userManagementRouter,
 
   // Dashboard Statistics Router (merged into dashboardRouter below)
 

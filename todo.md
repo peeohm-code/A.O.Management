@@ -116,3 +116,35 @@
 - [x] เพิ่ม Tooltips สำหรับข้อมูลเทคนิค
 - [x] เพิ่ม Keyboard Shortcuts สำหรับผู้ใช้ขั้นสูง
 - [x] แก้ไขปัญหา route /user-management เกิด 404 error - ตรวจสอบและแก้ไข routing configuration ใน App.tsx
+
+## 🆕 User Management Enhancement (New Features)
+
+### Bulk User Import
+- [x] ออกแบบ database schema สำหรับ bulk import logs
+- [x] สร้าง CSV/Excel parser utility
+- [x] สร้าง tRPC procedure สำหรับ bulk user import
+- [x] สร้าง validation logic สำหรับข้อมูล import
+- [x] สร้าง UI สำหรับ upload CSV/Excel file
+- [x] แสดง preview ข้อมูลก่อน import
+- [x] แสดง import result พร้อม error report
+- [x] ทดสอบ import ผู้ใช้หลายคนพร้อมกัน
+
+### Granular Permissions Management
+- [x] ออกแบบ permission schema (module-based permissions)
+- [x] สร้างตาราง permissions และ user_permissions
+- [x] กำหนด permission types (view/create/edit/delete) สำหรับแต่ละ module
+- [x] สร้าง tRPC procedures สำหรับจัดการ permissions
+- [x] สร้าง middleware ตรวจสอบ permissions
+- [x] สร้าง UI สำหรับกำหนดสิทธิ์แบบละเอียด
+- [x] แสดง permission matrix (users × modules)
+- [x] ทดสอบ permission enforcement ในทุก modules
+
+### User Activity Log
+- [x] ออกแบบ activity log schema
+- [x] สร้างตาราง user_activity_logs
+- [x] สร้าง middleware บันทึก activity อัตโนมัติ
+- [x] สร้าง tRPC procedures สำหรับดึงข้อมูล activity logs
+- [x] สร้าง UI แสดงประวัติการใช้งานของผู้ใช้
+- [x] เพิ่ม filtering และ search ใน activity log
+- [x] แสดง activity timeline พร้อม details
+- [x] ทดสอบการบันทึกและแสดงผล activity logs
