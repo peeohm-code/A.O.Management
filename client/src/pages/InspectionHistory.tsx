@@ -109,44 +109,32 @@ export default function InspectionHistory() {
 
         {/* Summary Statistics */}
         {summary && (
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  การตรวจสอบทั้งหมด
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{summary.total}</div>
+          <div className="grid card-spacing grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="card-border card-shadow hover-lift">
+              <CardContent className="card-padding">
+                <p className="metric-label">การตรวจสอบทั้งหมด</p>
+                <div className="metric-value text-[#00366D]">{summary.total}</div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  ผ่านการตรวจสอบ
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <Card className="card-border card-shadow hover-lift">
+              <CardContent className="card-padding">
+                <p className="metric-label">ผ่านการตรวจสอบ</p>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="metric-value text-green-600">
                     {summary.completedCount}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  ไม่ผ่านการตรวจสอบ
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <Card className="card-border card-shadow hover-lift">
+              <CardContent className="card-padding">
+                <p className="metric-label">ไม่ผ่านการตรวจสอบ</p>
                 <div className="flex items-center gap-2">
                   <XCircle className="h-5 w-5 text-red-600" />
-                  <div className="text-2xl font-bold text-red-600">
+                  <div className="metric-value text-red-600">
                     {summary.failedCount}
                   </div>
                 </div>

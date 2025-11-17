@@ -601,45 +601,45 @@ export default function Defects() {
             {/* Stat Cards */}
             <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="card-border card-shadow hover-lift cursor-pointer"
                 onClick={() => setStatusFilter(statusFilter === 'resolved' ? 'all' : 'resolved')}
               >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
-                  <div className="text-sm text-muted-foreground">รอตรวจสอบ</div>
+                <CardContent className="card-padding">
+                  <div className="metric-value text-yellow-600">{metrics.pendingVerification}</div>
+                  <div className="metric-label">รอตรวจสอบ</div>
                 </CardContent>
               </Card>
               
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="card-border card-shadow hover-lift cursor-pointer"
                 onClick={() => setStatusFilter(statusFilter === 'all' ? 'all' : 'all')}
               >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-orange-600">{metrics.open}</div>
-                  <div className="text-sm text-muted-foreground">เปิดอยู่</div>
+                <CardContent className="card-padding">
+                  <div className="metric-value text-orange-600">{metrics.open}</div>
+                  <div className="metric-label">เปิดอยู่</div>
                 </CardContent>
               </Card>
               
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="card-border card-shadow hover-lift cursor-pointer"
                 onClick={() => setStatusFilter(statusFilter === 'closed' ? 'all' : 'closed')}
               >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-green-600">{metrics.closed}</div>
-                  <div className="text-sm text-muted-foreground">ปิดแล้ว</div>
+                <CardContent className="card-padding">
+                  <div className="metric-value text-green-600">{metrics.closed}</div>
+                  <div className="metric-label">ปิดแล้ว</div>
                 </CardContent>
               </Card>
               
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="card-border card-shadow hover-lift cursor-pointer"
                 onClick={() => {
                   setStatusFilter('all');
                   toast.info('กรองแสดง Defect ที่เกินกำหนด');
                 }}
               >
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-red-600">{metrics.overdue}</div>
-                  <div className="text-sm text-muted-foreground">เกินกำหนด</div>
+                <CardContent className="card-padding">
+                  <div className="metric-value text-red-600">{metrics.overdue}</div>
+                  <div className="metric-label">เกินกำหนด</div>
                 </CardContent>
               </Card>
             </div>

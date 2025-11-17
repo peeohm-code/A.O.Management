@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag } from "lucide-react";
+import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag, ListTodo, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { TaskCardSkeleton } from "@/components/skeletons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/LazyChart";
 import { SearchBar } from "@/components/SearchBar";
@@ -63,7 +63,7 @@ export default function Tasks() {
 
   // Use search query with filters and pagination
   const searchQuery = trpc.task.search.useQuery({
-    searchTerm: searchTerm,
+    query: searchTerm,
     projectId: projectFilter,
     status: displayStatusFilter !== 'all' ? displayStatusFilter : undefined,
     assigneeId: assigneeFilter,
@@ -279,6 +279,65 @@ export default function Tasks() {
         </div>
       </div>
 
+      {/* Quick Stats Cards */}
+      <div className="grid card-spacing grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="metric-label">งานทั้งหมด</p>
+                <p className="metric-value text-[#00366D]">{stats.total}</p>
+              </div>
+              <div className="p-3 bg-[#00366D]/10 rounded-full">
+                <ListTodo className="w-6 h-6 text-[#00366D]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="metric-label">กำลังทำ</p>
+                <p className="metric-value text-[#00CE81]">{stats.in_progress}</p>
+              </div>
+              <div className="p-3 bg-[#00CE81]/10 rounded-full">
+                <Clock className="w-6 h-6 text-[#00CE81]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="metric-label">ล่าช้า</p>
+                <p className="metric-value text-yellow-600">{stats.delayed}</p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <AlertCircle className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="card-border card-shadow hover-lift">
+          <CardContent className="card-padding">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="metric-label">เสร็จสมบูรณ์</p>
+                <p className="metric-value text-green-600">{stats.completed}</p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Bulk Action Toolbar */}
       {selectedTasks.size > 0 && canEdit && (
         <Card className="bg-blue-50 border-blue-200">
@@ -413,16 +472,8 @@ export default function Tasks() {
           )}
           {filteredTasks.length > 0 && projectFilter && (
             <ExportButton
-              onClick={async () => {
-                try {
-                  const project = projects.find((p: any) => p.id === projectFilter);
-                  await exportTasksToExcel(filteredTasks, project?.name || 'Unknown Project');
-                  toast.success('ส่งออกข้อมูลสำเร็จ');
-                } catch (error) {
-                  toast.error('เกิดข้อผิดพลาดในการส่งออกข้อมูล');
-                }
-              }}
-              label="Export Tasks"
+              projectId={projectFilter}
+              type="tasks"
             />
           )}
         </div>
@@ -444,8 +495,8 @@ export default function Tasks() {
               onDelete={canEdit ? () => handleDeleteTask(task.id) : undefined}
               onComplete={() => handleCompleteTask(task.id)}
             >
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+              <Card className="card-border card-shadow hover-lift">
+                <CardContent className="card-padding">
                   <div className="flex items-start gap-4">
                     {canEdit && (
                       <Checkbox

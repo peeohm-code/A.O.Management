@@ -46,11 +46,15 @@ export default function Reports() {
       // Fetch data based on report type
       if (reportType === "overview") {
         // Fetch all data for project summary
-        const [tasks, defects, inspections] = await Promise.all([
+        const [tasksData, defectsData, inspections] = await Promise.all([
           utils.task.list.fetch({ projectId }),
           utils.defect.list.fetch({ taskId: 0 }), // Will filter by project later
           utils.checklist.getAllTaskChecklists.fetch(),
         ]);
+        
+        // Handle paginated responses
+        const tasks = Array.isArray(tasksData) ? tasksData : (tasksData?.items || []);
+        const defects = Array.isArray(defectsData) ? defectsData : (defectsData?.items || []);
         
         exportProjectSummaryToExcel({
           project: selectedProject!,
@@ -61,14 +65,17 @@ export default function Reports() {
           ),
         });
       } else if (reportType === "progress") {
-        const tasks = await utils.task.list.fetch({ projectId });
+        const tasksData = await utils.task.list.fetch({ projectId });
+        const tasks = Array.isArray(tasksData) ? tasksData : (tasksData?.items || []);
         exportTasksToExcel(tasks || [], selectedProject?.name);
       } else if (reportType === "defects") {
-        const defects = await utils.defect.list.fetch({ taskId: 0 });
+        const defectsData = await utils.defect.list.fetch({ taskId: 0 });
+        const defects = Array.isArray(defectsData) ? defectsData : (defectsData?.items || []);
         exportDefectsToExcel(defects || [], selectedProject?.name);
       } else if (reportType === "qc") {
         const inspections = await utils.checklist.getAllTaskChecklists.fetch();
-        const tasks = await utils.task.list.fetch({ projectId });
+        const tasksData = await utils.task.list.fetch({ projectId });
+        const tasks = Array.isArray(tasksData) ? tasksData : (tasksData?.items || []);
         const filteredInspections = (inspections || []).filter((i: any) => 
           tasks?.some((t: any) => t.id === i.taskId)
         );
