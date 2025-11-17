@@ -902,3 +902,47 @@
 - [x] ตรวจสอบ offline sync functionality
 - [x] ตรวจสอบ responsive design
 - [x] Dev server ทำงานปกติ (port 3000)
+
+
+## 🎨 Dashboard Redesign - Phase 3 (งานใหม่ - ตามแนวทาง Design Guide)
+
+### Layout & Structure
+- [x] ปรับ Dashboard เป็น 3-Column Grid Layout
+- [x] สร้าง KPI Summary Bar แสดงด้านบน (Total Tasks, Inspections, Defects, Progress)
+- [x] แยก Task Overview, Inspections Overview, Defects Overview เป็น 3 columns
+- [x] เพิ่ม Activity Feed ด้านล่าง (Optional)
+
+### Visual Hierarchy & Design
+- [x] ปรับ Color Palette ตามแนวทาง Construction Theme
+  - [x] Primary: #2563eb (Blue)
+  - [x] Success: #16a34a (Green)
+  - [x] Warning: #eab308 (Yellow)
+  - [x] Danger: #dc2626 (Red)
+  - [x] Info: #0891b2 (Cyan)
+- [x] เพิ่ม Trend Indicators (↑↓) ใน KPI Cards
+- [x] ปรับ Spacing ตาม 8px Grid System
+- [x] เพิ่ม Typography Hierarchy ที่ชัดเจน
+
+### Charts & Visualizations
+- [x] เพิ่ม Donut Chart สำหรับ Task Overview (status breakdown)
+- [x] เพิ่ม Stacked Bar Chart สำหรับ Inspections Overview (pass/fail/pending)
+- [x] เพิ่ม Pie Chart สำหรับ Defects Overview (severity breakdown)
+- [x] เพิ่ม Hover Effects และ Tooltips บน Charts
+
+### Interactive Elements
+- [x] เพิ่ม Quick Actions Buttons (Add Task, Create Inspection, Report Defect)
+- [x] เพิ่ม View All Buttons ในแต่ละ section
+- [ ] เพิ่ม Click-to-Filter functionality บน chart segments
+- [ ] เพิ่ม Real-time Update Badges
+
+### Responsive Design
+- [x] Desktop (>1024px): 3 columns layout
+- [x] Tablet (768-1024px): responsive grid layout
+- [x] Mobile (<768px): 1 column layout
+- [ ] ทดสอบ touch interactions บน mobile
+
+### Performance & UX
+- [ ] Lazy Loading สำหรับ Charts
+- [x] Loading States
+- [ ] Cache Dashboard Data (5-10 นาที)
+- [ ] Debouncing สำหรับ Real-time Updates
