@@ -39,6 +39,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { ExportButton } from "@/components/ExportButton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionToolbar } from "@/components/BulkActionToolbar";
+import { SimplePagination } from "@/components/ui/simple-pagination";
 
 export default function Defects() {
   const [, setLocation] = useLocation();
@@ -50,6 +51,8 @@ export default function Defects() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [selectedDefects, setSelectedDefects] = useState<Set<number>>(new Set());
   const [showBulkStatusDialog, setShowBulkStatusDialog] = useState(false);
@@ -112,7 +115,10 @@ export default function Defects() {
   // Inline status change state
   const [updatingDefectId, setUpdatingDefectId] = useState<number | null>(null);
 
-  const allDefectsQuery = trpc.defect.allDefects.useQuery();
+  const allDefectsQuery = trpc.defect.allDefects.useQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+  });
   const updateDefectMutation = trpc.defect.update.useMutation();
   const usersQuery = trpc.user.list.useQuery();
 
@@ -153,7 +159,11 @@ export default function Defects() {
     },
   });
 
-  const defects = allDefectsQuery.data || [];
+  // Handle both paginated and non-paginated responses
+  const isPaginatedResponse = allDefectsQuery.data && typeof allDefectsQuery.data === 'object' && 'items' in allDefectsQuery.data;
+  const defects = isPaginatedResponse 
+    ? (allDefectsQuery.data as any).items 
+    : (Array.isArray(allDefectsQuery.data) ? allDefectsQuery.data : []);
 
   // Bulk operation handlers
   const toggleDefectSelection = (defectId: number) => {
@@ -1771,6 +1781,18 @@ export default function Defects() {
           icon={AlertTriangle}
           label="รายงานปัญหา"
           variant="destructive"
+        />
+      )}
+
+      {/* Pagination */}
+      {isPaginatedResponse && (
+        <SimplePagination
+          currentPage={currentPage}
+          totalPages={(allDefectsQuery.data as any).totalPages || 1}
+          onPageChange={setCurrentPage}
+          totalItems={(allDefectsQuery.data as any).total}
+          itemsPerPage={itemsPerPage}
+          showItemCount={true}
         />
       )}
       </div>

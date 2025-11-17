@@ -12,6 +12,7 @@ import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Download, TrendingUp
 import { ProjectListSkeleton } from "@/components/skeletons";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
+import { SimplePagination } from "@/components/ui/simple-pagination";
 import { Link } from "wouter";
 import {
   Dialog,
@@ -38,6 +39,8 @@ export function ActiveProjectsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});
   const [sortBy, setSortBy] = useState<string>("name");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [isOpen, setIsOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -63,7 +66,10 @@ export function ActiveProjectsList() {
   });
 
   const utils = trpc.useUtils();
-  const projectsQuery = trpc.project.list.useQuery();
+  const projectsQuery = trpc.project.list.useQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+  });
   const createProjectMutation = trpc.project.create.useMutation();
   const updateProjectMutation = trpc.project.update.useMutation();
 
@@ -152,7 +158,11 @@ export function ActiveProjectsList() {
     }
   };
 
-  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
+  // Handle both paginated and non-paginated responses
+  const isPaginatedResponse = projectsQuery.data && typeof projectsQuery.data === 'object' && 'items' in projectsQuery.data;
+  const projects = isPaginatedResponse 
+    ? (projectsQuery.data as any).items 
+    : (Array.isArray(projectsQuery.data) ? projectsQuery.data : []);
   
   let filteredProjects = projects.filter((p: any) => {
     const matchesSearch = !searchTerm || 
@@ -182,7 +192,7 @@ export function ActiveProjectsList() {
   });
 
   const stats = {
-    total: projects.length,
+    total: isPaginatedResponse ? (projectsQuery.data as any).total : projects.length,
     on_track: filteredProjects.filter((p: any) => p.projectStatus === 'on_track').length,
     delayed: filteredProjects.filter((p: any) => p.projectStatus === 'delayed').length,
     overdue: filteredProjects.filter((p: any) => p.projectStatus === 'overdue').length,
@@ -744,6 +754,18 @@ export function ActiveProjectsList() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Pagination */}
+      {projectsQuery.data && typeof projectsQuery.data === 'object' && 'items' in projectsQuery.data && (
+        <SimplePagination
+          currentPage={currentPage}
+          totalPages={projectsQuery.data.totalPages || 1}
+          onPageChange={setCurrentPage}
+          totalItems={projectsQuery.data.total}
+          itemsPerPage={itemsPerPage}
+          showItemCount={true}
+        />
+      )}
     </div>
   );
 }

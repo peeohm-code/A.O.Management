@@ -515,7 +515,13 @@ const projectRouter = router({
  */
 const taskRouter = router({
   list: protectedProcedure
-    .input(z.object({ projectId: z.number().optional() }))
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        page: z.number().min(1).optional(),
+        limit: z.number().min(1).max(100).optional(),
+      })
+    )
     .query(async ({ input, ctx }) => {
       let tasks;
       if (input.projectId) {
@@ -526,7 +532,7 @@ const taskRouter = router({
       }
 
       // Add computed display status to each task
-      return tasks.map((task: any) => {
+      const tasksWithStatus = tasks.map((task: any) => {
         const displayStatus = getTaskDisplayStatus(task);
         return {
           ...task,
@@ -535,6 +541,26 @@ const taskRouter = router({
           displayStatusColor: getTaskDisplayStatusColor(displayStatus),
         };
       });
+
+      // If pagination params provided, return paginated response
+      if (input.page && input.limit) {
+        const page = input.page;
+        const limit = input.limit;
+        const offset = (page - 1) * limit;
+        const total = tasksWithStatus.length;
+        const paginatedTasks = tasksWithStatus.slice(offset, offset + limit);
+
+        return {
+          items: paginatedTasks,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        };
+      }
+
+      // Otherwise, return all tasks as array (backward compatible)
+      return tasksWithStatus;
     }),
 
   get: protectedProcedure
@@ -1679,15 +1705,42 @@ const defectRouter = router({
   }),
 
   // Get all defects
-  allDefects: protectedProcedure.query(async () => {
-    try {
-      const defects = await db.getAllDefects();
-      return Array.isArray(defects) ? defects : [];
-    } catch (error) {
-      logger.error("[defectRouter.allDefects] Error:", error as string | undefined);
-      return [];
-    }
-  }),
+  allDefects: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).optional(),
+        limit: z.number().min(1).max(100).optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      try {
+        const defects = await db.getAllDefects();
+        const defectsArray = Array.isArray(defects) ? defects : [];
+
+        // If pagination params provided, return paginated response
+        if (input?.page && input?.limit) {
+          const page = input.page;
+          const limit = input.limit;
+          const offset = (page - 1) * limit;
+          const total = defectsArray.length;
+          const paginatedDefects = defectsArray.slice(offset, offset + limit);
+
+          return {
+            items: paginatedDefects,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          };
+        }
+
+        // Otherwise, return all defects as array (backward compatible)
+        return defectsArray;
+      } catch (error) {
+        logger.error("[defectRouter.allDefects] Error:", error as string | undefined);
+        return [];
+      }
+    }),
 
   // Get single defect by ID
   get: protectedProcedure
