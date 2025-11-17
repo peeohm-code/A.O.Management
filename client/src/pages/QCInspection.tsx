@@ -75,7 +75,8 @@ export default function QCInspection() {
   const utils = trpc.useUtils();
   const { data: checklistsData, refetch: refetchChecklists, isLoading: checklistsLoading } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
-  const { data: projects } = trpc.project.list.useQuery();
+  const { data: projectsData } = trpc.project.list.useQuery();
+  const projects = Array.isArray(projectsData) ? projectsData : [];
   
   const handleRefresh = async () => {
     await Promise.all([

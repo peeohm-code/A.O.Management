@@ -39,7 +39,7 @@ export default function NewTaskDialog({ projectId: initialProjectId }: NewTaskDi
   const [endDate, setEndDate] = useState("");
 
   const projectsQuery = trpc.project.list.useQuery();
-  const projects = projectsQuery.data || [];
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
 
   const utils = trpc.useUtils();
   const createTaskMutation = trpc.task.create.useMutation({

@@ -149,7 +149,7 @@ export default function Tasks() {
   // Use search results if any filter is active, otherwise use myTasks
   const hasActiveFilter = searchTerm || projectFilter || displayStatusFilter !== 'all' || assigneeFilter;
   const tasks = hasActiveFilter ? (searchQuery.data || []) : (myTasksQuery.data || []);
-  const projects = projectsQuery.data || [];
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
   
   // Extract unique assignees from tasks
   const members = Array.from(

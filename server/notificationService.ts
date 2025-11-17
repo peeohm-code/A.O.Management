@@ -103,7 +103,7 @@ export async function createNotification(
       };
       emitNotification(params.userId, socketNotification);
     } catch (error) {
-      logger.error("[NotificationService] Failed to emit socket notification:", error);
+      logger.error("[NotificationService] Failed to emit socket notification:", error as string | undefined);
       // Don't fail the whole operation if socket fails
     }
 
@@ -128,14 +128,14 @@ export async function createNotification(
         }
         */
       } catch (error) {
-        logger.error("[NotificationService] Failed to send email:", error);
+        logger.error("[NotificationService] Failed to send email:", error as string | undefined);
         // Don't fail the whole operation if email fails
       }
     }
 
     return notification;
   } catch (error) {
-    logger.error("[NotificationService] Failed to create notification:", error);
+    logger.error("[NotificationService] Failed to create notification:", error as string | undefined);
     return null;
   }
 }
@@ -179,7 +179,7 @@ export async function notifyTaskFollowers(params: {
     // For now, just notify task assignee
     // TODO: Implement task followers feature
   } catch (error) {
-    logger.error("[NotificationService] Failed to notify task followers:", error);
+    logger.error("[NotificationService] Failed to notify task followers:", error as string | undefined);
   }
 }
 

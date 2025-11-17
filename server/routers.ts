@@ -57,22 +57,61 @@ const projectRouter = router({
     return await db.generateProjectCode();
   }),
 
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const projects = await db.getAllProjects();
-    const projectsWithStats = await Promise.all(
-      projects.map(async (p: any) => {
-        const stats = await db.getProjectStats(p.id);
+  list: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).optional(),
+        limit: z.number().min(1).max(100).optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      const allProjects = await db.getAllProjects();
+      
+      // If pagination params provided, return paginated response
+      if (input?.page && input?.limit) {
+        const page = input.page;
+        const limit = input.limit;
+        const offset = (page - 1) * limit;
+        const total = allProjects.length;
+        const projects = allProjects.slice(offset, offset + limit);
+        
+        const projectsWithStats = await Promise.all(
+          projects.map(async (p: any) => {
+            const stats = await db.getProjectStats(p.id);
+            return {
+              ...p,
+              taskCount: stats?.totalTasks || 0,
+              completedTasks: stats?.completedTasks || 0,
+              progressPercentage: stats?.progressPercentage || 0,
+              projectStatus: stats?.projectStatus || "on_track",
+            };
+          })
+        );
+        
         return {
-          ...p,
-          taskCount: stats?.totalTasks || 0,
-          completedTasks: stats?.completedTasks || 0,
-          progressPercentage: stats?.progressPercentage || 0,
-          projectStatus: stats?.projectStatus || "on_track",
+          items: projectsWithStats,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
         };
-      })
-    );
-    return projectsWithStats;
-  }),
+      }
+      
+      // Otherwise, return all projects as array (backward compatible)
+      const projectsWithStats = await Promise.all(
+        allProjects.map(async (p: any) => {
+          const stats = await db.getProjectStats(p.id);
+          return {
+            ...p,
+            taskCount: stats?.totalTasks || 0,
+            completedTasks: stats?.completedTasks || 0,
+            progressPercentage: stats?.progressPercentage || 0,
+            projectStatus: stats?.projectStatus || "on_track",
+          };
+        })
+      );
+      return projectsWithStats;
+    }),
 
   get: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -252,7 +291,7 @@ const projectRouter = router({
       };
     });
 
-    const excelBuffer = generateArchiveExcel(exportData);
+    const excelBuffer = await generateArchiveExcel(exportData);
     const base64 = excelBuffer.toString("base64");
 
     return {
@@ -586,7 +625,7 @@ const taskRouter = router({
 
         return { success: true, id: taskId };
       } catch (error) {
-        logger.error("[ERROR] Task create failed:", error);
+        logger.error("[ERROR] Task create failed:", error as string | undefined);
         throw error;
       }
     }),
@@ -823,7 +862,7 @@ const taskRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to update task ${taskId}:`, error);
+          logger.error(`Failed to update task ${taskId}:`, error as string | undefined);
         }
       }
 
@@ -866,7 +905,7 @@ const taskRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to assign task ${taskId}:`, error);
+          logger.error(`Failed to assign task ${taskId}:`, error as string | undefined);
         }
       }
 
@@ -1059,7 +1098,7 @@ const checklistRouter = router({
 
         return { success: true };
       } catch (error) {
-        logger.error("[createTemplate] Error:", error);
+        logger.error("[createTemplate] Error:", error as string | undefined);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
@@ -1151,7 +1190,7 @@ const checklistRouter = router({
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        logger.error("[deleteTemplate] Error:", error);
+        logger.error("[deleteTemplate] Error:", error as string | undefined);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
@@ -1645,7 +1684,7 @@ const defectRouter = router({
       const defects = await db.getAllDefects();
       return Array.isArray(defects) ? defects : [];
     } catch (error) {
-      logger.error("[defectRouter.allDefects] Error:", error);
+      logger.error("[defectRouter.allDefects] Error:", error as string | undefined);
       return [];
     }
   }),
@@ -1884,7 +1923,7 @@ const defectRouter = router({
 
         return result;
       } catch (error) {
-        logger.error("[defect.update] Error:", error);
+        logger.error("[defect.update] Error:", error as string | undefined);
         throw error;
       }
     }),
@@ -1969,7 +2008,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByStatus();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      logger.error("[defectRouter.getStatsByStatus] Error:", error);
+      logger.error("[defectRouter.getStatsByStatus] Error:", error as string | undefined);
       return [];
     }
   }),
@@ -1979,7 +2018,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByType();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      logger.error("[defectRouter.getStatsByType] Error:", error);
+      logger.error("[defectRouter.getStatsByType] Error:", error as string | undefined);
       return [];
     }
   }),
@@ -1989,7 +2028,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByPriority();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      logger.error("[defectRouter.getStatsByPriority] Error:", error);
+      logger.error("[defectRouter.getStatsByPriority] Error:", error as string | undefined);
       return [];
     }
   }),
@@ -2008,7 +2047,7 @@ const defectRouter = router({
         }
       );
     } catch (error) {
-      logger.error("[defectRouter.getMetrics] Error:", error);
+      logger.error("[defectRouter.getMetrics] Error:", error as string | undefined);
       return {
         total: 0,
         open: 0,
@@ -2069,7 +2108,7 @@ const defectRouter = router({
 
         return { success: true };
       } catch (error) {
-        logger.error("[requestReinspection] Error:", error);
+        logger.error("[requestReinspection] Error:", error as string | undefined);
         throw error;
       }
     }),
@@ -2177,7 +2216,7 @@ const defectRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to update defect ${defectId}:`, error);
+          logger.error(`Failed to update defect ${defectId}:`, error as string | undefined);
         }
       }
 
@@ -2218,7 +2257,7 @@ const defectRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to assign defect ${defectId}:`, error);
+          logger.error(`Failed to assign defect ${defectId}:`, error as string | undefined);
         }
       }
 
@@ -2248,7 +2287,7 @@ const defectRouter = router({
           await db.deleteDefect(defectId);
           successCount++;
         } catch (error) {
-          logger.error(`Failed to delete defect ${defectId}:`, error);
+          logger.error(`Failed to delete defect ${defectId}:`, error as string | undefined);
         }
       }
 
@@ -2428,7 +2467,7 @@ const notificationRouter = router({
       // Ensure we always return an array
       return Array.isArray(notifications) ? notifications : [];
     } catch (error) {
-      logger.error("[notificationRouter.list] Error:", error);
+      logger.error("[notificationRouter.list] Error:", error as string | undefined);
       // Return empty array instead of throwing to prevent frontend crashes
       return [];
     }
@@ -2440,7 +2479,7 @@ const notificationRouter = router({
       try {
         return await db.markNotificationAsRead(input.id);
       } catch (error) {
-        logger.error("[notificationRouter.markAsRead] Error:", error);
+        logger.error("[notificationRouter.markAsRead] Error:", error as string | undefined);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to mark notification as read",
@@ -2452,7 +2491,7 @@ const notificationRouter = router({
     try {
       return await db.markAllNotificationsAsRead(ctx.user!.id);
     } catch (error) {
-      logger.error("[notificationRouter.markAllAsRead] Error:", error);
+      logger.error("[notificationRouter.markAllAsRead] Error:", error as string | undefined);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to mark all notifications as read",
@@ -2514,7 +2553,7 @@ const notificationRouter = router({
 
         return { success: true, notificationId: notification?.id };
       } catch (error) {
-        logger.error("[notificationRouter.createSystemAlert] Error:", error);
+        logger.error("[notificationRouter.createSystemAlert] Error:", error as string | undefined);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create system alert",
@@ -2797,32 +2836,9 @@ export const appRouter = router({
         return await db.getComparativeAnalysis(input.projectIds);
       }),
 
-    // Progress Chart Data
-    progressChart: protectedProcedure
-      .input(z.object({ projectIds: z.array(z.number()).optional() }))
-      .query(async ({ input, ctx }) => {
-        const projectId = input.projectIds && input.projectIds.length > 0 ? input.projectIds[0] : 0;
-        return await db.getProgressChartData(projectId);
-      }),
-
-    // Defect Trends Data
-    defectTrends: protectedProcedure
-      .input(
-        z.object({
-          projectId: z.number().optional(),
-          days: z.enum(["7", "30", "90"]).optional().default("30"),
-        })
-      )
-      .query(async ({ input, ctx }) => {
-        return await db.getDefectTrendsData(input.projectId || 0);
-      }),
-
-    // Timeline Data
-    timelineData: protectedProcedure
-      .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
-        return await db.getTimelineData(input.projectId);
-      }),
+    // Progress Chart Data - removed (function not implemented in db.ts)
+    // Defect Trends Data - removed (function not implemented in db.ts)
+    // Timeline Data - removed (function not implemented in db.ts)
   }),
 
   archiveRules: router({
@@ -3235,35 +3251,6 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         return await db.checkAlertThresholds(ctx.user!.id, input);
       }),
-  }),
-
-  dashboard: router({
-    // Get overall dashboard statistics
-    stats: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getDashboardStats(ctx.user?.id);
-    }),
-
-    // Get recent activities
-    recentActivities: protectedProcedure
-      .input(z.object({ limit: z.number().optional().default(10) }))
-      .query(async ({ input }) => {
-        return await db.getRecentActivitiesForDashboard(input.limit);
-      }),
-
-    // Get task status distribution
-    taskStatusDistribution: protectedProcedure.query(async () => {
-      return await db.getTaskStatusDistribution();
-    }),
-
-    // Get defect severity distribution
-    defectSeverityDistribution: protectedProcedure.query(async () => {
-      return await db.getDefectSeverityDistribution();
-    }),
-
-    // Get project progress data
-    projectProgress: protectedProcedure.query(async () => {
-      return await db.getProjectProgressForDashboard();
-    }),
   }),
 });
 

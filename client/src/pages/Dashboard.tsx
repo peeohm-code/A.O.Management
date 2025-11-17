@@ -48,8 +48,9 @@ export default function Dashboard() {
   );
 
   // Fetch data
-  const { data: projects = [], isLoading: projectsLoading } =
-    trpc.project.list.useQuery();
+  const projectsQuery = trpc.project.list.useQuery();
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
+  const projectsLoading = projectsQuery.isLoading;
   const { data: allTasks = [] } = trpc.task.list.useQuery(
     { projectId: selectedProjectId || 0 },
     { enabled: !!selectedProjectId }

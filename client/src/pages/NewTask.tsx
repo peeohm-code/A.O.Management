@@ -25,7 +25,7 @@ export default function NewTask() {
   const [, setLocation] = useLocation();
 
   const projectsQuery = trpc.project.list.useQuery();
-  const projects = projectsQuery.data || [];
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
 
   const {
     register,

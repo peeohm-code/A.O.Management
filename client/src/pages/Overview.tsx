@@ -32,7 +32,9 @@ export default function Overview() {
   const [timeRange, setTimeRange] = useState<string>("30");
 
   // Fetch all projects
-  const { data: projects = [], isLoading: projectsLoading } = trpc.project.list.useQuery();
+  const projectsQuery = trpc.project.list.useQuery();
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
+  const projectsLoading = projectsQuery.isLoading;
 
   // Fetch all tasks across projects
   const { data: allTasks = [] } = trpc.task.list.useQuery(

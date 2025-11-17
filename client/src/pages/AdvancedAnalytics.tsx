@@ -27,7 +27,8 @@ export default function AdvancedAnalytics() {
   const [selectedDays, setSelectedDays] = useState<number>(30);
 
   // Fetch projects
-  const { data: projects, isLoading: projectsLoading } = trpc.project.list.useQuery();
+  const { data: projectsData } = trpc.project.list.useQuery();
+  const projects = Array.isArray(projectsData) ? projectsData : [];
 
   // Fetch analytics data
   const { data: predictive, isLoading: predictiveLoading } = trpc.analytics.predictive.useQuery(

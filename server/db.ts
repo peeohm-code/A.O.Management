@@ -1284,10 +1284,18 @@ export async function getDefectById(id: number) {
   const result = await db
     .select()
     .from(defects)
+    .innerJoin(tasks, eq(defects.taskId, tasks.id))
     .where(eq(defects.id, id))
     .limit(1);
 
-  return result.length > 0 ? result[0] : undefined;
+  if (result.length === 0) return undefined;
+  
+  // Flatten the result to include projectId at root level
+  const row = result[0];
+  return {
+    ...row.defects,
+    projectId: row.tasks.projectId,
+  };
 }
 
 export async function getDefectsByTask(taskId: number) {
@@ -4892,7 +4900,7 @@ export async function getDashboardStats(userId?: number) {
       completionRate,
     };
   } catch (error) {
-    logger.error('[getDashboardStats] Error:', error);
+    logger.error('[getDashboardStats] Error:', error as string | undefined);
     return null;
   }
 }
@@ -4920,7 +4928,7 @@ export async function getRecentActivitiesForDashboard(limit = 10) {
 
     return activities;
   } catch (error) {
-    logger.error('[getRecentActivitiesForDashboard] Error:', error);
+    logger.error('[getRecentActivitiesForDashboard] Error:', error as string | undefined);
     return [];
   }
 }
@@ -4942,7 +4950,7 @@ export async function getTaskStatusDistribution() {
 
     return distribution;
   } catch (error) {
-    logger.error('[getTaskStatusDistribution] Error:', error);
+    logger.error('[getTaskStatusDistribution] Error:', error as string | undefined);
     return [];
   }
 }
@@ -4970,7 +4978,7 @@ export async function getDefectSeverityDistribution() {
 
     return distribution;
   } catch (error) {
-    logger.error('[getDefectSeverityDistribution] Error:', error);
+    logger.error('[getDefectSeverityDistribution] Error:', error as string | undefined);
     return [];
   }
 }
@@ -4993,7 +5001,7 @@ export async function getProjectProgressForDashboard() {
 
     return projectsData;
   } catch (error) {
-    logger.error('[getProjectProgressForDashboard] Error:', error);
+    logger.error('[getProjectProgressForDashboard] Error:', error as string | undefined);
     return [];
   }
 }

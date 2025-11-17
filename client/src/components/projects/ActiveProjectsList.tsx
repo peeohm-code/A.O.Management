@@ -152,9 +152,9 @@ export function ActiveProjectsList() {
     }
   };
 
-  const projects = projectsQuery.data || [];
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
   
-  let filteredProjects = projects.filter((p) => {
+  let filteredProjects = projects.filter((p: any) => {
     const matchesSearch = !searchTerm || 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.code?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -183,9 +183,9 @@ export function ActiveProjectsList() {
 
   const stats = {
     total: projects.length,
-    on_track: filteredProjects.filter(p => p.projectStatus === 'on_track').length,
-    delayed: filteredProjects.filter(p => p.projectStatus === 'delayed').length,
-    overdue: filteredProjects.filter(p => p.projectStatus === 'overdue').length,
+    on_track: filteredProjects.filter((p: any) => p.projectStatus === 'on_track').length,
+    delayed: filteredProjects.filter((p: any) => p.projectStatus === 'delayed').length,
+    overdue: filteredProjects.filter((p: any) => p.projectStatus === 'overdue').length,
   };
 
   const getProjectStatusLabel = (status: string) => {

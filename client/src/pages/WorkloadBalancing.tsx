@@ -19,7 +19,8 @@ export default function WorkloadBalancing() {
   const { user } = useAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
 
-  const { data: projects } = trpc.project.list.useQuery();
+  const { data: projectsData } = trpc.project.list.useQuery();
+  const projects = Array.isArray(projectsData) ? projectsData : [];
   const { data: workloadStats, isLoading } = trpc.team.getWorkloadStatistics.useQuery({
     projectId: selectedProjectId,
   });
