@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import LoginDemo from "./pages/LoginDemo";
 import DashboardLayout from "./components/DashboardLayout";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 // Lazy load heavy pages
 const Overview = lazy(() => import("./pages/Overview"));
@@ -366,6 +367,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <PWAInstallBanner />
+          <PWAInstallPrompt />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

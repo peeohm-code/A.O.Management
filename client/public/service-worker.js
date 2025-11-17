@@ -8,7 +8,7 @@
  * - Cache management and cleanup
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
@@ -18,7 +18,10 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/favicon.ico',
+  '/favicon.png',
+  '/offline.html',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
 ];
 
 // Install event - cache static assets
@@ -298,4 +301,90 @@ self.addEventListener('message', (event) => {
       cache.addAll(urls);
     });
   }
+  
+  if (event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => caches.delete(cacheName))
+        );
+      })
+    );
+  }
 });
+
+// Push notification handler
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push notification received');
+  
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'แจ้งเตือน', body: event.data.text() };
+    }
+  }
+  
+  const title = data.title || 'Construction Management';
+  const options = {
+    body: data.body || 'คุณมีการแจ้งเตือนใหม่',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-72x72.png',
+    vibrate: [200, 100, 200],
+    data: data,
+    actions: [
+      { action: 'view', title: 'ดูรายละเอียด' },
+      { action: 'close', title: 'ปิด' }
+    ]
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Notification clicked:', event.action);
+  
+  event.notification.close();
+  
+  if (event.action === 'view') {
+    const urlToOpen = event.notification.data?.url || '/';
+    
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+        // Check if there's already a window open
+        for (const client of clientList) {
+          if (client.url === urlToOpen && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // If not, open a new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  }
+});
+
+// Periodic background sync (if supported)
+self.addEventListener('periodicsync', (event) => {
+  console.log('[Service Worker] Periodic sync:', event.tag);
+  
+  if (event.tag === 'sync-data') {
+    event.waitUntil(syncAllData());
+  }
+});
+
+async function syncAllData() {
+  try {
+    console.log('[Service Worker] Syncing all data...');
+    await syncQCInspections();
+    // Add more sync operations here
+  } catch (error) {
+    console.error('[Service Worker] Sync all data failed:', error);
+  }
+}

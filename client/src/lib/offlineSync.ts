@@ -11,6 +11,10 @@ import {
   removeFromQueue,
   updateQueueItem,
   QueueItem,
+  getPhotoQueueItems,
+  removePhotoFromQueue,
+  updatePhotoQueueItem,
+  PhotoQueueItem,
 } from "./offlineQueue";
 
 // สร้าง vanilla tRPC client สำหรับใช้นอก React component
@@ -118,6 +122,10 @@ export class OfflineSyncManager {
       console.log(
         `[OfflineSync] Sync complete: ${synced} synced, ${failed} failed`
       );
+
+      // Sync photos หลังจาก sync data เสร็จ
+      await this.syncPhotos();
+
       this.notifyStatus({
         state: failed > 0 ? "error" : "success",
         progress: items.length,
@@ -192,6 +200,72 @@ export class OfflineSyncManager {
 
   private async syncDefect(data: any) {
     await trpcClient.defect.create.mutate(data);
+  }
+
+  /**
+   * Sync photos ที่รออยู่
+   */
+  async syncPhotos() {
+    if (!navigator.onLine) {
+      console.log('[OfflineSync] Still offline, skipping photo sync');
+      return;
+    }
+
+    try {
+      const photoItems = await getPhotoQueueItems();
+      console.log(`[OfflineSync] Found ${photoItems.length} photos to sync`);
+
+      if (photoItems.length === 0) {
+        return;
+      }
+
+      let synced = 0;
+      let failed = 0;
+
+      for (const item of photoItems) {
+        try {
+          await this.syncPhoto(item);
+          await removePhotoFromQueue(item.id);
+          synced++;
+        } catch (error) {
+          console.error(`[OfflineSync] Failed to sync photo ${item.id}:`, error);
+          failed++;
+
+          await updatePhotoQueueItem(item.id, {
+            retryCount: item.retryCount + 1,
+            lastError: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+
+      console.log(`[OfflineSync] Photo sync complete: ${synced} synced, ${failed} failed`);
+    } catch (error) {
+      console.error('[OfflineSync] Photo sync failed:', error);
+    }
+  }
+
+  private async syncPhoto(item: PhotoQueueItem) {
+    console.log(`[OfflineSync] Syncing photo:`, item.id);
+
+    const formData = new FormData();
+    formData.append('file', item.file);
+
+    if (item.taskId) formData.append('taskId', item.taskId.toString());
+    if (item.defectId) formData.append('defectId', item.defectId.toString());
+    if (item.inspectionId) formData.append('inspectionId', item.inspectionId.toString());
+
+    // Upload photo ผ่าน REST API
+    const response = await fetch('/api/upload/photo', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Photo upload failed: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 }
 
