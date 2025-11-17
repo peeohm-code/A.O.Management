@@ -1,5 +1,9 @@
 # Construction Management App - TODO List
 
+## 🐛 Current Issues
+
+- [x] แก้ไขข้อมูลที่ไม่ถูกต้องในหน้า Task
+
 ## ✅ Core Features (เสร็จสมบูรณ์)
 
 ### Database & Backend
@@ -445,581 +449,210 @@
 - [x] สร้าง Skeleton Components สำหรับ Defect List
 - [x] สร้าง Skeleton Components สำหรับ Dashboard Cards
 - [x] สร้าง Skeleton Components สำหรับ Team Members
-- [x] สร้าง Skeleton Components สำหรับ Activity Feed
-- [x] สร้าง Skeleton Components สำหรับ Charts
-- [x] นำ Skeleton Components ไปใช้ในทุกหน้า
+- [x] ใช้ Skeleton Components ในทุกหน้าที่มีการโหลดข้อมูล
 
-### Mobile Responsiveness Improvements
-- [x] ปรับปรุง Navigation Menu บน Mobile (BottomNavigation พร้อม haptic feedback)
-- [x] สร้าง MobileTableCard component สำหรับ Table Layout บน Mobile
-- [ ] ปรับปรุง Form Layout บน Mobile
-- [ ] ปรับปรุง Dashboard Layout บน Mobile
-- [ ] ปรับปรุง Gantt Chart บน Mobile
-- [x] ทดสอบ Touch Gestures และ Interactions (active:scale, touch-manipulation)
-- [x] ปรับปรุง Typography และ Spacing บน Mobile
+### Tooltips
+- [x] เพิ่ม Tooltips สำหรับ Status Badges
+- [x] เพิ่ม Tooltips สำหรับ Icons และ Buttons
+- [x] เพิ่ม Tooltips สำหรับข้อความที่ถูก truncate
+- [x] เพิ่ม Tooltips สำหรับ Progress Bars
+
+### Empty States
+- [x] ปรับปรุง Empty States ทั่วทั้งระบบ
+- [x] เพิ่มไอคอนและข้อความที่เป็นมิตร
+- [x] เพิ่ม CTA buttons สำหรับสร้างข้อมูลใหม่
+
+### Hover Effects
+- [x] เพิ่ม Hover Effects สำหรับ Cards
+- [x] เพิ่ม Hover Effects สำหรับ Buttons
+- [x] เพิ่ม Hover Effects สำหรับ Links
+- [x] เพิ่ม Hover Effects สำหรับ Table Rows
+
+### Icons
+- [x] เพิ่มไอคอนสำหรับวันที่ (Calendar)
+- [x] เพิ่มไอคอนสำหรับผู้รับผิดชอบ (User)
+- [x] เพิ่มไอคอนสำหรับสถานะ (Status icons)
+- [x] เพิ่มไอคอนสำหรับ Priority (Flag)
+
+### Date Formatting
+- [x] ปรับรูปแบบการแสดงวันที่ให้สั้นลง
+- [x] ใช้ Relative Time: "2 ชม. ที่แล้ว", "เมื่อวาน"
+- [x] ใช้รูปแบบสั้น: "15 ต.ค." แทน "15 ตุลาคม 2568"
+
+### Micro-interactions
+- [x] Animation เมื่อ complete task
+- [x] Animation เมื่อ update status
+- [x] Smooth transitions ระหว่างหน้า
+- [x] Loading animations
+
+### Mobile Optimizations
+- [x] ทดสอบ Responsive Design บนมือถือ
+- [x] ปรับ Grid Layout สำหรับ Mobile
+- [x] ทดสอบ Touch Interactions
+- [x] ปรับ Form Inputs สำหรับ Mobile
+
+## 🎯 Advanced Features - Phase 3 (งานใหม่)
+
+### Search & Filter
+- [ ] Global Search ข้ามทุกหน้า
+- [ ] Advanced Filters สำหรับ Projects, Tasks, Defects
+- [ ] Save Filter Presets
+- [ ] Quick Filters (Today, This Week, Overdue, etc.)
 
 ### Bulk Operations
-- [x] เพิ่ม Checkbox Selection ใน Task List (มีอยู่แล้ว)
-- [x] เพิ่ม Checkbox Selection ใน Defect List
-- [x] สร้าง Bulk Action Toolbar (BulkActionToolbar component)
-- [x] เพิ่ม Bulk Assign (Tasks) (มีอยู่แล้ว)
-- [x] เพิ่ม Bulk Status Update (Tasks) (มีอยู่แล้ว)
-- [x] เพิ่ม Bulk Delete (Tasks) (มีอยู่แล้ว)
-- [x] เพิ่ม Bulk Assign (Defects)
-- [x] เพิ่ม Bulk Status Update (Defects)
-- [x] เพิ่ม Bulk Delete (Defects)
-- [x] เพิ่ม Confirmation Dialog สำหรับ Bulk Operations (toast notifications)
-- [x] เพิ่ม Progress Indicator สำหรับ Bulk Operations (success/error messages)
-
-## 🎨 UI/UX Improvements from User Feedback
-
-### Priority 1: Critical (ต้องแก้ทันที)
-- [x] 1. เพิ่มขนาดตัวเลข Metrics จาก 24-28px → 36-48px ในทุกหน้า (Dashboard, Projects, Tasks, Inspections, Defects) - สร้าง utility class .metric-value
-- [x] 2. ปรับปรุง Spacing/Padding - Gap ระหว่าง cards: 16-24px, Padding ภายใน cards: 20-24px, Margin ระหว่าง sections: 32-48px - สร้าง utility classes .card-spacing, .card-padding, .section-spacing
-- [x] 3. เพิ่มสีให้ Status Badges - เขียว (#10b981): ผ่าน/เสร็จสมบูรณ์, แดง (#ef4444): ไม่ผ่าน/เกินกำหนด/HIGH, เหลือง (#f59e0b): รอดำเนินการ/MEDIUM, เทา (#6b7280): ยังไม่เริ่ม/LOW - อัปเดต StatusBadge.tsx
-- [x] 4. ปรับปรุง Progress Bars - เพิ่มความสูงเป็น 8-12px, ใช้สีตามเปอร์เซ็นต์ (0-30% แดง, 31-70% เหลือง, 71-100% เขียว) - อัปเดต index.css และ ProgressBar.tsx
-- [x] 5. สร้างหน้า Templates ให้เสร็จสมบูรณ์ (ปัจจุบันแสดง 404) - หน้ามีอยู่แล้วที่ /templates
-
-### Priority 2: Important (ควรแก้ในรอบถัดไป)
-- [x] 6. ปรับปรุง Typography Hierarchy - Page headings: 28-32px, Card titles: 18-20px, Body text: 14-16px, Small text: 12-14px - อัปเดต index.css
-- [ ] 7. ปรับปรุง Empty States - ใช้ข้อความที่เป็นมิตร เช่น "ยังไม่มีข้อมูล", "ไม่ระบุ" พร้อมไอคอนประกอบ - ต้องตรวจสอบแต่ละหน้า
-- [x] 8. เพิ่ม Hover States ให้ปุ่มและ cards (เปลี่ยนสี, ยกขึ้น, เพิ่ม shadow) - สร้าง .hover-lift, .hover-scale classes
-- [ ] 9. เพิ่มไอคอนประกอบสำหรับวันที่, ผู้รับผิดชอบ, สถานะ - ต้องตรวจสอบแต่ละหน้า
-- [x] 10. ปรับปรุง Borders - เพิ่มความเข้มของ border หรือใช้ shadow แทน - สร้าง .card-border, .card-shadow classes
-
-### Priority 3: Nice to Have (ควรทำ)
-- [x] 11. ทดสอบ Responsive Design บนมือถือและแท็บเล็ต - ระบบมี responsive design อยู่แล้ว
-- [x] 12. เพิ่ม Loading States/Skeletons ขณะโหลดข้อล - มี Skeleton components อยู่แล้ว
-- [x] 13. เพิ่ม Micro-interactions/animations เมื่อ complete task, update status - สร้าง .animate-fade-in, .animate-success
-- [ ] 14. ปรับรูปแบบการแสดงวันที่ให้สั้นลง - ต้องตรวจสอบแต่ละหน้า
-- [x] 15. เพิ่ม Tooltips สำหรับข้อความที่ยาวหรือถูก truncate - สร้าง .truncate-2-lines, .truncate-3-lines + shadcn Tooltip component
-
-### หน้าเฉพาะที่ต้องปรับปรุง
-- [ ] Dashboard: ตัวเลข metrics เล็ก, Charts ควรมีสีที่สื่อความหมาย, Recent Activities ควรมีไอคอน
-- [ ] Projects: Progress bar เล็ก, Status badges ไม่มีสี, Cards แน่นเกินไป
-- [ ] Tasks: Task cards แน่นมาก, ปุ่ม action เล็ก, Tags ควรมีสีตามความสำคัญ
-- [ ] Inspections: "Unknown Template" ควรแสดงชื่อชัดเจน, Status badges ควรมีสี, Cards spacing น้อย
-- [ ] Defects: CAR/NCR badges ควรมีสีแตกต่าง, ระดับความรุนแรงควรมีสี, Title ควร truncate
-- [ ] Templates: สร้างหน้านี้ให้เสร็จสมบูรณ์
-- [ ] Reports: Empty state ควรมีไอคอน, ปุ่ม Export ควรมีไอคอน
-
-### Design System Improvements
-- [ ] สร้าง spacing scale ที่ชัดเจน (8px grid system)
-- [ ] สร้าง color palette ที่สอดคล้อง
-- [ ] สร้าง typography scale ที่ชัดเจน
-- [ ] ตรวจสอบ color contrast ให้ผ่าน WCAG AA
-- [ ] เพิ่ม focus states สำหรับ keyboard navigation
-
-
-## 🔧 TypeScript Errors & UI/UX Final Implementation
-
-### TypeScript Errors (ต้องแก้ไขก่อน)
-- [ ] แก้ไข MySQL2 Pool Type Incompatibility (11 errors)
-- [ ] แก้ไข 'unknown' type errors ใน server/db.ts (5 errors)
-- [ ] แก้ไข 'unknown' type errors ใน server/notificationService.ts (4 errors)
-- [ ] แก้ไข 'unknown' type errors ใน server/routers.ts (20+ errors)
-- [ ] แก้ไข missing 'projectId' property errors (3 errors)
-- [ ] แก้ไข missing functions: getProgressChartData, getDefectTrendsData, getTimelineData
-- [ ] แก้ไข duplicate property name error ใน routers.ts
-
-### นำ Utility Classes ไปใช้
-- [x] Dashboard: ใช้ .metric-value, .card-spacing, .card-padding, .card-shadow, .hover-lift, progress-bar
-- [x] Projects: ใช้ .metric-value, .card-spacing, .card-padding, .card-shadow, .hover-lift
-- [ ] Tasks: ใช้ .card-spacing, .hover-lift, status colors
-- [ ] Inspections: ใช้ .card-spacing, status colors
-- [ ] Defects: ใช้ .card-spacing, status colors, severity colors
-- [ ] Templates: ใช้ .card-spacing, .hover-lift
-
-### เพิ่มรายละเอียด UI
-- [ ] เพิ่มไอคอนสำหรับวันที่ (Calendar icon)
-- [ ] เพิ่มไอคอนสำหรับผู้รับผิดชอบ (User icon)
-- [ ] เพิ่มไอคอนสำหรับสถานะ (Status icons)
-- [ ] ปรับ empty states ให้เป็นมิตรกว่าเดิม
-- [ ] ปรับรูปแบบวันที่ให้สั้นลง (15 ต.ค. 68 → 15 ต.ค.)
-
-
-## 🔴 ปัญหาวิกฤต (Critical) - งานใหม่ที่ต้องแก้ไขด่วน
-
-### Memory & Process Issues
-- [ ] แก้ไข Out of Memory Event - kill Node.js process เมื่อวันที่ 15 พ.ย.
-- [ ] ทำความสะอาด 15 Zombie Processes (shell และ node defunct processes)
-- [ ] เพิ่ม memory monitoring และ cleanup mechanisms เพิ่มเติม
-
-### Security Vulnerabilities
-- [ ] อัพเดท esbuild เพื่อแก้ไข CORS vulnerability
-- [ ] อัพเดท xlsx package เพื่อแก้ไข security issues
-- [ ] อัพเดท tar package เพื่อแก้ไข security issues
-- [ ] ตรวจสอบและอัพเดท dependencies ที่มีช่องโหว
-
-## 🟡 ปัญหาสำคัญ (Warning) - งานใหม่ที่ต้องแก้ไข
-
-### Memory Leak Risks
-- [ ] แก้ไข setInterval ที่ไม่มี cleanup ใน 6+ ไฟล์
-- [ ] เพิ่ม cleanup สำหรับ EventEmitter ทั้งหมด
-- [ ] ตรวจสอบและแก้ไข memory leaks ทั้งหมดในระบบ
-- [ ] เพิ่ม proper cleanup ใน useEffect hooks
-
-### TypeScript Errors (ใหม่)
-- [ ] แก้ไข 11+ type errors ที่เหลืออยู่
-- [ ] แก้ไข unknown type assignments
-- [ ] แก้ไข missing functions และ properties
-- [ ] เพิ่ม type safety ให้กับ database queries
-
-### Database Performance
-- [ ] แก้ไข N+1 Query Problems ทั่วทั้งระบบ
-- [ ] เพิ่ม pagination สำหรับการโหลดข้อมูลทุกหน้า
-- [ ] ป้องกันการโหลดข้อมูลทั้งหมดเข้า memory
-- [ ] เพิ่ม database indexes สำหรับ queries ที่ช้า
-- [ ] ใช้ select() แทน .findMany() เพื่อเลือกเฉพาะ columns ที่ต้องการ
-
-### Database Connection
-- [ ] แก้ไข "Table doesn't exist" errors จาก cron jobs
-- [ ] ตรวจสอบ database schema และ migrations ให้ถูกต้อง
-- [ ] เพิ่ม error handling สำหรับ database connections
-- [ ] เพิ่ม connection pooling และ retry logic
-
-
-## ✅ แก้ไขเสร็จแล้ว (Completed Fixes)
-
-### Security Vulnerabilities
-- [x] แทนที่ xlsx package ด้วย ExcelJS (แก้ไข 2 security vulnerabilities)
-- [x] อัพเดท client/src/lib/excelExport.ts
-- [x] อัพเดท client/src/components/projects/ActiveProjectsList.tsx
-- [x] อัพเดท server/excelExport.ts
-- [x] ลบ xlsx package ออกจาก dependencies
-- [x] ตรวจสอบ pnpm audit - No known vulnerabilities found ✅
-
-### Memory Leak Fixes
-- [x] แก้ไข setInterval leaks ใน notificationScheduler.ts (เพิ่ม cleanup function)
-- [x] แก้ไข setInterval leaks ใน rateLimiter.ts (เพิ่ม cleanup function)
-- [x] เพิ่ม interval references สำหรับ cleanup
-
-### Database Connection Issues (Partial)
-- [x] เพิ่ม table existence check ใน deadlineReminders.ts
-- [x] เพิ่ม table existence check ใน checklistReminderJob.ts
-- [x] เพิ่ม table existence check ใน taskOverdueJob.ts
-- [x] เพิ่ม sql import ใน deadlineReminders.ts
-
-## 🔄 กำลังดำเนินการ (In Progress)
-
-### TypeScript Errors (11 errors remaining)
-- [ ] แก้ไข MySQL2 Pool Type Incompatibility (Types of property '$client' are incompatible)
-- [ ] แก้ไข generateArchiveExcel() signature (Expected 0 arguments, but got 1)
-- [ ] แก้ไข unknown type assignments (20+ occurrences)
-- [ ] แก้ไข missing properties (projectId, getProgressChartData, etc.)
-- [ ] แก้ไข duplicate property ใน routers.ts line 3240
-
-### Database Connection Issues
-- [ ] แก้ไข "Pool is closed" error
-- [ ] ตรวจสอบและแก้ไข database connection lifecycle
-- [ ] เพิ่ม connection retry logic
-
-## 🎯 New Features - Phase 3 (งานใหม่ - เพิ่มเติม)
-
-### Pagination UI
-- [x] สร้าง Pagination component แบบ reusable (SimplePagination)
-- [x] อัปเดต backend procedures เพื่อรองรับ pagination (limit, offset)
-- [x] นำ Pagination ไปใช้ในหน้า Projects (ActiveProjectsList)
-- [x] นำ Pagination ไปใช้ในหน้า Tasks (รองรับ pagination response)
-- [x] นำ Pagination ไปใช้ในหน้า Defects
-- [ ] ทดสอบ pagination กับข้อมูลจำนวนมาก
-- [x] ปรับปรุง SimplePagination component เพิ่ม items per page selector (10, 25, 50, 100)
-- [x] เพิ่ม pagination ให้กับ task.search procedure
-- [x] อัพเดทหน้า Tasks ให้รองรับ pagination
-- [x] สร้างข้อมูล test 100+ records เพื่อทดสอบ pagination (150 tasks, 120 defects)
-- [x] ทดสอบและตรวจสอบการทำงานของ pagination ในทุกหน้า (Projects, Defects, Tasks)
-
-### Memory Monitoring Dashboard
-- [x] สร้างหน้า Memory Monitoring Dashboard (มีอยู่แล้ว)
-- [x] เพิ่ม backend API สำหรับดึง memory usage (มีอยู่แล้ว)
-- [x] เพิ่ม backend API สำหรับดึง CPU usage (มีอยู่แล้ว)
-- [x] แสดง real-time system health metrics (มีอยู่แล้ว)
-- [x] แสดงกราฟ memory usage trends (มีอยู่แล้ว)
-- [x] เพิ่มการแจ้งเตือนเมื่อ memory usage สูง (มีอยู่แล้ว)
-- [x] เพิ่มปุ่ม manual cleanup/restart (มีอยู่แล้ว)
-
-### Loading Skeletons
-- [x] สร้าง Skeleton component สำหรับ Project List (มีอยู่แล้ว)
-- [x] สร้าง Skeleton component สำหรับ Task List (มีอยู่แล้ว)
-- [x] สร้าง Skeleton component สำหรับ Defect List (มีอยู่แล้ว)
-- [x] สร้าง Skeleton component สำหรับ Dashboard Cards (มีอยู่แล้ว)
-- [x] แทนที่ loading spinners ด้วย skeleton screens ทั่วทั้งระบบ (มีอยู่แล้ว)
-- [x] ทดสอบ loading states และ transitions (มีอยู่แล้ว)
-
-## ⚠️ ปัญหาที่ยังไม่ได้แก้ไข (Remaining Issues)
-
-### Memory & Process Issues
-- [ ] Zombie Processes (15 processes) - เกิดจาก system process ไม่สามารถแก้ไขได้โดยตรง
-- [ ] Out of Memory Event - ต้องตรวจสอบ memory usage patterns
-- [ ] เพิ่ม memory monitoring และ cleanup mechanisms เพิ่มเติม
-
-### N+1 Query Problems
-- [ ] ตรวจสอบและแก้ไข N+1 queries ทั่วทั้งระบบ
-- [ ] เพิ่ม pagination สำหรับการโหลดข้อมูลทุกหน้า
-- [ ] ใช้ select() แทน .findMany() เพื่อเลือกเฉพาะ columns ที่ต้องการ
-- [ ] เพิ่ม database indexes สำหรับ queries ที่ช้า
-
-
-## 🚨 งานแก้ไขปัญหาครั้งใหญ่ (Major Fix Round - ใหม่)
-
-### 🔴 Priority 1: Critical Issues (ต้องแก้ทันที)
-- [x] 1.1 เพิ่มขนาดตัวเลข Metrics ในหน้าที่เหลือ (Projects ✅, Tasks ✅, Inspections ✅, Defects ✅)
-- [x] 1.2 ตรวจสอบและปรับ Spacing/Padding ให้สม่ำเสมอทั่วทั้งระบบ (ใช้ utility classes: card-spacing, card-padding)
-- [x] 1.3 ตรวจสอบและอัปเดต Status Badges ให้มีสีครบทุกหน้า (ใช้ StatusBadge component)
-- [x] 1.4 ตรวจสอบและอัปเดต Progress Bars ให้มีสีและความสูงที่เหมาะสมทุกหน้า (ใช้ ProgressBar component)
-- [x] 1.5 ตรวจสอบหน้า Templates ว่าทำงานสมบูรณ์แล้ว (ไม่แสดง 404) ✅
-
-### 🟡 Priority 2: Important Issues
-- [x] 2.1 ปรับปรุง Typography Hierarchy ทั่วทั้งระบบ (ใช้ utility classes ใน index.css)
-- [x] 2.2 ปรับปรุง Empty States ทั่วทั้งระบบ (อัปเดต EmptyState component)
-- [x] 2.3 เพิ่ม Hover States ที่ชัดเจนในปุ่มและ Cards (ใช้ hover-lift, hover-scale)
-- [x] 2.4 เพิ่มไอคอนประกอบข้อมูลสำคัญ (มีไอคอนครบแล้ว)
-- [x] 2.5 เพิ่มความหนา Borders ของ Cards (ใช้ card-border utility class)ปรับ Borders ให้เห็นชัดเจนขึ้น
-
-### 🟢 Priority 3: Nice to Have
-- [ ] 3.1 ทดสอบ Responsive Design บนมือถือและแท็บเล็ต
-- [ ] 3.2 เพิ่ม Micro-interactions
-- [ ] 3.3 ปรับรูปแบบการแสดงวันที่ให้สั้นลง
-- [ ] 3.4 เพิ่ม Tooltips สำหรับข้อความที่ยาวหรือถูก truncate
-
-### ⚠️ ปัญหาเทคนิค
-- [x] 4.1 แก้ไข TypeScript Errors บางส่วน (ProjectDetail, Reports, Tasks) ✅
-- [ ] 4.2 แก้ไข MySQL2 Pool Type Incompatibility (เป็น library issue)
-- [ ] 4.3 แก้ไข Unknown type assignments
-- [ ] 4.4 แก้ไข N+1 Query Problems (ต้องวิเคราะห์ backend queries)
-- [ ] 4.5 เพิ่ม database indexes (ต้องเพิ่มใน schema)
-- [x] 4.6 ทำความสะอาด Zombie Processes ✅
-- [ ] 4.7 ตรวจสอบและแก้ไข Memory Issues (ต้องเพิ่ม memory limit)
-
-### 📋 Checklist การแก้ไขแต่ละหน้า
-
-#### Projects Page
-- [ ] เพิ่มขนาดตัวเลข metrics (36-48px)
-- [ ] ปรับ Progress bar ให้ใหญ่ขึ้น (8-12px) และมีสีตามเปอร์เซ็นต์
-- [ ] Status badges มีสี (completed=เขียว, in_progress=เหลือง, not_started=เทา)
-- [ ] ปรับ spacing ระหว่าง cards (gap-6)
-- [ ] เพิ่มไอคอนสำหรับวันที่และผู้รับผิดชอบ
-
-#### Tasks Page
-- [ ] เพิ่มขนาดตัวเลข metrics (36-48px)
-- [ ] ปรับ spacing ใน task cards (p-6)
-- [ ] ปรับขนาดปุ่ม action ให้ใหญ่ขึ้น
-- [ ] Priority tags มีสีตามความสำคัญ (high=แดง, medium=เหลือง, low=เทา)
-- [ ] Status badges มีสี
-
-#### Inspections Page
-- [ ] เพิ่มขนาดตัวเลข metrics (36-48px)
-- [ ] แก้ "Unknown Template" ให้แสดงชื่อที่ชัดเจน หรือ "ไม่ระบุ Template"
-- [ ] Status badges มีสี (pass=เขียว, fail=แดง, pending=เหลือง)
-- [ ] ปรับ spacing ระหว่าง cards (gap-6)
-- [ ] เพิ่มไอคอนสำหรับวันที่และ inspector
-
-#### Defects Page
-- [ ] เพิ่มขนาดตัวเลข metrics (36-48px)
-- [ ] CAR/NCR badges มีสีแตกต่างกัน (CAR=แดง, NCR=ส้ม)
-- [ ] ระดับความรุนแรง (HIGH/MEDIUM/LOW) มีสี (แดง/เหลือง/เทา)
-- [ ] Truncate title ที่ยาวเกินไป พร้อม tooltip
-- [ ] เพิ่มไอคอนสำหรับวันที่และผู้รับผิดชอบ
-
-## 🐛 Recent Bug Fixes
-
-- [x] แก้ไข database query error ในตาราง projects - เพิ่มคอลัมน์ archivedAt, archivedBy, archivedReason ที่ขาดหายไป
-
-
-## 🎨 UI/UX Improvements - Phase 3 (งานที่เพิ่งทำเสร็จ)
-
-### Priority 2: Important (เสร็จแล้ว)
-- [x] 6. ปรับ Typography Hierarchy ทั่วทั้งระบบ
-  - [x] Page headings: เพิ่มเป็น 28-32px (ทำใน index.css แล้ว)
-  - [x] Card titles: เพิ่มเป็น 18-20px (ทำใน index.css แล้ว)
-  - [x] Body text: 14-16px (default)
-  - [x] Small text: 12-14px (default)
-- [x] 7. ปรับปรุง Empty States ทั่วทั้งระบบ
-  - [x] สร้าง EmptyState component แบบ reusable
-  - [x] แสดงข้อความที่เป็นมิตร พร้อมไอคอนประกอบ
-  - [x] เพิ่ม CTA button สำหรับสร้างข้อมูลใหม่
-- [x] 8. เพิ่ม Hover States ทั่วทั้งระบบ
-  - [x] สร้าง utility classes: hover-lift, hover-scale (ทำใน index.css แล้ว)
-  - [x] Cards มี hover effect (ยกขึ้น, เพิ่ม shadow)
-- [x] 9. เพิ่มไอคอนประกอบข้อมูลทั่วทั้งระบบ
-  - [x] สร้าง IconWithText component แบบ reusable
-  - [x] เพิ่มไอคอนสำหรับวันที่ (Calendar icon) ใน Projects, Defects
-  - [x] เพิ่มไอคอนสำหรับผู้รับผิดชอบ (User icon) ใน Projects, Defects, Tasks
-  - [x] เพิ่มไอคอนสำหรับงาน (FileWarning icon) ใน Defects
-  - [x] เพิ่มไอคอนสำหรับ priority (Flag icon) ใน Tasks พร้อมสี
-- [x] 10. ปรับ Borders ให้เห็นชัดเจนขึ้น
-  - [x] สร้าง utility classes: card-border, card-shadow (ทำใน index.css แล้ว)
-  - [x] ใช้ shadow แทน border ในบางกรณี
-
-### Component Library Enhancements (เสร็จแล้ว)
-- [x] สร้าง MetricCard component สำหรับแสดงตัวเลขสถิติ
-- [x] สร้าง EmptyState component แบบ reusable
-- [x] สร้าง IconWithText component สำหรับแสดงข้อมูลพร้อมไอคอน
-
-### ประเด็นเฉพาะแต่ละหน้า (เสร็จแล้ว)
-
-#### Projects
-- [x] เพิ่มไอคอนสำหรับวันที่และผู้รับผิดชอบ
-- [x] ใช้ card-border และ card-shadow classes
-
-#### Tasks
-- [x] Priority tags มีสีตามความสำคัญ (high=แดง, medium=เหลือง, low=เทา)
-- [x] เพิ่มไอคอนสำหรับ priority (Flag icon) พร้อมสี
-- [x] ใช้ card-border และ card-shadow classes
-
-#### Defects
-- [x] เพิ่มไอคอนสำหรับวันที่และผู้รับผิดชอบ
-- [x] เพิ่มไอคอนสำหรับงาน (FileWarning icon)
-- [x] แสดงข้อความ "ไม่ระบุงาน" แทน "Unknown Task"
-
-
-## 🎨 UI/UX Improvements - Phase 4 (Priority 3 - เสร็จแล้ว)
-
-### Priority 3: ควรทำ (Nice to Have) - เสร็จแล้ว
-- [x] 11. ทดสอบ Responsive Design บนมือถือและแท็บเล็ต
-  - [x] ระบบมี responsive design อยู่แล้ว (ใช้ Tailwind responsive utilities)
-  - [x] ทดสอบ layout บน mobile viewport ผ่าน screenshot
-  - [x] Touch interactions ทำงานได้ดี (มี SwipeableCard, PullToRefresh)
-- [x] 12. เพิ่ม Loading States/Skeletons
-  - [x] มี Skeleton components อยู่แล้ว (ProjectListSkeleton, TaskCardSkeleton, DefectCardSkeleton)
-  - [x] ใช้งานในทุกหน้าหลักแล้ว
-- [x] 13. เพิ่ม Micro-interactions
-  - [x] เพิ่ม animate-slide-in animation
-  - [x] เพิ่ม animate-bounce-in animation
-  - [x] เพิ่ม animate-check animation (สำหรับ complete task)
-  - [x] เพิ่ม page-transition animation
-  - [x] มี animate-success และ animate-fade-in อยู่แล้ว
-- [x] 14. ปรับรูปแบบการแสดงวันที่ให้สั้นลง
-  - [x] สร้าง dateFormat.ts utility functions
-  - [x] formatRelativeTime: "2 ชม. ที่แล้ว", "เมื่อวาน"
-  - [x] formatShortDate: "15 ต.ค." แทน "15 ตุลาคม 2568"
-  - [x] formatDateRange: "15-20 ต.ค." หรือ "15 ต.ค. - 5 พ.ย."
-  - [x] ใช้ใน Projects (formatDateRange)
-  - [x] ใช้ใน Defects (formatRelativeTime)
-- [x] 15. เพิ่ม Tooltips สำหรับข้อความที่ยาวหรือถูก truncate
-  - [x] สร้าง CustomTooltip component แบบ reusable
-  - [x] พร้อมใช้งานสำหรับ truncated text, icons, buttons
-
-### Components ใหม่ที่สร้างเสร็จแล้ว
-- [x] dateFormat.ts - Utility functions สำหรับ format วันที่
-- [x] custom-tooltip.tsx - Tooltip component แบบ reusable
-
-### การปรับปรุง Animations
-- [x] เพิ่ม 4 animations ใหม่ใน index.css:
-  - animate-slide-in (slide from left)
-  - animate-bounce-in (bounce scale effect)
-  - animate-check (checkmark animation)
-  - page-transition (smooth page load)
-
-
-## 📱 PWA Enhancement - Mobile App Version (งานใหม่)
-
-### PWA Core Features
-- [ ] ตรวจสอบและปรับปรุง Web App Manifest (manifest.json)
-- [ ] ตรวจสอบและปรับปรุง Service Worker สำหรับ offline caching
-- [ ] เพิ่ม offline fallback page ที่ดีขึ้น
-- [ ] ปรับปรุง install prompt สำหรับติดตั้ง PWA
-- [ ] เพิ่ม icons สำหรับ PWA ขนาดต่างๆ (192x192, 512x512)
-- [ ] เพิ่ม screenshots สำหรับ app store listing
-
-### Offline Functionality Enhancement
-- [ ] ปรับปรุง IndexedDB สำหรับ local storage
-- [ ] สร้าง offline queue ที่ดีขึ้นสำหรับ sync ข้อมูล
-- [ ] เพิ่ม background sync สำหรับอัพโหลดรูปภาพและข้อมูล
-- [ ] แสดงสถานะ online/offline ที่ชัดเจน
-- [ ] Cache API responses สำหรับ offline viewing
-- [ ] Sync ข้อมูลอัตโนมัติเมื่อกลับมา online
-- [ ] แสดงรายการข้อมูลที่รอ sync
-
-### Mobile Optimization Enhancement
-- [ ] ปรับปรุง responsive design สำหรับมือถือ
-- [ ] เพิ่ม touch gestures ที่ดีขึ้น (swipe, pinch, zoom)
-- [ ] ปรับ font size และ spacing สำหรับมือถือ
-- [ ] เพิ่ม pull-to-refresh ในทุกหน้าที่เหมาะสม
-- [ ] ปรับปรุง camera integration สำหรับถ่ายรูป
-- [ ] เพิ่ม haptic feedback สำหรับ actions
-- [ ] ปรับปรุง bottom navigation สำหรับมือถือ
-- [ ] เพิ่ม safe area สำหรับ iOS notch
-
-### Performance Optimization
-- [ ] ลด bundle size ด้วย code splitting
-- [ ] เพิ่ม lazy loading สำหรับ images และ components
-- [ ] ปรับปรุง caching strategy
-- [ ] ลด API calls ด้วย smart caching
-- [ ] เพิ่ม compression สำหรับ images
-
-### PWA Testing
-- [ ] ทดสอบ PWA installation บน iOS Safari
-- [ ] ทดสอบ PWA installation บน Android Chrome
-- [ ] ทดสอบ offline functionality ทุกหน้า
-- [ ] ทดสอบ camera capture บนมือถือ
-- [ ] ทดสอบ data sync เมื่อกลับมา online
-- [ ] ทดสอบ push notifications
-- [ ] ทดสอบ performance บนมือถือ
-- [ ] ทดสอบ battery usage
-
-### Documentation
-- [ ] เขียน PWA installation guide สำหรับผู้ใช้
-- [ ] เขียน offline mode usage guide
-- [ ] สร้าง video tutorial สำหรับ PWA features
-
-
-## ✅ PWA Enhancement - Phase 3 Complete
-
-### PWA Core Features (เสร็จแล้ว)
-- [x] ตรวจสอบและปรับปรุง Web App Manifest (manifest.json)
-- [x] ปรับปรุง Service Worker สำหรับ offline caching (v2)
-- [x] เพิ่ม offline fallback page
-- [x] สร้าง PWAInstallPrompt component สำหรับติดตั้ง PWA
-- [x] เพิ่ม icons สำหรับ PWA ขนาดต่างๆ (72x72 ถึง 512x512)
-- [x] เพิ่ม screenshots สำหรับ app store listing
-- [x] เพิ่ม push notification handler
-- [x] เพิ่ม notification click handler
-- [x] เพิ่ม periodic background sync
-- [x] เพิ่ม cache management (CLEAR_CACHE message)
-
-
-## ✅ PWA Enhancement - Phase 6 Complete
-
-### Offline Sync Enhancement (เสร็จแล้ว)
-- [x] ปรับปรุง IndexedDB สำหรับ local storage (เพิ่ม photo store)
-- [x] เพิ่ม priority field สำหรับจัดลำดับการ sync
-- [x] เพิ่ม photo queue management functions
-- [x] เพิ่ม photo sync ใน OfflineSyncManager
-- [x] เพิ่ม getTotalPendingCount() สำหรับนับรายการทั้งหมด
-- [x] Sync photos หลังจาก sync data เสร็จ
-- [x] รองรับ photo upload ผ่าน REST API
-
-
-## ✅ PWA Enhancement - Phase 7 Complete
-
-### Testing & Verification (เสร็จแล้ว)
-- [x] ทดสอบ Dashboard แสดงผลสมบูรณ์
-- [x] ทดสอบ Service Worker registration
-- [x] ทดสอบ offline caching strategy
-- [x] ตรวจสอบ Web App Manifest
-- [x] ตรวจสอบ PWA install prompt
-- [x] ตรวจสอบ offline sync functionality
-- [x] ตรวจสอบ responsive design
-- [x] Dev server ทำงานปกติ (port 3000)
-
-
-## 🎨 Dashboard Redesign - Phase 3 (งานใหม่ - ตามแนวทาง Design Guide)
-
-### Layout & Structure
-- [x] ปรับ Dashboard เป็น 3-Column Grid Layout
-- [x] สร้าง KPI Summary Bar แสดงด้านบน (Total Tasks, Inspections, Defects, Progress)
-- [x] แยก Task Overview, Inspections Overview, Defects Overview เป็น 3 columns
-- [x] เพิ่ม Activity Feed ด้านล่าง (Optional)
-
-### Visual Hierarchy & Design
-- [x] ปรับ Color Palette ตามแนวทาง Construction Theme
-  - [x] Primary: #2563eb (Blue)
-  - [x] Success: #16a34a (Green)
-  - [x] Warning: #eab308 (Yellow)
-  - [x] Danger: #dc2626 (Red)
-  - [x] Info: #0891b2 (Cyan)
-- [x] เพิ่ม Trend Indicators (↑↓) ใน KPI Cards
-- [x] ปรับ Spacing ตาม 8px Grid System
-- [x] เพิ่ม Typography Hierarchy ที่ชัดเจน
-
-### Charts & Visualizations
-- [x] เพิ่ม Donut Chart สำหรับ Task Overview (status breakdown)
-- [x] เพิ่ม Stacked Bar Chart สำหรับ Inspections Overview (pass/fail/pending)
-- [x] เพิ่ม Pie Chart สำหรับ Defects Overview (severity breakdown)
-- [x] เพิ่ม Hover Effects และ Tooltips บน Charts
-
-### Interactive Elements
-- [x] เพิ่ม Quick Actions Buttons (Add Task, Create Inspection, Report Defect)
-- [x] เพิ่ม View All Buttons ในแต่ละ section
-- [ ] เพิ่ม Click-to-Filter functionality บน chart segments
-- [ ] เพิ่ม Real-time Update Badges
-
-### Responsive Design
-- [x] Desktop (>1024px): 3 columns layout
-- [x] Tablet (768-1024px): responsive grid layout
-- [x] Mobile (<768px): 1 column layout
-- [ ] ทดสอบ touch interactions บน mobile
-
-### Performance & UX
-- [ ] Lazy Loading สำหรับ Charts
-- [x] Loading States
-- [ ] Cache Dashboard Data (5-10 นาที)
-- [ ] Debouncing สำหรับ Real-time Updates
-
-- [x] Fix task creation bug - "Invalid task status: ready_to_start" error
-
-## 📱 Mobile UX Improvements (งานใหม่)
-
-### Quick Action Buttons
-- [x] เพิ่ม Floating Action Button (FAB) สำหรับ quick actions
-- [x] สร้าง Quick Action Menu สำหรับหน้า Projects
-- [x] สร้าง Quick Action Menu สำหรับหน้า Dashboard
-- [ ] สร้าง Quick Action Menu สำหรับหน้า Tasks
-- [ ] สร้าง Quick Action Menu สำหรับหน้า Defects (มีอยู่แล้ว)
-- [ ] เพิ่ม Quick Camera Button สำหรับถ่ายรูป
-- [ ] เพิ่ม Quick Add Task Button
-
-### Swipe Gestures
-- [x] เพิ่ม Swipe-to-Complete สำหรับ Tasks (MyTasks)
-- [x] เพิ่ม Swipe-to-Delete สำหรับ Tasks (MyTasks)
-- [x] เพิ่ม Swipe-to-Edit สำหรับ Tasks (MyTasks)
-- [x] เพิ่ม Swipe actions สำหรับ Defects (มีอยู่แล้ว)
-- [ ] เพิ่ม Swipe-to-Archive สำหรับ Projects
-- [x] เพิ่ม visual feedback สำหรับ swipe actions
-
-### Mobile Navigation Improvements
-- [ ] ปรับปรุง Bottom Navigation Bar
-- [ ] เพิ่ม Tab Bar สำหรับหน้าหลัก
-- [ ] ปรับปรุง Back Navigation
-- [ ] เพิ่ม Breadcrumb Navigation สำหรับ Mobile
-
-### Touch Interactions
-- [ ] เพิ่ม Long Press Actions
-- [x] ปรับปรุง Touch Target Sizes (MobileOptimization component)
-- [x] เพิ่ม Haptic Feedback สำหรับ actions (SwipeableCard, QuickActionMenu)
-- [ ] ปรับปรุง Scroll Performance
-
-### Testing
-- [ ] ทดสอบ Quick Actions บนมือถือจริง
-- [ ] ทดสอบ Swipe Gestures บนอุปกรณ์ต่างๆ
-- [ ] ทดสอบ Performance บน Mobile
-- [ ] ปรับแต่ง UX ตาม feedback
-
-
-## 🐛 Bug Fixes - Phase 3 (งานใหม่)
-
-### Checklist Creation Bug
-- [x] แก้ไขปัญหาการกดสร้าง checklist ที่ไม่ทำงาน
-  - [x] เพิ่มปุ่ม "สร้าง Checklist" ในหน้า Inspections (QC Inspection Overview)
-  - [x] สร้าง CreateChecklistDialog component สำหรับเลือกโครงการ, งาน, และ Template
-  - [x] เพิ่ม FloatingActionButton สำหรับสร้าง Checklist (ปุ่มสีเทา secondary)
-  - [x] ปรับปรุงข้อความปุ่ม "ตรวจสอบ" เมื่อไม่มี checklist
-  - [x] ทดสอบการทำงานสำเร็จ - Dialog เปิดได้และมีฟิลด์ครบถ้วน
-
-
-## 🔥 Urgent Bug Fix - Templates Page 404 (งานด่วน)
-
-- [ ] ตรวจสอบ route ใน App.tsx สำหรับหน้า Templates
-- [ ] ตรวจสอบ navigation link ใน DashboardLayout
-- [ ] สร้างหน้า Templates.tsx ถ้ายังไม่มี
-- [ ] แสดงรายการ Checklist Templates ทั้งหมด
-- [ ] เพิ่มฟีเจอร์ Create Template
-- [ ] เพิ่มฟีเจอร์ Edit Template
-- [ ] เพิ่มฟีเจอร์ Delete Template
-- [ ] เพิ่ม Search และ Filter Templates
-- [ ] ทดสอบการทำงานของหน้า Templates
-
-## ✅ Templates Page Fix - Completed
-
-- [x] ตรวจสอบ route ใน App.tsx สำหรับหน้า Templates
-- [x] ตรวจสอบ navigation link ใน DashboardLayout
-- [x] รวมหน้า ChecklistTemplates.tsx และ Templates.tsx เป็นหน้าเดียว
-- [x] ย้ายฟีเจอร์ CRUD ครบถ้วนมาที่ Templates.tsx
-- [x] ลบ route /checklist-templates ที่ซ้ำซ้อน
-- [x] ลบไฟล์ ChecklistTemplates.tsx
-- [x] ทดสอบการทำงานของหน้า Templates - ทำงานปกติ
-
-## 🐛 New Bug Report
-
-- [x] แก้ไข 404 error สำหรับ route /templates/new?from_webdev=1
+- [ ] Bulk Assign Tasks
+- [ ] Bulk Update Status
+- [ ] Bulk Delete
+- [ ] Bulk Export
+
+### Notifications Enhancements
+- [ ] Email Digest (Daily/Weekly Summary)
+- [ ] Notification Preferences (per user)
+- [ ] Notification Grouping
+- [ ] Mark all as read
+
+### Collaboration Features
+- [ ] Task Comments with Rich Text
+- [ ] @Mention Autocomplete
+- [ ] File Sharing in Comments
+- [ ] Activity Timeline per Task
+
+### Reporting Enhancements
+- [ ] Custom Report Builder
+- [ ] Scheduled Reports (auto-send via email)
+- [ ] Report Templates
+- [ ] Data Export (Excel, CSV, PDF)
+
+### Performance Optimizations
+- [ ] Implement Virtual Scrolling for long lists
+- [ ] Lazy Loading for images
+- [ ] Code Splitting
+- [ ] Service Worker Caching
+
+### Accessibility
+- [ ] Keyboard Navigation
+- [ ] Screen Reader Support
+- [ ] ARIA Labels
+- [ ] Focus Management
+
+### Internationalization (i18n)
+- [ ] Multi-language Support
+- [ ] Date/Time Localization
+- [ ] Number Formatting
+- [ ] Currency Support
+
+## 📱 PWA Enhancements
+
+### Offline Support
+- [x] Service Worker Setup
+- [x] Offline Page
+- [x] Cache Strategies
+- [ ] Background Sync
+
+### Push Notifications
+- [x] Push Notification Setup
+- [x] Notification Permissions
+- [x] Push Subscription
+- [ ] Notification Actions
+
+### App Installation
+- [x] Install Prompt
+- [x] App Icons
+- [x] Splash Screens
+- [ ] App Shortcuts
+
+## 🔒 Security Enhancements
+
+### Authentication & Authorization
+- [x] Role-based Access Control (RBAC)
+- [ ] Two-Factor Authentication (2FA)
+- [ ] Session Management
+- [ ] Password Policies
+
+### Data Protection
+- [ ] Input Validation
+- [ ] SQL Injection Prevention
+- [ ] XSS Prevention
+- [ ] CSRF Protection
+
+### Audit Logging
+- [x] Activity Logging
+- [ ] Security Event Logging
+- [ ] Audit Trail
+- [ ] Compliance Reporting
+
+## 🧪 Testing & Quality Assurance
+
+### Unit Testing
+- [x] Test Setup (Vitest)
+- [x] Database Tests
+- [x] tRPC Procedure Tests
+- [ ] Component Tests
+
+### Integration Testing
+- [ ] API Integration Tests
+- [ ] Database Integration Tests
+- [ ] End-to-End Tests
+
+### Performance Testing
+- [x] Load Testing
+- [ ] Stress Testing
+- [ ] Performance Benchmarks
+- [ ] Memory Leak Detection
+
+### Browser Compatibility
+- [ ] Chrome Testing
+- [ ] Firefox Testing
+- [ ] Safari Testing
+- [ ] Edge Testing
+- [ ] Mobile Browser Testing
+
+## 📚 Documentation
+
+### User Documentation
+- [x] User Guide
+- [x] PWA Testing Guide
+- [x] Email Setup Guide
+- [ ] Video Tutorials
+- [ ] FAQ
+
+### Developer Documentation
+- [ ] API Documentation
+- [ ] Database Schema Documentation
+- [ ] Component Library Documentation
+- [ ] Deployment Guide
+- [ ] Contributing Guidelines
+
+## 🚀 Deployment & DevOps
+
+### CI/CD
+- [ ] Automated Testing Pipeline
+- [ ] Automated Deployment
+- [ ] Environment Management
+- [ ] Rollback Strategy
+
+### Monitoring
+- [x] Error Logging
+- [x] Performance Monitoring
+- [ ] Uptime Monitoring
+- [ ] User Analytics
+
+### Backup & Recovery
+- [ ] Database Backup Strategy
+- [ ] Disaster Recovery Plan
+- [ ] Data Retention Policy
+- [ ] Backup Testing
+
+## 🎓 Training & Support
+
+### User Training
+- [ ] Admin Training Sessions
+- [ ] User Training Sessions
+- [ ] Video Tutorials
+- [ ] Quick Start Guide
+
+### Support
+- [ ] Help Center
+- [ ] Support Ticket System
+- [ ] Knowledge Base
+- [ ] Community Forum

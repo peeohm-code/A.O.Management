@@ -26,10 +26,14 @@ import { format } from "date-fns";
 
 interface NewTaskDialogProps {
   projectId?: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export default function NewTaskDialog({ projectId: initialProjectId }: NewTaskDialogProps) {
-  const [open, setOpen] = useState(false);
+export default function NewTaskDialog({ projectId: initialProjectId, open: externalOpen, onOpenChange }: NewTaskDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [name, setName] = useState("");
   const [projectId, setProjectId] = useState<number | undefined>(initialProjectId);
   const [category, setCategory] = useState("preparation");
@@ -49,6 +53,7 @@ export default function NewTaskDialog({ projectId: initialProjectId }: NewTaskDi
         utils.task.list.invalidate({ projectId });
       }
       utils.task.myTasks.invalidate();
+      utils.task.search.invalidate();
       setOpen(false);
       resetForm();
     },

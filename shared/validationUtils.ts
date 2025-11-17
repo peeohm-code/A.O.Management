@@ -62,7 +62,7 @@ export function validateTaskCreateInput(input: {
   }
 
   // Validate optional fields
-  const status = input.status || 'not_started';
+  const status = input.status || 'todo';
   if (!isValidTaskStatus(status)) {
     errors.push({ field: 'status', message: `Invalid task status: ${status}` });
   }
