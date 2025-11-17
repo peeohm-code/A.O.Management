@@ -31,7 +31,9 @@ import {
   Target,
   XCircle,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { QuickActionMenu } from "@/components/QuickActionMenu";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { useState, useMemo } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
@@ -55,6 +57,7 @@ import {
  */
 export default function Dashboard() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
     null
   );
@@ -259,7 +262,17 @@ export default function Dashboard() {
     );
   }
 
+  const utils = trpc.useUtils();
+  const handleRefresh = async () => {
+    await Promise.all([
+      utils.project.list.invalidate(),
+      utils.task.list.invalidate(),
+      utils.defect.list.invalidate(),
+    ]);
+  };
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="h-full flex flex-col gap-6 p-6">
       {/* Header with Project Selector */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -814,6 +827,38 @@ export default function Dashboard() {
           )}
         </>
       )}
+
+      {/* Quick Action Menu for Mobile */}
+      <QuickActionMenu
+        actions={[
+          {
+            icon: <Plus className="h-5 w-5" />,
+            label: "สร้างโครงการ",
+            onClick: () => setLocation("/projects"),
+            color: "bg-blue-500",
+          },
+          {
+            icon: <ClipboardCheck className="h-5 w-5" />,
+            label: "จัดการงาน",
+            onClick: () => setLocation("/tasks"),
+            color: "bg-green-500",
+          },
+          {
+            icon: <FileText className="h-5 w-5" />,
+            label: "ตรวจสอบ QC",
+            onClick: () => setLocation("/inspections"),
+            color: "bg-purple-500",
+          },
+          {
+            icon: <AlertTriangle className="h-5 w-5" />,
+            label: "รายงานข้อบกพร่อง",
+            onClick: () => setLocation("/defects"),
+            color: "bg-red-500",
+          },
+        ]}
+        position="bottom-right"
+      />
     </div>
+    </PullToRefresh>
   );
 }

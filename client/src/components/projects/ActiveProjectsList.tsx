@@ -14,6 +14,8 @@ import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { Link } from "wouter";
+import { QuickActionMenu, QuickAction } from "@/components/QuickActionMenu";
+import { FileText, Archive } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -758,6 +760,75 @@ export function ActiveProjectsList() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Quick Action Menu for Mobile */}
+      {canCreate && (
+        <QuickActionMenu
+          actions={[
+            {
+              icon: <Plus className="h-5 w-5" />,
+              label: "สร้างโครงการใหม่",
+              onClick: () => setIsOpen(true),
+            },
+            {
+              icon: <FileText className="h-5 w-5" />,
+              label: "Export Excel",
+              onClick: async () => {
+                if (filteredProjects.length === 0) {
+                  toast.error("ไม่มีข้อมูลสำหรับ Export");
+                  return;
+                }
+                try {
+                  const workbook = new ExcelJS.Workbook();
+                  const worksheet = workbook.addWorksheet('Projects');
+                  worksheet.columns = [
+                    { header: 'รหัสโครงการ', key: 'code', width: 15 },
+                    { header: 'ชื่อโครงการ', key: 'name', width: 30 },
+                    { header: 'สถานที่', key: 'location', width: 20 },
+                    { header: 'วันที่เริ่ม', key: 'startDate', width: 15 },
+                    { header: 'วันที่สิ้นสุด', key: 'endDate', width: 15 },
+                    { header: 'ความคืบหน้า (%)', key: 'progress', width: 15 },
+                    { header: 'จำนวนงาน', key: 'taskCount', width: 12 },
+                    { header: 'งานเสร็จ', key: 'completedTasks', width: 12 },
+                    { header: 'สถานะ', key: 'status', width: 15 },
+                  ];
+                  filteredProjects.forEach(p => {
+                    worksheet.addRow({
+                      code: p.code || '',
+                      name: p.name || '',
+                      location: p.location || '',
+                      startDate: p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '',
+                      endDate: p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '',
+                      progress: p.progressPercentage || 0,
+                      taskCount: p.taskCount || 0,
+                      completedTasks: p.completedTasks || 0,
+                      status: getProjectStatusLabel(p.projectStatus),
+                    });
+                  });
+                  worksheet.getRow(1).font = { bold: true };
+                  worksheet.getRow(1).fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFE0E0E0' },
+                  };
+                  const buffer = await workbook.xlsx.writeBuffer();
+                  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'projects.xlsx';
+                  link.click();
+                  window.URL.revokeObjectURL(url);
+                  toast.success('ส่งออกไฟล์ Excel สำเร็จ');
+                } catch (error) {
+                  toast.error('เกิดข้อผิดพลาดในการส่งออกไฟล์');
+                }
+              },
+            },
+          ]}
+          position="bottom-right"
+        />
+      )}
 
       {/* Pagination */}
       {projectsQuery.data && typeof projectsQuery.data === 'object' && 'items' in projectsQuery.data && (

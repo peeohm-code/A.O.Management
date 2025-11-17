@@ -948,3 +948,40 @@
 - [ ] Debouncing สำหรับ Real-time Updates
 
 - [x] Fix task creation bug - "Invalid task status: ready_to_start" error
+
+## 📱 Mobile UX Improvements (งานใหม่)
+
+### Quick Action Buttons
+- [x] เพิ่ม Floating Action Button (FAB) สำหรับ quick actions
+- [x] สร้าง Quick Action Menu สำหรับหน้า Projects
+- [x] สร้าง Quick Action Menu สำหรับหน้า Dashboard
+- [ ] สร้าง Quick Action Menu สำหรับหน้า Tasks
+- [ ] สร้าง Quick Action Menu สำหรับหน้า Defects (มีอยู่แล้ว)
+- [ ] เพิ่ม Quick Camera Button สำหรับถ่ายรูป
+- [ ] เพิ่ม Quick Add Task Button
+
+### Swipe Gestures
+- [x] เพิ่ม Swipe-to-Complete สำหรับ Tasks (MyTasks)
+- [x] เพิ่ม Swipe-to-Delete สำหรับ Tasks (MyTasks)
+- [x] เพิ่ม Swipe-to-Edit สำหรับ Tasks (MyTasks)
+- [x] เพิ่ม Swipe actions สำหรับ Defects (มีอยู่แล้ว)
+- [ ] เพิ่ม Swipe-to-Archive สำหรับ Projects
+- [x] เพิ่ม visual feedback สำหรับ swipe actions
+
+### Mobile Navigation Improvements
+- [ ] ปรับปรุง Bottom Navigation Bar
+- [ ] เพิ่ม Tab Bar สำหรับหน้าหลัก
+- [ ] ปรับปรุง Back Navigation
+- [ ] เพิ่ม Breadcrumb Navigation สำหรับ Mobile
+
+### Touch Interactions
+- [ ] เพิ่ม Long Press Actions
+- [x] ปรับปรุง Touch Target Sizes (MobileOptimization component)
+- [x] เพิ่ม Haptic Feedback สำหรับ actions (SwipeableCard, QuickActionMenu)
+- [ ] ปรับปรุง Scroll Performance
+
+### Testing
+- [ ] ทดสอบ Quick Actions บนมือถือจริง
+- [ ] ทดสอบ Swipe Gestures บนอุปกรณ์ต่างๆ
+- [ ] ทดสอบ Performance บน Mobile
+- [ ] ปรับแต่ง UX ตาม feedback
