@@ -579,6 +579,81 @@ const taskRouter = router({
       };
     }),
 
+  search: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        searchTerm: z.string().optional(),
+        status: z.string().optional(),
+        priority: z.enum(["low", "medium", "high"]).optional(),
+        assigneeId: z.number().optional(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      let tasks;
+      if (input.projectId) {
+        tasks = await db.getTasksByProject(input.projectId);
+      } else {
+        // Return all tasks for user if no projectId specified
+        tasks = await db.getTasksByAssignee(ctx.user!.id);
+      }
+
+      // Add computed display status to each task
+      let tasksWithStatus = tasks.map((task: any) => {
+        const displayStatus = getTaskDisplayStatus(task);
+        return {
+          ...task,
+          displayStatus,
+          displayStatusLabel: getTaskDisplayStatusLabel(displayStatus),
+          displayStatusColor: getTaskDisplayStatusColor(displayStatus),
+        };
+      });
+
+      // Apply filters
+      if (input.searchTerm) {
+        const searchLower = input.searchTerm.toLowerCase();
+        tasksWithStatus = tasksWithStatus.filter((task: any) =>
+          task.name?.toLowerCase().includes(searchLower) ||
+          task.description?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      if (input.status) {
+        tasksWithStatus = tasksWithStatus.filter(
+          (task: any) => task.displayStatus === input.status
+        );
+      }
+
+      if (input.priority) {
+        tasksWithStatus = tasksWithStatus.filter(
+          (task: any) => task.priority === input.priority
+        );
+      }
+
+      if (input.assigneeId) {
+        tasksWithStatus = tasksWithStatus.filter(
+          (task: any) => task.assigneeId === input.assigneeId
+        );
+      }
+
+      // Pagination
+      const page = input.page;
+      const limit = input.limit;
+      const offset = (page - 1) * limit;
+      const total = tasksWithStatus.length;
+      const paginatedTasks = tasksWithStatus.slice(offset, offset + limit);
+
+      return {
+        items: paginatedTasks,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }),
+
   myTasks: protectedProcedure.query(async ({ ctx }) => {
     // Get all projects where user is a member
     const userProjects = await db.getProjectsByUser(ctx.user!.id);

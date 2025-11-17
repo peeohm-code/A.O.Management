@@ -623,6 +623,11 @@
 - [x] นำ Pagination ไปใช้ในหน้า Tasks (รองรับ pagination response)
 - [x] นำ Pagination ไปใช้ในหน้า Defects
 - [ ] ทดสอบ pagination กับข้อมูลจำนวนมาก
+- [x] ปรับปรุง SimplePagination component เพิ่ม items per page selector (10, 25, 50, 100)
+- [x] เพิ่ม pagination ให้กับ task.search procedure
+- [x] อัพเดทหน้า Tasks ให้รองรับ pagination
+- [x] สร้างข้อมูล test 100+ records เพื่อทดสอบ pagination (150 tasks, 120 defects)
+- [x] ทดสอบและตรวจสอบการทำงานของ pagination ในทุกหน้า (Projects, Defects, Tasks)
 
 ### Memory Monitoring Dashboard
 - [x] สร้างหน้า Memory Monitoring Dashboard (มีอยู่แล้ว)
