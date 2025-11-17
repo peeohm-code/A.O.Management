@@ -4773,11 +4773,11 @@ export async function getDashboardStats(userId?: number) {
   if (!db) return null;
 
   try {
-    // Get total active projects
+    // Get total projects (not archived)
     const activeProjectsResult = await db
       .select({ count: count() })
       .from(projects)
-      .where(and(eq(projects.status, "active"), isNull(projects.archivedAt)));
+      .where(isNull(projects.archivedAt));
     
     const totalActiveProjects = activeProjectsResult[0]?.count || 0;
 
@@ -4988,7 +4988,7 @@ export async function getProjectProgressForDashboard() {
         status: projects.status,
       })
       .from(projects)
-      .where(and(eq(projects.status, "active"), isNull(projects.archivedAt)))
+      .where(isNull(projects.archivedAt))
       .limit(5);
 
     return projectsData;
