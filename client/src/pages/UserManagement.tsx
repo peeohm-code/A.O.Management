@@ -36,8 +36,7 @@ const roleLabels: Record<string, string> = {
   admin: "ผู้ดูแลระบบ",
   project_manager: "ผู้จัดการโครงการ",
   qc_inspector: "QC Inspector",
-  field_engineer: "วิศวกรสนาม",
-  user: "ผู้ใช้ทั่วไป",
+  worker: "Worker",
 };
 
 const roleColors: Record<string, string> = {
@@ -45,8 +44,7 @@ const roleColors: Record<string, string> = {
   admin: "bg-red-100 text-red-800 border-red-300",
   project_manager: "bg-blue-100 text-blue-800 border-blue-300",
   qc_inspector: "bg-green-100 text-green-800 border-green-300",
-  field_engineer: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  user: "bg-gray-100 text-gray-800 border-gray-300",
+  worker: "bg-gray-100 text-gray-800 border-gray-300",
 };
 
 export default function UserManagement() {
@@ -55,8 +53,15 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [newRole, setNewRole] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: "",
+    email: "",
+    role: "worker" as "admin" | "project_manager" | "qc_inspector" | "worker",
+  });
 
   const usersQuery = trpc.user.list.useQuery();
+  const statsQuery = trpc.user.getStats.useQuery();
   const updateRoleMutation = trpc.user.updateRole.useMutation({
     onSuccess: () => {
       toast.success("อัปเดต Role สำเร็จ");
@@ -64,6 +69,20 @@ export default function UserManagement() {
       setSelectedUser(null);
       setNewRole("");
       usersQuery.refetch();
+      statsQuery.refetch();
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  const createUserMutation = trpc.user.create.useMutation({
+    onSuccess: () => {
+      toast.success("สร้างผู้ใช้สำเร็จ");
+      setIsCreateDialogOpen(false);
+      setCreateForm({ name: "", email: "", role: "worker" });
+      usersQuery.refetch();
+      statsQuery.refetch();
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -89,6 +108,14 @@ export default function UserManagement() {
       userId: selectedUser.id,
       role: newRole as any,
     });
+  };
+
+  const handleCreateUser = () => {
+    if (!createForm.name.trim()) {
+      toast.error("กรุณากรอกชื่อ");
+      return;
+    }
+    createUserMutation.mutate(createForm);
   };
 
   if (!isAdmin) {
@@ -128,30 +155,46 @@ export default function UserManagement() {
           </h1>
           <p className="text-gray-600 mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
         </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          + สร้างผู้ใช้ใหม่
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        {Object.entries(roleLabels).map(([role, label]) => {
-          const count = users.filter((u: any) => u.role === role).length;
-          return (
-            <Card key={role}>
-              <CardHeader className="pb-3">
-                <CardDescription className="text-xs">{label}</CardDescription>
-                <CardTitle className="text-2xl">{count}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div
-                    className={`h-1.5 rounded-full ${roleColors[role].split(' ')[0]}`}
-                    style={{ width: `${users.length > 0 ? (count / users.length) * 100 : 0}%` }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      {statsQuery.data && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs">ผู้ใช้ทั้งหมด</CardDescription>
+              <CardTitle className="text-2xl">{statsQuery.data.total}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs">ผู้ดูแลระบบ</CardDescription>
+              <CardTitle className="text-2xl">{statsQuery.data.byRole.admin + statsQuery.data.byRole.owner}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs">ผู้จัดการโครงการ</CardDescription>
+              <CardTitle className="text-2xl">{statsQuery.data.byRole.project_manager}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs">QC Inspector</CardDescription>
+              <CardTitle className="text-2xl">{statsQuery.data.byRole.qc_inspector}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs">Worker</CardDescription>
+              <CardTitle className="text-2xl">{statsQuery.data.byRole.worker}</CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
@@ -246,8 +289,7 @@ export default function UserManagement() {
                   <SelectItem value="admin">ผู้ดูแลระบบ (Admin)</SelectItem>
                   <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
                   <SelectItem value="qc_inspector">QC Inspector</SelectItem>
-                  <SelectItem value="field_engineer">วิศวกรสนาม</SelectItem>
-                  <SelectItem value="user">ผู้ใช้ทั่วไป</SelectItem>
+                  <SelectItem value="worker">Worker</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -261,6 +303,65 @@ export default function UserManagement() {
               disabled={updateRoleMutation.isPending || newRole === selectedUser?.role}
             >
               {updateRoleMutation.isPending ? "กำลังบันทึก..." : "ยืนยัน"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>สร้างผู้ใช้ใหม่</DialogTitle>
+            <DialogDescription>
+              เพิ่มผู้ใช้ใหม่เข้าสู่ระบบ (สำหรับการทดสอบ)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">ชื่อ *</label>
+              <Input
+                value={createForm.name}
+                onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                placeholder="กรอกชื่อผู้ใช้"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">อีเมล</label>
+              <Input
+                type="email"
+                value={createForm.email}
+                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                placeholder="กรอกอีเมล (ไม่บังคับ)"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Role *</label>
+              <Select
+                value={createForm.role}
+                onValueChange={(value: any) => setCreateForm({ ...createForm, role: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือก Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="worker">Worker</SelectItem>
+                  <SelectItem value="qc_inspector">QC Inspector</SelectItem>
+                  <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
+                  <SelectItem value="admin">ผู้ดูแลระบบ (Admin)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleCreateUser}
+              disabled={createUserMutation.isPending}
+            >
+              {createUserMutation.isPending ? "กำลังสร้าง..." : "สร้างผู้ใช้"}
             </Button>
           </DialogFooter>
         </DialogContent>

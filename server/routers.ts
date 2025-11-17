@@ -2889,6 +2889,69 @@ export const appRouter = router({
       return await db.getAllUsers();
     }),
 
+    create: roleBasedProcedure("users", "create")
+      .input(
+        z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Invalid email format").optional(),
+          role: z.enum(["admin", "project_manager", "qc_inspector", "worker"]),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        // สร้าง mock openId สำหรับการทดสอบ
+        const mockOpenId = `mock_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+        await db.upsertUser({
+          openId: mockOpenId,
+          name: input.name,
+          email: input.email || null,
+          role: input.role,
+          loginMethod: "manual_creation",
+        });
+
+        // ดึงข้อมูลผู้ใช้ที่สร้างใหม่
+        const newUser = await db.getUserByOpenId(mockOpenId);
+        if (!newUser) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create user",
+          });
+        }
+
+        await db.logActivity({
+          userId: ctx.user!.id,
+          action: "create_user",
+          entityType: "user",
+          entityId: newUser.id,
+          details: `Created user: ${input.name} (${input.role})`,
+        });
+
+        return newUser;
+      }),
+
+    getStats: roleBasedProcedure("users", "view").query(async () => {
+      const users = await db.getAllUsers();
+
+      const stats = {
+        total: users.length,
+        byRole: {
+          owner: users.filter((u) => u.role === "owner").length,
+          admin: users.filter((u) => u.role === "admin").length,
+          project_manager: users.filter((u) => u.role === "project_manager").length,
+          qc_inspector: users.filter((u) => u.role === "qc_inspector").length,
+          worker: users.filter((u) => u.role === "worker").length,
+        },
+        recentlyActive: users.filter((u) => {
+          const lastSignIn = new Date(u.lastSignedIn);
+          const daysSinceLastSignIn =
+            (Date.now() - lastSignIn.getTime()) / (1000 * 60 * 60 * 24);
+          return daysSinceLastSignIn <= 7;
+        }).length,
+      };
+
+      return stats;
+    }),
+
     updateRole: roleBasedProcedure("users", "edit")
       .input(
         z.object({

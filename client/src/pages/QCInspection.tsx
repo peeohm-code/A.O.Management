@@ -57,6 +57,12 @@ export default function QCInspection() {
   const [beforePhotos, setBeforePhotos] = useState<string[]>([]);
   const [defectPhotos, setDefectPhotos] = useState<string[]>([]);
   const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
+  const [isCreatingInspection, setIsCreatingInspection] = useState(false);
+  const [newInspectionForm, setNewInspectionForm] = useState({
+    projectId: 0,
+    taskId: 0,
+    templateId: 0,
+  });
 
   
   // Read status from URL parameter
@@ -76,6 +82,8 @@ export default function QCInspection() {
   const { data: checklistsData, refetch: refetchChecklists, isLoading: checklistsLoading } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
   const { data: projects } = trpc.project.list.useQuery();
+  const { data: templates } = trpc.checklist.templates.useQuery();
+  const { data: allTasks } = trpc.task.list.useQuery();
   
   const handleRefresh = async () => {
     await Promise.all([
@@ -173,6 +181,18 @@ export default function QCInspection() {
   });
 
   const createDefectMutation = trpc.defect.create.useMutation();
+
+  const createInspectionMutation = trpc.checklist.assignChecklistToTask.useMutation({
+    onSuccess: () => {
+      toast.success("สร้าง Inspection สำเร็จ");
+      setIsCreatingInspection(false);
+      setNewInspectionForm({ projectId: 0, taskId: 0, templateId: 0 });
+      refetchChecklists();
+    },
+    onError: (error) => {
+      toast.error("เกิดข้อผิดพลาด: " + error.message);
+    },
+  });
   
   const uploadAttachmentMutation = trpc.defect.uploadAttachment.useMutation();
 
@@ -196,6 +216,18 @@ export default function QCInspection() {
       severity: "medium",
     });
     setIsCreatingDefect(true);
+  };
+
+  const handleCreateInspection = () => {
+    if (!newInspectionForm.projectId || !newInspectionForm.taskId || !newInspectionForm.templateId) {
+      toast.error("กรุณาเลือกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    createInspectionMutation.mutate({
+      taskId: newInspectionForm.taskId,
+      templateId: newInspectionForm.templateId,
+    });
   };
 
   const handleSubmitDefect = async () => {
@@ -313,11 +345,17 @@ export default function QCInspection() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">QC Inspection Overview</h1>
-        <p className="text-muted-foreground mt-1">
-          ระบบตรวจสอบคุณภาพงานก่อสร้าง
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">QC Inspection Overview</h1>
+          <p className="text-muted-foreground mt-1">
+            ระบบตรวจสอบคุณภาพงานก่อสร้าง
+          </p>
+        </div>
+        <Button onClick={() => setIsCreatingInspection(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          สร้าง Inspection
+        </Button>
       </div>
 
       {/* Checklist Overview Stats */}
@@ -949,6 +987,134 @@ export default function QCInspection() {
               }`}
             >
               {createDefectMutation.isPending ? 'กำลังสร้าง...' : `สร้าง ${defectForm.type}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Inspection Dialog */}
+      <Dialog open={isCreatingInspection} onOpenChange={setIsCreatingInspection}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>สร้าง Inspection ใหม่</DialogTitle>
+            <DialogDescription>
+              เลือกโครงการ งาน และ Checklist Template เพื่อสร้าง Inspection
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Project Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="project">โครงการ *</Label>
+              <Select
+                value={newInspectionForm.projectId.toString()}
+                onValueChange={(value) => {
+                  setNewInspectionForm({ ...newInspectionForm, projectId: parseInt(value), taskId: 0 });
+                }}
+              >
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="เลือกโครงการ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects?.map((project: any) => (
+                    <SelectItem key={project.id} value={project.id.toString()}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Task Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="task">งาน *</Label>
+              <Select
+                value={newInspectionForm.taskId.toString()}
+                onValueChange={(value) => {
+                  setNewInspectionForm({ ...newInspectionForm, taskId: parseInt(value) });
+                }}
+                disabled={!newInspectionForm.projectId}
+              >
+                <SelectTrigger id="task">
+                  <SelectValue placeholder="เลือกงาน" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allTasks
+                    ?.filter((task: any) => task.projectId === newInspectionForm.projectId)
+                    .map((task: any) => (
+                      <SelectItem key={task.id} value={task.id.toString()}>
+                        {task.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Template Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="template">Checklist Template *</Label>
+              <Select
+                value={newInspectionForm.templateId.toString()}
+                onValueChange={(value) => {
+                  setNewInspectionForm({ ...newInspectionForm, templateId: parseInt(value) });
+                }}
+              >
+                <SelectTrigger id="template">
+                  <SelectValue placeholder="เลือก Template" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates && (
+                    <>
+                      {templates.preExecution?.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                            Pre-Execution
+                          </div>
+                          {templates.preExecution.map((template: any) => (
+                            <SelectItem key={template.id} value={template.id.toString()}>
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                      {templates.inProgress?.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                            In-Progress
+                          </div>
+                          {templates.inProgress.map((template: any) => (
+                            <SelectItem key={template.id} value={template.id.toString()}>
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                      {templates.postExecution?.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                            Post-Execution
+                          </div>
+                          {templates.postExecution.map((template: any) => (
+                            <SelectItem key={template.id} value={template.id.toString()}>
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreatingInspection(false)}>
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleCreateInspection}
+              disabled={createInspectionMutation.isPending}
+            >
+              {createInspectionMutation.isPending ? "กำลังสร้าง..." : "สร้าง Inspection"}
             </Button>
           </DialogFooter>
         </DialogContent>

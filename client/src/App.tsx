@@ -45,6 +45,7 @@ const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
 const AlertSettings = lazy(() => import("./pages/AlertSettings"));
 const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
 const SystemOverview = lazy(() => import("./pages/SystemOverview"));
+const GanttChartPage = lazy(() => import("./pages/GanttChartPage"));
 
 // Loading component
 const PageLoader = () => (
@@ -326,6 +327,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <AlertSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/gantt"}>
+        {() => (
+          <DashboardLayout>
+            <GanttChartPage />
           </DashboardLayout>
         )}
       </Route>
