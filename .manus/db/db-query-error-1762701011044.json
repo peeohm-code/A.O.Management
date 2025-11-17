@@ -1,8 +1,0 @@
-{
-  "query": "INSERT INTO archiveRules (name, description, projectStatus, daysAfterCompletion, isEnabled, createdBy, createdAt, updatedAt) VALUES ('Auto-Archive Completed Projects', 'Archive โครงการที่เสร็จสมบูรณ์เกิน 180 วัน', 'completed', 180, 1, 1, NOW(), NOW())",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO archiveRules (name, description, projectStatus, daysAfterCompletion, isEnabled, createdBy, createdAt, updatedAt) VALUES ('Auto-Archive Completed Projects', 'Archive โครงการที่เสร็จสมบูรณ์เกิน 180 วัน', 'completed', 180, 1, 1, NOW(), NOW())",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 1: Unknown column 'isEnabled' in 'field list'"
-  ]
-}
