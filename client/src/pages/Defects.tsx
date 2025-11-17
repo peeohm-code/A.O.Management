@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus, CheckSquare, Trash2, Edit, UserPlus, Calendar, User } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus, CheckSquare, Trash2, Edit, UserPlus } from "lucide-react";
 import { DefectCardSkeleton } from "@/components/skeletons";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "@/components/LazyChart";
@@ -39,8 +39,6 @@ import { FileUpload } from "@/components/FileUpload";
 import { ExportButton } from "@/components/ExportButton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionToolbar } from "@/components/BulkActionToolbar";
-import { SimplePagination } from "@/components/ui/simple-pagination";
-import { formatRelativeTime, formatShortDate } from "@/lib/dateFormat";
 
 export default function Defects() {
   const [, setLocation] = useLocation();
@@ -52,8 +50,6 @@ export default function Defects() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   const [selectedDefect, setSelectedDefect] = useState<any>(null);
   const [selectedDefects, setSelectedDefects] = useState<Set<number>>(new Set());
   const [showBulkStatusDialog, setShowBulkStatusDialog] = useState(false);
@@ -116,10 +112,7 @@ export default function Defects() {
   // Inline status change state
   const [updatingDefectId, setUpdatingDefectId] = useState<number | null>(null);
 
-  const allDefectsQuery = trpc.defect.allDefects.useQuery({
-    page: currentPage,
-    limit: itemsPerPage,
-  });
+  const allDefectsQuery = trpc.defect.allDefects.useQuery();
   const updateDefectMutation = trpc.defect.update.useMutation();
   const usersQuery = trpc.user.list.useQuery();
 
@@ -160,11 +153,7 @@ export default function Defects() {
     },
   });
 
-  // Handle both paginated and non-paginated responses
-  const isPaginatedResponse = allDefectsQuery.data && typeof allDefectsQuery.data === 'object' && 'items' in allDefectsQuery.data;
-  const defects = isPaginatedResponse 
-    ? (allDefectsQuery.data as any).items 
-    : (Array.isArray(allDefectsQuery.data) ? allDefectsQuery.data : []);
+  const defects = allDefectsQuery.data || [];
 
   // Bulk operation handlers
   const toggleDefectSelection = (defectId: number) => {
@@ -602,45 +591,45 @@ export default function Defects() {
             {/* Stat Cards */}
             <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
               <Card 
-                className="card-border card-shadow hover-lift cursor-pointer"
+                className="cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => setStatusFilter(statusFilter === 'resolved' ? 'all' : 'resolved')}
               >
-                <CardContent className="card-padding">
-                  <div className="metric-value text-yellow-600">{metrics.pendingVerification}</div>
-                  <div className="metric-label">รอตรวจสอบ</div>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-yellow-600">{metrics.pendingVerification}</div>
+                  <div className="text-sm text-muted-foreground">รอตรวจสอบ</div>
                 </CardContent>
               </Card>
               
               <Card 
-                className="card-border card-shadow hover-lift cursor-pointer"
+                className="cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => setStatusFilter(statusFilter === 'all' ? 'all' : 'all')}
               >
-                <CardContent className="card-padding">
-                  <div className="metric-value text-orange-600">{metrics.open}</div>
-                  <div className="metric-label">เปิดอยู่</div>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-orange-600">{metrics.open}</div>
+                  <div className="text-sm text-muted-foreground">เปิดอยู่</div>
                 </CardContent>
               </Card>
               
               <Card 
-                className="card-border card-shadow hover-lift cursor-pointer"
+                className="cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => setStatusFilter(statusFilter === 'closed' ? 'all' : 'closed')}
               >
-                <CardContent className="card-padding">
-                  <div className="metric-value text-green-600">{metrics.closed}</div>
-                  <div className="metric-label">ปิดแล้ว</div>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-green-600">{metrics.closed}</div>
+                  <div className="text-sm text-muted-foreground">ปิดแล้ว</div>
                 </CardContent>
               </Card>
               
               <Card 
-                className="card-border card-shadow hover-lift cursor-pointer"
+                className="cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => {
                   setStatusFilter('all');
                   toast.info('กรองแสดง Defect ที่เกินกำหนด');
                 }}
               >
-                <CardContent className="card-padding">
-                  <div className="metric-value text-red-600">{metrics.overdue}</div>
-                  <div className="metric-label">เกินกำหนด</div>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-red-600">{metrics.overdue}</div>
+                  <div className="text-sm text-muted-foreground">เกินกำหนด</div>
                 </CardContent>
               </Card>
             </div>
@@ -824,21 +813,13 @@ export default function Defects() {
                         </div>
                         
                         {/* Metadata - Single line */}
-                        <div className="text-xs text-muted-foreground space-y-1">
-                          <div className="flex items-center gap-1.5 truncate">
-                            <FileWarning className="h-3.5 w-3.5 flex-shrink-0" />
-                            <span className="truncate">งาน: {defect.taskName || 'ไม่ระบุงาน'}</span>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <div className="truncate">
+                            งาน: {defect.taskName || 'Unknown Task'}
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-                            <span>{formatRelativeTime(defect.createdAt)}</span>
+                          <div className="truncate">
+                            {new Date(defect.createdAt).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </div>
-                          {defect.assignedToName && (
-                            <div className="flex items-center gap-1.5 truncate">
-                              <User className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span className="truncate">{defect.assignedToName}</span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -1790,18 +1771,6 @@ export default function Defects() {
           icon={AlertTriangle}
           label="รายงานปัญหา"
           variant="destructive"
-        />
-      )}
-
-      {/* Pagination */}
-      {isPaginatedResponse && (
-        <SimplePagination
-          currentPage={currentPage}
-          totalPages={(allDefectsQuery.data as any).totalPages || 1}
-          onPageChange={setCurrentPage}
-          totalItems={(allDefectsQuery.data as any).total}
-          itemsPerPage={itemsPerPage}
-          showItemCount={true}
         />
       )}
       </div>

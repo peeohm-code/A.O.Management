@@ -40,26 +40,15 @@ export default function NewDashboard() {
   const { user } = useAuth();
 
   // Fetch dashboard data
-  const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery();
-  // Note: recentActivities endpoint not available, using empty array
-  const recentActivities: any[] = [];
-  const activitiesLoading = false;
-  
-  // Prepare data for charts from stats
-  const taskDistribution = stats?.taskStats ? [
-    { status: 'not_started', count: stats.taskStats.not_started },
-    { status: 'in_progress', count: stats.taskStats.in_progress },
-    { status: 'delayed', count: stats.taskStats.delayed },
-    { status: 'completed', count: stats.taskStats.completed },
-  ] : [];
-  
-  const defectDistribution = stats?.defectStats ? [
-    { severity: 'high', count: stats.defectStats.overdue || 0 },
-    { severity: 'medium', count: stats.defectStats.pendingVerification || 0 },
-    { severity: 'low', count: stats.defectStats.closed || 0 },
-  ] : [];
-  
-  const projectProgress: any[] = []; // Not used in current implementation
+  const { data: stats, isLoading: statsLoading } = trpc.dashboard.stats.useQuery();
+  const { data: recentActivities = [], isLoading: activitiesLoading } =
+    trpc.dashboard.recentActivities.useQuery({ limit: 8 });
+  const { data: taskDistribution = [] } =
+    trpc.dashboard.taskStatusDistribution.useQuery();
+  const { data: defectDistribution = [] } =
+    trpc.dashboard.defectSeverityDistribution.useQuery();
+  const { data: projectProgress = [] } =
+    trpc.dashboard.projectProgress.useQuery();
 
   // Format activity action to Thai
   const formatActivityAction = (action: string) => {
@@ -140,7 +129,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-[#00366D] mb-1">
-                {stats?.projectStats?.active || 0}
+                {stats?.totalActiveProjects || 0}
               </div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <TrendingUp className="h-3 w-3" />
@@ -161,11 +150,11 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-blue-600 mb-1">
-                {stats?.taskStats?.total || 0}
+                {stats?.totalTasks || 0}
               </div>
               <p className="text-xs text-muted-foreground">
-                {stats?.taskStats?.in_progress || 0} กำลังดำเนินการ ·{" "}
-                {stats?.taskStats?.completed || 0} เสร็จสิ้น
+                {stats?.inProgressTasks || 0} กำลังดำเนินการ ·{" "}
+                {stats?.completedTasks || 0} เสร็จสิ้น
               </p>
             </CardContent>
           </Card>
@@ -182,12 +171,12 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-[#00CE81] mb-1">
-                {stats?.averageProgress?.toFixed(1) || 0}%
+                {stats?.completionRate?.toFixed(1) || 0}%
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
                 <div
                   className="bg-gradient-to-r from-[#00CE81] to-[#00b371] h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${stats?.averageProgress || 0}%` }}
+                  style={{ width: `${stats?.completionRate || 0}%` }}
                 />
               </div>
             </CardContent>
@@ -205,7 +194,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-amber-600 mb-1">
-                {stats?.taskStats?.delayed || 0}
+                {stats?.overdueTasks || 0}
               </div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -229,7 +218,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-purple-600">
-                {stats?.checklistStats?.pending_inspection || 0}
+                {stats?.pendingInspections || 0}
               </div>
             </CardContent>
           </Card>
@@ -246,7 +235,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-red-600">
-                {stats?.defectStats?.open || 0}
+                {stats?.openDefects || 0}
               </div>
             </CardContent>
           </Card>
@@ -263,7 +252,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-rose-600">
-                {stats?.defectStats?.overdue || 0}
+                {stats?.criticalDefects || 0}
               </div>
             </CardContent>
           </Card>

@@ -26,14 +26,10 @@ import { format } from "date-fns";
 
 interface NewTaskDialogProps {
   projectId?: number;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
-export default function NewTaskDialog({ projectId: initialProjectId, open: externalOpen, onOpenChange }: NewTaskDialogProps) {
-  const [internalOpen, setInternalOpen] = useState(false);
-  const open = externalOpen !== undefined ? externalOpen : internalOpen;
-  const setOpen = onOpenChange || setInternalOpen;
+export default function NewTaskDialog({ projectId: initialProjectId }: NewTaskDialogProps) {
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [projectId, setProjectId] = useState<number | undefined>(initialProjectId);
   const [category, setCategory] = useState("preparation");
@@ -43,7 +39,7 @@ export default function NewTaskDialog({ projectId: initialProjectId, open: exter
   const [endDate, setEndDate] = useState("");
 
   const projectsQuery = trpc.project.list.useQuery();
-  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
+  const projects = projectsQuery.data || [];
 
   const utils = trpc.useUtils();
   const createTaskMutation = trpc.task.create.useMutation({
@@ -53,7 +49,6 @@ export default function NewTaskDialog({ projectId: initialProjectId, open: exter
         utils.task.list.invalidate({ projectId });
       }
       utils.task.myTasks.invalidate();
-      utils.task.search.invalidate();
       setOpen(false);
       resetForm();
     },

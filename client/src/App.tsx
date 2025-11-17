@@ -11,7 +11,6 @@ import Home from "./pages/Home";
 import LoginDemo from "./pages/LoginDemo";
 import DashboardLayout from "./components/DashboardLayout";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
-import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 // Lazy load heavy pages
 const Overview = lazy(() => import("./pages/Overview"));
@@ -30,8 +29,8 @@ const Reports = lazy(() => import("./pages/Reports"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const NewProject = lazy(() => import("./pages/NewProject"));
 const NewTask = lazy(() => import("./pages/NewTask"));
+const ChecklistTemplates = lazy(() => import("./pages/ChecklistTemplates"));
 const Templates = lazy(() => import("./pages/Templates"));
-const NewTemplate = lazy(() => import("./pages/NewTemplate"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const TeamManagement = lazy(() => import("./pages/TeamManagement"));
@@ -169,10 +168,10 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
-      <Route path={"/templates/new"}>
+      <Route path={"/checklist-templates"}>
         {() => (
           <DashboardLayout>
-            <NewTemplate />
+            <ChecklistTemplates />
           </DashboardLayout>
         )}
       </Route>
@@ -367,7 +366,6 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <PWAInstallBanner />
-          <PWAInstallPrompt />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

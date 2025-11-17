@@ -22,7 +22,6 @@ import { SignatureCanvas } from "@/components/SignatureCanvas";
 import { SwipeableCard } from "@/components/SwipeableCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { useOfflineForm } from "@/hooks/useOfflineForm";
-import { CreateChecklistDialog } from "@/components/CreateChecklistDialog";
 
 type InspectionResult = "pass" | "fail" | "na";
 
@@ -58,7 +57,6 @@ export default function QCInspection() {
   const [beforePhotos, setBeforePhotos] = useState<string[]>([]);
   const [defectPhotos, setDefectPhotos] = useState<string[]>([]);
   const [inspectorSignature, setInspectorSignature] = useState<string | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   
   // Read status from URL parameter
@@ -77,8 +75,7 @@ export default function QCInspection() {
   const utils = trpc.useUtils();
   const { data: checklistsData, refetch: refetchChecklists, isLoading: checklistsLoading } = trpc.checklist.getAllTaskChecklists.useQuery();
   const { data: users } = trpc.user.list.useQuery();
-  const { data: projectsData } = trpc.project.list.useQuery();
-  const projects = Array.isArray(projectsData) ? projectsData : [];
+  const { data: projects } = trpc.project.list.useQuery();
   
   const handleRefresh = async () => {
     await Promise.all([
@@ -957,44 +954,23 @@ export default function QCInspection() {
         </DialogContent>
       </Dialog>
 
-      {/* Floating Action Buttons */}
+      {/* Floating Action Button - สร้าง Inspection ใหม่ */}
       {canCreate && (
-        <>
-          {/* ปุ่มตรวจสอบ */}
-          <FloatingActionButton
-            onClick={() => {
-              // เลือก checklist แรกที่ยังไม่ได้ตรวจ
-              const pendingChecklist = filteredChecklists.find((c: any) => c.status === 'pending_inspection');
-              if (pendingChecklist) {
-                setSelectedChecklistId(pendingChecklist.id);
-                setIsInspecting(true);
-              } else {
-                toast.info('ไม่มี Checklist ที่รอตรวจสอบ กรุณาสร้าง Checklist ใหม่');
-              }
-            }}
-            icon={ClipboardCheck}
-            label="ตรวจสอบ"
-          />
-          
-          {/* ปุ่มสร้าง Checklist - อยู่ด้านบน */}
-          <FloatingActionButton
-            onClick={() => setIsCreateDialogOpen(true)}
-            icon={Plus}
-            label="สร้าง Checklist"
-            variant="secondary"
-            className="!bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:!bottom-[7.5rem]"
-          />
-        </>
+        <FloatingActionButton
+          onClick={() => {
+            // เลือก checklist แรกที่ยังไม่ได้ตรวจ
+            const pendingChecklist = filteredChecklists.find((c: any) => c.status === 'pending_inspection');
+            if (pendingChecklist) {
+              setSelectedChecklistId(pendingChecklist.id);
+              setIsInspecting(true);
+            } else {
+              toast.info('ไม่มี Checklist ที่รอตรวจสอบ');
+            }
+          }}
+          icon={ClipboardCheck}
+          label="ตรวจสอบ"
+        />
       )}
-      
-      {/* Create Checklist Dialog */}
-      <CreateChecklistDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onSuccess={() => {
-          refetchChecklists();
-        }}
-      />
       </div>
     </PullToRefresh>
   );

@@ -82,8 +82,7 @@ export default function TeamManagement() {
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
 
-  const { data: projectsData } = trpc.project.list.useQuery();
-  const projects = Array.isArray(projectsData) ? projectsData : [];
+  const { data: projects } = trpc.project.list.useQuery();
   const { data: workloadStats, isLoading: workloadLoading } = trpc.team.getWorkloadStatistics.useQuery({
     projectId: selectedProjectId,
   });

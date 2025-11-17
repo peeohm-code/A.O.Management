@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag, ListTodo, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag } from "lucide-react";
 import { TaskCardSkeleton } from "@/components/skeletons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/LazyChart";
 import { SearchBar } from "@/components/SearchBar";
@@ -56,26 +55,22 @@ export default function Tasks() {
   const [bulkStatus, setBulkStatus] = useState<string>("");
   const [bulkAssignee, setBulkAssignee] = useState<string>("");
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
-  
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Use search query with filters and pagination
+  // Use search query with filters
   const searchQuery = trpc.task.search.useQuery({
     query: searchTerm,
     projectId: projectFilter,
     status: displayStatusFilter !== 'all' ? displayStatusFilter : undefined,
     assigneeId: assigneeFilter,
-    page: currentPage,
-    limit: itemsPerPage,
   });
   
+  const myTasksQuery = trpc.task.myTasks.useQuery();
   const projectsQuery = trpc.project.list.useQuery();
   const utils = trpc.useUtils();
   
   const handleRefresh = async () => {
     await searchQuery.refetch();
+    await utils.task.myTasks.invalidate();
   };
 
   const bulkUpdateStatusMutation = trpc.task.bulkUpdateStatus.useMutation({
@@ -83,7 +78,7 @@ export default function Tasks() {
       toast.success(`อัปเดตสถานะสำเร็จ ${data.updated}/${data.total} งาน`);
       setSelectedTasks(new Set());
       setShowBulkStatusDialog(false);
-      searchQuery.refetch();
+      utils.task.myTasks.invalidate();
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -95,7 +90,7 @@ export default function Tasks() {
       toast.success(`มอบหมายงานสำเร็จ ${data.assigned}/${data.total} งาน`);
       setSelectedTasks(new Set());
       setShowBulkAssignDialog(false);
-      searchQuery.refetch();
+      utils.task.myTasks.invalidate();
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -107,6 +102,7 @@ export default function Tasks() {
       toast.success(`ลบงานสำเร็จ ${data.deletedCount} งาน`);
       setSelectedTasks(new Set());
       setShowBulkDeleteDialog(false);
+      utils.task.myTasks.invalidate();
       searchQuery.refetch();
     },
     onError: (error) => {
@@ -119,7 +115,7 @@ export default function Tasks() {
   const updateTaskStatusMutation = trpc.task.update.useMutation({
     onSuccess: () => {
       toast.success('อัปเดตสถานะสำเร็จ');
-      searchQuery.refetch();
+      utils.task.myTasks.invalidate();
     },
     onError: (error: any) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -129,7 +125,7 @@ export default function Tasks() {
   const deleteTaskMutation = trpc.task.delete.useMutation({
     onSuccess: () => {
       toast.success('ลบงานสำเร็จ');
-      searchQuery.refetch();
+      utils.task.myTasks.invalidate();
     },
     onError: (error: any) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
@@ -150,11 +146,10 @@ export default function Tasks() {
     }
   };
 
-  // Get tasks from search query
-  const tasks = searchQuery.data?.items || [];
-  const totalTasks = searchQuery.data?.total || 0;
-  const totalPages = searchQuery.data?.totalPages || 1;
-  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : [];
+  // Use search results if any filter is active, otherwise use myTasks
+  const hasActiveFilter = searchTerm || projectFilter || displayStatusFilter !== 'all' || assigneeFilter;
+  const tasks = hasActiveFilter ? (searchQuery.data || []) : (myTasksQuery.data || []);
+  const projects = projectsQuery.data || [];
   
   // Extract unique assignees from tasks
   const members = Array.from(
@@ -165,10 +160,11 @@ export default function Tasks() {
     ).values()
   );
 
+  // Tasks are already filtered by the search query
   const filteredTasks = tasks;
 
   const stats = {
-    total: totalTasks,
+    total: tasks.length,
     not_started: tasks.filter((t: any) => (t as any).displayStatus === "not_started").length,
     in_progress: tasks.filter((t: any) => (t as any).displayStatus === "in_progress").length,
     delayed: tasks.filter((t: any) => (t as any).displayStatus === "delayed").length,
@@ -243,18 +239,7 @@ export default function Tasks() {
     });
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setSelectedTasks(new Set()); // Clear selection when changing page
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page
-    setSelectedTasks(new Set()); // Clear selection
-  };
-
-  if (searchQuery.isLoading) {
+  if (myTasksQuery.isLoading) {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -277,65 +262,6 @@ export default function Tasks() {
           <h1 className="text-3xl font-bold">My Tasks</h1>
           <p className="text-gray-600 mt-1">View tasks from your projects</p>
         </div>
-      </div>
-
-      {/* Quick Stats Cards */}
-      <div className="grid card-spacing grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="card-border card-shadow hover-lift">
-          <CardContent className="card-padding">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="metric-label">งานทั้งหมด</p>
-                <p className="metric-value text-[#00366D]">{stats.total}</p>
-              </div>
-              <div className="p-3 bg-[#00366D]/10 rounded-full">
-                <ListTodo className="w-6 h-6 text-[#00366D]" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-border card-shadow hover-lift">
-          <CardContent className="card-padding">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="metric-label">กำลังทำ</p>
-                <p className="metric-value text-[#00CE81]">{stats.in_progress}</p>
-              </div>
-              <div className="p-3 bg-[#00CE81]/10 rounded-full">
-                <Clock className="w-6 h-6 text-[#00CE81]" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-border card-shadow hover-lift">
-          <CardContent className="card-padding">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="metric-label">ล่าช้า</p>
-                <p className="metric-value text-yellow-600">{stats.delayed}</p>
-              </div>
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <AlertCircle className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-border card-shadow hover-lift">
-          <CardContent className="card-padding">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="metric-label">เสร็จสมบูรณ์</p>
-                <p className="metric-value text-green-600">{stats.completed}</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Bulk Action Toolbar */}
@@ -388,7 +314,7 @@ export default function Tasks() {
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-4 -mt-4 mb-2 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <SearchBar
-            placeholder="ค้นหางาน..."
+            placeholder="ค้ษหางาน..."
             onSearch={setSearchTerm}
             className="w-full md:max-w-md"
           />
@@ -471,163 +397,365 @@ export default function Tasks() {
             </div>
           )}
           {filteredTasks.length > 0 && projectFilter && (
-            <ExportButton
-              projectId={projectFilter}
-              type="tasks"
-            />
+            <>
+              <ExportButton projectId={projectFilter} />
+            </>
           )}
         </div>
       </div>
 
-      {/* Task List */}
-      {filteredTasks.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title="ไม่พบงาน"
-          description="ยังไม่มีงานที่ตรงกับเงื่อนไขการค้นหา"
-        />
-      ) : (
-        <div className="space-y-4">
-          {filteredTasks.map((task: any) => (
-            <SwipeableCard
-              key={task.id}
-              onEdit={canEdit ? () => handleEditTask(task.id) : undefined}
-              onDelete={canEdit ? () => handleDeleteTask(task.id) : undefined}
-              onComplete={() => handleCompleteTask(task.id)}
-            >
-              <Card className="card-border card-shadow hover-lift">
-                <CardContent className="card-padding">
-                  <div className="flex items-start gap-4">
-                    {canEdit && (
-                      <Checkbox
-                        checked={selectedTasks.has(task.id)}
-                        onCheckedChange={() => toggleTaskSelection(task.id)}
-                        className="mt-1"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div className="flex-1 min-w-0">
-                          <Link href={`/tasks/${task.id}`}>
-                            <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer truncate">
-                              {task.name}
-                            </h3>
-                          </Link>
-                          {task.description && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-                        </div>
-                        <StatusBadge
-                          status={task.displayStatus}
-                          label={task.displayStatusLabel}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-                        {task.projectName && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Building2 className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{task.projectName}</span>
-                          </div>
-                        )}
-                        {task.assigneeName && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <User className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{task.assigneeName}</span>
-                          </div>
-                        )}
-                        {task.startDate && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4 flex-shrink-0" />
-                            <span>{parseDate(task.startDate)}</span>
-                          </div>
-                        )}
-                        {task.priority && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Flag className={`w-4 h-4 flex-shrink-0 ${
-                              task.priority === 'high' ? 'text-red-600' :
-                              task.priority === 'medium' ? 'text-yellow-600' :
-                              'text-gray-600'
-                            }`} />
-                            <span className={`font-medium ${
-                              task.priority === 'high' ? 'text-red-600' :
-                              task.priority === 'medium' ? 'text-yellow-600' :
-                              'text-gray-600'
-                            }`}>
-                              {task.priority === 'high' ? 'สูง' :
-                               task.priority === 'medium' ? 'ปานกลาง' : 'ต่ำ'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {task.progress !== undefined && task.progress !== null && (
-                        <div className="mt-3">
-                          <ProgressBar
-                            value={task.progress}
-                            showLabel={true}
-                            size="md"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
+      {/* Task Overview Dashboard */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <PieChartIcon className="h-5 w-5" />
+            <CardTitle>Task Overview</CardTitle>
+          </div>
+          <CardDescription>สถิติงานทั้งหมดแบ่งตามสถานะ</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Pie Chart */}
+            <div className="w-full md:w-1/2 h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'ยังไม่เริ่ม', value: stats.not_started, color: '#9CA3AF' },
+                      { name: 'กำลังทำ', value: stats.in_progress, color: '#00366D' },
+                      { name: 'ล่าช้า', value: stats.delayed, color: '#EF4444' },
+                      { name: 'เสร็จสมบูรณ์', value: stats.completed, color: '#00CE81' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={(entry: any) => entry.value > 0 ? `${entry.name} ${((entry.value / stats.total) * 100).toFixed(0)}%` : ''}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {[
+                      { name: 'ยังไม่เริ่ม', value: stats.not_started, color: '#9CA3AF' },
+                      { name: 'กำลังทำ', value: stats.in_progress, color: '#00366D' },
+                      { name: 'ล่าช้า', value: stats.delayed, color: '#EF4444' },
+                      { name: 'เสร็จสมบูรณ์', value: stats.completed, color: '#00CE81' },
+                    ].map((entry, index: any) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Stat Cards */}
+            <div className="grid grid-cols-2 gap-4 w-full md:w-1/2">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'not_started' ? 'all' : 'not_started')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-gray-600">{stats.not_started}</div>
+                  <div className="text-sm text-muted-foreground">ยังไม่เริ่ม</div>
                 </CardContent>
               </Card>
-            </SwipeableCard>
-          ))}
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'in_progress' ? 'all' : 'in_progress')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold" style={{ color: '#00366D' }}>{stats.in_progress}</div>
+                  <div className="text-sm text-muted-foreground">กำลังทำ</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'delayed' ? 'all' : 'delayed')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-red-600">{stats.delayed}</div>
+                  <div className="text-sm text-muted-foreground">ล่าช้า</div>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setDisplayStatusFilter(displayStatusFilter === 'completed' ? 'all' : 'completed')}
+              >
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold" style={{ color: '#00CE81' }}>{stats.completed}</div>
+                  <div className="text-sm text-muted-foreground">เสร็จสมบูรณ์</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Old Task Overview Cards - Keep for backward compatibility but hide */}
+      <div className="hidden grid-cols-2 md:grid-cols-5 gap-4">
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setDisplayStatusFilter("all")}
+        >
+          <CardHeader className="pb-3">
+            <CardDescription>งานทั้งหมด</CardDescription>
+            <CardTitle className="text-3xl">{stats.total}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-gray-500 h-2 rounded-full transition-all" style={{ width: "100%" }} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setDisplayStatusFilter("not_started")}
+        >
+          <CardHeader className="pb-3">
+            <CardDescription>ยังไม่เริ่ม</CardDescription>
+            <CardTitle className="text-3xl">{stats.not_started}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-gray-400 h-2 rounded-full transition-all"
+                style={{ width: `${stats.total > 0 ? (stats.not_started / stats.total) * 100 : 0}%` }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setDisplayStatusFilter("in_progress")}
+        >
+          <CardHeader className="pb-3">
+            <CardDescription className="flex items-center gap-1">
+              <span className="text-[#00366D]">📈</span> กำลังทำ
+            </CardDescription>
+            <CardTitle className="text-3xl text-[#00366D]">{stats.in_progress}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-[#00366D] h-2 rounded-full transition-all"
+                style={{ width: `${stats.total > 0 ? (stats.in_progress / stats.total) * 100 : 0}%` }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setDisplayStatusFilter("delayed")}
+        >
+          <CardHeader className="pb-3">
+            <CardDescription className="flex items-center gap-1">
+              <span className="text-red-600">⚠️</span> ล่าช้า
+            </CardDescription>
+            <CardTitle className="text-3xl text-red-600">{stats.delayed}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-red-500 h-2 rounded-full transition-all"
+                style={{ width: `${stats.total > 0 ? (stats.delayed / stats.total) * 100 : 0}%` }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setDisplayStatusFilter("completed")}
+        >
+          <CardHeader className="pb-3">
+            <CardDescription className="flex items-center gap-1">
+              <span className="text-[#00CE81]">✅</span> เสร็จสมบูรณ์
+            </CardDescription>
+            <CardTitle className="text-3xl text-[#00CE81]">{stats.completed}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-[#00CE81] h-2 rounded-full transition-all"
+                style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%` }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Clear Filter Button */}
+      {displayStatusFilter !== "all" && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => setDisplayStatusFilter("all")}>
+            แสดงทั้งหมด
+          </Button>
         </div>
       )}
 
-      {/* Pagination */}
-      <SimplePagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        totalItems={totalTasks}
-        itemsPerPage={itemsPerPage}
-        onItemsPerPageChange={handleItemsPerPageChange}
-        showItemCount={true}
-        showItemsPerPageSelector={true}
-      />
+      {/* Tasks List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredTasks.map((task: any) => (
+          <div key={task.id} className="relative">
+            {canEdit && (
+              <div className="absolute top-3 left-3 z-10">
+                <Checkbox
+                  checked={selectedTasks.has(task.id)}
+                  onCheckedChange={() => toggleTaskSelection(task.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white border-2"
+                />
+              </div>
+            )}
+            <SwipeableCard
+              leftActions={[
+                {
+                  icon: <CheckCircle className="w-5 h-5" />,
+                  label: 'เสร็จสิ้น',
+                  color: 'bg-green-500',
+                  onAction: () => handleCompleteTask(task.id),
+                },
+              ]}
+              rightActions={[
+                {
+                  icon: <Edit className="w-5 h-5" />,
+                  label: 'แก้ไข',
+                  color: 'bg-blue-500',
+                  onAction: () => handleEditTask(task.id),
+                },
+                {
+                  icon: <Trash2 className="w-5 h-5" />,
+                  label: 'ลบ',
+                  color: 'bg-red-500',
+                  onAction: () => handleDeleteTask(task.id),
+                },
+              ]}
+            >
+              <Link href={`/tasks/${task.id}`}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2">
+                      <CardTitle className={`text-lg ${canEdit ? 'ml-8' : ''}`}>{task.name}</CardTitle>
+                      <StatusBadge 
+                        status={task.status}
+                        label={(task as any).displayStatusLabel || getStatusLabel(task.status)}
+                      />
+                    </div>
+                    {task.description && (
+                      <CardDescription className="line-clamp-2">{task.description}</CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent className="space-y-2.5">
+                    {/* Project Name - Compact */}
+                    {task.projectName && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{task.projectName}</span>
+                      </div>
+                    )}
 
-      {/* Bulk Status Dialog */}
+                    {/* Progress Bar - Larger for visibility */}
+                    <ProgressBar 
+                      value={task.progress}
+                      showLabel={true}
+                      size="sm"
+                    />
+
+                    {/* Due Date - Show only end date for simplicity */}
+                    {task.endDate && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>ครบกำหนด: {parseDate(task.endDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
+                    )}
+
+                    {/* Assignee - Compact */}
+                    {task.assigneeName && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <User className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{task.assigneeName}</span>
+                      </div>
+                    )}
+
+                    {/* Priority and Category Badges */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {task.priority && (
+                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
+                          task.priority === 'urgent' ? 'bg-red-100 text-red-700' :
+                          task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          <Flag className="w-3 h-3" />
+                          <span>
+                            {task.priority === 'urgent' ? 'เร่งด่วน' :
+                             task.priority === 'high' ? 'สูง' :
+                             task.priority === 'medium' ? 'ปานกลาง' :
+                             'ต่ำ'}
+                          </span>
+                        </div>
+                      )}
+                      {task.category && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
+                          <Tag className="w-3 h-3" />
+                          <span>{task.category}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </SwipeableCard>
+          </div>
+        ))}
+      </div>
+
+      {filteredTasks.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No tasks found</p>
+        </div>
+      )}
+
+      {/* Bulk Update Status Dialog */}
       <Dialog open={showBulkStatusDialog} onOpenChange={setShowBulkStatusDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>อัปเดตสถานะงาน</DialogTitle>
             <DialogDescription>
-              เลือกสถานะใหม่สำหรับ {selectedTasks.size} งานที่เลือก
+              เลือกสถานะใหม่สำหรับงานที่เลือก ({selectedTasks.size} งาน)
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+          <div className="space-y-4">
             <Select value={bulkStatus} onValueChange={setBulkStatus}>
               <SelectTrigger>
                 <SelectValue placeholder="เลือกสถานะ" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
-                <SelectItem value="in_progress">กำลังทำ</SelectItem>
-                <SelectItem value="completed">เสร็จสมบูรณ์</SelectItem>
+                <SelectItem value="todo">ยังไม่เริ่ม</SelectItem>
+                <SelectItem value="ready_to_start">พร้อมเริ่ม</SelectItem>
+                <SelectItem value="in_progress">กำลังดำเนินการ</SelectItem>
+                <SelectItem value="pending_pre_inspection">รอตรวจก่อน</SelectItem>
+                <SelectItem value="pending_final_inspection">รอตรวจสุดท้าย</SelectItem>
+                <SelectItem value="rectification_needed">ต้องแก้ไข</SelectItem>
+                <SelectItem value="completed">เสร็จสิ้น</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowBulkStatusDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowBulkStatusDialog(false)}>
               ยกเลิก
             </Button>
             <Button
               onClick={handleBulkUpdateStatus}
               disabled={bulkUpdateStatusMutation.isPending}
             >
-              {bulkUpdateStatusMutation.isPending && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
+              {bulkUpdateStatusMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               อัปเดต
             </Button>
           </DialogFooter>
@@ -640,10 +768,10 @@ export default function Tasks() {
           <DialogHeader>
             <DialogTitle>มอบหมายงาน</DialogTitle>
             <DialogDescription>
-              เลือกผู้รับผิดชอบสำหรับ {selectedTasks.size} งานที่เลือก
+              เลือกผู้รับผิดชอบสำหรับงานที่เลือก ({selectedTasks.size} งาน)
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+          <div className="space-y-4">
             <Select value={bulkAssignee} onValueChange={setBulkAssignee}>
               <SelectTrigger>
                 <SelectValue placeholder="เลือกผู้รับผิดชอบ" />
@@ -658,19 +786,14 @@ export default function Tasks() {
             </Select>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowBulkAssignDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowBulkAssignDialog(false)}>
               ยกเลิก
             </Button>
             <Button
               onClick={handleBulkAssign}
               disabled={bulkAssignMutation.isPending}
             >
-              {bulkAssignMutation.isPending && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
+              {bulkAssignMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               มอบหมาย
             </Button>
           </DialogFooter>
@@ -681,17 +804,15 @@ export default function Tasks() {
       <Dialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>ลบงาน</DialogTitle>
+            <DialogTitle className="text-red-600">ลบงาน</DialogTitle>
             <DialogDescription>
-              คุณแน่ใจหรือไม่ที่จะลบ {selectedTasks.size} งานที่เลือก?
-              การกระทำนี้ไม่สามารถย้อนกลับได้
+              คุณแน่ใจหรือไม่ว่าต้องการลบงานที่เลือก ({selectedTasks.size} งาน)?
+              <br />
+              <span className="text-red-600 font-semibold">การกระทำนี้ไม่สามารถย้อนกลับได้</span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowBulkDeleteDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowBulkDeleteDialog(false)}>
               ยกเลิก
             </Button>
             <Button
@@ -699,31 +820,27 @@ export default function Tasks() {
               onClick={handleBulkDelete}
               disabled={bulkDeleteMutation.isPending}
             >
-              {bulkDeleteMutation.isPending && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
-              ลบ
+              {bulkDeleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              ลบงาน
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* FAB for creating new task */}
+      {/* Floating Action Button - Mobile */}
       {canCreate && (
-        <>
-          <FloatingActionButton
-            onClick={() => setShowNewTaskDialog(true)}
-            icon={Plus}
-            label="สร้างงานใหม่"
-          />
-          <NewTaskDialog
-            open={showNewTaskDialog}
-            onOpenChange={setShowNewTaskDialog}
-            projectId={projectFilter}
-          />
-        </>
+        <FloatingActionButton
+          onClick={() => setShowNewTaskDialog(true)}
+          icon={Plus}
+          label="เพิ่มงาน"
+        />
       )}
-    </div>
+
+      {/* New Task Dialog */}
+      {showNewTaskDialog && (
+        <NewTaskDialog projectId={undefined} />
+      )}
+      </div>
     </PullToRefresh>
   );
 }

@@ -8,14 +8,11 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Download, TrendingUp, AlertTriangle, CheckCircle2, Building2, User } from "lucide-react";
+import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Download, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
 import { ProjectListSkeleton } from "@/components/skeletons";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
-import { SimplePagination } from "@/components/ui/simple-pagination";
 import { Link } from "wouter";
-import { QuickActionMenu, QuickAction } from "@/components/QuickActionMenu";
-import { FileText, Archive } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +31,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
-import { formatShortDate, formatDateRange } from "@/lib/dateFormat";
 import ExcelJS from 'exceljs';
 
 export function ActiveProjectsList() {
@@ -42,8 +38,6 @@ export function ActiveProjectsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});
   const [sortBy, setSortBy] = useState<string>("name");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   const [isOpen, setIsOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -69,10 +63,7 @@ export function ActiveProjectsList() {
   });
 
   const utils = trpc.useUtils();
-  const projectsQuery = trpc.project.list.useQuery({
-    page: currentPage,
-    limit: itemsPerPage,
-  });
+  const projectsQuery = trpc.project.list.useQuery();
   const createProjectMutation = trpc.project.create.useMutation();
   const updateProjectMutation = trpc.project.update.useMutation();
 
@@ -161,13 +152,9 @@ export function ActiveProjectsList() {
     }
   };
 
-  // Handle both paginated and non-paginated responses
-  const isPaginatedResponse = projectsQuery.data && typeof projectsQuery.data === 'object' && 'items' in projectsQuery.data;
-  const projects = isPaginatedResponse 
-    ? (projectsQuery.data as any).items 
-    : (Array.isArray(projectsQuery.data) ? projectsQuery.data : []);
+  const projects = projectsQuery.data || [];
   
-  let filteredProjects = projects.filter((p: any) => {
+  let filteredProjects = projects.filter((p) => {
     const matchesSearch = !searchTerm || 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.code?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -195,10 +182,10 @@ export function ActiveProjectsList() {
   });
 
   const stats = {
-    total: isPaginatedResponse ? (projectsQuery.data as any).total : projects.length,
-    on_track: filteredProjects.filter((p: any) => p.projectStatus === 'on_track').length,
-    delayed: filteredProjects.filter((p: any) => p.projectStatus === 'delayed').length,
-    overdue: filteredProjects.filter((p: any) => p.projectStatus === 'overdue').length,
+    total: projects.length,
+    on_track: filteredProjects.filter(p => p.projectStatus === 'on_track').length,
+    delayed: filteredProjects.filter(p => p.projectStatus === 'delayed').length,
+    overdue: filteredProjects.filter(p => p.projectStatus === 'overdue').length,
   };
 
   const getProjectStatusLabel = (status: string) => {
@@ -545,7 +532,7 @@ export function ActiveProjectsList() {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       {project.ownerName && (
                         <div className="flex items-center gap-1.5">
-                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium text-[#00366D]">เจ้าของ:</span>
                           <span>{project.ownerName}</span>
                         </div>
                       )}
@@ -559,12 +546,9 @@ export function ActiveProjectsList() {
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4 text-[#00366D]" />
                           <span>
-                            {project.startDate && project.endDate 
-                              ? formatDateRange(project.startDate, project.endDate)
-                              : project.startDate 
-                              ? formatShortDate(project.startDate, true)
-                              : formatShortDate(project.endDate, true)
-                            }
+                            {project.startDate && parseDate(project.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            {project.startDate && project.endDate && ' - '}
+                            {project.endDate && parseDate(project.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                           </span>
                         </div>
                       )}
@@ -760,87 +744,6 @@ export function ActiveProjectsList() {
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Quick Action Menu for Mobile */}
-      {canCreate && (
-        <QuickActionMenu
-          actions={[
-            {
-              icon: <Plus className="h-5 w-5" />,
-              label: "สร้างโครงการใหม่",
-              onClick: () => setIsOpen(true),
-            },
-            {
-              icon: <FileText className="h-5 w-5" />,
-              label: "Export Excel",
-              onClick: async () => {
-                if (filteredProjects.length === 0) {
-                  toast.error("ไม่มีข้อมูลสำหรับ Export");
-                  return;
-                }
-                try {
-                  const workbook = new ExcelJS.Workbook();
-                  const worksheet = workbook.addWorksheet('Projects');
-                  worksheet.columns = [
-                    { header: 'รหัสโครงการ', key: 'code', width: 15 },
-                    { header: 'ชื่อโครงการ', key: 'name', width: 30 },
-                    { header: 'สถานที่', key: 'location', width: 20 },
-                    { header: 'วันที่เริ่ม', key: 'startDate', width: 15 },
-                    { header: 'วันที่สิ้นสุด', key: 'endDate', width: 15 },
-                    { header: 'ความคืบหน้า (%)', key: 'progress', width: 15 },
-                    { header: 'จำนวนงาน', key: 'taskCount', width: 12 },
-                    { header: 'งานเสร็จ', key: 'completedTasks', width: 12 },
-                    { header: 'สถานะ', key: 'status', width: 15 },
-                  ];
-                  filteredProjects.forEach(p => {
-                    worksheet.addRow({
-                      code: p.code || '',
-                      name: p.name || '',
-                      location: p.location || '',
-                      startDate: p.startDate ? new Date(p.startDate).toLocaleDateString('th-TH') : '',
-                      endDate: p.endDate ? new Date(p.endDate).toLocaleDateString('th-TH') : '',
-                      progress: p.progressPercentage || 0,
-                      taskCount: p.taskCount || 0,
-                      completedTasks: p.completedTasks || 0,
-                      status: getProjectStatusLabel(p.projectStatus),
-                    });
-                  });
-                  worksheet.getRow(1).font = { bold: true };
-                  worksheet.getRow(1).fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFE0E0E0' },
-                  };
-                  const buffer = await workbook.xlsx.writeBuffer();
-                  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = 'projects.xlsx';
-                  link.click();
-                  window.URL.revokeObjectURL(url);
-                  toast.success('ส่งออกไฟล์ Excel สำเร็จ');
-                } catch (error) {
-                  toast.error('เกิดข้อผิดพลาดในการส่งออกไฟล์');
-                }
-              },
-            },
-          ]}
-          position="bottom-right"
-        />
-      )}
-
-      {/* Pagination */}
-      {projectsQuery.data && typeof projectsQuery.data === 'object' && 'items' in projectsQuery.data && (
-        <SimplePagination
-          currentPage={currentPage}
-          totalPages={projectsQuery.data.totalPages || 1}
-          onPageChange={setCurrentPage}
-          totalItems={projectsQuery.data.total}
-          itemsPerPage={itemsPerPage}
-          showItemCount={true}
-        />
-      )}
     </div>
   );
 }

@@ -38,11 +38,6 @@ export default function ProjectDetail() {
 
   const projectQuery = trpc.project.get.useQuery({ id: projectId }, { enabled: !!projectId });
   const projectTasksQuery = trpc.task.list.useQuery({ projectId }, { enabled: !!projectId });
-  
-  // Handle both array and paginated response types
-  const tasks = Array.isArray(projectTasksQuery.data) 
-    ? projectTasksQuery.data 
-    : (projectTasksQuery.data?.items || []);
   const deleteProjectMutation = trpc.project.delete.useMutation();
   const archiveProjectMutation = trpc.project.archive.useMutation();
   const exportExcelMutation = trpc.project.exportExcel.useMutation();
@@ -121,6 +116,7 @@ export default function ProjectDetail() {
   }
 
   const project = projectQuery.data;
+  const tasks = projectTasksQuery.data || [];
 
   if (!project) {
     return (
@@ -163,11 +159,11 @@ export default function ProjectDetail() {
     }
   };
 
-  const totalTasks = tasks?.length || 0;
-  const notStartedTasks = tasks?.filter((t: any) => t.displayStatus === "not_started").length || 0;
-  const inProgressTasks = tasks?.filter((t: any) => t.displayStatus === "in_progress").length || 0;
-  const delayedTasks = tasks?.filter((t: any) => t.displayStatus === "delayed").length || 0;
-  const completedTasks = tasks?.filter((t: any) => t.displayStatus === "completed").length || 0;
+  const totalTasks = tasks.length;
+  const notStartedTasks = tasks.filter((t: any) => t.displayStatus === "not_started").length;
+  const inProgressTasks = tasks.filter((t: any) => t.displayStatus === "in_progress").length;
+  const delayedTasks = tasks.filter((t: any) => t.displayStatus === "delayed").length;
+  const completedTasks = tasks.filter((t: any) => t.displayStatus === "completed").length;
 
   return (
     <div className="space-y-6">

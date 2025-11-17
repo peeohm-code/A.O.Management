@@ -4,11 +4,8 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, CheckCircle2, Clock, AlertCircle, Check, Trash2, Edit, Plus, Eye } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { SwipeableCard } from "@/components/SwipeableCard";
-import { QuickActionMenu } from "@/components/QuickActionMenu";
-import { toast } from "sonner";
 
 export default function MyTasks() {
   const [, navigate] = useLocation();
@@ -18,35 +15,6 @@ export default function MyTasks() {
   const { data: tasks, isLoading } = trpc.team.getMyTasks.useQuery({
     status: activeTab,
   });
-
-  const utils = trpc.useUtils();
-  const updateTaskMutation = trpc.task.update.useMutation();
-  const deleteTaskMutation = trpc.task.delete.useMutation();
-
-  const handleCompleteTask = async (taskId: number) => {
-    try {
-      await updateTaskMutation.mutateAsync({
-        id: taskId,
-        status: "completed",
-        progress: 100,
-      });
-      toast.success("ทำเครื่องหมายงานเสร็จสิ้นแล้ว");
-      utils.team.getMyTasks.invalidate();
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
-    }
-  };
-
-  const handleDeleteTask = async (taskId: number) => {
-    if (!confirm("คุณต้องการลบงานนี้หรือไม่?")) return;
-    try {
-      await deleteTaskMutation.mutateAsync({ id: taskId });
-      toast.success("ลบงานสำเร็จแล้ว");
-      utils.team.getMyTasks.invalidate();
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
-    }
-  };
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -207,35 +175,11 @@ export default function MyTasks() {
               ) : (
                 <div className="space-y-4">
                   {tasks.map((task: any) => (
-                    <SwipeableCard
+                    <div
                       key={task.id}
-                      leftActions={task.status !== "completed" ? [
-                        {
-                          icon: <Check className="w-5 h-5" />,
-                          label: "เสร็จสิ้น",
-                          color: "bg-green-500",
-                          onAction: () => handleCompleteTask(task.id),
-                        },
-                      ] : undefined}
-                      rightActions={[
-                        {
-                          icon: <Edit className="w-5 h-5" />,
-                          label: "แก้ไข",
-                          color: "bg-blue-500",
-                          onAction: () => navigate(`/projects/${task.projectId}/tasks/${task.id}`),
-                        },
-                        {
-                          icon: <Trash2 className="w-5 h-5" />,
-                          label: "ลบ",
-                          color: "bg-red-500",
-                          onAction: () => handleDeleteTask(task.id),
-                        },
-                      ]}
+                      className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors"
+                      onClick={() => navigate(`/projects/${task.projectId}/tasks/${task.id}`)}
                     >
-                      <div
-                        className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors"
-                        onClick={() => navigate(`/projects/${task.projectId}/tasks/${task.id}`)}
-                      >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold">{task.name}</h3>
@@ -267,8 +211,7 @@ export default function MyTasks() {
                           )}
                         </div>
                       </div>
-                      </div>
-                    </SwipeableCard>
+                    </div>
                   ))}
                 </div>
               )}

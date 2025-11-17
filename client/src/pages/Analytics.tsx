@@ -34,8 +34,7 @@ export default function Analytics() {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Queries
-  const { data: projectsData } = trpc.project.list.useQuery();
-  const projects = Array.isArray(projectsData) ? projectsData : [];
+  const { data: projects } = trpc.project.list.useQuery();
   const { data: tasks } = trpc.task.list.useQuery(
     { projectId: selectedProjectId || undefined },
     { enabled: !!selectedProjectId }

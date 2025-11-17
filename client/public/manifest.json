@@ -58,22 +58,7 @@
     }
   ],
   "categories": ["productivity", "business"],
-  "screenshots": [
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard หน้าหลัก"
-    },
-    {
-      "src": "/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "รายการงาน"
-    }
-  ],
+  "screenshots": [],
   "shortcuts": [
     {
       "name": "Dashboard",
@@ -86,14 +71,14 @@
       "name": "งานของฉัน",
       "short_name": "งาน",
       "description": "ดูงานที่ได้รับมอบหมาย",
-      "url": "/team/my-tasks",
+      "url": "/tasks",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "QC Inspection",
       "short_name": "QC",
       "description": "ตรวจสอบคุณภาพงาน",
-      "url": "/inspections",
+      "url": "/qc",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ]
