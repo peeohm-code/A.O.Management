@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE users \nADD COLUMN notificationDaysAdvance INT NOT NULL DEFAULT 3 COMMENT 'จำนวนวันล่วงหน้าสำหรับการแจ้งเตือน',\nADD COLUMN enableInAppNotifications BOOLEAN NOT NULL DEFAULT TRUE,\nADD COLUMN enableEmailNotifications BOOLEAN NOT NULL DEFAULT TRUE,\nADD COLUMN enableDailySummaryEmail BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN dailySummaryTime VARCHAR(5) DEFAULT '08:00' COMMENT 'เวลาส่งอีเมลสรุปรายวัน (HH:mm)';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute ALTER TABLE users \nADD COLUMN notificationDaysAdvance INT NOT NULL DEFAULT 3 COMMENT 'จำนวนวันล่วงหน้าสำหรับการแจ้งเตือน',\nADD COLUMN enableInAppNotifications BOOLEAN NOT NULL DEFAULT TRUE,\nADD COLUMN enableEmailNotifications BOOLEAN NOT NULL DEFAULT TRUE,\nADD COLUMN enableDailySummaryEmail BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN dailySummaryTime VARCHAR(5) DEFAULT '08:00' COMMENT 'เวลาส่งอีเมลสรุปรายวัน (HH:mm)';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 3062
+}

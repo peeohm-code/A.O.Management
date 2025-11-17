@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO projectMembers (projectId, userId, role, createdAt) VALUES (5, 1, 'admin', NOW())",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO projectMembers (projectId, userId, role, createdAt) VALUES (5, 1, 'admin', NOW())",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 1: Data truncated for column 'role' at row 1"
+  ]
+}

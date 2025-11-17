@@ -1,37 +1,371 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import DefectDetailErrorBoundary from "./components/DefectDetailErrorBoundary";
+import PageErrorBoundary from "./components/PageErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import LoginDemo from "./pages/LoginDemo";
+import DashboardLayout from "./components/DashboardLayout";
+import { PWAInstallBanner } from "./components/PWAInstallBanner";
+
+// Lazy load heavy pages
+const Overview = lazy(() => import("./pages/Overview"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NewDashboard = lazy(() => import("./pages/NewDashboard"));
+const Projects = lazy(() => import("./pages/Projects"));
+const Tasks = lazy(() => import("./pages/Tasks"));
+const QCInspection = lazy(() => import("./pages/QCInspection"));
+const Defects = lazy(() => import("./pages/Defects"));
+const DefectDetail = lazy(() => import("./pages/DefectDetail"));
+const NotificationCenter = lazy(() => import("./pages/NotificationCenter"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const TaskDetail = lazy(() => import("./pages/TaskDetail"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const NewProject = lazy(() => import("./pages/NewProject"));
+const NewTask = lazy(() => import("./pages/NewTask"));
+const ChecklistTemplates = lazy(() => import("./pages/ChecklistTemplates"));
+const Templates = lazy(() => import("./pages/Templates"));
+const UserManagement = lazy(() => import("./pages/UserManagement"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const TeamManagement = lazy(() => import("./pages/TeamManagement"));
+const ProjectTeam = lazy(() => import("./pages/ProjectTeam"));
+const MyTasks = lazy(() => import("./pages/MyTasks"));
+const Archive = lazy(() => import("./pages/Archive"));
+const ArchiveRules = lazy(() => import("./pages/ArchiveRules"));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const SystemMonitoring = lazy(() => import("./pages/SystemMonitoring"));
+const InspectionHistory = lazy(() => import("./pages/InspectionHistory"));
+const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
+const AlertSettings = lazy(() => import("./pages/AlertSettings"));
+const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
+const SystemOverview = lazy(() => import("./pages/SystemOverview"));
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
+    <Suspense fallback={<PageLoader />}>
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/login-demo"} component={LoginDemo} />
+      <Route path={"/tasks/new"}>
+        {() => (
+          <DashboardLayout>
+            <NewTask />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects/new"}>
+        {() => (
+          <DashboardLayout>
+            <NewProject />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/system-overview"}>
+        {() => (
+          <DashboardLayout>
+            <SystemOverview />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/advanced-analytics"}>
+        {() => (
+          <DashboardLayout>
+            <AdvancedAnalytics />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/overview"}>
+        {() => (
+          <DashboardLayout>
+            <Overview />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/dashboard"}>
+        {() => (
+          <DashboardLayout>
+            <NewDashboard />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/dashboard-old"}>
+        {() => (
+          <DashboardLayout>
+            <Dashboard />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="Projects"
+              fallbackPath="/dashboard"
+            >
+              <Projects />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/tasks"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="Tasks"
+              fallbackPath="/dashboard"
+            >
+              <Tasks />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/qc"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="QCInspection"
+              fallbackPath="/dashboard"
+            >
+              <QCInspection />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/qc-inspection"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="QCInspection"
+              fallbackPath="/dashboard"
+            >
+              <QCInspection />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/inspections"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="Inspections"
+              fallbackPath="/dashboard"
+            >
+              <QCInspection />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/checklist-templates"}>
+        {() => (
+          <DashboardLayout>
+            <ChecklistTemplates />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/templates"}>
+        {() => (
+          <DashboardLayout>
+            <Templates />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/defects/:id"}>
+        {() => (
+          <DashboardLayout>
+            <DefectDetailErrorBoundary
+              onGoBack={() => window.location.href = "/defects"}
+              onReset={() => window.location.reload()}
+            >
+              <DefectDetail />
+            </DefectDetailErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/defects"}>
+        {() => (
+          <DashboardLayout>
+            <Defects />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/notifications"}>
+        {() => (
+          <DashboardLayout>
+            <NotificationCenter />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects/:id"}>
+        {() => (
+          <DashboardLayout>
+            <ProjectDetail />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/tasks/:taskId/inspections">
+        {() => (
+          <DashboardLayout>
+            <InspectionHistory />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/inspections/:inspectionId">
+        {() => (
+          <DashboardLayout>
+            <InspectionDetail />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/tasks/:id"}>
+        {() => (
+          <DashboardLayout>
+            <TaskDetail />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/settings"}>
+        {() => (
+          <DashboardLayout>
+            <Settings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/settings/notifications"}>
+        {() => (
+          <DashboardLayout>
+            <NotificationSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/users"}>
+        {() => (
+          <DashboardLayout>
+            <UserManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/team"}>
+        {() => (
+          <DashboardLayout>
+            <TeamManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/my-tasks"}>
+        {() => (
+          <DashboardLayout>
+            <MyTasks />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/projects/:projectId/team"}>
+        {() => (
+          <DashboardLayout>
+            <ProjectTeam />
+          </DashboardLayout>
+        )}
+      </Route>
+
+      <Route path={"/profile"}>
+        {() => (
+          <DashboardLayout>
+            <UserProfile />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/reports"}>
+        {() => (
+          <DashboardLayout>
+            <Reports />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/analytics"}>
+        {() => (
+          <DashboardLayout>
+            <Analytics />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/archive"}>
+        {() => (
+          <DashboardLayout>
+            <Archive />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/archive/rules"}>
+        {() => (
+          <DashboardLayout>
+            <ArchiveRules />
+          </DashboardLayout>
+        )}
+      </Route>
+      {/* System Monitoring - รวม DB, System, Memory ในหน้าเดียว */}
+      <Route path={"/system-monitoring"}>
+        {() => (
+          <DashboardLayout>
+            <SystemMonitoring />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/alert-settings"}>
+        {() => (
+          <DashboardLayout>
+            <AlertSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      {/* Legacy routes - redirect to new unified page */}
+      <Route path={"/monitoring"}>
+        {() => (
+          <DashboardLayout>
+            <SystemMonitoring />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/system-monitor"}>
+        {() => (
+          <DashboardLayout>
+            <SystemMonitoring />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/memory-monitoring"}>
+        {() => (
+          <DashboardLayout>
+            <SystemMonitoring />
+          </DashboardLayout>
+        )}
+      </Route>
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
           <Toaster />
+          <PWAInstallBanner />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

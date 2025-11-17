@@ -1,0 +1,9 @@
+{
+  "query": "\nINSERT INTO projectMembers (projectId, userId, role, createdAt) VALUES\n(1, 1, 'project_manager', NOW()),\n(1, 2720, 'field_engineer', NOW()),\n(1, 2721, 'qc_inspector', NOW());\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nINSERT INTO projectMembers (projectId, userId, role, createdAt) VALUES\n(1, 1, 'project_manager', NOW()),\n(1, 2720, 'field_engineer', NOW()),\n(1, 2721, 'qc_inspector', NOW());\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1554
+}

@@ -1,0 +1,9 @@
+{
+  "query": "SELECT tc.id, tc.templateId, ct.name as templateName, t.name as taskName \nFROM taskChecklists tc \nLEFT JOIN checklistTemplates ct ON tc.templateId = ct.id \nLEFT JOIN tasks t ON tc.taskId = t.id \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT tc.id, tc.templateId, ct.name as templateName, t.name as taskName \nFROM taskChecklists tc \nLEFT JOIN checklistTemplates ct ON tc.templateId = ct.id \nLEFT JOIN tasks t ON tc.taskId = t.id \nLIMIT 10;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1578
+}
