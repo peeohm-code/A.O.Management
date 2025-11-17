@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Download, TrendingUp, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
+import { Loader2, Plus, MapPin, Calendar, Clock, Edit, Eye, Download, TrendingUp, AlertTriangle, CheckCircle2, Building2, User } from "lucide-react";
 import { ProjectListSkeleton } from "@/components/skeletons";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
@@ -32,6 +32,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
+import { formatShortDate, formatDateRange } from "@/lib/dateFormat";
 import ExcelJS from 'exceljs';
 
 export function ActiveProjectsList() {
@@ -542,7 +543,7 @@ export function ActiveProjectsList() {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       {project.ownerName && (
                         <div className="flex items-center gap-1.5">
-                          <span className="font-medium text-[#00366D]">เจ้าของ:</span>
+                          <User className="h-4 w-4 text-muted-foreground" />
                           <span>{project.ownerName}</span>
                         </div>
                       )}
@@ -556,9 +557,12 @@ export function ActiveProjectsList() {
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4 text-[#00366D]" />
                           <span>
-                            {project.startDate && parseDate(project.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                            {project.startDate && project.endDate && ' - '}
-                            {project.endDate && parseDate(project.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            {project.startDate && project.endDate 
+                              ? formatDateRange(project.startDate, project.endDate)
+                              : project.startDate 
+                              ? formatShortDate(project.startDate, true)
+                              : formatShortDate(project.endDate, true)
+                            }
                           </span>
                         </div>
                       )}

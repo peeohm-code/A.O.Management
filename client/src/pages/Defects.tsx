@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus, CheckSquare, Trash2, Edit, UserPlus } from "lucide-react";
+import { Loader2, Search, AlertTriangle, CheckCircle2, Upload, X, Image as ImageIcon, Clock, FileWarning, TrendingUp, RefreshCw, XCircle, PieChart as PieChartIcon, Plus, CheckSquare, Trash2, Edit, UserPlus, Calendar, User } from "lucide-react";
 import { DefectCardSkeleton } from "@/components/skeletons";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "@/components/LazyChart";
@@ -40,6 +40,7 @@ import { ExportButton } from "@/components/ExportButton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionToolbar } from "@/components/BulkActionToolbar";
 import { SimplePagination } from "@/components/ui/simple-pagination";
+import { formatRelativeTime, formatShortDate } from "@/lib/dateFormat";
 
 export default function Defects() {
   const [, setLocation] = useLocation();
@@ -823,13 +824,21 @@ export default function Defects() {
                         </div>
                         
                         {/* Metadata - Single line */}
-                        <div className="text-xs text-muted-foreground space-y-0.5">
-                          <div className="truncate">
-                            งาน: {defect.taskName || 'Unknown Task'}
+                        <div className="text-xs text-muted-foreground space-y-1">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <FileWarning className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span className="truncate">งาน: {defect.taskName || 'ไม่ระบุงาน'}</span>
                           </div>
-                          <div className="truncate">
-                            {new Date(defect.createdAt).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{formatRelativeTime(defect.createdAt)}</span>
                           </div>
+                          {defect.assignedToName && (
+                            <div className="flex items-center gap-1.5 truncate">
+                              <User className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span className="truncate">{defect.assignedToName}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>

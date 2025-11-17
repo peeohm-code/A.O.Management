@@ -546,7 +546,11 @@ export default function Tasks() {
                         )}
                         {task.priority && (
                           <div className="flex items-center gap-2 text-sm">
-                            <Flag className="w-4 h-4 flex-shrink-0" />
+                            <Flag className={`w-4 h-4 flex-shrink-0 ${
+                              task.priority === 'high' ? 'text-red-600' :
+                              task.priority === 'medium' ? 'text-yellow-600' :
+                              'text-gray-600'
+                            }`} />
                             <span className={`font-medium ${
                               task.priority === 'high' ? 'text-red-600' :
                               task.priority === 'medium' ? 'text-yellow-600' :
