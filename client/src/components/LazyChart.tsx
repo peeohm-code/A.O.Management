@@ -1,13 +1,16 @@
-import { lazy, Suspense, ComponentType } from "react";
+import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
+// Import Pie Chart components directly (not lazy) to fix rendering issue
+import { 
+  PieChart as RechartsPieChart, 
+  Pie as RechartsPie, 
+  Cell as RechartsCell,
+  ResponsiveContainer as RechartsResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  Legend as RechartsLegend
+} from "recharts";
 
-// Lazy load recharts components
-const LazyPieChart = lazy(() => import("recharts").then(module => ({ default: module.PieChart })));
-const LazyPie = lazy(() => import("recharts").then(module => ({ default: module.Pie as any })));
-const LazyCell = lazy(() => import("recharts").then(module => ({ default: module.Cell })));
-const LazyResponsiveContainer = lazy(() => import("recharts").then(module => ({ default: module.ResponsiveContainer })));
-const LazyTooltip = lazy(() => import("recharts").then(module => ({ default: module.Tooltip })));
-const LazyLegend = lazy(() => import("recharts").then(module => ({ default: module.Legend })));
+// Lazy load other chart components
 const LazyLineChart = lazy(() => import("recharts").then(module => ({ default: module.LineChart })));
 const LazyLine = lazy(() => import("recharts").then(module => ({ default: module.Line })));
 const LazyBarChart = lazy(() => import("recharts").then(module => ({ default: module.BarChart })));
@@ -26,43 +29,15 @@ const ChartLoadingFallback = () => (
   </div>
 );
 
-// Wrapper components with Suspense
-export const PieChart = (props: any) => (
-  <Suspense fallback={<ChartLoadingFallback />}>
-    <LazyPieChart {...props} />
-  </Suspense>
-);
+// Export Pie Chart components directly (no lazy loading to fix rendering issue)
+export const PieChart = RechartsPieChart;
+export const Pie = RechartsPie;
+export const Cell = RechartsCell;
+export const ResponsiveContainer = RechartsResponsiveContainer;
+export const Tooltip = RechartsTooltip;
+export const Legend = RechartsLegend;
 
-export const Pie = (props: any) => (
-  <Suspense fallback={null}>
-    <LazyPie {...props} />
-  </Suspense>
-);
-
-export const Cell = (props: any) => (
-  <Suspense fallback={null}>
-    <LazyCell {...props} />
-  </Suspense>
-);
-
-export const ResponsiveContainer = (props: any) => (
-  <Suspense fallback={<ChartLoadingFallback />}>
-    <LazyResponsiveContainer {...props} />
-  </Suspense>
-);
-
-export const Tooltip = (props: any) => (
-  <Suspense fallback={null}>
-    <LazyTooltip {...props} />
-  </Suspense>
-);
-
-export const Legend = (props: any) => (
-  <Suspense fallback={null}>
-    <LazyLegend {...props} />
-  </Suspense>
-);
-
+// Other chart components with lazy loading
 export const LineChart = (props: any) => (
   <Suspense fallback={<ChartLoadingFallback />}>
     <LazyLineChart {...props} />
@@ -70,7 +45,7 @@ export const LineChart = (props: any) => (
 );
 
 export const Line = (props: any) => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<div />}>
     <LazyLine {...props} />
   </Suspense>
 );
@@ -82,31 +57,31 @@ export const BarChart = (props: any) => (
 );
 
 export const Bar = (props: any) => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<div />}>
     <LazyBar {...props} />
   </Suspense>
 );
 
 export const XAxis = (props: any) => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<div />}>
     <LazyXAxis {...props} />
   </Suspense>
 );
 
 export const YAxis = (props: any) => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<div />}>
     <LazyYAxis {...props} />
   </Suspense>
 );
 
 export const CartesianGrid = (props: any) => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<div />}>
     <LazyCartesianGrid {...props} />
   </Suspense>
 );
 
 export const Area = (props: any) => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<div />}>
     <LazyArea {...props} />
   </Suspense>
 );

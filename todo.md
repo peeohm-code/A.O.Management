@@ -6,6 +6,9 @@
 - [x] แก้ไขหน้า Tasks (/tasks) ไม่แสดงงานที่ถูกต้อง - ต้องแสดงงานทั้งหมดที่ผู้ใช้มีส่วนเกี่ยวข้องในทุกโปรเจกต์
 - [x] แก้ไข IndexedDB version conflict error ใน useOfflineQueue.ts
 - [x] แก้ไขปัญหาหน้า Dashboard ไม่แสดงโครงการ แต่หน้าโครงการมี - ให้ตรวจสอบและแก้ไข tRPC query ให้ดึงข้อมูลเดียวกันทั้งสองหน้า
+- [x] แก้ไขปัญหากราฟวงกลม (Pie Chart) ไม่แสดงผลในหน้า Tasks
+- [x] แก้ไขปัญหากราฟวงกลม (Pie Chart) ไม่แสดงผลในหน้า Inspection
+- [x] แก้ไขปัญหากราฟวงกลม (Pie Chart) ไม่แสดงผลในหน้า Defects
 
 ## ✅ Core Features (เสร็จสมบูรณ์)
 
@@ -102,8 +105,6 @@
 - [x] สร้าง Document Status Component
 
 ### Phase 3: Nice to Have Features
-- [x] สร้าง Financial Overview Component
-- [x] สร้าง Safety & Compliance Component
 - [x] สร้าง Advanced Analytics Component
 - [ ] สร้าง Custom Widgets System
 
