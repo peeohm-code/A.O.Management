@@ -251,6 +251,13 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
+      <Route path="/user-management">
+        {() => (
+          <DashboardLayout>
+            <UserManagement />
+          </DashboardLayout>
+        )}
+      </Route>
       <Route path={"/users"}>
         {() => (
           <DashboardLayout>

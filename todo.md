@@ -115,3 +115,4 @@
 - [x] เพิ่ม Empty States พร้อม Call-to-Action
 - [x] เพิ่ม Tooltips สำหรับข้อมูลเทคนิค
 - [x] เพิ่ม Keyboard Shortcuts สำหรับผู้ใช้ขั้นสูง
+- [x] แก้ไขปัญหา route /user-management เกิด 404 error - ตรวจสอบและแก้ไข routing configuration ใน App.tsx
