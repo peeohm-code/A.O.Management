@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, name FROM tasks LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name FROM tasks LIMIT 5;",
+  "rows": [
+    {
+      "id": "150001",
+      "name": "งานวางผัง"
+    },
+    {
+      "id": "180001",
+      "name": "ทดสอบ Task จาก Project"
+    },
+    {
+      "id": "180002",
+      "name": "ทดสอบ Bug Fix"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n150001\tงานวางผัง\n180001\tทดสอบ Task จาก Project\n180002\tทดสอบ Bug Fix\n",
+  "stderr": "",
+  "execution_time_ms": 1501
+}

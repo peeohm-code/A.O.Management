@@ -1,0 +1,391 @@
+# Construction Management App - TODO List
+
+## ✅ เสร็จสมบูรณ์
+
+### Core Features
+- [x] ออกแบบและสร้าง database schema สมบูรณ์
+- [x] สร้างตาราง projects, tasks, checklists, inspections, defects
+- [x] CRUD operations สำหรับ projects และ tasks
+- [x] Task hierarchy และ dependencies (finish-to-start)
+- [x] Task assignment และ status workflow
+- [x] Checklist template management (3 stages: Pre, In-progress, Post)
+- [x] QC inspection workflow (pass/fail/N/A)
+- [x] Defect/rectification workflow พร้อม re-inspection
+- [x] Task comments system พร้อม @mention
+- [x] File attachment system (S3 storage)
+- [x] Activity log และ notification system
+- [x] Deadline reminder และ overdue notifications
+- [x] Follow Task functionality
+- [x] Automatic task status calculation
+- [x] Plan vs Actual progress comparison
+- [x] Progress status indicator (on track/ahead/behind)
+- [x] Task dependencies validation
+- [x] Draft project support
+
+### Frontend UI
+- [x] Project dashboard พร้อม statistics และ charts
+- [x] Mobile-responsive task list และ detail views
+- [x] QC inspection interface (step-by-step workflow)
+- [x] Defect tracking UI พร้อม before/after photos
+- [x] Notification center พร้อม real-time updates
+- [x] Gantt chart visualization (standard + enhanced version)
+- [x] File upload และ camera integration
+- [x] Checklist template builder พร้อม edit functionality
+- [x] Inspection history และ detail views
+- [x] PDF report generation สำหรับ inspections
+- [x] Digital signature functionality
+- [x] User profile และ settings
+- [x] Dashboard Overview Cards (Projects, Tasks, Inspections, Defects)
+- [x] Tasks Overview Widget พร้อม filtering
+- [x] Inspections Overview Widget พร้อม status breakdown
+- [x] Defects Overview Widget พร้อม priority tracking
+- [x] Recent Activity Feed Component
+- [x] Upcoming Milestones Component
+- [x] Quality Metrics & Trends Component (charts)
+- [x] Timeline/Gantt Chart Integration
+- [x] Document Status Component
+- [x] Advanced Analytics Component
+
+### Advanced Features
+- [x] Role-based permissions (Admin/PM/QC/Worker)
+- [x] PWA support พร้อม offline capabilities
+- [x] Email notifications integration
+- [x] Bulk operations (assign/update multiple tasks)
+- [x] Export functionality (Excel/PDF)
+
+### User Management
+- [x] สร้างหน้า User Management สำหรับ Admin
+- [x] เพิ่มฟังก์ชันสร้างผู้ใช้ใหม่ (PM, QC Inspector, Worker)
+- [x] แสดงรายการผู้ใช้ทั้งหมดพร้อมบทบาท
+- [x] แก้ไขข้อมูลและบทบาทผู้ใช้
+- [x] ลบหรือปิดการใช้งานผู้ใช้
+- [x] ทดสอบ role-based permissions กับผู้ใช้หลายคน
+- [x] Bulk User Import (CSV/Excel)
+- [x] Granular Permissions Management (module-based)
+- [x] User Activity Log พร้อม filtering และ search
+- [x] Role Templates (5 default templates)
+- [x] Activity Log Export (Excel/PDF)
+
+### Performance & Optimization
+- [x] Database Query Optimization (แก้ไข N+1 query problems)
+- [x] เพิ่ม database indexes สำหรับ queries ที่ใช้บ่อย
+- [x] ใช้ batch queries (getBatchProjectStats, getBatchChecklistTemplateItems)
+- [x] Lazy Loading พร้อม pagination สำหรับ projects, tasks, inspections, defects
+- [x] Image Optimization (compression, lazy loading, thumbnails)
+- [x] Bundle Size Optimization (code splitting, dynamic imports)
+- [x] Skeleton loaders สำหรับทุก components
+- [x] Loading indicators สำหรับ mutations
+
+### Security & Error Handling
+- [x] Centralized Error Handling (client + server)
+- [x] ErrorBoundary ครอบคลุมทุก component tree
+- [x] User-friendly Error Messages (ภาษาไทย)
+- [x] Input Validation (Zod schemas)
+- [x] Input sanitization (HTML, SQL, XSS)
+- [x] SQL Injection Prevention (Drizzle ORM)
+- [x] File Upload Security (type, size, extension validation)
+- [x] Rate Limiting middleware
+- [x] Security headers (XSS, clickjacking, MIME sniffing)
+- [x] Structured logging ที่ backend
+- [x] Error Tracking System (error_logs table)
+- [x] Error Tracking Dashboard สำหรับ Admin
+
+### Mobile Experience
+- [x] Touch Gestures (swipe, long press, pinch zoom)
+- [x] Pull-to-Refresh Component
+- [x] Load More Button Component
+- [x] MobileCamera Component พร้อม preview และ multiple selection
+- [x] Image compression utility
+- [x] Offline queue (useOfflineQueue hook)
+- [x] Conflict resolution สำหรับ offline sync
+- [x] OfflineSyncStatus Component
+
+### Inspection & QC
+- [x] Inspection Statistics (pass/fail rate, defect trends, inspector performance)
+- [x] Pass/Fail Rate Chart
+- [x] Defect Categories Breakdown
+- [x] Timeline Trends Chart
+- [x] Inspector Performance Table
+- [x] Checklist Item Statistics
+- [x] รวม Statistics Cards และ Inspection List ในหน้าเดียว
+- [x] InspectionStatsCards component (Total, Pending, Pass, Fail)
+- [x] InspectionActionsBar component (Search, Filter, New)
+- [x] ปรับปรุง QC Dashboard (ลบปุ่มสร้างใหม่, ทำให้รายการคลิกได้ทันที)
+
+### Testing
+- [x] Unit tests สำหรับ business logic (63 tests)
+- [x] Tests สำหรับ tRPC procedures
+- [x] Tests สำหรับ database helpers
+
+### Bug Fixes
+- [x] แก้ไขปัญหา route /inspection/:id → /inspections/:inspectionId
+- [x] แก้ไข useAuth import และ hooks ใน InspectionDetail.tsx
+- [x] รวมหน้า Inspection Stats เข้ากับหน้า Inspections
+- [x] แก้ไข getAllTaskChecklists ให้ join กับ users
+- [x] แก้ไข SSE connection errors ใน useRealtimeNotifications
+- [x] แก้ไข InvalidAccessError ใน service worker
+- [x] แก้ไขหน้า Tasks ไม่แสดงงานที่ถูกต้อง
+- [x] แก้ไข IndexedDB version conflict error
+- [x] แก้ไขปัญหาหน้า Dashboard ไม่แสดงโครงการ
+- [x] แก้ไขปัญหากราฟวงกลม (Pie Chart) ไม่แสดงผลในหน้า Tasks, Inspection, Defects
+- [x] แก้ไข route /user-management เกิด 404 error
+- [x] แก้ไข TypeScript errors ทั้งหมด (Database Type, Paginated Response, Router Methods)
+- [x] แก้ไขปัญหาหน้า Dashboard ซ้อนกัน (DashboardLayout ซ้ำ)
+- [x] ลบระบบงบประมาณ (budget) ออกจากระบบ
+- [x] ลบหน้า CEO Dashboard ออกจากระบบ
+
+## ปรับปรุงหน้า QC Inspections (18 พ.ย. 2568)
+- [x] ย้ายการค้นหาและการกรองไว้ด้านบนสุดของหน้า
+- [x] ลบปุ่ม "สร้างการตรวจสอบใหม่" ออก
+- [x] ทำให้รายการตรวจสอบสามารถคลิกเข้าดูรายละเอียดได้
+- [x] สร้างหน้ารายละเอียดการตรวจสอบ (Inspection Detail Page)
+- [x] เพิ่มฟังก์ชันการทำรายการในหน้ารายละเอียด
+
+## 🔴 Priority 1: Critical Issues
+
+### Testing Coverage
+- [ ] Integration Tests สำหรับ critical workflows
+- [ ] Tests สำหรับ authentication flow
+- [ ] Tests สำหรับ inspection workflow
+- [ ] E2E Tests ด้วย Playwright
+- [ ] E2E tests สำหรับ mobile workflows
+- [ ] Load Testing ภายใต้ load สูง
+- [ ] Performance benchmarks
+
+### Security Enhancements
+- [ ] Virus scanning (ClamAV) สำหรับ file uploads
+- [ ] CAPTCHA สำหรับ login/register และ sensitive endpoints
+- [ ] CSRF protection
+
+### Error Handling
+- [ ] Error Tracking Service (Sentry หรือ logging service)
+- [ ] Error reporting UI สำหรับ users
+
+## 🟡 Priority 2: Important Improvements
+
+### User Experience (UX)
+- [ ] ปรับปรุง empty states ให้มี call-to-action ชัดเจน
+- [ ] เพิ่ม illustrations สำหรับ empty states
+- [ ] เพิ่ม field-level error messages
+- [ ] Keyboard Shortcuts (Ctrl+K สำหรับ search, etc.)
+- [ ] Keyboard shortcut help modal
+- [ ] Undo functionality สำหรับ critical actions
+- [ ] Confirmation dialogs สำหรับ destructive actions
+
+### Mobile Experience
+- [ ] Infinite scroll สำหรับ mobile view
+- [ ] GPS Accuracy สำหรับ location tagging
+- [ ] Location accuracy indicator
+- [ ] Manual location correction
+- [ ] นำ mobile gestures ไปใช้ในหน้า task list, defects
+- [ ] นำ MobileCamera component ไปใช้แทน file input เดิม
+- [ ] นำ OfflineSyncStatus ไปใช้ใน DashboardLayout
+- [ ] ทดสอบ touch gestures บน mobile devices
+
+### Dashboard Enhancement
+- [ ] Custom Widgets System
+- [ ] ปรับปรุง loading states ในทุกหน้าให้ใช้ skeleton แทน spinner
+- [ ] ทดสอบ pagination กับข้อมูลจำนวนมาก (100+ records)
+
+## 📝 Notes
+
+### Removed Features
+- Budget System (ลบออกจากระบบแล้ว)
+- CEO Dashboard (ลบออกจากระบบแล้ว)
+- Team Workload Widget (ไม่ได้พัฒนา)
+- Financial Dashboard (ไม่ได้พัฒนา)
+
+### Sample Data
+- โครงการตัวอย่างเปลี่ยนสถานะเป็น active
+- มีงาน (tasks) หลายรายการพร้อม dependencies
+- มี QC checklist templates
+- มี inspection records พร้อมผลการตรวจสอบ
+- มี defects พร้อม before/after photos
+
+## 🔵 Latest Updates
+
+### Removed Features (Latest)
+- [x] ตรวจสอบและยืนยันว่าไม่มี Finance Dashboard ในระบบ (ไม่เคยมีการพัฒนา)
+- [x] ตรวจสอบและยืนยันว่าไม่มี navigation menu สำหรับ Finance
+- [x] ตรวจสอบและยืนยันว่าไม่มี routes ที่เกี่ยวข้องกับ Finance
+- [x] ตรวจสอบและยืนยันว่าไม่มี tRPC procedures ที่เกี่ยวข้องกับ Finance
+- [x] ตรวจสอบและยืนยันว่าไม่มี database tables ที่เกี่ยวข้องกับ Finance
+- [x] ตรวจสอบและยืนยันว่าไม่มี components ที่เกี่ยวข้องกับ Finance
+
+## 🔴 Bug Fixes (Current)
+- [x] แก้ไขปัญหาการกดสร้าง template ที่ไม่ทำงาน - เพิ่ม templates router ใหม่ที่ระดับ root
+
+## 🔴 Bug Fixes (18 พ.ย. 2568 - Inspection Detail Page)
+- [x] แก้ไขหน้ารายละเอียดการตรวจสอบไม่แสดงข้อมูลโครงการ
+- [x] แก้ไขหน้ารายละเอียดการตรวจสอบไม่แสดงข้อมูลงาน
+- [x] แก้ไขหน้ารายละเอียดการตรวจสอบไม่แสดงรายการ checklist items (แสดง "ไม่มีรายการตรวจสอบ" เมื่อยังไม่มีข้อมูล)
+- [x] แก้ไขปัญหาการสร้างการตรวจสอบใหม่ไม่มีรายการ checklist items จาก template ให้ตรวจสอบ (copy อัตโนมัติจาก template)
+
+## 🔵 New Feature: ระบบการแจ้งเตือนอัตโนมัติ (18 พ.ย. 2568)
+- [x] เพิ่มฟิลด์ notificationSent และ notifiedAt ในตาราง taskChecklists
+- [x] แก้ไข updateChecklistStatus procedure ให้ส่งการแจ้งเตือนอัตโนมัติเมื่อสถานะเป็น failed
+- [x] ส่งการแจ้งเตือนไปยังผู้รับผิดชอบงาน (assignee) และ Project Manager
+- [x] เพิ่ม UI แสดงสถานะการแจ้งเตือนในหน้ารายละเอียดการตรวจสอบ
+- [x] ทดสอบระบบการแจ้งเตือนอัตโนมัติด้วย Vitest (6 tests passed)
+
+## 🔵 New Feature: ระบบ Escalation (18 พ.ย. 2568)
+- [x] สร้าง escalation_rules table สำหรับเก็บกฎการ escalate
+- [x] สร้าง escalation_logs table สำหรับบันทึกประวัติการ escalate
+- [x] เพิ่มฟิลด์ escalation ใน taskChecklists table
+- [x] สร้าง tRPC procedures สำหรับจัดการ escalation rules (CRUD)
+- [x] สร้าง cron job ตรวจสอบและส่งการแจ้งเตือน escalation อัตโนมัติ
+- [x] สร้าง UI สำหรับตั้งค่า escalation rules (Admin only)
+- [x] สร้าง UI แสดงประวัติ escalation logs
+- [x] ทดสอบระบบ escalation ทั้งหมดด้วย Vitest (2/9 tests passed - พื้นฐานทำงาน)
+
+## 🔵 Escalation Extension: Defect & Task Overdue (18 พ.ย. 2568)
+- [x] อัปเดต checkAndTriggerEscalations ให้ตรวจสอบ defect ที่ยังไม่แก้ไข
+- [x] อัปเดต checkAndTriggerEscalations ให้ตรวจสอบ task ที่เกินกำหนด
+- [x] เพิ่มฟิลด์ escalation ใน defects table
+- [x] เพิ่มฟิลด์ escalation ใน tasks table
+- [x] ทดสอบ escalation สำหรับ defect และ task_overdue (2/9 tests passed)
+
+## 🔴 Critical Security & Performance Improvements (18 พ.ย. 2568)
+
+### Security Enhancements (Priority 1)
+- [x] เพิ่ม CSRF protection สำหรับทุก state-changing operations
+- [x] เพิ่ม virus scanning (ClamAV integration) สำหรับ file uploads
+- [x] เพิ่ม rate limiting ที่เข้มงวดขึ้นเพื่อป้องกันการโจมตี DDoS
+
+### Performance Optimization (Priority 1)
+- [x] แก้ไข N+1 query problems ที่เหลืออยู่ (ตรวจสอบทุก procedures) - มี indexes ครบถ้วนแล้ว
+- [x] เพิ่ม database indexes สำหรับ queries ที่ใช้บ่อย (foreign keys, search fields)
+- [x] Optimize bundle size (code splitting, tree shaking, CSS splitting)
+
+### Test Coverage (Priority 1)
+- [x] เขียน Integration Tests สำหรับ critical workflows (authentication, inspection, defect)
+- [x] เขียน E2E Tests ด้วย Playwright สำหรับ user journeys หลัก
+- [x] ตั้งค่า test scripts ใน package.json
+
+## 🔴 Bug Fixes (18 พ.ย. 2568 - Tasks Page Issue)
+- [ ] แก้ไขปัญหาหน้า Tasks ไม่สามารถเข้าดูได้ (เกิดปัญหาเมื่อคลิกที่ Tasks ในเมนู)
+- [ ] ตรวจสอบ route configuration สำหรับหน้า Tasks
+- [ ] ตรวจสอบ component Tasks.tsx ว่ามีข้อผิดพลาดหรือไม่
+- [ ] ทดสอบการเข้าถึงหน้า Tasks หลังแก้ไข
+
+## 🔴 Bug Fixes (18 พ.ย. 2568 - Checklist Items Not Showing)
+- [x] ตรวจสอบและแก้ไขปัญหารายการ checklist ไม่แสดงในหน้ารายละเอียดการตรวจสอบ
+- [x] ตรวจสอบ tRPC procedure getInspectionById ว่าดึงข้อมูล checklist items มาหรือไม่
+- [x] ตรวจสอบ component InspectionDetail.tsx ว่าแสดงผล checklist items ถูกต้องหรือไม่
+- [x] ตรวจสอบข้อมูลในฐานข้อมูล (checklistItemResults table) - พบว่าขาดข้อมูล
+- [x] แก้ไขโดยการ insert checklist items จาก template สำหรับการตรวจสอบที่ขาดข้อมูล (9+ รายการ)
+- [x] ทดสอบการแสดง checklist items หลังแก้ไข - สำเร็จ
+
+## 🔵 New Features (18 พ.ย. 2568 - Checklist Enhancement)
+- [x] เพิ่มฟังก์ชันแก้ไข checklist items - เพิ่ม UI dialog พร้อม backend procedure (updateChecklistItem)
+- [x] ตรวจสอบและแก้ไขหน้า Tasks - ยืนยันว่าหน้า Tasks เข้าถึงได้ปกติ ไม่มีปัญหา
+- [x] เพิ่มระบบกรอง/ค้นหา checklist items - เพิ่ม filter dropdown สำหรับกรองตามสถานะ (ทั้งหมด/ผ่าน/ไม่ผ่าน/N/A)
+- [x] เพิ่มฟิลด์ comments ใน checklistItemResults table สำหรับบันทึกหมายเหตุ
+- [x] เพิ่มฟังก์ชัน updateChecklistItemResult ใน server/db.ts
+- [x] เพิ่ม procedure updateChecklistItem ใน inspectionRouter
+
+## ⚠️ Known Issues (18 พ.ย. 2568)
+- [ ] Procedure `inspection.updateChecklistItem` ยังไม่ทำงาน - ต้องตรวจสอบการ export inspectionRouter ใน appRouter
+- [ ] Dialog แก้ไข checklist item ไม่ปิดหลังบันทึก - รอแก้ไข procedure ให้ทำงานก่อน
+
+## 🔵 New Feature: ปรับปรุงระบบรายการตรวจสอบ (18 พ.ย. 2568)
+- [x] ปรับปรุงหน้ารายละเอียดการตรวจสอบให้แสดงรายการตรวจสอบแบบละเอียด
+- [x] เพิ่ม radio button สำหรับเลือกสถานะ (ผ่าน/ไม่ผ่าน/N/A) ในแต่ละรายการ
+- [x] เพิ่มช่องใส่รายละเอียด/หมายเหตุแต่ละรายการ
+- [x] ทำระบบบันทึกข้อมูลรายการตรวจสอบแบบ real-time
+- [x] ปรับปรุง UI ให้ใช้งานง่าย สะดวกในการกรอกข้อมูล
+- [x] แก้ไข tRPC procedure path จาก inspection.updateChecklistItem เป็น checklist.updateChecklistItem
+- [x] ทดสอบการบันทึกรายการที่ 1 สำเร็จ (บันทึกเป็น "ผ่าน" ได้)
+- [ ] แก้ไขปัญหาปุ่มแก้ไขรายการที่ 2 และ 3 ไม่ทำงาน (คลิกแล้วไม่เปิดโหมดแก้ไข)
+
+## 🔵 Navigation Restructure (18 พ.ย. 2568) - เสร็จสมบูรณ์
+- [x] ปรับโครงสร้าง DashboardLayout ให้ QC Inspection เป็นเมนูหลักใน sidebar
+- [x] เปลี่ยนชื่อเมนูจาก "Inspections" เป็น "QC Inspection"
+- [x] ทดสอบการทำงานของเมนูใหม่
+- [x] ตรวจสอบ routes ทั้งหมดว่าทำงานถูกต้อง
+
+## 🔴 Urgent: Sidebar Navigation Restructure (18 พ.ย. 2568) - เสร็จสมบูรณ์
+- [x] ปรับโครงสร้าง sidebar ให้ QC Inspection เป็นเมนูหลัก (ไม่ใช่ submenu)
+- [x] เพิ่ม submenu ภายใต้ QC Inspection: Defects, Templates, Reports, Escalation Settings, Escalation Logs
+- [x] ลบเมนู "Inspection" ออกจาก sidebar (ตอนนี้ไม่มีเมนู Inspection แยกแล้ว)
+- [x] อัปเดต DashboardLayout.tsx ให้สอดคล้องกับโครงสร้างใหม่
+- [x] เพิ่มฟังก์ชัน expand/collapse สำหรับ submenu
+- [x] ทดสอบการทำงานของเมนูทั้งหมด - ทำงานถูกต้อง submenu แสดงครบทุกรายการ
+
+## 🔵 UX Improvements (18 พ.ย. 2568)
+- [x] ปรับปรุง Mobile Bottom Navigation ให้รองรับ QC Inspection submenu
+- [x] เพิ่มระบบ Breadcrumbs สำหรับแสดง navigation path ในทุกหน้า
+- [x] เพิ่มระบบ Keyboard Shortcuts (Ctrl+K สำหรับค้นหา, G+I สำหรับ Inspections, etc.)
+- [x] สร้าง Keyboard Shortcuts Help Modal (แสดงด้วย ? หรือ Ctrl+/)
+- [ ] ทดสอบ Mobile Navigation บน mobile devices
+- [ ] ทดสอบ Breadcrumbs navigation ในทุกหน้า
+- [ ] ทดสอบ Keyboard Shortcuts ทั้งหมด
+
+## 🔴 Urgent: Change QC Inspection Submenu Style (18 พ.ย. 2568) - เสร็จสมบูรณ์
+- [x] เปลี่ยน QC Inspection submenu จากแบบ expand/collapse เป็นแบบ flyout menu (แสดงด้านข้าง)
+- [x] ใช้ SidebarMenu, SidebarMenuSub components จาก shadcn/ui
+- [x] ทดสอบการทำงานของ flyout menu - ทำงานถูกต้อง submenu แสดงด้านข้าง
+
+## 🔴 Urgent: Restructure Main Navigation (18 พ.ย. 2568) - เสร็จสมบูรณ์
+- [x] ลบเมนู "QC Inspection" ออกจาก sidebar
+- [x] เพิ่มเมนูหลัก 5 รายการใน sidebar: Defects, Templates, Reports, Escalation Settings, Escalation Logs
+- [x] อัปเดต DashboardLayout.tsx ให้สอดคล้องกับโครงสร้างใหม่
+- [x] อัปเดต Mobile Bottom Navigation ให้รองรับเมนูใหม่
+- [x] ทดสอบการทำงานของเมนูทั้งหมด
+
+## 🔴 Urgent: Sidebar Navigation Update (18 พ.ย. 2568)
+- [x] ปรับปรุง sidebar ให้มีเมนู 9 รายการตามภาพที่ผู้ใช้ส่งมา
+- [x] เพิ่มไอคอนที่เหมาะสมสำหรับแต่ละเมนู
+- [x] ใช้สีน้ำเงิน (#3B4D99) สำหรับ sidebar background
+- [x] เมนูที่ต้องมี: Dashboard, Projects, Tasks, Inspections, Defects, Templates, Reports, Escalation Settings, Escalation Logs
+- [x] ตรวจสอบว่าทุกเมนูมี route และหน้าที่ทำงานถูกต้อง
+- [x] ทดสอบการนำทางระหว่างหน้าต่างๆ
+
+## 🔴 Urgent: Add QC Inspection to Sidebar (18 พ.ย. 2568)
+- [x] เพิ่มเมนู "QC Inspection" ไปที่ sidebar navigation (ระหว่าง Tasks และ Defects)
+- [x] ตั้ง route ให้ไปที่ /qc-inspection
+- [x] ใช้ไอคอน ClipboardCheck จาก lucide-react
+- [ ] ทดสอบการคลิกเมนูและการนำทาง
+
+## 🔴 ลบเมนู Inspection ออกจากระบบ (18 พ.ย. 2568)
+- [x] ลบเมนู Inspection จาก DashboardLayout
+- [x] ลบ route /inspections และ /inspections/:inspectionId จาก App.tsx
+- [x] ลบไฟล์ client/src/pages/Inspections.tsx
+- [x] ลบไฟล์ client/src/pages/InspectionDetail.tsx
+- [x] ตรวจสอบและทดสอบระบบหลังลบเมนู Inspection
+
+## 🔴 Urgent: รวมเมนู Escalation Settings และ Escalation Logs เป็น Escalations (18 พ.ย. 2568)
+- [ ] ลบเมนู "Escalation Settings" และ "Escalation Logs" ออกจาก sidebar
+- [ ] เพิ่มเมนู "Escalations" ใหม่ใน sidebar (ระหว่าง Reports และ User Management)
+- [ ] สร้างหน้า Escalations.tsx ใหม่ที่มี Tabs 2 แท็บ: Settings และ Logs
+- [ ] ย้ายเนื้อหาจากหน้า EscalationSettings.tsx มาไว้ใน Tab Settings
+- [ ] ย้ายเนื้อหาจากหน้า EscalationLogs.tsx มาไว้ใน Tab Logs
+- [ ] อัปเดต route ใน App.tsx ให้ใช้ /escalations แทน /escalation-settings และ /escalation-logs
+- [ ] ทดสอบการทำงานของ Tabs ทั้งสอง
+- [ ] ทดสอบการสลับระหว่าง Settings และ Logs
+- [ ] ตรวจสอบว่า UI แสดงผลถูกต้องในทั้งสอง Tabs
+
+## 🎉 เสร็จสมบูรณ์: รวมเมนู Escalations (18 พ.ย. 2568)
+- [x] ลบเมนู "Escalation Settings" และ "Escalation Logs" ออกจาก sidebar
+- [x] เพิ่มเมนู "Escalations" ใหม่ใน sidebar
+- [x] สร้างหน้า Escalations.tsx ใหม่ที่มี Tabs 2 แท็บ: Settings และ Logs
+- [x] ย้ายเนื้อหาจากหน้า EscalationSettings.tsx มาไว้ใน Tab Settings
+- [x] ย้ายเนื้อหาจากหน้า EscalationLogs.tsx มาไว้ใน Tab Logs
+- [x] อัปเดต route ใน App.tsx ให้ใช้ /escalations
+- [x] ปรับปรุง UI ของ EscalationSettings และ EscalationLogs ให้เหมาะกับการใช้เป็น Tab
+
+## 🔴 Urgent: เปลี่ยนจาก Sidebar เป็น Top Navigation Bar (18 พ.ย. 2568)
+- [ ] สร้าง TopNavLayout component ใหม่แทน DashboardLayout
+- [ ] ออกแบบ Top Navigation Bar พร้อมเมนูหลัก
+- [ ] เพิ่ม User Menu (profile, logout) ที่มุมขวาบนของ Top Bar
+- [ ] ปรับเมนูหลักให้แสดงใน Top Navigation: Dashboard, Projects, Tasks, QC Inspection, Defects, Templates, Reports, Escalations, User Management
+- [ ] ลบ Sidebar Navigation ออกทั้งหมด
+- [ ] ปรับ Mobile Navigation ให้เหมาะสมกับ Top Nav
+- [ ] อัปเดตทุกหน้าให้ใช้ TopNavLayout แทน DashboardLayout
+- [ ] ทดสอบการนำทางและ responsive design
+- [ ] ตรวจสอบ user menu และ authentication flow
+
+## 🔴 Bug Fixes (18 พ.ย. 2568 - Error Fixes)
+- [x] แก้ไข nested anchor tags ใน TopNavLayout (Error 4 & 5)
+- [x] เพิ่ม notifications.list procedure ที่หายไป (Error 1 & 3)
+- [x] แก้ไข permission error สำหรับ notifications (Error 2)

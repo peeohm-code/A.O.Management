@@ -1,0 +1,60 @@
+{
+  "query": "SELECT t.id, t.name, COUNT(tc.id) as checklist_count\nFROM tasks t\nLEFT JOIN taskChecklists tc ON t.id = tc.taskId\nGROUP BY t.id, t.name\nORDER BY t.id\nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT t.id, t.name, COUNT(tc.id) as checklist_count\nFROM tasks t\nLEFT JOIN taskChecklists tc ON t.id = tc.taskId\nGROUP BY t.id, t.name\nORDER BY t.id\nLIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "งานฐานราก",
+      "checklist_count": "4"
+    },
+    {
+      "id": "2",
+      "name": "งานโครงสร้าง",
+      "checklist_count": "0"
+    },
+    {
+      "id": "3",
+      "name": "เทพื้นชั้น 5-10",
+      "checklist_count": "0"
+    },
+    {
+      "id": "4",
+      "name": "งานสถาปัตยกรรม",
+      "checklist_count": "0"
+    },
+    {
+      "id": "5",
+      "name": "งานเตรียมพื้นที่",
+      "checklist_count": "0"
+    },
+    {
+      "id": "6",
+      "name": "งานฐานรากและชั้นใต้ดิน",
+      "checklist_count": "0"
+    },
+    {
+      "id": "7",
+      "name": "งานฐานราก",
+      "checklist_count": "0"
+    },
+    {
+      "id": "8",
+      "name": "งานโครงสร้าง",
+      "checklist_count": "0"
+    },
+    {
+      "id": "9",
+      "name": "เทพื้นชั้น 5-10",
+      "checklist_count": "0"
+    },
+    {
+      "id": "10",
+      "name": "งานสถาปัตยกรรม",
+      "checklist_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tchecklist_count\n1\tงานฐานราก\t4\n2\tงานโครงสร้าง\t0\n3\tเทพื้นชั้น 5-10\t0\n4\tงานสถาปัตยกรรม\t0\n5\tงานเตรียมพื้นที่\t0\n6\tงานฐานรากและชั้นใต้ดิน\t0\n7\tงานฐานราก\t0\n8\tงานโครงสร้าง\t0\n9\tเทพื้นชั้น 5-10\t0\n10\tงานสถาปัตยกรรม\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1542
+}

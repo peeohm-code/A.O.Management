@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO categoryColors (projectId, category, color) VALUES\n(4, 'preparation', '#10B981'),\n(4, 'structure', '#3B82F6'),\n(4, 'architecture', '#8B5CF6'),\n(4, 'mep', '#F59E0B'),\n(4, 'other', '#6B7280')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO categoryColors (projectId, category, color) VALUES\n(4, 'preparation', '#10B981'),\n(4, 'structure', '#3B82F6'),\n(4, 'architecture', '#8B5CF6'),\n(4, 'mep', '#F59E0B'),\n(4, 'other', '#6B7280')",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1552
+}

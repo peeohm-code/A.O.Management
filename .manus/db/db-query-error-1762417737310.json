@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE defects ADD COLUMN checklistItemId INT AFTER checklistId; ALTER TABLE defects ADD COLUMN rootCause TEXT AFTER severity; ALTER TABLE defects ADD COLUMN correctiveAction TEXT AFTER rootCause; ALTER TABLE defects ADD COLUMN preventiveAction TEXT AFTER correctiveAction; ALTER TABLE defects ADD COLUMN dueDate TIMESTAMP NULL AFTER preventiveAction; ALTER TABLE defects ADD COLUMN ncrLevel ENUM('major', 'minor') NULL AFTER dueDate; ALTER TABLE defects ADD COLUMN verifiedBy INT NULL AFTER resolvedAt; ALTER TABLE defects ADD COLUMN verifiedAt TIMESTAMP NULL AFTER verifiedBy; ALTER TABLE defects ADD COLUMN verificationComment TEXT AFTER verifiedAt;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute ALTER TABLE defects ADD COLUMN checklistItemId INT AFTER checklistId; ALTER TABLE defects ADD COLUMN rootCause TEXT AFTER severity; ALTER TABLE defects ADD COLUMN correctiveAction TEXT AFTER rootCause; ALTER TABLE defects ADD COLUMN preventiveAction TEXT AFTER correctiveAction; ALTER TABLE defects ADD COLUMN dueDate TIMESTAMP NULL AFTER preventiveAction; ALTER TABLE defects ADD COLUMN ncrLevel ENUM('major', 'minor') NULL AFTER dueDate; ALTER TABLE defects ADD COLUMN verifiedBy INT NULL AFTER resolvedAt; ALTER TABLE defects ADD COLUMN verifiedAt TIMESTAMP NULL AFTER verifiedBy; ALTER TABLE defects ADD COLUMN verificationComment TEXT AFTER verifiedAt;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1060 (42S21) at line 1: Duplicate column name 'checklistItemId'"
+  ]
+}

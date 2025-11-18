@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE tasks SET category = CASE \n  WHEN name LIKE '%ฐานราก%' THEN 'structure'\n  WHEN name LIKE '%เสา%' THEN 'structure'\n  WHEN name LIKE '%คาน%' OR name LIKE '%พื้น%' THEN 'structure'\n  WHEN name LIKE '%อิฐ%' OR name LIKE '%ผนัง%' THEN 'architecture'\n  WHEN name LIKE '%หลังคา%' THEN 'architecture'\n  WHEN name LIKE '%ฉาบปูน%' OR name LIKE '%ทาสี%' THEN 'finishing'\n  WHEN name LIKE '%ไฟฟ้า%' THEN 'mep'\n  WHEN name LIKE '%ประปา%' THEN 'mep'\n  ELSE 'other'\nEND\nWHERE category IS NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute UPDATE tasks SET category = CASE \n  WHEN name LIKE '%ฐานราก%' THEN 'structure'\n  WHEN name LIKE '%เสา%' THEN 'structure'\n  WHEN name LIKE '%คาน%' OR name LIKE '%พื้น%' THEN 'structure'\n  WHEN name LIKE '%อิฐ%' OR name LIKE '%ผนัง%' THEN 'architecture'\n  WHEN name LIKE '%หลังคา%' THEN 'architecture'\n  WHEN name LIKE '%ฉาบปูน%' OR name LIKE '%ทาสี%' THEN 'finishing'\n  WHEN name LIKE '%ไฟฟ้า%' THEN 'mep'\n  WHEN name LIKE '%ประปา%' THEN 'mep'\n  ELSE 'other'\nEND\nWHERE category IS NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1521
+}
