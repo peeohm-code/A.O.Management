@@ -227,12 +227,12 @@ export default function InspectionDetail() {
             </div>
           </div>
 
-          {inspection.notes && (
+          {inspection.generalComments && (
             <>
               <Separator />
               <div>
                 <span className="font-medium">หมายเหตุ:</span>
-                <p className="mt-2 text-muted-foreground">{inspection.notes}</p>
+                <p className="mt-2 text-muted-foreground">{inspection.generalComments}</p>
               </div>
             </>
           )}
@@ -254,9 +254,6 @@ export default function InspectionDetail() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-medium">{item.itemName}</h3>
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         {getResultIcon(item.result)}

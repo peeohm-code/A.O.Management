@@ -3812,52 +3812,67 @@ export async function getInspectionDetail(inspectionId: number) {
   const db = await getDb();
   if (!db) return null;
 
-  // Get inspection basic info
-  const inspection = await db
-    .select({
-      id: taskChecklists.id,
-      taskId: taskChecklists.taskId,
-      templateId: taskChecklists.templateId,
-      templateName: checklistTemplates.name,
-      stage: taskChecklists.stage,
-      status: taskChecklists.status,
-      inspectedBy: taskChecklists.inspectedBy,
-      inspectorName: users.name,
-      inspectorEmail: users.email,
-      inspectedAt: taskChecklists.inspectedAt,
-      generalComments: taskChecklists.generalComments,
-      photoUrls: taskChecklists.photoUrls,
-      signature: taskChecklists.signature,
-      originalInspectionId: taskChecklists.originalInspectionId,
-      reinspectionCount: taskChecklists.reinspectionCount,
-      createdAt: taskChecklists.createdAt,
-    })
+  // Get inspection basic info with task and project details
+  const inspectionRows = await db
+    .select()
     .from(taskChecklists)
     .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
     .leftJoin(users, eq(taskChecklists.inspectedBy, users.id))
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .leftJoin(projects, eq(tasks.projectId, projects.id))
     .where(eq(taskChecklists.id, inspectionId))
     .limit(1);
 
-  if (inspection.length === 0) return null;
+  if (inspectionRows.length === 0) return null;
+
+  const row = inspectionRows[0];
+  const inspection = {
+    id: row.taskChecklists.id,
+    taskId: row.taskChecklists.taskId,
+    taskName: row.tasks?.name || null,
+    projectId: row.tasks?.projectId || null,
+    projectName: row.projects?.name || null,
+    templateId: row.taskChecklists.templateId,
+    templateName: row.checklistTemplates?.name || null,
+    stage: row.taskChecklists.stage,
+    status: row.taskChecklists.status,
+    inspectedBy: row.taskChecklists.inspectedBy,
+    inspectorName: row.users?.name || null,
+    inspectorEmail: row.users?.email || null,
+    inspectedAt: row.taskChecklists.inspectedAt,
+    generalComments: row.taskChecklists.generalComments,
+    photoUrls: row.taskChecklists.photoUrls,
+    signature: row.taskChecklists.signature,
+    originalInspectionId: row.taskChecklists.originalInspectionId,
+    reinspectionCount: row.taskChecklists.reinspectionCount,
+    createdAt: row.taskChecklists.createdAt,
+  };
+
+
 
   // Get all item results with template item details
-  const itemResults = await db
-    .select({
-      id: checklistItemResults.id,
-      templateItemId: checklistItemResults.templateItemId,
-      itemText: checklistTemplateItems.itemText,
-      itemOrder: checklistTemplateItems.order,
-      result: checklistItemResults.result,
-      photoUrls: checklistItemResults.photoUrls,
-      createdAt: checklistItemResults.createdAt,
-    })
+  const itemResultRows = await db
+    .select()
     .from(checklistItemResults)
     .leftJoin(
       checklistTemplateItems,
       eq(checklistItemResults.templateItemId, checklistTemplateItems.id)
     )
-    .where(eq(checklistItemResults.taskChecklistId, inspectionId))
-    .orderBy(checklistTemplateItems.order);
+    .where(eq(checklistItemResults.taskChecklistId, inspectionId));
+
+  // Map to simpler structure and sort by order
+  const itemResults = itemResultRows
+    .map((row) => ({
+      id: row.checklistItemResults.id,
+      templateItemId: row.checklistItemResults.templateItemId,
+      itemName: row.checklistTemplateItems?.itemText || null,
+      itemOrder: row.checklistTemplateItems?.order || 0,
+      result: row.checklistItemResults.result,
+      remarks: row.checklistItemResults.remarks,
+      photoUrls: row.checklistItemResults.photoUrls,
+      createdAt: row.checklistItemResults.createdAt,
+    }))
+    .sort((a, b) => a.itemOrder - b.itemOrder);
 
   // Get defects created from this inspection
   const relatedDefects = await db
@@ -3883,8 +3898,8 @@ export async function getInspectionDetail(inspectionId: number) {
   const passRate = totalItems > 0 ? Math.round((passCount / totalItems) * 100) : 0;
 
   return {
-    ...inspection[0],
-    itemResults,
+    ...inspection,
+    items: itemResults,
     defects: relatedDefects,
     statistics: {
       totalItems,
