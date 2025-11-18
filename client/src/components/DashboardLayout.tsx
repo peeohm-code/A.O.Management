@@ -119,37 +119,35 @@ const menuItems: MenuItem[] = [
   },
   {
     icon: ClipboardCheck,
-    label: "QC Inspection",
+    label: "Inspections",
     path: "/inspections",
-    submenu: [
-      {
-        icon: AlertTriangle,
-        label: "Defects",
-        path: "/defects",
-      },
-      {
-        icon: FileText,
-        label: "Templates",
-        path: "/templates",
-      },
-      {
-        icon: BarChart3,
-        label: "Reports",
-        path: "/reports",
-      },
-      {
-        icon: Bell,
-        label: "Escalation Settings",
-        path: "/escalation-settings",
-        adminOnly: true,
-      },
-      {
-        icon: History,
-        label: "Escalation Logs",
-        path: "/escalation-logs",
-        adminOnly: true,
-      },
-    ],
+  },
+  {
+    icon: AlertTriangle,
+    label: "Defects",
+    path: "/defects",
+  },
+  {
+    icon: FileText,
+    label: "Templates",
+    path: "/templates",
+  },
+  {
+    icon: BarChart3,
+    label: "Reports",
+    path: "/reports",
+  },
+  {
+    icon: Bell,
+    label: "Escalation Settings",
+    path: "/escalation-settings",
+    adminOnly: true,
+  },
+  {
+    icon: History,
+    label: "Escalation Logs",
+    path: "/escalation-logs",
+    adminOnly: true,
   },
 ];
 
