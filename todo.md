@@ -340,3 +340,16 @@
 - [x] เมนูที่ต้องมี: Dashboard, Projects, Tasks, Inspections, Defects, Templates, Reports, Escalation Settings, Escalation Logs
 - [x] ตรวจสอบว่าทุกเมนูมี route และหน้าที่ทำงานถูกต้อง
 - [x] ทดสอบการนำทางระหว่างหน้าต่างๆ
+
+## 🔴 Urgent: Add QC Inspection to Sidebar (18 พ.ย. 2568)
+- [x] เพิ่มเมนู "QC Inspection" ไปที่ sidebar navigation (ระหว่าง Tasks และ Defects)
+- [x] ตั้ง route ให้ไปที่ /qc-inspection
+- [x] ใช้ไอคอน ClipboardCheck จาก lucide-react
+- [ ] ทดสอบการคลิกเมนูและการนำทาง
+
+## 🔴 ลบเมนู Inspection ออกจากระบบ (18 พ.ย. 2568)
+- [x] ลบเมนู Inspection จาก DashboardLayout
+- [x] ลบ route /inspections และ /inspections/:inspectionId จาก App.tsx
+- [x] ลบไฟล์ client/src/pages/Inspections.tsx
+- [x] ลบไฟล์ client/src/pages/InspectionDetail.tsx
+- [x] ตรวจสอบและทดสอบระบบหลังลบเมนู Inspection

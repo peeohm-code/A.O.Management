@@ -119,9 +119,10 @@ const menuItems: MenuItem[] = [
   },
   {
     icon: ClipboardCheck,
-    label: "Inspections",
-    path: "/inspections",
+    label: "QC Inspection",
+    path: "/qc-inspection",
   },
+
   {
     icon: AlertTriangle,
     label: "Defects",
