@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, UserCog, Shield, Upload, Key, Activity } from "lucide-react";
+import { Loader2, Search, UserCog, Shield, Upload, Key, Activity, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -58,10 +58,12 @@ export default function UserManagement() {
     name: "",
     email: "",
     role: "worker" as "admin" | "project_manager" | "qc_inspector" | "worker",
+    templateId: null as number | null,
   });
 
   const usersQuery = trpc.user.list.useQuery();
   const statsQuery = trpc.user.getStats.useQuery();
+  const templatesQuery = trpc.permissions.listRoleTemplates.useQuery();
   const updateRoleMutation = trpc.user.updateRole.useMutation({
     onSuccess: () => {
       toast.success("อัปเดต Role สำเร็จ");
@@ -80,7 +82,7 @@ export default function UserManagement() {
     onSuccess: () => {
       toast.success("สร้างผู้ใช้สำเร็จ");
       setIsCreateDialogOpen(false);
-      setCreateForm({ name: "", email: "", role: "worker" });
+      setCreateForm({ name: "", email: "", role: "worker", templateId: null });
       usersQuery.refetch();
       statsQuery.refetch();
     },
@@ -167,6 +169,10 @@ export default function UserManagement() {
           <Button variant="outline" onClick={() => window.location.href = '/user-activity-log'} className="gap-2">
             <Activity className="h-4 w-4" />
             ประวัติการใช้งาน
+          </Button>
+          <Button variant="outline" onClick={() => window.location.href = '/role-templates'} className="gap-2">
+            <FileText className="h-4 w-4" />
+            Role Templates
           </Button>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             + สร้างผู้ใช้ใหม่
@@ -365,6 +371,28 @@ export default function UserManagement() {
                   <SelectItem value="admin">ผู้ดูแลระบบ (Admin)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Role Template (ไม่บังคับ)</label>
+              <Select
+                value={createForm.templateId?.toString() || "none"}
+                onValueChange={(value) => setCreateForm({ ...createForm, templateId: value === "none" ? null : parseInt(value) })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือก Template" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">ไม่ใช้ Template</SelectItem>
+                  {templatesQuery.data?.map((template) => (
+                    <SelectItem key={template.id} value={template.id.toString()}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                เลือก template เพื่อกำหนดสิทธิ์เริ่มต้นให้ผู้ใช้อัตโนมัติ
+              </p>
             </div>
           </div>
           <DialogFooter>

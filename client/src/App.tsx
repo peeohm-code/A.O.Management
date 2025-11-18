@@ -49,6 +49,7 @@ const GanttChartPage = lazy(() => import("./pages/GanttChartPage"));
 const BulkUserImport = lazy(() => import("./pages/BulkUserImport"));
 const PermissionsManagement = lazy(() => import("./pages/PermissionsManagement"));
 const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
+const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
 
 // Loading component
 const PageLoader = () => (
@@ -279,6 +280,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <UserActivityLog />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/role-templates">
+        {() => (
+          <DashboardLayout>
+            <RoleTemplates />
           </DashboardLayout>
         )}
       </Route>

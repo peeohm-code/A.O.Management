@@ -6,13 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Save, User, CheckCircle2 } from "lucide-react";
+import { Shield, Save, User, CheckCircle2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PermissionsManagement() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [permissionChanges, setPermissionChanges] = useState<Map<number, boolean>>(new Map());
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
 
   const { data: users, isLoading: usersLoading } = trpc.team.getAllUsers.useQuery();
   const { data: allPermissions, isLoading: permissionsLoading } = trpc.userManagement.getAllPermissions.useQuery();
@@ -20,6 +21,7 @@ export default function PermissionsManagement() {
     { userId: selectedUserId! },
     { enabled: !!selectedUserId }
   );
+  const { data: templates } = trpc.permissions.listRoleTemplates.useQuery();
 
   const bulkSetPermissionsMutation = trpc.userManagement.bulkSetUserPermissions.useMutation({
     onSuccess: () => {
@@ -28,6 +30,17 @@ export default function PermissionsManagement() {
     },
     onError: () => {
       toast.error("เกิดข้อผิดพลาดในการบันทึกสิทธิ์");
+    },
+  });
+
+  const applyTemplateMutation = trpc.permissions.applyRoleTemplate.useMutation({
+    onSuccess: () => {
+      toast.success("นำ template ไปใช้สำเร็จ");
+      setSelectedTemplateId("");
+      setPermissionChanges(new Map());
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });
 
@@ -51,6 +64,18 @@ export default function PermissionsManagement() {
     await bulkSetPermissionsMutation.mutateAsync({
       userId: selectedUserId,
       permissions,
+    });
+  };
+
+  const handleApplyTemplate = async () => {
+    if (!selectedUserId || !selectedTemplateId) {
+      toast.error("กรุณาเลือก template");
+      return;
+    }
+
+    await applyTemplateMutation.mutateAsync({
+      userId: selectedUserId,
+      templateId: parseInt(selectedTemplateId),
     });
   };
 
@@ -89,10 +114,10 @@ export default function PermissionsManagement() {
             เลือกผู้ใช้
           </CardTitle>
           <CardDescription>
-            เลือกผู้ใช้เพื่อจัดการสิทธิ์การเข้าถึง
+            เลือกผู้ใช้เพื่อจัดการสิทธิ์การเข้าถึง หรือใช้ role template เพื่อกำหนดสิทธิ์อย่างรวดเร็ว
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {usersLoading ? (
             <Skeleton className="h-10 w-full" />
           ) : (
@@ -119,6 +144,42 @@ export default function PermissionsManagement() {
                 ))}
               </SelectContent>
             </Select>
+          )}
+
+          {selectedUserId && (
+            <div className="space-y-2 pt-4 border-t">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                ใช้ Role Template
+              </label>
+              <div className="flex gap-2">
+                <Select
+                  value={selectedTemplateId}
+                  onValueChange={setSelectedTemplateId}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="เลือก template เพื่อนำไปใช้..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates?.map((template) => (
+                      <SelectItem key={template.id} value={template.id.toString()}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={handleApplyTemplate}
+                  disabled={!selectedTemplateId || applyTemplateMutation.isPending}
+                  variant="secondary"
+                >
+                  {applyTemplateMutation.isPending ? "กำลังนำไปใช้..." : "นำไปใช้"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                การใช้ template จะแทนที่สิทธิ์ทั้งหมดของผู้ใช้ด้วยสิทธิ์จาก template
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
