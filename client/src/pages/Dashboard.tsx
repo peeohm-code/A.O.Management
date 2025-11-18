@@ -10,748 +10,568 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
   CheckCircle2,
   Clock,
-  AlertTriangle,
-  Plus,
-  FileText,
-  ClipboardCheck,
-  AlertCircle,
   TrendingUp,
-  Calendar,
-  User,
-  BarChart3,
-  Activity,
+  TrendingDown,
+  Users,
   Target,
-  Briefcase,
-  ListTodo,
+  Calendar,
+  FileCheck,
   XCircle,
-  ArrowRight,
-  Bell,
-  Flag,
 } from "lucide-react";
 import { Link } from "wouter";
-import { useState, useMemo } from "react";
-import { format, formatDistanceToNow, isAfter, isBefore, addDays } from "date-fns";
+import { useMemo } from "react";
+import { format, formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { QualityMetrics } from "@/components/dashboard/QualityMetrics";
-import { TeamWorkload } from "@/components/dashboard/TeamWorkload";
-import { DocumentStatus } from "@/components/dashboard/DocumentStatus";
-import { SafetyCompliance } from "@/components/dashboard/SafetyCompliance";
-import { AdvancedAnalytics } from "@/components/dashboard/AdvancedAnalytics";
+import { Progress } from "@/components/ui/progress";
 
 /**
  * Enhanced Dashboard - Construction Management & QC Platform
  * 
- * Phase 1: Must Have Features
- * - Overview Cards (Projects, Tasks, Inspections, Defects)
- * - Tasks Overview
- * - Inspections Overview
- * - Defects Overview
- * - Recent Activity Feed
- * - Upcoming Milestones
- * 
- * Phase 2: Should Have Features
- * - Quality Metrics & Trends
- * - Team Workload
- * - Timeline/Gantt Chart Integration
- * - Document Status
- * 
- * Phase 3: Nice to Have Features
- * - Financial Overview
- * - Safety & Compliance
- * - Advanced Analytics
- * 
- * UX Features:
- * - Progressive Disclosure (expandable sections)
- * - Visual Hierarchy (clear information structure)
- * - Loading States (Skeleton loaders)
- * - Empty States (helpful messages)
- * - Tooltips (contextual help)
- * - Responsive Design (mobile-first)
- * - Color Coding (status-based colors)
- * - Hover Effects (interactive feedback)
+ * New Widgets:
+ * - Project Timeline Overview (on track, at risk, behind schedule)
+ * - Team Performance Metrics (completion rate, on-time rate)
+ * - QC Status Summary (inspections, defects)
+ * - Recent Activities (enhanced with project/task names)
  */
 export default function Dashboard() {
   const { user } = useAuth();
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
-  // Fetch data
-  const { data: projects = [], isLoading: projectsLoading } = trpc.project.list.useQuery();
-  const { data: allTasks = [], isLoading: tasksLoading } = trpc.task.list.useQuery(
-    { projectId: selectedProjectId || 0 },
-    { enabled: !!selectedProjectId }
-  );
-  const { data: inspectionsData, isLoading: inspectionsLoading } = trpc.inspection.listByProject.useQuery(
-    { projectId: selectedProjectId || 0, page: 1, pageSize: 100 },
-    { enabled: !!selectedProjectId }
-  );
-  const allInspections = inspectionsData?.items || [];
-  const { data: allDefects = [], isLoading: defectsLoading } = trpc.defect.list.useQuery(
-    { taskId: 0 },
-    { enabled: !!selectedProjectId }
-  );
-  const { data: activities = [], isLoading: activitiesLoading } = trpc.activity.list.useQuery(
-    { projectId: selectedProjectId || 0, limit: 10 },
-    { enabled: !!selectedProjectId }
-  );
-  const { data: allUsers = [] } = trpc.user.list.useQuery();
+  // Fetch enhanced dashboard data
+  const { data: timelineData, isLoading: timelineLoading, error: timelineError } = trpc.dashboard.getProjectTimelineOverview.useQuery();
+  const { data: teamData, isLoading: teamLoading, error: teamError } = trpc.dashboard.getTeamPerformanceMetrics.useQuery();
+  const { data: qcData, isLoading: qcLoading, error: qcError } = trpc.dashboard.getQCStatusSummary.useQuery();
+  const { data: activities = [], isLoading: activitiesLoading, error: activitiesError } = trpc.dashboard.getRecentActivities.useQuery({ limit: 15 });
+  const { data: statsData, isLoading: statsLoading, error: statsError } = trpc.dashboard.getStats.useQuery();
 
-  // Get active projects
-  const activeProjects = useMemo(
-    () => projects.filter(p => p.status === "active"),
-    [projects]
-  );
+  // Debug logging
+  console.log('[Dashboard] Timeline:', { data: timelineData, loading: timelineLoading, error: timelineError });
+  console.log('[Dashboard] Team:', { data: teamData, loading: teamLoading, error: teamError });
+  console.log('[Dashboard] QC:', { data: qcData, loading: qcLoading, error: qcError });
+  console.log('[Dashboard] Activities:', { count: activities.length, loading: activitiesLoading, error: activitiesError });
+  console.log('[Dashboard] Stats:', { data: statsData, loading: statsLoading, error: statsError });
 
-  // Auto-select first active project if none selected
-  const currentProject = useMemo(() => {
-    if (!selectedProjectId && activeProjects.length > 0) {
-      setSelectedProjectId(activeProjects[0].id);
-      return activeProjects[0];
-    }
-    return projects.find(p => p.id === selectedProjectId);
-  }, [selectedProjectId, projects, activeProjects]);
-
-  // === OVERVIEW CARDS STATS ===
+  // Calculate overview stats
   const overviewStats = useMemo(() => {
-    const totalProjects = projects.length;
-    const activeProjectsCount = activeProjects.length;
-    const completedProjects = projects.filter(p => p.status === "completed").length;
-
-    const totalTasks = allTasks.length;
-    const completedTasks = allTasks.filter(t => t.status === "completed").length;
-    const inProgressTasks = allTasks.filter(t => t.status === "in_progress").length;
-    const overdueTasks = allTasks.filter(t => {
-      if (t.status === "completed") return false;
-      if (!t.endDate) return false;
-      return isBefore(new Date(t.endDate), new Date());
-    }).length;
-
-    const totalInspections = allInspections.length;
-    const passedInspections = allInspections.filter(i => i.status === "completed").length;
-    const failedInspections = allInspections.filter(i => i.status === "failed").length;
-    const pendingInspections = allInspections.filter(i => i.status === "pending_inspection" || i.status === "in_progress").length;
-
-    const totalDefects = allDefects.length;
-    const openDefects = allDefects.filter(d => d.status === "open" || d.status === "in_progress").length;
-    const resolvedDefects = allDefects.filter(d => d.status === "resolved").length;
-    const criticalDefects = allDefects.filter(d => d.severity === "critical" && d.status !== "resolved").length;
-
+    if (!statsData) return null;
+    
     return {
-      projects: { total: totalProjects, active: activeProjectsCount, completed: completedProjects },
-      tasks: { total: totalTasks, completed: completedTasks, inProgress: inProgressTasks, overdue: overdueTasks },
-      inspections: { total: totalInspections, passed: passedInspections, failed: failedInspections, pending: pendingInspections },
-      defects: { total: totalDefects, open: openDefects, resolved: resolvedDefects, critical: criticalDefects },
+      projects: {
+        total: statsData.projectStats.total,
+        active: statsData.projectStats.active,
+        onTrack: statsData.projectStats.on_track,
+        delayed: statsData.projectStats.delayed,
+        overdue: statsData.projectStats.overdue,
+      },
+      tasks: {
+        total: statsData.taskStats.total,
+        completed: statsData.taskStats.completed,
+        inProgress: statsData.taskStats.in_progress,
+        delayed: statsData.taskStats.delayed,
+      },
+      inspections: {
+        total: statsData.checklistStats.total,
+        pending: statsData.checklistStats.pending_inspection,
+        completed: statsData.checklistStats.completed,
+        failed: statsData.checklistStats.failed,
+      },
+      defects: {
+        total: statsData.defectStats?.totalDefects || 0,
+        open: statsData.defectStats?.openDefects || 0,
+        critical: statsData.defectStats?.criticalDefects || 0,
+      },
     };
-  }, [projects, activeProjects, allTasks, allInspections, allDefects]);
+  }, [statsData]);
 
-  // === TASKS OVERVIEW ===
-  const tasksOverview = useMemo(() => {
-    const myTasks = allTasks.filter(t => t.assigneeId === user?.id && t.status !== "completed").slice(0, 5);
-    const urgentTasks = allTasks.filter(t => t.priority === "urgent" && t.status !== "completed").slice(0, 5);
-    const upcomingTasks = allTasks
-      .filter(t => {
-        if (t.status === "completed" || !t.startDate) return false;
-        const startDate = new Date(t.startDate);
-        return isAfter(startDate, new Date()) && isBefore(startDate, addDays(new Date(), 7));
-      })
-      .slice(0, 5);
+  // Get timeline status color
+  const getTimelineStatusColor = (status: string) => {
+    switch (status) {
+      case 'on_track': return 'text-green-600 bg-green-50';
+      case 'at_risk': return 'text-amber-600 bg-amber-50';
+      case 'behind_schedule': return 'text-red-600 bg-red-50';
+      default: return 'text-slate-600 bg-slate-50';
+    }
+  };
 
-    return { myTasks, urgentTasks, upcomingTasks };
-  }, [allTasks, user]);
+  // Get timeline status label
+  const getTimelineStatusLabel = (status: string) => {
+    switch (status) {
+      case 'on_track': return 'ตามแผน';
+      case 'at_risk': return 'เสี่ยง';
+      case 'behind_schedule': return 'ล่าช้า';
+      default: return 'ไม่ทราบ';
+    }
+  };
 
-  // === INSPECTIONS OVERVIEW ===
-  const inspectionsOverview = useMemo(() => {
-    const pending = allInspections.filter(i => i.status === "pending_inspection" || i.status === "in_progress").slice(0, 5);
-    const recentlyCompleted = allInspections
-      .filter(i => i.status === "completed" || i.status === "failed")
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5);
-
-    return { pending, recentlyCompleted };
-  }, [allInspections]);
-
-  // === DEFECTS OVERVIEW ===
-  const defectsOverview = useMemo(() => {
-    const critical = allDefects.filter(d => d.severity === "critical" && d.status !== "resolved").slice(0, 5);
-    const recentlyReported = allDefects
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 5);
-
-    return { critical, recentlyReported };
-  }, [allDefects]);
-
-  // === UPCOMING MILESTONES ===
-  const upcomingMilestones = useMemo(() => {
-    return allTasks
-      .filter(t => {
-        if (!t.endDate || t.status === "completed") return false;
-        const endDate = new Date(t.endDate);
-        return isAfter(endDate, new Date()) && isBefore(endDate, addDays(new Date(), 30));
-      })
-      .sort((a, b) => new Date(a.endDate!).getTime() - new Date(b.endDate!).getTime())
-      .slice(0, 5);
-  }, [allTasks]);
-
-  // Loading State
-  if (projectsLoading) {
-    return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <Skeleton className="h-12 w-64" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className="h-32" />
-            ))}
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  // Empty State
-  if (projects.length === 0) {
-    return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <Briefcase className="w-16 h-16 text-muted-foreground mb-4" />
-          <h2 className="text-2xl font-semibold mb-2">ยังไม่มีโปรเจกต์</h2>
-          <p className="text-muted-foreground mb-6">เริ่มต้นสร้างโปรเจกต์แรกของคุณเพื่อเริ่มใช้งานระบบ</p>
-          <Link href="/projects">
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              สร้างโปรเจกต์ใหม่
-            </Button>
-          </Link>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // Get activity icon
+  const getActivityIcon = (action: string) => {
+    if (action.includes('สร้าง') || action.includes('created')) return <CheckCircle2 className="w-4 h-4" />;
+    if (action.includes('อัปเดต') || action.includes('updated')) return <Activity className="w-4 h-4" />;
+    if (action.includes('ลบ') || action.includes('deleted')) return <XCircle className="w-4 h-4" />;
+    if (action.includes('ตรวจสอบ') || action.includes('inspected')) return <FileCheck className="w-4 h-4" />;
+    return <Activity className="w-4 h-4" />;
+  };
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">ภาพรวมการบริหารจัดการงานก่อสร้างและ QC</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Select
-              value={selectedProjectId?.toString() || ""}
-              onValueChange={value => setSelectedProjectId(Number(value))}
-            >
-              <SelectTrigger className="w-[280px]">
-                <SelectValue placeholder="เลือกโปรเจกต์" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map(project => (
-                  <SelectItem key={project.id} value={project.id.toString()}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: project.color || "#3B82F6" }}
-                      />
-                      {project.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">แดชบอร์ด</h1>
+          <p className="text-slate-600 mt-1">ภาพรวมการบริหารโครงการก่อสร้างและควบคุมคุณภาพ</p>
         </div>
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Projects Card */}
-          <Card className="hover-lift">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">โปรเจกต์</CardTitle>
-              <Briefcase className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="metric-value text-[#00366D]">{overviewStats.projects.total}</div>
-              <div className="flex items-center gap-4 mt-2 text-sm">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span className="text-muted-foreground">Active: {overviewStats.projects.active}</span>
+        {statsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => (
+              <Card key={i}>
+                <CardHeader className="pb-3">
+                  <Skeleton className="h-4 w-24" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : overviewStats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Projects Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-slate-600">โครงการ</CardTitle>
+                  <Target className="w-5 h-5 text-blue-600" />
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-muted-foreground">Done: {overviewStats.projects.completed}</span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{overviewStats.projects.total}</div>
+                <div className="flex items-center gap-2 mt-2 text-sm">
+                  <Badge variant="outline" className="text-green-600 border-green-200">
+                    {overviewStats.projects.onTrack} ตามแผน
+                  </Badge>
+                  {overviewStats.projects.delayed > 0 && (
+                    <Badge variant="outline" className="text-amber-600 border-amber-200">
+                      {overviewStats.projects.delayed} ล่าช้า
+                    </Badge>
+                  )}
                 </div>
-              </div>
-              <Link href="/projects">
-                <Button variant="ghost" size="sm" className="w-full mt-3">
-                  ดูทั้งหมด <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Tasks Card */}
-          <Card className="hover-lift">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">งาน</CardTitle>
-              <ListTodo className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="metric-value text-[#00CE81]">{overviewStats.tasks.total}</div>
-              <div className="flex items-center gap-3 mt-2 text-sm flex-wrap">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                      <span>{overviewStats.tasks.completed}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>งานที่เสร็จสมบูรณ์</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-blue-500" />
-                      <span>{overviewStats.tasks.inProgress}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>กำลังดำเนินการ</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3 text-red-500" />
-                      <span>{overviewStats.tasks.overdue}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>เกินกำหนด</TooltipContent>
-                </Tooltip>
-              </div>
-              <Link href="/tasks">
-                <Button variant="ghost" size="sm" className="w-full mt-3">
-                  ดูทั้งหมด <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            {/* Tasks Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-slate-600">งาน</CardTitle>
+                  <BarChart3 className="w-5 h-5 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{overviewStats.tasks.total}</div>
+                <div className="flex items-center gap-2 mt-2 text-sm">
+                  <span className="text-green-600">{overviewStats.tasks.completed} เสร็จสิ้น</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-blue-600">{overviewStats.tasks.inProgress} กำลังดำเนินการ</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Inspections Card */}
-          <Card className="hover-lift">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">การตรวจสอบ</CardTitle>
-              <ClipboardCheck className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="metric-value text-[#00366D]">{overviewStats.inspections.total}</div>
-              <div className="flex items-center gap-3 mt-2 text-sm flex-wrap">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                      <span>{overviewStats.inspections.passed}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>ผ่านการตรวจสอบ</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <XCircle className="w-3 h-3 text-red-500" />
-                      <span>{overviewStats.inspections.failed}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>ไม่ผ่านการตรวจสอบ</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-orange-500" />
-                      <span>{overviewStats.inspections.pending}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>รอการตรวจสอบ</TooltipContent>
-                </Tooltip>
-              </div>
-              <Link href="/inspections">
-                <Button variant="ghost" size="sm" className="w-full mt-3">
-                  ดูทั้งหมด <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            {/* Inspections Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-slate-600">การตรวจสอบ</CardTitle>
+                  <FileCheck className="w-5 h-5 text-teal-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{overviewStats.inspections.total}</div>
+                <div className="flex items-center gap-2 mt-2 text-sm">
+                  <span className="text-green-600">{overviewStats.inspections.completed} ผ่าน</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-amber-600">{overviewStats.inspections.pending} รอตรวจ</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Defects Card */}
-          <Card className="hover-lift">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">ข้อบกพร่อง</CardTitle>
-              <AlertCircle className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="metric-value text-red-600">{overviewStats.defects.total}</div>
-              <div className="flex items-center gap-3 mt-2 text-sm flex-wrap">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3 text-red-500" />
-                      <span>{overviewStats.defects.critical}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>วิกฤติ</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-orange-500" />
-                      <span>{overviewStats.defects.open}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>เปิดอยู่</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                      <span>{overviewStats.defects.resolved}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>แก้ไขแล้ว</TooltipContent>
-                </Tooltip>
-              </div>
-              <Link href="/defects">
-                <Button variant="ghost" size="sm" className="w-full mt-3">
-                  ดูทั้งหมด <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Defects Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-slate-600">ข้อบกพร่อง</CardTitle>
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{overviewStats.defects.open}</div>
+                <div className="flex items-center gap-2 mt-2 text-sm">
+                  {overviewStats.defects.critical > 0 && (
+                    <Badge variant="destructive" className="text-xs">
+                      {overviewStats.defects.critical} วิกฤต
+                    </Badge>
+                  )}
+                  <span className="text-slate-600">จากทั้งหมด {overviewStats.defects.total}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Tasks Overview */}
-          <Card>
+          {/* Project Timeline Overview */}
+          <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ListTodo className="w-5 h-5" />
-                งานของฉัน
-              </CardTitle>
-              <CardDescription>งานที่ได้รับมอบหมายและต้องดำเนินการ</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                    ภาพรวมไทม์ไลน์โครงการ
+                  </CardTitle>
+                  <CardDescription>สถานะความคืบหน้าตามแผนงาน</CardDescription>
+                </div>
+                <Link href="/projects">
+                  <Button variant="ghost" size="sm">
+                    ดูทั้งหมด <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
-              {tasksLoading ? (
-                <div className="space-y-3">
+              {timelineLoading ? (
+                <div className="space-y-4">
                   {[1, 2, 3].map(i => (
-                    <Skeleton key={i} className="h-16" />
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-2 w-full" />
+                    </div>
                   ))}
                 </div>
-              ) : tasksOverview.myTasks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <ListTodo className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ไม่มีงานที่ต้องดำเนินการ</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {tasksOverview.myTasks.map(task => (
-                    <Link key={task.id} href={`/tasks/${task.id}`}>
-                      <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium truncate">{task.name}</p>
-                            {task.priority === "urgent" && (
-                              <Badge variant="destructive" className="text-xs">ด่วน</Badge>
-                            )}
+              ) : timelineData && timelineData.summary.total > 0 ? (
+                <div className="space-y-4">
+                  {/* Summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{timelineData.summary.onTrack}</div>
+                      <div className="text-xs text-green-700 mt-1">ตามแผน</div>
+                    </div>
+                    <div className="text-center p-3 bg-amber-50 rounded-lg">
+                      <div className="text-2xl font-bold text-amber-600">{timelineData.summary.atRisk}</div>
+                      <div className="text-xs text-amber-700 mt-1">เสี่ยง</div>
+                    </div>
+                    <div className="text-center p-3 bg-red-50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">{timelineData.summary.behindSchedule}</div>
+                      <div className="text-xs text-red-700 mt-1">ล่าช้า</div>
+                    </div>
+                  </div>
+
+                  {/* Project List */}
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                    {timelineData.projects.slice(0, 5).map((project) => (
+                      <div key={project.id} className="border rounded-lg p-3 hover:bg-slate-50 transition-colors">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <Link href={`/projects/${project.id}`}>
+                              <h4 className="font-medium text-slate-900 hover:text-blue-600 transition-colors">
+                                {project.name}
+                              </h4>
+                            </Link>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge className={getTimelineStatusColor(project.timelineStatus)}>
+                                {getTimelineStatusLabel(project.timelineStatus)}
+                              </Badge>
+                              <span className="text-xs text-slate-500">
+                                เหลือ {project.daysRemaining} วัน
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {task.endDate ? format(new Date(task.endDate), "dd MMM yyyy", { locale: th }) : "ไม่ระบุ"}
-                            </span>
-                            <Badge variant="outline" className="text-xs">
-                              {task.status === "in_progress" ? "กำลังดำเนินการ" : "รอดำเนินการ"}
-                            </Badge>
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-slate-900">{Math.round(project.progress)}%</div>
+                            <div className="text-xs text-slate-500">ความคืบหน้า</div>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Progress value={project.progress} className="h-2" />
+                          <div className="flex justify-between text-xs text-slate-500">
+                            <span>ความคืบหน้าจริง</span>
+                            <span>คาดว่าควรอยู่ที่ {Math.round(project.expectedProgress)}%</span>
                           </div>
                         </div>
                       </div>
-                    </Link>
-                  ))}
-                  <Link href="/tasks">
-                    <Button variant="outline" className="w-full">
-                      ดูงานทั้งหมด
-                    </Button>
-                  </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>ยังไม่มีโครงการที่กำลังดำเนินการ</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Inspections Overview */}
-          <Card>
+          {/* Team Performance Metrics */}
+          <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ClipboardCheck className="w-5 h-5" />
-                การตรวจสอบที่รอดำเนินการ
-              </CardTitle>
-              <CardDescription>รายการตรวจสอบที่ต้องดำเนินการ</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-purple-600" />
+                    ประสิทธิภาพทีม
+                  </CardTitle>
+                  <CardDescription>อัตราการทำงานสำเร็จและตรงเวลา</CardDescription>
+                </div>
+                <Link href="/admin/users">
+                  <Button variant="ghost" size="sm">
+                    จัดการทีม <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
-              {inspectionsLoading ? (
-                <div className="space-y-3">
+              {teamLoading ? (
+                <div className="space-y-4">
                   {[1, 2, 3].map(i => (
-                    <Skeleton key={i} className="h-16" />
+                    <Skeleton key={i} className="h-16 w-full" />
                   ))}
                 </div>
-              ) : inspectionsOverview.pending.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <ClipboardCheck className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ไม่มีการตรวจสอบที่รอดำเนินการ</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {inspectionsOverview.pending.map(inspection => (
-                    <Link key={inspection.id} href={`/inspections/${inspection.id}`}>
-                      <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate mb-1">
-                            {inspection.templateName || `Inspection #${inspection.id}`}
-                          </p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <Badge variant="outline" className="text-xs">
-                              {inspection.stage === "pre_execution" ? "ก่อนเริ่มงาน" : 
-                               inspection.stage === "in_progress" ? "ระหว่างดำเนินการ" : "หลังเสร็จงาน"}
-                            </Badge>
-                            <span>
-                              {formatDistanceToNow(new Date(inspection.createdAt), { addSuffix: true, locale: th })}
-                            </span>
+              ) : teamData && teamData.summary.teamSize > 0 ? (
+                <div className="space-y-4">
+                  {/* Team Summary */}
+                  <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-lg">
+                    <div>
+                      <div className="text-sm text-slate-600">อัตราความสำเร็จเฉลี่ย</div>
+                      <div className="text-2xl font-bold text-slate-900">{teamData.summary.avgCompletionRate}%</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-slate-600">อัตราตรงเวลาเฉลี่ย</div>
+                      <div className="text-2xl font-bold text-slate-900">{teamData.summary.avgOnTimeRate}%</div>
+                    </div>
+                  </div>
+
+                  {/* Top Performers */}
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                    {teamData.members.slice(0, 5).map((member) => (
+                      <div key={member.userId} className="border rounded-lg p-3 hover:bg-slate-50 transition-colors">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
+                              {member.userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-medium text-slate-900">{member.userName}</div>
+                              <div className="text-xs text-slate-500">{member.role}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center gap-1">
+                              {member.completionRate >= 80 ? (
+                                <TrendingUp className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <TrendingDown className="w-4 h-4 text-amber-600" />
+                              )}
+                              <span className="font-bold text-slate-900">{member.completionRate}%</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div className="text-center p-2 bg-blue-50 rounded">
+                            <div className="font-bold text-blue-600">{member.totalTasks}</div>
+                            <div className="text-blue-700">งานทั้งหมด</div>
+                          </div>
+                          <div className="text-center p-2 bg-green-50 rounded">
+                            <div className="font-bold text-green-600">{member.completedTasks}</div>
+                            <div className="text-green-700">เสร็จสิ้น</div>
+                          </div>
+                          <div className="text-center p-2 bg-amber-50 rounded">
+                            <div className="font-bold text-amber-600">{member.overdueTasks}</div>
+                            <div className="text-amber-700">เกินกำหนด</div>
                           </div>
                         </div>
                       </div>
-                    </Link>
-                  ))}
-                  <Link href="/inspections">
-                    <Button variant="outline" className="w-full">
-                      ดูทั้งหมด
-                    </Button>
-                  </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>ยังไม่มีข้อมูลสมาชิกทีม</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Defects Overview */}
-          <Card>
+          {/* QC Status Summary */}
+          <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                ข้อบกพร่องที่ต้องแก้ไข
-              </CardTitle>
-              <CardDescription>รายการข้อบกพร่องที่มีความสำคัญสูง</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileCheck className="w-5 h-5 text-teal-600" />
+                    สรุปสถานะ QC
+                  </CardTitle>
+                  <CardDescription>การตรวจสอบคุณภาพและข้อบกพร่อง</CardDescription>
+                </div>
+                <Link href="/inspections">
+                  <Button variant="ghost" size="sm">
+                    ดูรายละเอียด <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
-              {defectsLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map(i => (
-                    <Skeleton key={i} className="h-16" />
-                  ))}
+              {qcLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
                 </div>
-              ) : defectsOverview.critical.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <CheckCircle2 className="w-12 h-12 mx-auto mb-2 opacity-50 text-green-500" />
-                  <p>ไม่มีข้อบกพร่องที่ต้องแก้ไขเร่งด่วน</p>
+              ) : qcData ? (
+                <div className="space-y-4">
+                  {/* Inspections */}
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-medium text-slate-900 mb-3">การตรวจสอบ</h4>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="text-center p-3 bg-green-50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">{qcData.inspections.passed}</div>
+                        <div className="text-xs text-green-700 mt-1">ผ่าน</div>
+                      </div>
+                      <div className="text-center p-3 bg-red-50 rounded-lg">
+                        <div className="text-2xl font-bold text-red-600">{qcData.inspections.failed}</div>
+                        <div className="text-xs text-red-700 mt-1">ไม่ผ่าน</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-600">อัตราผ่าน</span>
+                      <span className="font-bold text-slate-900">{qcData.inspections.passRate}%</span>
+                    </div>
+                    <Progress value={qcData.inspections.passRate} className="h-2 mt-2" />
+                    <div className="mt-2 text-xs text-slate-500">
+                      รอตรวจสอบ: {qcData.inspections.pending} รายการ
+                    </div>
+                  </div>
+
+                  {/* Defects */}
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-medium text-slate-900 mb-3">ข้อบกพร่อง</h4>
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      <div className="text-center p-2 bg-red-50 rounded">
+                        <div className="text-xl font-bold text-red-600">{qcData.defects.critical}</div>
+                        <div className="text-xs text-red-700 mt-1">วิกฤต</div>
+                      </div>
+                      <div className="text-center p-2 bg-amber-50 rounded">
+                        <div className="text-xl font-bold text-amber-600">{qcData.defects.major}</div>
+                        <div className="text-xs text-amber-700 mt-1">สำคัญ</div>
+                      </div>
+                      <div className="text-center p-2 bg-blue-50 rounded">
+                        <div className="text-xl font-bold text-blue-600">{qcData.defects.minor}</div>
+                        <div className="text-xs text-blue-700 mt-1">เล็กน้อย</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">แก้ไขแล้ว (30 วันล่าสุด)</span>
+                        <span className="font-medium text-green-600">{qcData.defects.resolvedLast30Days}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">เวลาแก้ไขเฉลี่ย</span>
+                        <span className="font-medium text-slate-900">{qcData.defects.avgResolutionTime} วัน</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {defectsOverview.critical.map(defect => (
-                    <Link key={defect.id} href={`/defects/${defect.id}`}>
-                      <div className="flex items-start gap-3 p-3 rounded-lg border border-red-200 hover:bg-red-50 transition-colors cursor-pointer">
-                        <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate mb-1">{defect.description}</p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <Badge variant="destructive" className="text-xs">
-                              {defect.severity === "critical" ? "วิกฤติ" : defect.severity}
-                            </Badge>
-                            <span>
-                              {formatDistanceToNow(new Date(defect.createdAt), { addSuffix: true, locale: th })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                  <Link href="/defects">
-                    <Button variant="outline" className="w-full">
-                      ดูทั้งหมด
-                    </Button>
-                  </Link>
+                <div className="text-center py-8 text-slate-500">
+                  <FileCheck className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>ยังไม่มีข้อมูล QC</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Recent Activity Feed */}
-          <Card>
+          {/* Recent Activities */}
+          <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                กิจกรรมล่าสุด
-              </CardTitle>
-              <CardDescription>อัปเดตล่าสุดในโปรเจกต์</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-indigo-600" />
+                    กิจกรรมล่าสุด
+                  </CardTitle>
+                  <CardDescription>การเปลี่ยนแปลงและอัปเดตล่าสุด</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {activitiesLoading ? (
                 <div className="space-y-3">
-                  {[1, 2, 3, 4].map(i => (
-                    <Skeleton key={i} className="h-12" />
-                  ))}
-                </div>
-              ) : activities.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>ยังไม่มีกิจกรรม</p>
-                </div>
-              ) : (
-                <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                  {activities.map(activity => (
-                    <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-accent transition-colors">
-                      <div className="flex-shrink-0 mt-1">
-                        {activity.type === "task_created" && <Plus className="w-4 h-4 text-blue-500" />}
-                        {activity.type === "task_updated" && <FileText className="w-4 h-4 text-orange-500" />}
-                        {activity.type === "task_completed" && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-                        {activity.type === "inspection_completed" && <ClipboardCheck className="w-4 h-4 text-green-500" />}
-                        {activity.type === "defect_reported" && <AlertCircle className="w-4 h-4 text-red-500" />}
-                        {!["task_created", "task_updated", "task_completed", "inspection_completed", "defect_reported"].includes(activity.type) && (
-                          <Bell className="w-4 h-4 text-gray-500" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm truncate">{activity.description}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true, locale: th })}
-                        </p>
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="flex items-start gap-3">
+                      <Skeleton className="w-8 h-8 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-3 w-24" />
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : activities.length > 0 ? (
+                <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0">
+                        {getActivityIcon(activity.action)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-slate-900">
+                              <span className="font-medium">{activity.userName || 'ผู้ใช้'}</span>
+                              {' '}
+                              <span className="text-slate-600">{activity.action}</span>
+                            </p>
+                            {activity.projectName && (
+                              <p className="text-xs text-slate-500 mt-1">
+                                โครงการ: {activity.projectName}
+                                {activity.taskName && ` • งาน: ${activity.taskName}`}
+                              </p>
+                            )}
+                          </div>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <span className="text-xs text-slate-400 whitespace-nowrap">
+                                {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true, locale: th })}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {format(new Date(activity.createdAt), 'PPpp', { locale: th })}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>ยังไม่มีกิจกรรม</p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Phase 2: Should Have Features */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Quality Metrics */}
-          <QualityMetrics
-            inspections={allInspections}
-            defects={allDefects}
-            isLoading={inspectionsLoading || defectsLoading}
-          />
-
-          {/* Team Workload */}
-          <TeamWorkload
-            tasks={allTasks}
-            users={allUsers}
-            isLoading={tasksLoading}
-          />
-        </div>
-
-        {/* Document Status */}
-        <DocumentStatus
-          tasks={allTasks}
-          inspections={allInspections}
-          isLoading={tasksLoading || inspectionsLoading}
-        />
-
-        {/* Phase 3: Nice to Have Features */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Safety & Compliance */}
-          <SafetyCompliance
-            inspections={allInspections}
-            defects={allDefects}
-            tasks={allTasks}
-            isLoading={inspectionsLoading || defectsLoading}
-          />
-        </div>
-
-        {/* Advanced Analytics */}
-        <AdvancedAnalytics
-          project={currentProject}
-          tasks={allTasks}
-          inspections={allInspections}
-          defects={allDefects}
-          isLoading={projectsLoading || tasksLoading || inspectionsLoading || defectsLoading}
-        />
-
-        {/* Upcoming Milestones */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Flag className="w-5 h-5" />
-              Milestones ที่กำลังจะถึง
-            </CardTitle>
-            <CardDescription>งานสำคัญที่จะครบกำหนดใน 30 วันข้างหน้า</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {tasksLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => (
-                  <Skeleton key={i} className="h-20" />
-                ))}
-              </div>
-            ) : upcomingMilestones.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Flag className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>ไม่มี Milestones ที่กำลังจะถึง</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {upcomingMilestones.map(task => {
-                  const daysUntilDue = Math.ceil(
-                    (new Date(task.endDate!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-                  );
-                  const isUrgent = daysUntilDue <= 7;
-
-                  return (
-                    <Link key={task.id} href={`/tasks/${task.id}`}>
-                      <div className={`p-4 rounded-lg border-2 hover:shadow-md transition-all cursor-pointer ${
-                        isUrgent ? "border-red-300 bg-red-50" : "border-blue-300 bg-blue-50"
-                      }`}>
-                        <div className="flex items-start justify-between mb-2">
-                          <Flag className={`w-5 h-5 ${isUrgent ? "text-red-500" : "text-blue-500"}`} />
-                          <Badge variant={isUrgent ? "destructive" : "default"} className="text-xs">
-                            {daysUntilDue} วัน
-                          </Badge>
-                        </div>
-                        <h4 className="font-semibold mb-1 truncate">{task.name}</h4>
-                        <p className="text-xs text-muted-foreground mb-2">
-                          ครบกำหนด: {format(new Date(task.endDate!), "dd MMM yyyy", { locale: th })}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div
-                              className={`h-2 rounded-full ${isUrgent ? "bg-red-500" : "bg-blue-500"}`}
-                              style={{ width: `${task.progress || 0}%` }}
-                            />
-                          </div>
-                          <span className="text-xs font-medium">{task.progress || 0}%</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );

@@ -2862,6 +2862,65 @@ const dashboardRouter = router({
       alerts,
     };
   }),
+
+  // Dashboard Enhancement - New Widgets
+  getProjectTimelineOverview: protectedProcedure.query(async () => {
+    try {
+      const data = await db.getProjectTimelineOverview();
+      return data || { summary: { total: 0, onTrack: 0, atRisk: 0, behindSchedule: 0 }, projects: [] };
+    } catch (error) {
+      logger.error('[dashboardRouter.getProjectTimelineOverview] Error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch project timeline overview',
+      });
+    }
+  }),
+
+  getTeamPerformanceMetrics: protectedProcedure.query(async () => {
+    try {
+      const data = await db.getTeamPerformanceMetrics();
+      return data || { summary: { teamSize: 0, avgCompletionRate: 0, avgOnTimeRate: 0, totalTasksAssigned: 0, totalCompleted: 0 }, members: [] };
+    } catch (error) {
+      logger.error('[dashboardRouter.getTeamPerformanceMetrics] Error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch team performance metrics',
+      });
+    }
+  }),
+
+  getQCStatusSummary: protectedProcedure.query(async () => {
+    try {
+      const data = await db.getQCStatusSummary();
+      return data || {
+        inspections: { total: 0, passed: 0, failed: 0, pending: 0, passRate: 0 },
+        defects: { total: 0, critical: 0, major: 0, minor: 0, resolvedLast30Days: 0, avgResolutionTime: 0 },
+      };
+    } catch (error) {
+      logger.error('[dashboardRouter.getQCStatusSummary] Error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch QC status summary',
+      });
+    }
+  }),
+
+  getRecentActivities: protectedProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(50).default(15) }).optional())
+    .query(async ({ input }) => {
+      try {
+        const limit = input?.limit || 15;
+        const activities = await db.getRecentActivitiesEnhanced(limit);
+        return activities;
+      } catch (error) {
+        logger.error('[dashboardRouter.getRecentActivities] Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch recent activities',
+        });
+      }
+    }),
 });
 
 /**
@@ -3490,56 +3549,8 @@ export const appRouter = router({
       }),
   }),
 
-  dashboard: router({
-    // Get overall dashboard statistics
-    stats: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getDashboardStats(ctx.user?.id);
-    }),
-
-    // Get recent activities
-    recentActivities: protectedProcedure
-      .input(z.object({ limit: z.number().optional().default(10) }))
-      .query(async ({ input }) => {
-        return await db.getRecentActivitiesForDashboard(input.limit);
-      }),
-
-    // Get task status distribution
-    taskStatusDistribution: protectedProcedure.query(async () => {
-      return await db.getTaskStatusDistribution();
-    }),
-
-    // Get defect severity distribution
-    defectSeverityDistribution: protectedProcedure.query(async () => {
-      return await db.getDefectSeverityDistribution();
-    }),
-
-    // Get project progress data
-    projectProgress: protectedProcedure.query(async () => {
-      return await db.getProjectProgressForDashboard();
-    }),
-
-    // CEO Dashboard - Core Features
-    ceoDashboard: protectedProcedure.query(async () => {
-      const [projectOverview, projectStatus, tasksOverview, inspectionStats, defectStats, alerts] =
-        await Promise.all([
-          db.getCEOProjectOverview(),
-          db.getCEOProjectStatusBreakdown(),
-          db.getCEOTasksOverview(),
-          db.getCEOInspectionStats(),
-          db.getCEODefectStats(),
-          db.getCEOAlerts(),
-        ]);
-
-      return {
-        projectOverview,
-        projectStatus,
-        tasksOverview,
-        inspectionStats,
-        defectStats,
-        alerts,
-      };
-    }),
-  }),
+  // Use the dashboardRouter defined above which includes all new procedures
+  dashboard: dashboardRouter,
 });
 
 export type AppRouter = typeof appRouter;

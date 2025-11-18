@@ -6242,3 +6242,400 @@ export async function getCEOAlerts() {
     return [];
   }
 }
+
+// ============================================
+// Dashboard Enhancement Functions
+// ============================================
+
+/**
+ * Get project timeline overview for dashboard
+ * Returns projects grouped by timeline status (on track, at risk, behind schedule)
+ */
+export async function getProjectTimelineOverview() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Get all active projects with their progress
+    const activeProjects = await db
+      .select({
+        id: projects.id,
+        name: projects.name,
+        startDate: projects.startDate,
+        endDate: projects.endDate,
+        status: projects.status,
+      })
+      .from(projects)
+      .where(
+        and(
+          isNull(projects.archivedAt),
+          eq(projects.status, 'active')
+        )
+      );
+
+    // Calculate timeline status for each project
+    let onTrack = 0;
+    let atRisk = 0;
+    let behindSchedule = 0;
+    const projectDetails = [];
+
+    for (const project of activeProjects) {
+      // Get project stats
+      const stats = await getProjectStats(project.id);
+      if (!stats) continue;
+
+      const progress = stats.progressPercentage || 0;
+      const endDate = new Date(project.endDate);
+      const startDate = new Date(project.startDate);
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const elapsedDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const expectedProgress = totalDays > 0 ? (elapsedDays / totalDays) * 100 : 0;
+
+      let timelineStatus: 'on_track' | 'at_risk' | 'behind_schedule';
+      
+      // Determine timeline status
+      if (progress >= expectedProgress - 5) {
+        timelineStatus = 'on_track';
+        onTrack++;
+      } else if (progress >= expectedProgress - 15) {
+        timelineStatus = 'at_risk';
+        atRisk++;
+      } else {
+        timelineStatus = 'behind_schedule';
+        behindSchedule++;
+      }
+
+      projectDetails.push({
+        id: project.id,
+        name: project.name,
+        progress,
+        expectedProgress: Math.min(expectedProgress, 100),
+        timelineStatus,
+        daysRemaining: Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))),
+      });
+    }
+
+    return {
+      summary: {
+        total: activeProjects.length,
+        onTrack,
+        atRisk,
+        behindSchedule,
+      },
+      projects: projectDetails.sort((a, b) => {
+        // Sort by status priority (behind > at risk > on track) then by progress
+        const statusPriority = { behind_schedule: 0, at_risk: 1, on_track: 2 };
+        if (statusPriority[a.timelineStatus] !== statusPriority[b.timelineStatus]) {
+          return statusPriority[a.timelineStatus] - statusPriority[b.timelineStatus];
+        }
+        return a.progress - b.progress;
+      }),
+    };
+  } catch (error) {
+    logger.error('[getProjectTimelineOverview] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get team performance metrics for dashboard
+ * Returns performance data grouped by team members
+ */
+export async function getTeamPerformanceMetrics() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    // Get all team members (exclude owner)
+    const teamMembers = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+      })
+      .from(users)
+      .where(ne(users.role, 'owner'));
+
+    const performanceData = [];
+
+    for (const member of teamMembers) {
+      // Get task statistics for this user
+      const taskStats = await getUserTaskStats(member.id);
+      
+      // Get completed tasks in last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentCompletedTasks = await db
+        .select({ count: count() })
+        .from(taskAssignments)
+        .innerJoin(tasks, eq(taskAssignments.taskId, tasks.id))
+        .where(
+          and(
+            eq(taskAssignments.userId, member.id),
+            eq(tasks.status, 'completed'),
+            gte(tasks.updatedAt, thirtyDaysAgo)
+          )
+        );
+
+      const completedLast30Days = recentCompletedTasks[0]?.count || 0;
+
+      // Calculate completion rate
+      const totalAssigned = taskStats?.totalTasks || 0;
+      const completed = taskStats?.completedTasks || 0;
+      const completionRate = totalAssigned > 0 ? (completed / totalAssigned) * 100 : 0;
+
+      // Calculate on-time completion rate (tasks completed before or on due date)
+      const onTimeCompletedResult = await db
+        .select({ count: count() })
+        .from(taskAssignments)
+        .innerJoin(tasks, eq(taskAssignments.taskId, tasks.id))
+        .where(
+          and(
+            eq(taskAssignments.userId, member.id),
+            eq(tasks.status, 'completed'),
+            sql`${tasks.updatedAt} <= ${tasks.endDate}`
+          )
+        );
+
+      const onTimeCompleted = onTimeCompletedResult[0]?.count || 0;
+      const onTimeRate = completed > 0 ? (onTimeCompleted / completed) * 100 : 0;
+
+      performanceData.push({
+        userId: member.id,
+        userName: member.name || 'Unknown',
+        role: member.role,
+        totalTasks: totalAssigned,
+        completedTasks: completed,
+        inProgressTasks: taskStats?.inProgressTasks || 0,
+        overdueTasks: taskStats?.overdueTasks || 0,
+        completionRate: Math.round(completionRate),
+        onTimeRate: Math.round(onTimeRate),
+        completedLast30Days,
+      });
+    }
+
+    // Calculate team averages
+    const teamSize = performanceData.length;
+    const avgCompletionRate = teamSize > 0
+      ? performanceData.reduce((sum, m) => sum + m.completionRate, 0) / teamSize
+      : 0;
+    const avgOnTimeRate = teamSize > 0
+      ? performanceData.reduce((sum, m) => sum + m.onTimeRate, 0) / teamSize
+      : 0;
+    const totalTasksAssigned = performanceData.reduce((sum, m) => sum + m.totalTasks, 0);
+    const totalCompleted = performanceData.reduce((sum, m) => sum + m.completedTasks, 0);
+
+    return {
+      summary: {
+        teamSize,
+        avgCompletionRate: Math.round(avgCompletionRate),
+        avgOnTimeRate: Math.round(avgOnTimeRate),
+        totalTasksAssigned,
+        totalCompleted,
+      },
+      members: performanceData.sort((a, b) => b.completionRate - a.completionRate),
+    };
+  } catch (error) {
+    logger.error('[getTeamPerformanceMetrics] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get QC status summary for dashboard
+ * Returns inspection and defect statistics
+ */
+export async function getQCStatusSummary() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    // Get inspection statistics
+    const totalInspectionsResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(isNull(projects.archivedAt));
+
+    const totalInspections = totalInspectionsResult[0]?.count || 0;
+
+    const passedInspectionsResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(taskChecklists.status, 'passed'),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const passedInspections = passedInspectionsResult[0]?.count || 0;
+
+    const failedInspectionsResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(taskChecklists.status, 'failed'),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const failedInspections = failedInspectionsResult[0]?.count || 0;
+
+    const pendingInspectionsResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(taskChecklists.status, 'pending_inspection'),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const pendingInspections = pendingInspectionsResult[0]?.count || 0;
+
+    // Calculate pass rate
+    const completedInspections = passedInspections + failedInspections;
+    const passRate = completedInspections > 0 ? (passedInspections / completedInspections) * 100 : 0;
+
+    // Get defect statistics by severity
+    const defectsBySeverity = await db
+      .select({
+        severity: defects.severity,
+        count: count(),
+      })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          ne(defects.status, 'resolved'),
+          isNull(projects.archivedAt)
+        )
+      )
+      .groupBy(defects.severity);
+
+    const criticalDefects = defectsBySeverity.find(d => d.severity === 'critical')?.count || 0;
+    const majorDefects = defectsBySeverity.find(d => d.severity === 'major')?.count || 0;
+    const minorDefects = defectsBySeverity.find(d => d.severity === 'minor')?.count || 0;
+    const totalOpenDefects = criticalDefects + majorDefects + minorDefects;
+
+    // Get defects resolved in last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const recentResolvedDefects = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.status, 'resolved'),
+          gte(defects.updatedAt, thirtyDaysAgo),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const resolvedLast30Days = recentResolvedDefects[0]?.count || 0;
+
+    // Get average resolution time (in days) for defects resolved in last 30 days
+    const resolvedDefectsWithTime = await db
+      .select({
+        createdAt: defects.createdAt,
+        updatedAt: defects.updatedAt,
+      })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.status, 'resolved'),
+          gte(defects.updatedAt, thirtyDaysAgo),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    let avgResolutionTime = 0;
+    if (resolvedDefectsWithTime.length > 0) {
+      const totalDays = resolvedDefectsWithTime.reduce((sum, d) => {
+        const created = new Date(d.createdAt);
+        const resolved = new Date(d.updatedAt);
+        const days = Math.ceil((resolved.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+        return sum + days;
+      }, 0);
+      avgResolutionTime = Math.round(totalDays / resolvedDefectsWithTime.length);
+    }
+
+    return {
+      inspections: {
+        total: totalInspections,
+        passed: passedInspections,
+        failed: failedInspections,
+        pending: pendingInspections,
+        passRate: Math.round(passRate),
+      },
+      defects: {
+        total: totalOpenDefects,
+        critical: criticalDefects,
+        major: majorDefects,
+        minor: minorDefects,
+        resolvedLast30Days,
+        avgResolutionTime,
+      },
+    };
+  } catch (error) {
+    logger.error('[getQCStatusSummary] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get recent activities with more details for dashboard
+ * Enhanced version with project and task names
+ */
+export async function getRecentActivitiesEnhanced(limit = 15) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const activities = await db
+      .select({
+        id: activityLog.id,
+        userId: activityLog.userId,
+        userName: users.name,
+        userRole: users.role,
+        action: activityLog.action,
+        details: activityLog.details,
+        projectId: activityLog.projectId,
+        projectName: projects.name,
+        taskId: activityLog.taskId,
+        taskName: tasks.name,
+        createdAt: activityLog.createdAt,
+      })
+      .from(activityLog)
+      .leftJoin(users, eq(activityLog.userId, users.id))
+      .leftJoin(projects, eq(activityLog.projectId, projects.id))
+      .leftJoin(tasks, eq(activityLog.taskId, tasks.id))
+      .orderBy(desc(activityLog.createdAt))
+      .limit(limit);
+
+    return activities;
+  } catch (error) {
+    logger.error('[getRecentActivitiesEnhanced] Error:', error);
+    return [];
+  }
+}

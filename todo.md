@@ -360,3 +360,17 @@
   - [x] ลบลิงก์ CEO Dashboard จาก sidebar navigation
   - [x] ลบ tRPC procedures ที่เกี่ยวข้องกับ CEO Dashboard (ไม่มี)
   - [x] ตรวจสอบและทดสอบระบบหลังการลบ
+
+## 📊 Dashboard Enhancement (New Request)
+
+- [x] ปรับปรุงหน้า Dashboard หลัก - เพิ่ม widgets และ metrics ที่สำคัญ
+  - [x] เพิ่ม Project Timeline Overview widget
+  - [x] เพิ่ม Team Performance Metrics widget
+  - [x] เพิ่ม QC Status Summary widget
+  - [x] เพิ่ม Recent Activities widget
+  - [x] สร้าง tRPC procedures สำหรับดึงข้อมูล dashboard metrics
+  - [x] ออกแบบและพัฒนา UI components สำหรับแต่ละ widget
+  - [x] แก้ไข getProjectStats ให้ใช้ progressPercentage แทน progress
+  - [x] แก้ไข appRouter ให้ใช้ dashboardRouter ที่ถูกต้อง
+  - [x] เพิ่ม redirect route สำหรับ /ceo-dashboard
+  - [x] อัปเดตข้อมูลทดสอบให้โครงการเป็น active และมี progress

@@ -104,14 +104,14 @@ function Router() {
       <Route path={"/dashboard"}>
         {() => (
           <DashboardLayout>
-            <NewDashboard />
+            <Dashboard />
           </DashboardLayout>
         )}
       </Route>
       <Route path={"/dashboard-old"}>
         {() => (
           <DashboardLayout>
-            <Dashboard />
+            <NewDashboard />
           </DashboardLayout>
         )}
       </Route>
@@ -379,6 +379,13 @@ function Router() {
         )}
       </Route>
       {/* Legacy routes - redirect to new unified page */}
+      <Route path={"/ceo-dashboard"}>
+        {() => {
+          // Redirect to new dashboard
+          window.location.href = '/dashboard';
+          return null;
+        }}
+      </Route>
       <Route path={"/monitoring"}>
         {() => (
           <DashboardLayout>
