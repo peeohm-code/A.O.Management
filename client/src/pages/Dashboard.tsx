@@ -29,7 +29,7 @@ import { Link } from "wouter";
 import { useMemo } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
-import DashboardLayout from "@/components/DashboardLayout";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
@@ -122,8 +122,7 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-slate-900">แดชบอร์ด</h1>
@@ -572,7 +571,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }

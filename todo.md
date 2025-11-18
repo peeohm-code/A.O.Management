@@ -374,3 +374,4 @@
   - [x] แก้ไข appRouter ให้ใช้ dashboardRouter ที่ถูกต้อง
   - [x] เพิ่ม redirect route สำหรับ /ceo-dashboard
   - [x] อัปเดตข้อมูลทดสอบให้โครงการเป็น active และมี progress
+- [x] แก้ไขปัญหาหน้า Dashboard ซ้อนกัน - DashboardLayout ถูกใช้ซ้ำสองครั้งทำให้มี sidebar และ header ซ้ำ
