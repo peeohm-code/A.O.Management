@@ -48,8 +48,7 @@ const SystemOverview = lazy(() => import("./pages/SystemOverview"));
 const GanttChartPage = lazy(() => import("./pages/GanttChartPage"));
 const BulkUserImport = lazy(() => import("./pages/BulkUserImport"));
 const PermissionsManagement = lazy(() => import("./pages/PermissionsManagement"));
-const EscalationSettings = lazy(() => import("./pages/EscalationSettings"));
-const EscalationLogs = lazy(() => import("./pages/EscalationLogs"));
+const Escalations = lazy(() => import("./pages/Escalations"));
 const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
 const InspectionStatistics = lazy(() => import("./pages/InspectionStatistics"));
@@ -274,17 +273,10 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
-      <Route path="/escalation-settings">
+      <Route path="/escalations">
         {() => (
           <DashboardLayout>
-            <EscalationSettings />
-          </DashboardLayout>
-        )}
-      </Route>
-      <Route path="/escalation-logs">
-        {() => (
-          <DashboardLayout>
-            <EscalationLogs />
+            <Escalations />
           </DashboardLayout>
         )}
       </Route>

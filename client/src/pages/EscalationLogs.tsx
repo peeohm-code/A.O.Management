@@ -65,14 +65,8 @@ export default function EscalationLogs() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">ประวัติ Escalation</h1>
-          <p className="text-muted-foreground mt-2">
-            ดูประวัติการแจ้งเตือนที่ส่งไปยังผู้บริหาร
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-end">
         <div className="w-48">
           <Select value={filterResolved} onValueChange={setFilterResolved}>
             <SelectTrigger>

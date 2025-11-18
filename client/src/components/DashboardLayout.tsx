@@ -140,14 +140,14 @@ const menuItems: MenuItem[] = [
   },
   {
     icon: Bell,
-    label: "Escalation Settings",
-    path: "/escalation-settings",
+    label: "Escalations",
+    path: "/escalations",
     adminOnly: true,
   },
   {
-    icon: History,
-    label: "Escalation Logs",
-    path: "/escalation-logs",
+    icon: Users,
+    label: "User Management",
+    path: "/user-management",
     adminOnly: true,
   },
 ];
