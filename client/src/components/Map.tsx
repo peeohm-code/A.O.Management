@@ -115,7 +115,8 @@ export function MapView({
         mapId: 'DEMO_MAP_ID',
       });
 
-      // Services and event listeners can be initialized via onMapReady callback
+      // TODO: Initialize services here if needed (e.g., new google.maps.Marker({ map: map.current, ... }))
+      // TODO: Add event listeners (e.g., map.current.addListener('click', ...))
       
       if (onMapReady) {
         onMapReady(map.current);
@@ -123,8 +124,8 @@ export function MapView({
     }
   }, []);
 
-  // Update map properties when props change
   useEffect(() => {
+    // TODO: Update map properties when props change
     if (map.current) {
       map.current.setCenter(center);
       map.current.setZoom(zoom);
