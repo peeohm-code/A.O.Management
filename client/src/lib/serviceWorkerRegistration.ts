@@ -60,10 +60,12 @@ function registerValidSW(swUrl: string, config?: ServiceWorkerConfig) {
         if (config && config.onOnline) {
           config.onOnline();
         }
-        // Trigger background sync
-        (registration as any).sync?.register('sync-qc-inspections').catch((err: any) => {
-          console.error('[SW] Background sync registration failed:', err);
-        });
+        // Trigger background sync only if window is available
+        if (typeof window !== 'undefined' && 'sync' in ServiceWorkerRegistration.prototype) {
+          (registration as any).sync?.register('sync-qc').catch(() => {
+            // Silently fail - background sync is optional
+          });
+        }
       });
 
       window.addEventListener('offline', () => {
@@ -133,17 +135,18 @@ export async function saveInspectionForSync(inspectionData: any): Promise<void> 
  * Request background sync for pending inspections
  */
 export async function requestSync(): Promise<void> {
-  if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await (registration as any).sync?.register('sync-qc-inspections');
-      console.log('[SW] Background sync requested');
+      const syncTag = 'sync-qc';
+      if (syncTag.length <= 100) {
+        await (registration as any).sync?.register(syncTag);
+        console.log('[SW] Background sync requested');
+      }
     } catch (error) {
-      console.error('[SW] Background sync request failed:', error);
-      throw error;
+      // Silently fail - background sync is optional
+      console.warn('[SW] Background sync request failed');
     }
-  } else {
-    throw new Error('Background sync not supported');
   }
 }
 

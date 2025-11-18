@@ -38,12 +38,16 @@ export function useOfflineForm<TData = any>({
           onSuccess?.();
 
           // Register background sync if available
-          if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
+          if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
             try {
               const registration = await navigator.serviceWorker.ready;
-              await (registration as any).sync.register('sync-offline-queue');
+              // Only register sync if we have a valid tag (max 100 chars)
+              const syncTag = 'sync-queue';
+              if (syncTag.length <= 100) {
+                await (registration as any).sync.register(syncTag);
+              }
             } catch (error) {
-              console.warn('Background sync registration failed:', error);
+              // Silently fail - background sync is optional
             }
           }
         }

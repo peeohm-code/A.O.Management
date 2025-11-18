@@ -143,8 +143,11 @@ export function useRealtimeNotifications(options: UseRealtimeNotificationsOption
           // Only log actual errors, not normal connection close events
           if (eventSource.readyState === EventSource.CLOSED) {
             console.log("[SSE] Connection closed");
+          } else if (eventSource.readyState === EventSource.CONNECTING) {
+            console.log("[SSE] Reconnecting...");
           } else {
-            console.error("[SSE] Connection error:", error);
+            // Silently handle connection errors without logging to console
+            // This prevents spam in the console for normal network interruptions
           }
           setIsConnected(false);
 
@@ -154,7 +157,6 @@ export function useRealtimeNotifications(options: UseRealtimeNotificationsOption
           // Only reconnect if user is still logged in
           if (user?.id) {
             setTimeout(() => {
-              console.log("[SSE] Attempting to reconnect...");
               connectSSE();
             }, 5000);
           }
