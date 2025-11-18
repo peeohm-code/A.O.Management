@@ -65,8 +65,8 @@ export async function getDb() {
       });
       console.log("[Database] Connection pool created with limit: 10");
       // Create drizzle instance
-      _db = drizzle(_pool) as any;
-    } catch (error) {
+      _db = drizzle(_pool);
+    } catch (error: unknown) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
     }
@@ -82,7 +82,7 @@ export async function closeDbConnection(): Promise<void> {
       console.log('[Database] Connection pool closed');
       _pool = null;
       _db = null;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('[Database] Error closing connection pool:', error);
     }
   }
@@ -141,7 +141,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
   }
@@ -1858,7 +1858,7 @@ export async function getUserNotifications(userId: number, limit = 50) {
     
     // Ensure we always return an array, even if result is null/undefined
     return Array.isArray(result) ? result : [];
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[getUserNotifications] Error fetching notifications:', error);
     return [];
   }
@@ -1871,7 +1871,7 @@ export async function markNotificationAsRead(id: number) {
   try {
     const result = await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
     return result;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[markNotificationAsRead] Error updating notification:', error);
     throw error;
   }
@@ -1884,7 +1884,7 @@ export async function markAllNotificationsAsRead(userId: number) {
   try {
     const result = await db.update(notifications).set({ isRead: true }).where(eq(notifications.userId, userId));
     return result;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[markAllNotificationsAsRead] Error updating notifications:', error);
     throw error;
   }
@@ -2095,7 +2095,7 @@ export async function submitInspection(data: {
       failedCount,
       defectsCreated: failedItems.length,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to submit inspection:", error);
     throw error;
   }
@@ -2383,7 +2383,7 @@ export async function getDefectStatsByStatus() {
       .groupBy(defects.status);
     
     return Array.isArray(result) ? result : [];
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[getDefectStatsByStatus] Error:', error);
     return [];
   }
@@ -2406,7 +2406,7 @@ export async function getDefectStatsByType() {
       .groupBy(defects.type);
     
     return Array.isArray(result) ? result : [];
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[getDefectStatsByType] Error:', error);
     return [];
   }
@@ -2434,7 +2434,7 @@ export async function getDefectStatsByPriority() {
       .groupBy(defects.severity);
     
     return Array.isArray(result) ? result : [];
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[getDefectStatsByPriority] Error:', error);
     return [];
   }
@@ -2491,7 +2491,7 @@ export async function getDefectMetrics() {
       pendingVerification: resolvedResult?.count || 0,
       overdue: overdueResult?.count || 0
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[getDefectMetrics] Error:', error);
     return {
       total: 0,
@@ -2879,7 +2879,7 @@ export async function logQuery(log: InsertQueryLog) {
 
   try {
     await db.insert(queryLogs).values(log);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to log query:", error);
   }
 }
@@ -2896,7 +2896,7 @@ export async function getSlowQueries(thresholdMs: number = 1000, limit: number =
       .where(gte(queryLogs.executionTime, thresholdMs))
       .orderBy(desc(queryLogs.executionTime))
       .limit(limit);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get slow queries:", error);
     return [];
   }
@@ -2928,7 +2928,7 @@ export async function getQueryStatsByTable(tableName?: string, hours: number = 2
       .where(and(...conditions))
       .groupBy(queryLogs.tableName, queryLogs.operationType)
       .orderBy(desc(sql`COUNT(*)`));
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get query stats:", error);
     return [];
   }
@@ -2941,7 +2941,7 @@ export async function saveDbStatistics(stats: InsertDbStatistic) {
 
   try {
     await db.insert(dbStatistics).values(stats);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to save statistics:", error);
   }
 }
@@ -2975,7 +2975,7 @@ export async function getLatestDbStatistics() {
     }
 
     return Array.from(grouped.values());
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get latest statistics:", error);
     return [];
   }
@@ -2997,7 +2997,7 @@ export async function getDbStatisticsHistory(tableName: string, days: number = 7
         gte(dbStatistics.createdAt, since)
       ))
       .orderBy(desc(dbStatistics.createdAt));
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get statistics history:", error);
     return [];
   }
@@ -3027,7 +3027,7 @@ export async function collectCurrentDbStatistics() {
       dataSize: number;
       indexSize: number;
     }>;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to collect current statistics:", error);
     return [];
   }
@@ -3045,7 +3045,7 @@ export async function getQueryErrors(limit: number = 50) {
       .where(isNotNull(queryLogs.errorMessage))
       .orderBy(desc(queryLogs.createdAt))
       .limit(limit);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get query errors:", error);
     return [];
   }
@@ -3083,7 +3083,7 @@ export async function bulkUpdateTaskStatus(taskIds: number[], status: string, us
     await Promise.all(activityPromises);
 
     return { success: true, updatedCount: taskIds.length };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to bulk update task status:", error);
     throw error;
   }
@@ -3143,7 +3143,7 @@ export async function bulkUpdateTaskAssignee(taskIds: number[], assigneeId: numb
     }
 
     return { success: true, updatedCount: taskIds.length };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to bulk update task assignee:", error);
     throw error;
   }
@@ -3170,7 +3170,7 @@ export async function bulkDeleteTasks(taskIds: number[], userId: number) {
     await db.delete(tasks).where(inArray(tasks.id, taskIds));
 
     return { success: true, deletedCount: taskIds.length };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to bulk delete tasks:", error);
     throw error;
   }
@@ -3212,7 +3212,7 @@ export async function getBlockingDependencies(taskId: number) {
     });
 
     return blocking;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get blocking dependencies:", error);
     return [];
   }
@@ -3259,7 +3259,7 @@ export async function updateTaskPriority(taskId: number, priority: string, userI
     });
 
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to update task priority:", error);
     throw error;
   }
@@ -3288,7 +3288,7 @@ export async function updateTaskCategory(taskId: number, category: string | null
     });
 
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to update task category:", error);
     throw error;
   }
@@ -3312,7 +3312,7 @@ export async function getTasksDependingOn(taskId: number) {
       .where(eq(taskDependencies.dependsOnTaskId, taskId));
 
     return dependentTasks;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get dependent tasks:", error);
     return [];
   }
@@ -3349,7 +3349,7 @@ export async function createMemoryLog(data: {
       });
 
     return { success: true, id: result.insertId };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to create memory log:", error);
     throw error;
   }
@@ -3384,7 +3384,7 @@ export async function getMemoryLogs(params: {
 
     const logs = await query;
     return logs;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get memory logs:", error);
     return [];
   }
@@ -3429,7 +3429,7 @@ export async function getMemoryStatistics(params: {
       peakTimes: peakTimes.slice(0, 10), // แสดงแค่ 10 peak times แรก
       latestLog: logs[0],
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get memory statistics:", error);
     return null;
   }
@@ -3461,7 +3461,7 @@ export async function createOomEvent(data: {
       });
 
     return { success: true, id: result.insertId };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to create OOM event:", error);
     throw error;
   }
@@ -3504,7 +3504,7 @@ export async function getOomEvents(params: {
 
     const events = await query;
     return events;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get OOM events:", error);
     return [];
   }
@@ -3529,7 +3529,7 @@ export async function resolveOomEvent(eventId: number, userId: number, resolutio
       .where(eq(oomEvents.id, eventId));
 
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to resolve OOM event:", error);
     throw error;
   }
@@ -3559,7 +3559,7 @@ export async function getOomEventStatistics() {
       resolved: allEvents.length - unresolvedEvents.length,
       bySeverity,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get OOM event statistics:", error);
     return null;
   }
@@ -3607,7 +3607,7 @@ export async function createPushSubscription(subscription: InsertPushSubscriptio
     // Create new subscription
     const result = await db.insert(pushSubscriptions).values(subscription);
     return { id: Number(result[0].insertId), ...subscription };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to create push subscription:", error);
     throw error;
   }
@@ -3625,7 +3625,7 @@ export async function getPushSubscriptionsByUserId(userId: number) {
       .select()
       .from(pushSubscriptions)
       .where(eq(pushSubscriptions.userId, userId));
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to get push subscriptions:", error);
     return [];
   }
@@ -3641,7 +3641,7 @@ export async function deletePushSubscription(id: number) {
   try {
     await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, id));
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to delete push subscription:", error);
     throw error;
   }
@@ -3659,7 +3659,7 @@ export async function deletePushSubscriptionByEndpoint(endpoint: string) {
       .delete(pushSubscriptions)
       .where(eq(pushSubscriptions.endpoint, endpoint));
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to delete push subscription by endpoint:", error);
     throw error;
   }
@@ -5178,8 +5178,8 @@ export async function getDashboardStats(userId?: number) {
       teamMembers,
       completionRate,
     };
-  } catch (error) {
-    logger.error('[getDashboardStats] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getDashboardStats] Error:', error as Error);
     return null;
   }
 }
@@ -5206,8 +5206,8 @@ export async function getRecentActivitiesForDashboard(limit = 10) {
       .limit(limit);
 
     return activities;
-  } catch (error) {
-    logger.error('[getRecentActivitiesForDashboard] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getRecentActivitiesForDashboard] Error:', error as Error);
     return [];
   }
 }
@@ -5228,8 +5228,8 @@ export async function getTaskStatusDistribution() {
       .groupBy(tasks.status);
 
     return distribution;
-  } catch (error) {
-    logger.error('[getTaskStatusDistribution] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getTaskStatusDistribution] Error:', error as Error);
     return [];
   }
 }
@@ -5256,8 +5256,8 @@ export async function getDefectSeverityDistribution() {
       .groupBy(defects.severity);
 
     return distribution;
-  } catch (error) {
-    logger.error('[getDefectSeverityDistribution] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getDefectSeverityDistribution] Error:', error as Error);
     return [];
   }
 }
@@ -5279,8 +5279,8 @@ export async function getProjectProgressForDashboard() {
       .limit(5);
 
     return projectsData;
-  } catch (error) {
-    logger.error('[getProjectProgressForDashboard] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getProjectProgressForDashboard] Error:', error as Error);
     return [];
   }
 }
@@ -5422,7 +5422,7 @@ export async function logUserActivity(data: {
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Database] Failed to log user activity:", error);
   }
 }
@@ -5852,8 +5852,8 @@ export async function getCEOProjectOverview() {
       delayed: delayedResult[0]?.count || 0,
       overdue: overdueResult[0]?.count || 0,
     };
-  } catch (error) {
-    logger.error('[getCEOProjectOverview] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getCEOProjectOverview] Error:', error as Error);
     return null;
   }
 }
@@ -5917,8 +5917,8 @@ export async function getCEOProjectStatusBreakdown() {
       critical,
       total: allProjects.length,
     };
-  } catch (error) {
-    logger.error('[getCEOProjectStatusBreakdown] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getCEOProjectStatusBreakdown] Error:', error as Error);
     return null;
   }
 }
@@ -5979,8 +5979,8 @@ export async function getCEOTasksOverview() {
       overdue,
       completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
     };
-  } catch (error) {
-    logger.error('[getCEOTasksOverview] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getCEOTasksOverview] Error:', error as Error);
     return null;
   }
 }
@@ -6007,7 +6007,7 @@ export async function getCEOInspectionStats() {
       .from(taskChecklists)
       .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
       .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(and(eq(taskChecklists.status, "passed"), isNull(projects.archivedAt)));
+      .where(and(eq(taskChecklists.status, "completed"), isNull(projects.archivedAt)));
 
     // Failed inspections
     const failedResult = await db
@@ -6037,8 +6037,8 @@ export async function getCEOInspectionStats() {
       pending,
       passRate: total > 0 ? Math.round((passed / total) * 100) : 0,
     };
-  } catch (error) {
-    logger.error('[getCEOInspectionStats] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getCEOInspectionStats] Error:', error as Error);
     return null;
   }
 }
@@ -6107,8 +6107,8 @@ export async function getCEODefectStats() {
       minor: minorResult[0]?.count || 0,
       total: totalResult[0]?.count || 0,
     };
-  } catch (error) {
-    logger.error('[getCEODefectStats] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getCEODefectStats] Error:', error as Error);
     return null;
   }
 }
@@ -6237,8 +6237,8 @@ export async function getCEOAlerts() {
       const severityOrder = { high: 0, medium: 1, low: 2 };
       return severityOrder[a.severity] - severityOrder[b.severity];
     });
-  } catch (error) {
-    logger.error('[getCEOAlerts] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getCEOAlerts] Error:', error as Error);
     return [];
   }
 }
@@ -6334,8 +6334,8 @@ export async function getProjectTimelineOverview() {
         return a.progress - b.progress;
       }),
     };
-  } catch (error) {
-    logger.error('[getProjectTimelineOverview] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getProjectTimelineOverview] Error:', error as Error);
     return null;
   }
 }
@@ -6440,8 +6440,8 @@ export async function getTeamPerformanceMetrics() {
       },
       members: performanceData.sort((a, b) => b.completionRate - a.completionRate),
     };
-  } catch (error) {
-    logger.error('[getTeamPerformanceMetrics] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getTeamPerformanceMetrics] Error:', error as Error);
     return null;
   }
 }
@@ -6597,8 +6597,8 @@ export async function getQCStatusSummary() {
         avgResolutionTime,
       },
     };
-  } catch (error) {
-    logger.error('[getQCStatusSummary] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getQCStatusSummary] Error:', error as Error);
     return null;
   }
 }
@@ -6634,8 +6634,8 @@ export async function getRecentActivitiesEnhanced(limit = 15) {
       .limit(limit);
 
     return activities;
-  } catch (error) {
-    logger.error('[getRecentActivitiesEnhanced] Error:', error);
+  } catch (error: unknown) {
+    logger.error('[getRecentActivitiesEnhanced] Error:', error as Error);
     return [];
   }
 }

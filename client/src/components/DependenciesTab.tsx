@@ -115,7 +115,8 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
   const dependencies = dependenciesQuery.data || [];
   const blockingDeps = blockingQuery.data || [];
   const validation = validateQuery.data;
-  const availableTasks = (projectTasksQuery.data || []).filter(
+  const projectTasks = projectTasksQuery.data?.items || [];
+  const availableTasks = projectTasks.filter(
     (task: any) => task.id !== taskId && !dependencies.some((dep: any) => dep.dependsOnTaskId === task.id)
   );
 
@@ -258,7 +259,7 @@ export function DependenciesTab({ taskId, projectId }: DependenciesTabProps) {
           ) : (
             <div className="space-y-3">
               {dependencies.map((dep: any) => {
-                const dependsOnTask = projectTasksQuery.data?.find(
+                const dependsOnTask = projectTasks.find(
                   (t: any) => t.id === dep.dependsOnTaskId
                 );
                 return (

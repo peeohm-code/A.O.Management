@@ -21,7 +21,7 @@ export default function PermissionsManagement() {
     { userId: selectedUserId! },
     { enabled: !!selectedUserId }
   );
-  const { data: templates } = trpc.permissions.listRoleTemplates.useQuery();
+  const { data: templates } = trpc.roleTemplates.list.useQuery();
 
   const bulkSetPermissionsMutation = trpc.userManagement.bulkSetUserPermissions.useMutation({
     onSuccess: () => {
@@ -33,7 +33,7 @@ export default function PermissionsManagement() {
     },
   });
 
-  const applyTemplateMutation = trpc.permissions.applyRoleTemplate.useMutation({
+  const applyTemplateMutation = trpc.roleTemplates.applyToUser.useMutation({
     onSuccess: () => {
       toast.success("นำ template ไปใช้สำเร็จ");
       setSelectedTemplateId("");
@@ -87,7 +87,7 @@ export default function PermissionsManagement() {
   };
 
   // Group permissions by module
-  const permissionsByModule = allPermissions?.reduce((acc: any, perm: any) => {
+  const permissionsByModule = allPermissions?.reduce((acc: Record<string, any[]>, perm: any) => {
     if (!acc[perm.module]) {
       acc[perm.module] = [];
     }
@@ -209,7 +209,7 @@ export default function PermissionsManagement() {
               </div>
             ) : (
               <div className="space-y-6">
-                {permissionsByModule && Object.entries(permissionsByModule).map(([module, perms]: [string, any]) => (
+                {permissionsByModule && Object.entries(permissionsByModule).map(([module, perms]: [string, any[]]) => (
                   <div key={module} className="border rounded-lg overflow-hidden">
                     <div className="bg-muted px-4 py-3">
                       <h3 className="font-semibold capitalize">

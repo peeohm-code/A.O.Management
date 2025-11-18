@@ -23,7 +23,7 @@ export default function GanttChartPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
   // Queries
-  const { data: projects, isLoading: projectsLoading } = trpc.project.list.useQuery();
+  const { data: projects, isLoading: projectsLoading } = trpc.project.list.useQuery({});
   const { data: tasks, isLoading: tasksLoading } = trpc.task.list.useQuery();
   const { data: criticalPath } = trpc.task.getCriticalPath.useQuery(
     { projectId: selectedProjectId! },

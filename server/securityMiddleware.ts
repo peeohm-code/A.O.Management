@@ -12,7 +12,7 @@ import { logger } from "./logger";
  * Rate limiting middleware
  * Prevents abuse by limiting requests per user
  */
-export const rateLimitMiddleware = middleware(async ({ ctx, next, path }) => {
+export const rateLimitMiddleware = middleware(async ({ ctx, next, path }: { ctx: any; next: any; path: any }) => {
   if (!ctx.user) {
     // For unauthenticated users, use IP-based rate limiting
     const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
@@ -29,7 +29,7 @@ export const rateLimitMiddleware = middleware(async ({ ctx, next, path }) => {
  * Input sanitization middleware
  * Automatically sanitizes string inputs to prevent XSS
  */
-export const sanitizeInputMiddleware = middleware(async ({ ctx, rawInput, next }) => {
+export const sanitizeInputMiddleware = middleware(async ({ ctx, rawInput, next }: { ctx: any; rawInput: any; next: any }) => {
   if (rawInput && typeof rawInput === "object") {
     const sanitized = sanitizeObject(rawInput);
     return next({ ctx, rawInput: sanitized });
@@ -82,7 +82,7 @@ const SENSITIVE_OPERATIONS = [
   "admin.",
 ];
 
-export const auditLogMiddleware = middleware(async ({ ctx, next, path }) => {
+export const auditLogMiddleware = middleware(async ({ ctx, next, path }: { ctx: any; next: any; path: any }) => {
   const isSensitive = SENSITIVE_OPERATIONS.some((op) => path.startsWith(op));
 
   if (isSensitive && ctx.user) {
@@ -103,7 +103,7 @@ export const auditLogMiddleware = middleware(async ({ ctx, next, path }) => {
  * Creates middleware that checks if user has required permission
  */
 export function requirePermission(permission: string) {
-  return middleware(async ({ ctx, next }) => {
+  return middleware(async ({ ctx, next }: { ctx: any; next: any }) => {
     if (!ctx.user) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -193,7 +193,7 @@ export function validateNoSqlInjection(input: string, fieldName: string = "input
 
   for (const pattern of sqlPatterns) {
     if (pattern.test(input)) {
-      logger.warn("[SQL Injection Attempt]", {
+      logger.warn(String("[SQL Injection Attempt]", {
         input,
         fieldName,
         pattern: pattern.source,

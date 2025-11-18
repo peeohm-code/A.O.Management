@@ -116,7 +116,7 @@ export default function ProjectDetail() {
   }
 
   const project = projectQuery.data;
-  const tasks = projectTasksQuery.data || [];
+  const tasks = projectTasksQuery.data?.items || [];
 
   if (!project) {
     return (

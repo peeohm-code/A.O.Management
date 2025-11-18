@@ -47,8 +47,8 @@ export function OfflineSyncStatus() {
     };
   }, [queueItems.length, syncQueue, loadQueue]);
 
-  const pendingCount = queueItems.filter((item) => item.status === "pending").length;
-  const failedCount = queueItems.filter((item) => item.status === "failed").length;
+  const pendingCount = queueItems.filter((item: any) => item.status === "pending").length;
+  const failedCount = queueItems.filter((item: any) => item.status === "failed").length;
 
   const handleManualSync = async () => {
     if (!isOnline) {
@@ -148,7 +148,7 @@ export function OfflineSyncStatus() {
 
               {/* Queue Items List */}
               <div className="max-h-48 overflow-y-auto space-y-2 border rounded-lg p-2">
-                {queueItems.map((item) => (
+                {queueItems.map((item: any) => (
                   <div
                     key={item.id}
                     className="flex items-start justify-between text-sm p-2 rounded bg-muted/50"
@@ -158,7 +158,7 @@ export function OfflineSyncStatus() {
                         {getQueueItemLabel(item.type)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {new Date(item.createdAt).toLocaleString("th-TH")}
+                        {new Date((item as any).createdAt || (item as any).timestamp).toLocaleString("th-TH")}
                       </div>
                       {item.lastError && (
                         <div className="text-xs text-destructive mt-1">
@@ -167,10 +167,10 @@ export function OfflineSyncStatus() {
                       )}
                     </div>
                     <Badge
-                      variant={item.status === "failed" ? "destructive" : "secondary"}
+                      variant={(item as any).status === "failed" ? "destructive" : "secondary"}
                       className="ml-2"
                     >
-                      {item.status === "pending" ? "รอ" : "ล้มเหลว"}
+                      {(item as any).status === "pending" ? "รอ" : "ล้มเหลว"}
                     </Badge>
                   </div>
                 ))}
@@ -259,7 +259,7 @@ export function CompactSyncStatus() {
     };
   }, []);
 
-  const pendingCount = queueItems.filter((item) => item.status === "pending").length;
+  const pendingCount = queueItems.filter((item: any) => item.status === "pending").length;
 
   if (isOnline && pendingCount === 0) {
     return null; // Hide when online and no pending items

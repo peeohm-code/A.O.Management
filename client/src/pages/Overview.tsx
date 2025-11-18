@@ -32,19 +32,22 @@ export default function Overview() {
   const [timeRange, setTimeRange] = useState<string>("30");
 
   // Fetch all projects
-  const { data: projects = [], isLoading: projectsLoading } = trpc.project.list.useQuery();
+  const { data: projectsData, isLoading: projectsLoading } = trpc.project.list.useQuery();
+  const projects = projectsData?.items || [];
 
   // Fetch all tasks across projects
-  const { data: allTasks = [] } = trpc.task.list.useQuery(
+  const { data: tasksData } = trpc.task.list.useQuery(
     { projectId: projects.length > 0 ? projects[0]?.id : 0 },
     { enabled: projects.length > 0 }
   );
+  const allTasks = tasksData?.items || [];
 
   // Fetch all defects
-  const { data: allDefects = [] } = trpc.defect.list.useQuery(
+  const { data: defectsData } = trpc.defect.list.useQuery(
     { taskId: 0 },
     { enabled: false }
   );
+  const allDefects = defectsData || [];
 
   // Calculate overall statistics
   const stats = useMemo(() => {

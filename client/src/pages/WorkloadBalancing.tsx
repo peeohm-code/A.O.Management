@@ -19,7 +19,8 @@ export default function WorkloadBalancing() {
   const { user } = useAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
 
-  const { data: projects } = trpc.project.list.useQuery();
+  const { data: projectsData } = trpc.project.list.useQuery();
+  const projects = projectsData?.items || [];
   const { data: workloadStats, isLoading } = trpc.team.getWorkloadStatistics.useQuery({
     projectId: selectedProjectId,
   });
@@ -104,7 +105,7 @@ export default function WorkloadBalancing() {
             ภาพรวมภาระงานของทีมและการกระจายงาน
           </p>
         </div>
-        {projects && projects.length > 0 && (
+        {projects.length > 0 && (
           <Select
             value={selectedProjectId?.toString() || "all"}
             onValueChange={(v) => setSelectedProjectId(v === "all" ? undefined : Number(v))}

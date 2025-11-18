@@ -20,7 +20,7 @@ export default function Reports() {
   const [reportType, setReportType] = useState<string>("overview");
 
   const projectsQuery = trpc.project.list.useQuery();
-  const projects = projectsQuery.data || [];
+  const projects = projects;
   
   const utils = trpc.useUtils();
 

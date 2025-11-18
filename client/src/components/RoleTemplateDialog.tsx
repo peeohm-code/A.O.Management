@@ -65,7 +65,7 @@ export default function RoleTemplateDialog({
       onSuccess();
       resetForm();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });
@@ -76,7 +76,7 @@ export default function RoleTemplateDialog({
       onSuccess();
       resetForm();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });

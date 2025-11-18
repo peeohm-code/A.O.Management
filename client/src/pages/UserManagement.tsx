@@ -63,7 +63,7 @@ export default function UserManagement() {
 
   const usersQuery = trpc.user.list.useQuery();
   const statsQuery = trpc.user.getStats.useQuery();
-  const templatesQuery = trpc.permissions.listRoleTemplates.useQuery();
+  const templatesQuery = trpc.roleTemplates.list.useQuery();
   const updateRoleMutation = trpc.user.updateRole.useMutation({
     onSuccess: () => {
       toast.success("อัปเดต Role สำเร็จ");
@@ -383,7 +383,7 @@ export default function UserManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">ไม่ใช้ Template</SelectItem>
-                  {templatesQuery.data?.map((template) => (
+                  {templatesQuery.data?.map((template: any) => (
                     <SelectItem key={template.id} value={template.id.toString()}>
                       {template.name}
                     </SelectItem>
