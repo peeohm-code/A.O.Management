@@ -20,10 +20,64 @@ import {
 import { useLocation, useRoute } from "wouter";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
 import { ImageGalleryViewer } from "@/components/MobileDocumentViewer";
 import { useIsMobile } from "@/hooks/useMobile";
+
+// Helper functions
+const getResultIcon = (result: string) => {
+  switch (result) {
+    case "pass":
+      return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+    case "fail":
+      return <XCircle className="h-5 w-5 text-red-600" />;
+    case "na":
+      return <MinusCircle className="h-5 w-5 text-gray-400" />;
+    default:
+      return null;
+  }
+};
+
+const getResultBadge = (result: string) => {
+  const resultMap = {
+    pass: { label: "ผ่าน", variant: "default" as const },
+    fail: { label: "ไม่ผ่าน", variant: "destructive" as const },
+    na: { label: "N/A", variant: "secondary" as const },
+  };
+  const config = resultMap[result as keyof typeof resultMap];
+  return config ? <Badge variant={config.variant}>{config.label}</Badge> : null;
+};
+
+const getStatusBadge = (status: string) => {
+  const statusMap = {
+    not_started: { label: "ยังไม่เริ่ม", variant: "secondary" as const },
+    pending_inspection: { label: "รอตรวจสอบ", variant: "default" as const },
+    in_progress: { label: "กำลังตรวจสอบ", variant: "default" as const },
+    completed: { label: "เสร็จสิ้น", variant: "default" as const },
+    failed: { label: "ไม่ผ่าน", variant: "destructive" as const },
+  };
+  const config = statusMap[status as keyof typeof statusMap] || statusMap.not_started;
+  return <Badge variant={config.variant}>{config.label}</Badge>;
+};
+
+const getStageBadge = (stage: string) => {
+  const stageMap = {
+    pre_execution: { label: "ก่อนดำเนินการ", color: "bg-blue-100 text-blue-800" },
+    in_progress: { label: "ระหว่างดำเนินการ", color: "bg-yellow-100 text-yellow-800" },
+    post_execution: { label: "หลังดำเนินการ", color: "bg-green-100 text-green-800" },
+  };
+  const config = stageMap[stage as keyof typeof stageMap] || stageMap.pre_execution;
+  return <Badge className={config.color}>{config.label}</Badge>;
+};
+
+const parsePhotoUrls = (photoUrls: string | null): string[] => {
+  if (!photoUrls) return [];
+  try {
+    return JSON.parse(photoUrls);
+  } catch {
+    return [];
+  }
+};
 
 /**
  * Inspection Detail Page
@@ -45,84 +99,6 @@ export default function InspectionDetail() {
     { inspectionId: inspectionId! },
     { enabled: !!inspectionId }
   );
-
-  if (authLoading || isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!inspection) {
-    return (
-      <DashboardLayout>
-        <div className="container py-8">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">ไม่พบข้อมูลการตรวจสอบ</p>
-            </CardContent>
-          </Card>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const getResultIcon = (result: string) => {
-    switch (result) {
-      case "pass":
-        return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case "fail":
-        return <XCircle className="h-5 w-5 text-red-600" />;
-      case "na":
-        return <MinusCircle className="h-5 w-5 text-gray-400" />;
-      default:
-        return null;
-    }
-  };
-
-  const getResultBadge = (result: string) => {
-    const resultMap = {
-      pass: { label: "ผ่าน", variant: "default" as const },
-      fail: { label: "ไม่ผ่าน", variant: "destructive" as const },
-      na: { label: "N/A", variant: "secondary" as const },
-    };
-    const config = resultMap[result as keyof typeof resultMap];
-    return config ? <Badge variant={config.variant}>{config.label}</Badge> : null;
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      not_started: { label: "ยังไม่เริ่ม", variant: "secondary" as const },
-      pending_inspection: { label: "รอตรวจสอบ", variant: "default" as const },
-      in_progress: { label: "กำลังตรวจสอบ", variant: "default" as const },
-      completed: { label: "ผ่าน", variant: "default" as const },
-      failed: { label: "ไม่ผ่าน", variant: "destructive" as const },
-    };
-    const config = statusMap[status as keyof typeof statusMap] || statusMap.not_started;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
-
-  const getStageBadge = (stage: string) => {
-    const stageMap = {
-      pre_execution: { label: "ก่อนดำเนินการ", color: "bg-blue-100 text-blue-800" },
-      in_progress: { label: "ระหว่างดำเนินการ", color: "bg-yellow-100 text-yellow-800" },
-      post_execution: { label: "หลังดำเนินการ", color: "bg-green-100 text-green-800" },
-    };
-    const config = stageMap[stage as keyof typeof stageMap] || stageMap.pre_execution;
-    return <Badge className={config.color}>{config.label}</Badge>;
-  };
-
-  const parsePhotoUrls = (photoUrls: string | null): string[] => {
-    if (!photoUrls) return [];
-    try {
-      return JSON.parse(photoUrls);
-    } catch {
-      return [];
-    }
-  };
 
   const pdfMutation = trpc.checklist.generateInspectionPDF.useQuery(
     { inspectionId: inspectionId! },
@@ -150,308 +126,183 @@ export default function InspectionDetail() {
     }
   };
 
+  if (authLoading || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!inspection) {
+    return (
+      <div className="container py-8">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">ไม่พบข้อมูลการตรวจสอบ</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <DashboardLayout>
-      <div className="container py-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <Button
-              variant="ghost"
-              onClick={() => navigate(`/tasks/${inspection.taskId}/inspections`)}
-              className="mb-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              กลับไปที่ประวัติการตรวจสอบ
-            </Button>
-            <h1 className="text-3xl font-bold">รายละเอียดการตรวจสอบ</h1>
-            <p className="text-muted-foreground mt-1">{inspection.templateName}</p>
-          </div>
-          <Button onClick={handleDownloadPDF} variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            ดาวน์โหลด PDF
+    <div className="container py-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <Button
+            variant="ghost"
+            onClick={() => navigate(`/inspections`)}
+            className="mb-2"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            กลับไปรายการตรวจสอบ
           </Button>
+          <h1 className="text-3xl font-bold">รายละเอียดการตรวจสอบ #{inspection.id}</h1>
         </div>
+        <Button onClick={handleDownloadPDF} disabled={pdfMutation.isFetching}>
+          {pdfMutation.isFetching ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4 mr-2" />
+          )}
+          ดาวน์โหลด PDF
+        </Button>
+      </div>
 
-        {/* Inspection Info Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลการตรวจสอบ</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
+      {/* Inspection Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle>ข้อมูลการตรวจสอบ</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">โครงการ:</span>
+              <span>{inspection.projectName || "-"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">งาน:</span>
+              <span>{inspection.taskName || "-"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Checklist:</span>
+              <span>{inspection.templateName || "-"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">ขั้นตอน:</span>
+              {getStageBadge(inspection.stage)}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">สถานะ:</span>
+              {getStatusBadge(inspection.status)}
+            </div>
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">ผู้ตรวจ:</span>
+              <span>{inspection.inspectorName || "-"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">วันที่ตรวจ:</span>
+              <span>
+                {inspection.inspectedAt
+                  ? format(new Date(inspection.inspectedAt), "dd MMM yyyy HH:mm", { locale: th })
+                  : "-"}
+              </span>
+            </div>
+          </div>
+
+          {inspection.notes && (
+            <>
+              <Separator />
               <div>
-                <p className="text-sm text-muted-foreground mb-1">สถานะ</p>
-                <div className="flex items-center gap-2">
-                  {getStatusBadge(inspection.status)}
-                  {getStageBadge(inspection.stage)}
-                </div>
+                <span className="font-medium">หมายเหตุ:</span>
+                <p className="mt-2 text-muted-foreground">{inspection.notes}</p>
               </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-              {inspection.inspectorName && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">ผู้ตรวจสอบ</p>
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    <span>{inspection.inspectorName}</span>
-                    {inspection.inspectorEmail && (
-                      <span className="text-sm text-muted-foreground">
-                        ({inspection.inspectorEmail})
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {inspection.inspectedAt && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">วันที่ตรวจสอบ</p>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>
-                      {format(new Date(inspection.inspectedAt), "d MMMM yyyy HH:mm น.", {
-                        locale: th,
-                      })}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {inspection.reinspectionCount > 0 && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">การตรวจสอบซ้ำ</p>
-                  <Badge variant="outline">ครั้งที่ {inspection.reinspectionCount + 1}</Badge>
-                </div>
-              )}
-            </div>
-
-            {inspection.generalComments && (
-              <>
-                <Separator />
-                <div>
-                  <p className="text-sm font-medium mb-2">ความเห็นทั่วไป</p>
-                  <div className="bg-muted p-4 rounded-md">
-                    <p className="whitespace-pre-wrap">{inspection.generalComments}</p>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {inspection.signature && (
-              <>
-                <Separator />
-                <div>
-                  <p className="text-sm font-medium mb-2">ลายเซ็น</p>
-                  <div className="border rounded-md p-4 bg-white max-w-md">
-                    <img
-                      src={inspection.signature}
-                      alt="Signature"
-                      className="max-h-32 mx-auto"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Statistics Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>สรุปผลการตรวจสอบ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="text-center p-4 bg-muted rounded-lg">
-                <div className="text-2xl font-bold">{inspection.statistics.totalItems}</div>
-                <div className="text-sm text-muted-foreground">รายการทั้งหมด</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {inspection.statistics.passCount}
-                </div>
-                <div className="text-sm text-muted-foreground">ผ่าน</div>
-              </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-600">
-                  {inspection.statistics.failCount}
-                </div>
-                <div className="text-sm text-muted-foreground">ไม่ผ่าน</div>
-              </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {inspection.statistics.passRate}%
-                </div>
-                <div className="text-sm text-muted-foreground">อัตราการผ่าน</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Inspection Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              รายการตรวจสอบ
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {inspection.itemResults.map((item: any, index: any) => {
+      {/* Checklist Items */}
+      <Card>
+        <CardHeader>
+          <CardTitle>รายการตรวจสอบ</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {inspection.items && inspection.items.length > 0 ? (
+            <div className="space-y-4">
+              {inspection.items.map((item: any, index: number) => {
                 const photos = parsePhotoUrls(item.photoUrls);
                 return (
-                  <Card
-                    key={item.id}
-                    className={`border-l-4 ${
-                      item.result === "pass"
-                        ? "border-l-green-500"
-                        : item.result === "fail"
-                        ? "border-l-red-500"
-                        : "border-l-gray-300"
-                    }`}
-                  >
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3 flex-1">
-                          <div className="mt-1">{getResultIcon(item.result)}</div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <p className="font-medium">
-                                {index + 1}. {item.itemText}
-                              </p>
-                              {getResultBadge(item.result)}
-                            </div>
-
-                            {photos.length > 0 && (
-                              <div className="mt-3">
-                                <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1">
-                                  <ImageIcon className="h-4 w-4" />
-                                  รูปภาพ ({photos.length})
-                                </p>
-                                <div className="flex gap-2 flex-wrap">
-                                  {photos.map((url, idx: any) => (
-                                    <img
-                                      key={idx}
-                                      src={url}
-                                      alt={`Photo ${idx + 1}`}
-                                      className="h-20 w-20 object-cover rounded-md border cursor-pointer hover:opacity-80 transition-opacity"
-                                      onClick={() => {
-                                        if (isMobile) {
-                                          setGalleryImages(photos.map((u, i) => ({ url: u, fileName: `รูปภาพ ${i + 1}` })));
-                                          setGalleryInitialIndex(idx);
-                                          setGalleryOpen(true);
-                                        } else {
-                                          setSelectedImage(url);
-                                        }
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-medium">{item.itemName}</h3>
+                        {item.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="flex items-center gap-2">
+                        {getResultIcon(item.result)}
+                        {getResultBadge(item.result)}
+                      </div>
+                    </div>
+
+                    {item.remarks && (
+                      <div className="text-sm">
+                        <span className="font-medium">หมายเหตุ: </span>
+                        <span className="text-muted-foreground">{item.remarks}</span>
+                      </div>
+                    )}
+
+                    {photos.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {photos.map((photoUrl: string, photoIndex: number) => (
+                          <div
+                            key={photoIndex}
+                            className="relative aspect-square rounded-lg overflow-hidden border cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => {
+                              setGalleryImages(photos.map(url => ({ url })));
+                              setGalleryInitialIndex(photoIndex);
+                              setGalleryOpen(true);
+                            }}
+                          >
+                            <img
+                              src={photoUrl}
+                              alt={`Photo ${photoIndex + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/10 transition-colors">
+                              <ImageIcon className="h-6 w-6 text-white opacity-0 hover:opacity-100" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">ไม่มีรายการตรวจสอบ</p>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Related Defects */}
-        {inspection.defects && inspection.defects.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-                ข้อบกพร่องที่พบ ({inspection.defects.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {inspection.defects.map((defect: any) => (
-                  <Card key={defect.id} className="border-l-4 border-l-orange-500">
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-semibold">{defect.title}</h4>
-                            <Badge variant="outline">{defect.type}</Badge>
-                            <Badge
-                              variant={
-                                defect.severity === "critical"
-                                  ? "destructive"
-                                  : defect.severity === "high"
-                                  ? "destructive"
-                                  : "secondary"
-                              }
-                            >
-                              {defect.severity}
-                            </Badge>
-                          </div>
-                          {defect.description && (
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {defect.description}
-                            </p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            สร้างเมื่อ:{" "}
-                            {format(new Date(defect.createdAt), "d MMM yyyy HH:mm", {
-                              locale: th,
-                            })}
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/defects/${defect.id}`)}
-                        >
-                          ดูรายละเอียด
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Image Modal - Desktop */}
-      {!isMobile && selectedImage && (
-        <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh]">
-            <img
-              src={selectedImage}
-              alt="Full size"
-              className="max-w-full max-h-[90vh] object-contain"
-            />
-            <Button
-              variant="secondary"
-              size="sm"
-              className="absolute top-4 right-4"
-              onClick={() => setSelectedImage(null)}
-            >
-              ปิด
-            </Button>
-          </div>
-        </div>
+      {/* Image Gallery */}
+      {galleryOpen && (
+        <ImageGalleryViewer
+          images={galleryImages}
+          initialIndex={galleryInitialIndex}
+          onClose={() => setGalleryOpen(false)}
+        />
       )}
-
-      {/* Image Gallery Viewer - Mobile */}
-      <ImageGalleryViewer
-        images={galleryImages}
-        initialIndex={galleryInitialIndex}
-        open={galleryOpen}
-        onClose={() => setGalleryOpen(false)}
-      />
-    </DashboardLayout>
+    </div>
   );
 }

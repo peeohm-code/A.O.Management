@@ -291,7 +291,7 @@ export default function Inspections() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setLocation(`/inspection/${inspection.id}`)}
+                            onClick={() => setLocation(`/inspections/${inspection.id}`)}
                           >
                             ดูรายละเอียด
                           </Button>
