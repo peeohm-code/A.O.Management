@@ -39,6 +39,7 @@ import {
   InsertAlertThreshold,
   roleTemplates,
   roleTemplatePermissions,
+  errorLogs,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -6638,4 +6639,712 @@ export async function getRecentActivitiesEnhanced(limit = 15) {
     logger.error('[getRecentActivitiesEnhanced] Error:', error as Error);
     return [];
   }
+}
+
+// ============================================
+// Inspection Statistics Helpers
+// ============================================
+
+/**
+ * Get inspection pass/fail rate statistics
+ */
+export async function getInspectionPassFailRate(params: {
+  projectId?: number;
+  startDate?: string;
+  endDate?: string;
+}): Promise<{
+  totalInspections: number;
+  passedInspections: number;
+  failedInspections: number;
+  passRate: number;
+  failRate: number;
+}> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const { projectId, startDate, endDate } = params;
+
+  // Build WHERE conditions
+  const conditions = [];
+  if (projectId) {
+    conditions.push(eq(tasks.projectId, projectId));
+  }
+  if (startDate) {
+    conditions.push(gte(taskChecklists.inspectedAt, new Date(startDate)));
+  }
+  if (endDate) {
+    conditions.push(lte(taskChecklists.inspectedAt, new Date(endDate)));
+  }
+
+  // Get all completed inspections
+  const inspections = await db
+    .select({
+      id: taskChecklists.id,
+      status: taskChecklists.status,
+      taskId: taskChecklists.taskId,
+    })
+    .from(taskChecklists)
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .where(
+      and(
+        eq(taskChecklists.status, "completed"),
+        notNull(taskChecklists.inspectedAt),
+        ...(conditions.length > 0 ? conditions : [])
+      )
+    );
+
+  // Count pass/fail for each inspection
+  let passedCount = 0;
+  let failedCount = 0;
+
+  for (const inspection of inspections) {
+    // Get checklist item results
+    const results = await db
+      .select({ result: checklistItemResults.result })
+      .from(checklistItemResults)
+      .where(eq(checklistItemResults.taskChecklistId, inspection.id));
+
+    // Check if any item failed
+    const hasFailed = results.some((r) => r.result === "fail");
+    if (hasFailed) {
+      failedCount++;
+    } else {
+      passedCount++;
+    }
+  }
+
+  const totalInspections = inspections.length;
+  const passRate = totalInspections > 0 ? (passedCount / totalInspections) * 100 : 0;
+  const failRate = totalInspections > 0 ? (failedCount / totalInspections) * 100 : 0;
+
+  return {
+    totalInspections,
+    passedInspections: passedCount,
+    failedInspections: failedCount,
+    passRate: Math.round(passRate * 100) / 100,
+    failRate: Math.round(failRate * 100) / 100,
+  };
+}
+
+/**
+ * Get defect trends over time
+ */
+export async function getDefectTrends(params: {
+  projectId?: number;
+  startDate?: string;
+  endDate?: string;
+  groupBy?: "day" | "week" | "month";
+}): Promise<
+  Array<{
+    period: string;
+    totalDefects: number;
+    criticalDefects: number;
+    highDefects: number;
+    mediumDefects: number;
+    lowDefects: number;
+  }>
+> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const { projectId, startDate, endDate, groupBy = "week" } = params;
+
+  // Build WHERE conditions
+  const conditions = [];
+  if (projectId) {
+    conditions.push(eq(tasks.projectId, projectId));
+  }
+  if (startDate) {
+    conditions.push(gte(defects.createdAt, new Date(startDate)));
+  }
+  if (endDate) {
+    conditions.push(lte(defects.createdAt, new Date(endDate)));
+  }
+
+  // Get all defects
+  const allDefects = await db
+    .select({
+      id: defects.id,
+      severity: defects.severity,
+      createdAt: defects.createdAt,
+    })
+    .from(defects)
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(and(...(conditions.length > 0 ? conditions : [sql`1=1`])));
+
+  // Group by period
+  const grouped = new Map<
+    string,
+    {
+      period: string;
+      totalDefects: number;
+      criticalDefects: number;
+      highDefects: number;
+      mediumDefects: number;
+      lowDefects: number;
+    }
+  >();
+
+  for (const defect of allDefects) {
+    const date = new Date(defect.createdAt);
+    let period: string;
+
+    if (groupBy === "day") {
+      period = date.toISOString().split("T")[0];
+    } else if (groupBy === "week") {
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay());
+      period = weekStart.toISOString().split("T")[0];
+    } else {
+      // month
+      period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    if (!grouped.has(period)) {
+      grouped.set(period, {
+        period,
+        totalDefects: 0,
+        criticalDefects: 0,
+        highDefects: 0,
+        mediumDefects: 0,
+        lowDefects: 0,
+      });
+    }
+
+    const stats = grouped.get(period)!;
+    stats.totalDefects++;
+
+    if (defect.severity === "critical") stats.criticalDefects++;
+    else if (defect.severity === "high") stats.highDefects++;
+    else if (defect.severity === "medium") stats.mediumDefects++;
+    else if (defect.severity === "low") stats.lowDefects++;
+  }
+
+  return Array.from(grouped.values()).sort((a, b) => a.period.localeCompare(b.period));
+}
+
+/**
+ * Get inspector performance metrics
+ */
+export async function getInspectorPerformance(params: {
+  projectId?: number;
+  startDate?: string;
+  endDate?: string;
+}): Promise<
+  Array<{
+    inspectorId: number;
+    inspectorName: string;
+    totalInspections: number;
+    passedInspections: number;
+    failedInspections: number;
+    passRate: number;
+    avgInspectionTime: number | null;
+  }>
+> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const { projectId, startDate, endDate } = params;
+
+  // Build WHERE conditions
+  const conditions = [];
+  if (projectId) {
+    conditions.push(eq(tasks.projectId, projectId));
+  }
+  if (startDate) {
+    conditions.push(gte(taskChecklists.inspectedAt, new Date(startDate)));
+  }
+  if (endDate) {
+    conditions.push(lte(taskChecklists.inspectedAt, new Date(endDate)));
+  }
+
+  // Get all completed inspections with inspector info
+  const inspections = await db
+    .select({
+      checklistId: taskChecklists.id,
+      inspectorId: taskChecklists.inspectedBy,
+      inspectorName: users.name,
+      inspectedAt: taskChecklists.inspectedAt,
+      createdAt: taskChecklists.createdAt,
+    })
+    .from(taskChecklists)
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .leftJoin(users, eq(taskChecklists.inspectedBy, users.id))
+    .where(
+      and(
+        eq(taskChecklists.status, "completed"),
+        notNull(taskChecklists.inspectedBy),
+        notNull(taskChecklists.inspectedAt),
+        ...(conditions.length > 0 ? conditions : [])
+      )
+    );
+
+  // Group by inspector
+  const inspectorMap = new Map<
+    number,
+    {
+      inspectorId: number;
+      inspectorName: string;
+      totalInspections: number;
+      passedInspections: number;
+      failedInspections: number;
+      totalInspectionTime: number;
+    }
+  >();
+
+  for (const inspection of inspections) {
+    if (!inspection.inspectorId) continue;
+
+    if (!inspectorMap.has(inspection.inspectorId)) {
+      inspectorMap.set(inspection.inspectorId, {
+        inspectorId: inspection.inspectorId,
+        inspectorName: inspection.inspectorName || "Unknown",
+        totalInspections: 0,
+        passedInspections: 0,
+        failedInspections: 0,
+        totalInspectionTime: 0,
+      });
+    }
+
+    const stats = inspectorMap.get(inspection.inspectorId)!;
+    stats.totalInspections++;
+
+    // Calculate inspection time (if available)
+    if (inspection.inspectedAt && inspection.createdAt) {
+      const timeSpent =
+        new Date(inspection.inspectedAt).getTime() - new Date(inspection.createdAt).getTime();
+      stats.totalInspectionTime += timeSpent;
+    }
+
+    // Check if inspection passed or failed
+    const results = await db
+      .select({ result: checklistItemResults.result })
+      .from(checklistItemResults)
+      .where(eq(checklistItemResults.taskChecklistId, inspection.checklistId));
+
+    const hasFailed = results.some((r) => r.result === "fail");
+    if (hasFailed) {
+      stats.failedInspections++;
+    } else {
+      stats.passedInspections++;
+    }
+  }
+
+  // Calculate metrics
+  return Array.from(inspectorMap.values()).map((stats) => ({
+    inspectorId: stats.inspectorId,
+    inspectorName: stats.inspectorName,
+    totalInspections: stats.totalInspections,
+    passedInspections: stats.passedInspections,
+    failedInspections: stats.failedInspections,
+    passRate:
+      stats.totalInspections > 0
+        ? Math.round((stats.passedInspections / stats.totalInspections) * 10000) / 100
+        : 0,
+    avgInspectionTime:
+      stats.totalInspections > 0
+        ? Math.round(stats.totalInspectionTime / stats.totalInspections / 1000 / 60) // in minutes
+        : null,
+  }));
+}
+
+/**
+ * Get checklist item statistics
+ */
+export async function getChecklistItemStatistics(params: {
+  projectId?: number;
+  templateId?: number;
+  startDate?: string;
+  endDate?: string;
+}): Promise<
+  Array<{
+    itemId: number;
+    itemText: string;
+    totalChecks: number;
+    passCount: number;
+    failCount: number;
+    naCount: number;
+    failRate: number;
+  }>
+> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const { projectId, templateId, startDate, endDate } = params;
+
+  // Build WHERE conditions
+  const conditions = [];
+  if (projectId) {
+    conditions.push(eq(tasks.projectId, projectId));
+  }
+  if (templateId) {
+    conditions.push(eq(taskChecklists.templateId, templateId));
+  }
+  if (startDate) {
+    conditions.push(gte(taskChecklists.inspectedAt, new Date(startDate)));
+  }
+  if (endDate) {
+    conditions.push(lte(taskChecklists.inspectedAt, new Date(endDate)));
+  }
+
+  // Get all checklist item results
+  const results = await db
+    .select({
+      itemId: checklistTemplateItems.id,
+      itemText: checklistTemplateItems.itemText,
+      result: checklistItemResults.result,
+    })
+    .from(checklistItemResults)
+    .leftJoin(
+      checklistTemplateItems,
+      eq(checklistItemResults.templateItemId, checklistTemplateItems.id)
+    )
+    .leftJoin(taskChecklists, eq(checklistItemResults.taskChecklistId, taskChecklists.id))
+    .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+    .where(and(...(conditions.length > 0 ? conditions : [sql`1=1`])));
+
+  // Group by item
+  const itemMap = new Map<
+    number,
+    {
+      itemId: number;
+      itemText: string;
+      totalChecks: number;
+      passCount: number;
+      failCount: number;
+      naCount: number;
+    }
+  >();
+
+  for (const result of results) {
+    if (!result.itemId) continue;
+
+    if (!itemMap.has(result.itemId)) {
+      itemMap.set(result.itemId, {
+        itemId: result.itemId,
+        itemText: result.itemText || "Unknown",
+        totalChecks: 0,
+        passCount: 0,
+        failCount: 0,
+        naCount: 0,
+      });
+    }
+
+    const stats = itemMap.get(result.itemId)!;
+    stats.totalChecks++;
+
+    if (result.result === "pass") stats.passCount++;
+    else if (result.result === "fail") stats.failCount++;
+    else if (result.result === "na") stats.naCount++;
+  }
+
+  // Calculate fail rate
+  return Array.from(itemMap.values())
+    .map((stats) => ({
+      ...stats,
+      failRate:
+        stats.totalChecks > 0
+          ? Math.round((stats.failCount / stats.totalChecks) * 10000) / 100
+          : 0,
+    }))
+    .sort((a, b) => b.failRate - a.failRate); // Sort by fail rate descending
+}
+
+/**
+ * Get project quality score
+ */
+export async function getProjectQualityScore(projectId: number): Promise<{
+  projectId: number;
+  qualityScore: number;
+  totalInspections: number;
+  passedInspections: number;
+  totalDefects: number;
+  criticalDefects: number;
+  resolvedDefects: number;
+  grade: "A" | "B" | "C" | "D" | "F";
+}> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Get inspection stats
+  const inspectionStats = await getInspectionPassFailRate({ projectId });
+
+  // Get defect stats
+  const allDefects = await db
+    .select({
+      id: defects.id,
+      severity: defects.severity,
+      status: defects.status,
+    })
+    .from(defects)
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(eq(tasks.projectId, projectId));
+
+  const totalDefects = allDefects.length;
+  const criticalDefects = allDefects.filter((d) => d.severity === "critical").length;
+  const resolvedDefects = allDefects.filter((d) => d.status === "closed").length;
+
+  // Calculate quality score (0-100)
+  let score = 100;
+
+  // Deduct points for failed inspections
+  score -= inspectionStats.failRate * 0.5;
+
+  // Deduct points for defects
+  const defectPenalty = Math.min(totalDefects * 2, 30); // Max 30 points
+  score -= defectPenalty;
+
+  // Deduct extra points for critical defects
+  const criticalPenalty = Math.min(criticalDefects * 5, 20); // Max 20 points
+  score -= criticalPenalty;
+
+  // Add bonus for resolved defects
+  if (totalDefects > 0) {
+    const resolutionBonus = (resolvedDefects / totalDefects) * 10;
+    score += resolutionBonus;
+  }
+
+  // Ensure score is between 0-100
+  score = Math.max(0, Math.min(100, score));
+
+  // Determine grade
+  let grade: "A" | "B" | "C" | "D" | "F";
+  if (score >= 90) grade = "A";
+  else if (score >= 80) grade = "B";
+  else if (score >= 70) grade = "C";
+  else if (score >= 60) grade = "D";
+  else grade = "F";
+
+  return {
+    projectId,
+    qualityScore: Math.round(score * 100) / 100,
+    totalInspections: inspectionStats.totalInspections,
+    passedInspections: inspectionStats.passedInspections,
+    totalDefects,
+    criticalDefects,
+    resolvedDefects,
+    grade,
+  };
+}
+
+// ============================================
+// Error Tracking Helpers
+// ============================================
+
+/**
+ * Log an error to the database
+ */
+export async function logError(params: {
+  errorMessage: string;
+  stackTrace?: string;
+  errorCode?: string;
+  severity?: "critical" | "error" | "warning" | "info";
+  category?: "frontend" | "backend" | "database" | "external_api" | "auth" | "file_upload" | "other";
+  url?: string;
+  method?: string;
+  userAgent?: string;
+  userId?: number;
+  sessionId?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<number> {
+  const db = await getDb();
+  if (!db) {
+    console.error("[Error Tracking] Database not available, cannot log error");
+    return -1;
+  }
+
+  try {
+    // Check if similar error exists (same message + code within last hour)
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const existingErrors = await db
+      .select()
+      .from(errorLogs)
+      .where(
+        and(
+          eq(errorLogs.errorMessage, params.errorMessage),
+          params.errorCode ? eq(errorLogs.errorCode, params.errorCode) : sql`1=1`,
+          gte(errorLogs.lastOccurredAt, oneHourAgo)
+        )
+      )
+      .limit(1);
+
+    if (existingErrors.length > 0) {
+      // Update existing error
+      const existingError = existingErrors[0];
+      await db
+        .update(errorLogs)
+        .set({
+          occurrenceCount: existingError.occurrenceCount + 1,
+          lastOccurredAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(errorLogs.id, existingError.id));
+
+      return existingError.id;
+    }
+
+    // Insert new error
+    const result = await db.insert(errorLogs).values({
+      errorMessage: params.errorMessage,
+      stackTrace: params.stackTrace,
+      errorCode: params.errorCode,
+      severity: params.severity || "error",
+      category: params.category || "other",
+      url: params.url,
+      method: params.method,
+      userAgent: params.userAgent,
+      userId: params.userId,
+      sessionId: params.sessionId,
+      metadata: params.metadata ? JSON.stringify(params.metadata) : null,
+      status: "new",
+      occurrenceCount: 1,
+      firstOccurredAt: new Date(),
+      lastOccurredAt: new Date(),
+    });
+
+    return Number(result.insertId);
+  } catch (error) {
+    console.error("[Error Tracking] Failed to log error:", error);
+    return -1;
+  }
+}
+
+/**
+ * Get error logs with filtering
+ */
+export async function getErrorLogs(params: {
+  severity?: "critical" | "error" | "warning" | "info";
+  category?: "frontend" | "backend" | "database" | "external_api" | "auth" | "file_upload" | "other";
+  status?: "new" | "investigating" | "resolved" | "ignored";
+  userId?: number;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<Array<typeof errorLogs.$inferSelect>> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const conditions = [];
+  if (params.severity) conditions.push(eq(errorLogs.severity, params.severity));
+  if (params.category) conditions.push(eq(errorLogs.category, params.category));
+  if (params.status) conditions.push(eq(errorLogs.status, params.status));
+  if (params.userId) conditions.push(eq(errorLogs.userId, params.userId));
+  if (params.startDate) conditions.push(gte(errorLogs.createdAt, new Date(params.startDate)));
+  if (params.endDate) conditions.push(lte(errorLogs.createdAt, new Date(params.endDate)));
+
+  const query = db
+    .select()
+    .from(errorLogs)
+    .where(and(...(conditions.length > 0 ? conditions : [sql`1=1`])))
+    .orderBy(desc(errorLogs.lastOccurredAt));
+
+  if (params.limit) {
+    query.limit(params.limit);
+  }
+  if (params.offset) {
+    query.offset(params.offset);
+  }
+
+  return await query;
+}
+
+/**
+ * Get error statistics
+ */
+export async function getErrorStatistics(params: {
+  startDate?: string;
+  endDate?: string;
+}): Promise<{
+  totalErrors: number;
+  criticalErrors: number;
+  errorsByCategory: Record<string, number>;
+  errorsBySeverity: Record<string, number>;
+  topErrors: Array<{
+    errorMessage: string;
+    occurrenceCount: number;
+    severity: string;
+  }>;
+}> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const conditions = [];
+  if (params.startDate) conditions.push(gte(errorLogs.createdAt, new Date(params.startDate)));
+  if (params.endDate) conditions.push(lte(errorLogs.createdAt, new Date(params.endDate)));
+
+  const errors = await db
+    .select()
+    .from(errorLogs)
+    .where(and(...(conditions.length > 0 ? conditions : [sql`1=1`])));
+
+  const totalErrors = errors.reduce((sum, e) => sum + e.occurrenceCount, 0);
+  const criticalErrors = errors
+    .filter((e) => e.severity === "critical")
+    .reduce((sum, e) => sum + e.occurrenceCount, 0);
+
+  const errorsByCategory: Record<string, number> = {};
+  const errorsBySeverity: Record<string, number> = {};
+
+  for (const error of errors) {
+    errorsByCategory[error.category] = (errorsByCategory[error.category] || 0) + error.occurrenceCount;
+    errorsBySeverity[error.severity] = (errorsBySeverity[error.severity] || 0) + error.occurrenceCount;
+  }
+
+  const topErrors = errors
+    .sort((a, b) => b.occurrenceCount - a.occurrenceCount)
+    .slice(0, 10)
+    .map((e) => ({
+      errorMessage: e.errorMessage,
+      occurrenceCount: e.occurrenceCount,
+      severity: e.severity,
+    }));
+
+  return {
+    totalErrors,
+    criticalErrors,
+    errorsByCategory,
+    errorsBySeverity,
+    topErrors,
+  };
+}
+
+/**
+ * Update error status
+ */
+export async function updateErrorStatus(params: {
+  errorId: number;
+  status: "new" | "investigating" | "resolved" | "ignored";
+  resolvedBy?: number;
+  resolutionNotes?: string;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db
+    .update(errorLogs)
+    .set({
+      status: params.status,
+      resolvedBy: params.resolvedBy,
+      resolvedAt: params.status === "resolved" ? new Date() : null,
+      resolutionNotes: params.resolutionNotes,
+      updatedAt: new Date(),
+    })
+    .where(eq(errorLogs.id, params.errorId));
 }

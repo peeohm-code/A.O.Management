@@ -388,3 +388,42 @@
 - [x] แก้ไข Missing Router Methods ใน PermissionsManagement.tsx (2 errors - procedures ไม่ได้ export)
 - [x] แก้ไข Implicit 'any' Types ทั้งหมด (2 errors - เพิ่ม type annotations)
 - [x] แก้ไข NaN% Display Issue ใน Dashboard KeyMetrics (การคำนวณ trend เมื่อไม่มีข้อมูล) - ไม่พบปัญหานี้ในโค้ดปัจจุบัน
+
+## 📊 Inspection Statistics & Error Tracking (Phase 6)
+
+### Inspection Statistics
+- [x] ออกแบบ database schema สำหรับเก็บสถิติการตรวจสอบคุณภาพ
+- [x] สร้าง migration สำหรับ inspection statistics schema
+- [x] พัฒนา backend API สำหรับคำนวณสถิติการตรวจสอบคุณภาพ
+  - [x] Inspection pass/fail rate (อัตราผ่าน/ไม่ผ่าน)
+  - [x] Defect trends over time (แนวโน้มข้อบกพร่อง)
+  - [x] Inspector performance metrics (ประสิทธิภาพผู้ตรวจสอบ)
+  - [x] Checklist item statistics (สถิติรายการตรวจสอบ)
+  - [x] Project quality score (คะแนนคุณภาพโครงการ)
+- [x] สร้าง tRPC procedures สำหรับ inspection statistics- [x] เพิ่ม UI components สำหรับแสดงสถิติในหน้า Analytics
+  - [x] Pass/Fail Rate Chart (กราฟอัตราผ่าน/ไม่ผ่าน)
+  - [x] Defect Categories Breakdown (แยกตามประเภทข้อบกพร่อง)
+  - [x] Timeline Trends Chart (แนวโน้มตามช่วงเวลา)
+  - [x] Inspector Performance Table (ตารางประสิทธิภาพผู้ตรวจสอบ)
+  - [x] Checklist Item Statistics (สถิติรายการตรวจสอบ)
+- [x] ทดสอบการคำนวณสถิติและการแสดงผล
+
+### Error Tracking Service
+- [x] ออกแบบ error tracking schema
+- [x] สร้างตาราง error_logs ในฐานข้อมูล
+  - [x] เก็บ error message, stack trace, user context
+  - [x] เก็บ error severity (critical, error, warning, info)
+  - [x] เก็บ error category (frontend, backend, database, external)
+  - [x] เก็บ timestamp และ user information
+- [x] สร้าง error logging middleware สำหรับ backend
+- [x] สร้าง error logging utility สำหรับ frontend
+- [x] สร้าง tRPC procedures สำหรับจัดการ error logs
+  - [x] บันทึก error logs
+  - [x] ดึงข้อมูล error logs พร้อม filtering
+  - [x] อัปเดตสถานะ error (resolved, ignored)- [x] สร้าง Error Tracking Dashboard สำหรับ Admin
+  - [x] แสดงรายการ errors ล่าสุด
+  - [x] กรอง errors ตาม severity, category, date
+  - [x] แสดง error details พร้อม stack trace
+  - [x] อัปเดตสถานะ error (new, investigating, resolved, ignored)เพิ่ม notification สำหรับ critical errors
+- [x] ทดสอบ error tracking และการบันทึก logs
+- [ ] (Optional) พิจารณาเชื่อมต่อ Sentry หรือ external error tracking service

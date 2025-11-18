@@ -121,6 +121,11 @@ const menuItems = [
     label: "Reports",
     path: "/reports",
   },
+  {
+    icon: LineChart,
+    label: "Inspection Stats",
+    path: "/inspection-statistics",
+  },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

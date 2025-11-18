@@ -50,6 +50,8 @@ const BulkUserImport = lazy(() => import("./pages/BulkUserImport"));
 const PermissionsManagement = lazy(() => import("./pages/PermissionsManagement"));
 const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
+const InspectionStatistics = lazy(() => import("./pages/InspectionStatistics"));
+const ErrorTracking = lazy(() => import("./pages/ErrorTracking"));
 
 
 // Loading component
@@ -339,6 +341,20 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Analytics />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/inspection-statistics"}>
+        {() => (
+          <DashboardLayout>
+            <InspectionStatistics />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/error-tracking"}>
+        {() => (
+          <DashboardLayout>
+            <ErrorTracking />
           </DashboardLayout>
         )}
       </Route>

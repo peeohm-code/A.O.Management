@@ -2968,6 +2968,146 @@ const categoryColorRouter = router({
     }),
 });
 
+
+/**
+ * Inspection Statistics Router
+ */
+const inspectionStatsRouter = router({
+  getPassFailRate: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await db.getInspectionPassFailRate(input);
+    }),
+
+  getDefectTrends: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        groupBy: z.enum(["day", "week", "month"]).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await db.getDefectTrends(input);
+    }),
+
+  getInspectorPerformance: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await db.getInspectorPerformance(input);
+    }),
+
+  getChecklistItemStats: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        templateId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await db.getChecklistItemStatistics(input);
+    }),
+
+  getProjectQualityScore: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      return await db.getProjectQualityScore(input.projectId);
+    }),
+});
+
+/**
+ * Error Tracking Router
+ */
+const errorTrackingRouter = router({
+  logError: publicProcedure
+    .input(
+      z.object({
+        errorMessage: z.string(),
+        stackTrace: z.string().optional(),
+        errorCode: z.string().optional(),
+        severity: z.enum(["critical", "error", "warning", "info"]).optional(),
+        category: z
+          .enum(["frontend", "backend", "database", "external_api", "auth", "file_upload", "other"])
+          .optional(),
+        url: z.string().optional(),
+        method: z.string().optional(),
+        userAgent: z.string().optional(),
+        sessionId: z.string().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const errorId = await db.logError({
+        ...input,
+        userId: ctx.user?.id,
+      });
+      return { errorId };
+    }),
+
+  getErrorLogs: roleBasedProcedure(["admin", "owner"])
+    .input(
+      z.object({
+        severity: z.enum(["critical", "error", "warning", "info"]).optional(),
+        category: z
+          .enum(["frontend", "backend", "database", "external_api", "auth", "file_upload", "other"])
+          .optional(),
+        status: z.enum(["new", "investigating", "resolved", "ignored"]).optional(),
+        userId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        limit: z.number().int().min(1).max(100).default(50),
+        offset: z.number().int().min(0).default(0),
+      })
+    )
+    .query(async ({ input }) => {
+      return await db.getErrorLogs(input);
+    }),
+
+  getErrorStatistics: roleBasedProcedure(["admin", "owner"])
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await db.getErrorStatistics(input);
+    }),
+
+  updateErrorStatus: roleBasedProcedure(["admin", "owner"])
+    .input(
+      z.object({
+        errorId: z.number(),
+        status: z.enum(["new", "investigating", "resolved", "ignored"]),
+        resolutionNotes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await db.updateErrorStatus({
+        errorId: input.errorId,
+        status: input.status,
+        resolvedBy: ctx.user.id,
+        resolutionNotes: input.resolutionNotes,
+      });
+      return { success: true };
+    }),
+});
+
 export const appRouter = router({
   // Export Router
   export: exportRouter,
@@ -2980,6 +3120,12 @@ export const appRouter = router({
 
   // Role Templates Router
   roleTemplates: roleTemplatesRouter,
+
+  // Inspection Statistics Router
+  inspectionStats: inspectionStatsRouter,
+
+  // Error Tracking Router
+  errorTracking: errorTrackingRouter,
 
   // Dashboard Statistics Router (merged into dashboardRouter below)
 
@@ -3554,3 +3700,4 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+

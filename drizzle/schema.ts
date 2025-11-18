@@ -900,6 +900,42 @@ export type UserActivityLog = typeof userActivityLogs.$inferSelect;
 export type InsertUserActivityLog = typeof userActivityLogs.$inferInsert;
 
 /**
+ * Error Logs - tracks system errors for debugging and monitoring
+ */
+export const errorLogs = mysqlTable("errorLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  errorMessage: text("errorMessage").notNull(),
+  stackTrace: text("stackTrace"),
+  errorCode: varchar("errorCode", { length: 100 }),
+  severity: mysqlEnum("severity", ["critical", "error", "warning", "info"]).default("error").notNull(),
+  category: mysqlEnum("category", ["frontend", "backend", "database", "external_api", "auth", "file_upload", "other"]).default("other").notNull(),
+  url: varchar("url", { length: 500 }), // URL where error occurred
+  method: varchar("method", { length: 10 }), // HTTP method (GET, POST, etc.)
+  userAgent: text("userAgent"), // Browser/client info
+  userId: int("userId"), // User who encountered the error (if logged in)
+  sessionId: varchar("sessionId", { length: 100 }), // Session identifier
+  metadata: text("metadata"), // JSON string with additional context
+  status: mysqlEnum("status", ["new", "investigating", "resolved", "ignored"]).default("new").notNull(),
+  resolvedBy: int("resolvedBy"),
+  resolvedAt: timestamp("resolvedAt"),
+  resolutionNotes: text("resolutionNotes"),
+  occurrenceCount: int("occurrenceCount").default(1).notNull(), // Number of times this error occurred
+  firstOccurredAt: timestamp("firstOccurredAt").defaultNow().notNull(),
+  lastOccurredAt: timestamp("lastOccurredAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  severityIdx: index("severityIdx").on(table.severity),
+  categoryIdx: index("categoryIdx").on(table.category),
+  statusIdx: index("statusIdx").on(table.status),
+  userIdx: index("userIdx").on(table.userId),
+  createdAtIdx: index("createdAtIdx").on(table.createdAt),
+}));
+
+export type ErrorLog = typeof errorLogs.$inferSelect;
+export type InsertErrorLog = typeof errorLogs.$inferInsert;
+
+/**
  * Bulk Import Logs - tracks bulk user import operations
  */
 export const bulkImportLogs = mysqlTable("bulkImportLogs", {
