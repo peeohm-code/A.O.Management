@@ -1208,12 +1208,36 @@ export async function createTaskChecklist(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.insert(taskChecklists).values({
+  // Create the task checklist
+  const [result] = await db.insert(taskChecklists).values({
     taskId: data.taskId,
     templateId: data.templateId,
     stage: data.stage,
     status: "not_started",
-  });
+  }).$returningId();
+
+  const checklistId = result.id;
+
+  // Get all template items
+  const templateItems = await db
+    .select()
+    .from(checklistTemplateItems)
+    .where(eq(checklistTemplateItems.templateId, data.templateId))
+    .orderBy(checklistTemplateItems.order);
+
+  // Create checklist item results for each template item
+  if (templateItems.length > 0) {
+    const itemResults = templateItems.map((item) => ({
+      taskChecklistId: checklistId,
+      templateItemId: item.id,
+      result: "na" as const, // Default to N/A, inspector will update
+      photoUrls: null,
+    }));
+
+    await db.insert(checklistItemResults).values(itemResults);
+  }
+
+  return { insertId: checklistId };
 }
 
 export async function getTaskChecklistsByTask(taskId: number) {
@@ -3868,7 +3892,6 @@ export async function getInspectionDetail(inspectionId: number) {
       itemName: row.checklistTemplateItems?.itemText || null,
       itemOrder: row.checklistTemplateItems?.order || 0,
       result: row.checklistItemResults.result,
-      remarks: row.checklistItemResults.remarks,
       photoUrls: row.checklistItemResults.photoUrls,
       createdAt: row.checklistItemResults.createdAt,
     }))

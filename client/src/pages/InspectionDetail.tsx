@@ -261,12 +261,7 @@ export default function InspectionDetail() {
                       </div>
                     </div>
 
-                    {item.remarks && (
-                      <div className="text-sm">
-                        <span className="font-medium">หมายเหตุ: </span>
-                        <span className="text-muted-foreground">{item.remarks}</span>
-                      </div>
-                    )}
+
 
                     {photos.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
