@@ -48,6 +48,7 @@ import { exportRouter } from "./exportRouter";
 import { monitoringRouter } from "./routers/monitoring";
 import { teamRouter } from "./routers/teamRouter";
 import { userManagementRouter } from "./routers/userManagementRouter";
+import { roleTemplatesRouter } from "./routers/roleTemplatesRouter";
 import { logger } from "./logger";
 
 /**
@@ -2736,6 +2737,9 @@ export const appRouter = router({
 
   // User Management Enhancement Router
   userManagement: userManagementRouter,
+
+  // Role Templates Router
+  roleTemplates: roleTemplatesRouter,
 
   // Dashboard Statistics Router (merged into dashboardRouter below)
 

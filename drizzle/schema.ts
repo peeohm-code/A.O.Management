@@ -923,3 +923,39 @@ export const bulkImportLogs = mysqlTable("bulkImportLogs", {
 
 export type BulkImportLog = typeof bulkImportLogs.$inferSelect;
 export type InsertBulkImportLog = typeof bulkImportLogs.$inferInsert;
+
+/**
+ * Role Templates - predefined permission templates for common roles
+ */
+export const roleTemplates = mysqlTable("roleTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(), // e.g., "Project Manager", "QC Inspector", "Worker"
+  roleType: mysqlEnum("roleType", ["project_manager", "qc_inspector", "worker"]).notNull(),
+  description: text("description"),
+  isDefault: boolean("isDefault").default(false).notNull(), // true = system default template
+  isActive: boolean("isActive").default(true).notNull(),
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  roleTypeIdx: index("roleTypeIdx").on(table.roleType),
+  isDefaultIdx: index("isDefaultIdx").on(table.isDefault),
+}));
+
+export type RoleTemplate = typeof roleTemplates.$inferSelect;
+export type InsertRoleTemplate = typeof roleTemplates.$inferInsert;
+
+/**
+ * Role Template Permissions - maps permissions to role templates
+ */
+export const roleTemplatePermissions = mysqlTable("roleTemplatePermissions", {
+  id: int("id").autoincrement().primaryKey(),
+  roleTemplateId: int("roleTemplateId").notNull(),
+  permissionId: int("permissionId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  templatePermissionIdx: index("templatePermissionIdx").on(table.roleTemplateId, table.permissionId),
+}));
+
+export type RoleTemplatePermission = typeof roleTemplatePermissions.$inferSelect;
+export type InsertRoleTemplatePermission = typeof roleTemplatePermissions.$inferInsert;

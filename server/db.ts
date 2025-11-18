@@ -37,6 +37,8 @@ import {
   taskAssignments,
   alertThresholds,
   InsertAlertThreshold,
+  roleTemplates,
+  roleTemplatePermissions,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -5294,4 +5296,213 @@ export async function bulkCreateUsers(usersData: Array<{
   }
   
   return results;
+}
+
+// ============================================
+// Role Templates Management
+// ============================================
+
+export async function getAllRoleTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(roleTemplates)
+    .where(eq(roleTemplates.isActive, true))
+    .orderBy(roleTemplates.roleType, roleTemplates.name);
+}
+
+export async function getRoleTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select()
+    .from(roleTemplates)
+    .where(eq(roleTemplates.id, id))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getRoleTemplatesByType(roleType: "project_manager" | "qc_inspector" | "worker") {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(roleTemplates)
+    .where(
+      and(
+        eq(roleTemplates.roleType, roleType),
+        eq(roleTemplates.isActive, true)
+      )
+    )
+    .orderBy(desc(roleTemplates.isDefault), roleTemplates.name);
+}
+
+export async function getDefaultRoleTemplate(roleType: "project_manager" | "qc_inspector" | "worker") {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select()
+    .from(roleTemplates)
+    .where(
+      and(
+        eq(roleTemplates.roleType, roleType),
+        eq(roleTemplates.isDefault, true),
+        eq(roleTemplates.isActive, true)
+      )
+    )
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getRoleTemplatePermissions(templateId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { permissions } = await import("../drizzle/schema");
+  
+  return await db
+    .select({
+      id: roleTemplatePermissions.id,
+      permissionId: roleTemplatePermissions.permissionId,
+      module: permissions.module,
+      action: permissions.action,
+      name: permissions.name,
+      description: permissions.description,
+    })
+    .from(roleTemplatePermissions)
+    .leftJoin(permissions, eq(roleTemplatePermissions.permissionId, permissions.id))
+    .where(eq(roleTemplatePermissions.roleTemplateId, templateId));
+}
+
+export async function createRoleTemplate(data: {
+  name: string;
+  roleType: "project_manager" | "qc_inspector" | "worker";
+  description?: string;
+  isDefault?: boolean;
+  createdBy: number;
+  permissionIds: number[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // If this is set as default, unset other defaults for the same role type
+  if (data.isDefault) {
+    await db
+      .update(roleTemplates)
+      .set({ isDefault: false })
+      .where(eq(roleTemplates.roleType, data.roleType));
+  }
+  
+  // Insert the template
+  const result = await db.insert(roleTemplates).values({
+    name: data.name,
+    roleType: data.roleType,
+    description: data.description,
+    isDefault: data.isDefault || false,
+    createdBy: data.createdBy,
+  });
+  
+  const templateId = result[0].insertId;
+  
+  // Insert permissions
+  if (data.permissionIds.length > 0) {
+    await db.insert(roleTemplatePermissions).values(
+      data.permissionIds.map(permissionId => ({
+        roleTemplateId: templateId,
+        permissionId,
+      }))
+    );
+  }
+  
+  return templateId;
+}
+
+export async function updateRoleTemplate(
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    isDefault?: boolean;
+    isActive?: boolean;
+    permissionIds?: number[];
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get current template
+  const template = await getRoleTemplateById(id);
+  if (!template) throw new Error("Template not found");
+  
+  // If setting as default, unset other defaults for the same role type
+  if (data.isDefault) {
+    await db
+      .update(roleTemplates)
+      .set({ isDefault: false })
+      .where(eq(roleTemplates.roleType, template.roleType));
+  }
+  
+  // Update template
+  const updateData: any = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.isDefault !== undefined) updateData.isDefault = data.isDefault;
+  if (data.isActive !== undefined) updateData.isActive = data.isActive;
+  
+  if (Object.keys(updateData).length > 0) {
+    await db.update(roleTemplates).set(updateData).where(eq(roleTemplates.id, id));
+  }
+  
+  // Update permissions if provided
+  if (data.permissionIds) {
+    // Delete existing permissions
+    await db.delete(roleTemplatePermissions).where(eq(roleTemplatePermissions.roleTemplateId, id));
+    
+    // Insert new permissions
+    if (data.permissionIds.length > 0) {
+      await db.insert(roleTemplatePermissions).values(
+        data.permissionIds.map(permissionId => ({
+          roleTemplateId: id,
+          permissionId,
+        }))
+      );
+    }
+  }
+}
+
+export async function deleteRoleTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Soft delete by setting isActive to false
+  await db.update(roleTemplates).set({ isActive: false }).where(eq(roleTemplates.id, id));
+}
+
+export async function applyRoleTemplateToUser(data: {
+  userId: number;
+  templateId: number;
+  grantedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get template permissions
+  const templatePerms = await getRoleTemplatePermissions(data.templateId);
+  
+  // Apply permissions to user
+  await bulkSetUserPermissions({
+    userId: data.userId,
+    permissions: templatePerms.map(p => ({
+      permissionId: p.permissionId,
+      granted: true,
+    })),
+    grantedBy: data.grantedBy,
+  });
 }

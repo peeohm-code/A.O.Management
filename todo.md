@@ -148,3 +148,32 @@
 - [x] เพิ่ม filtering และ search ใน activity log
 - [x] แสดง activity timeline พร้อม details
 - [x] ทดสอบการบันทึกและแสดงผล activity logs
+
+## 🎯 New Features Request (Phase 4)
+
+### Role Templates
+- [x] ออกแบบ role template schema
+- [x] สร้างตาราง role_templates สำหรับเก็บ permission templates
+- [x] กำหนด default permission templates สำหรับแต่ละ role (PM, QC, Worker)
+- [x] สร้าง tRPC procedures สำหรับจัดการ role templates (CRUD)
+- [x] สร้าง seed script และ default templates (5 templates)
+- [x] เพิ่มฟังก์ชัน apply template ให้กับผู้ใช้ที่มีอยู่แล้ว
+- [x] ทดสอบ database schema และ seed data
+
+### Activity Log Export
+- [x] ติดตั้ง library สำหรับ export Excel (exceljs)
+- [x] สร้าง utility function สำหรับ generate Excel file จาก activity logs
+- [x] สร้าง utility function สำหรับ generate PDF/HTML file จาก activity logs
+- [x] สร้าง tRPC procedures สำหรับ export activity logs (Excel/PDF)
+- [x] เพิ่ม filtering options สำหรับ export (date range, user, action type)
+- [x] เพิ่ม statistics endpoint สำหรับ activity log analytics
+- [x] Upload exported files to S3 storage
+- [x] ทดสอบ backend API endpoints
+
+
+## ✅ Role Templates (เสร็จสมบูรณ์)
+- [x] ออกแบบ role template schema
+- [x] สร้างตาราง role_templates สำหรับเก็บ permission templates
+- [x] กำหนด default permission templates สำหรับแต่ละ role (PM, QC, Worker)
+- [x] สร้าง tRPC procedures สำหรับจัดการ role templates (CRUD)
+- [x] สร้าง seed script สำหรับ default templates (5 templates)

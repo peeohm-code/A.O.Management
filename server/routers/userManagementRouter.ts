@@ -4,6 +4,8 @@ import { TRPCError } from "@trpc/server";
 import * as db from "../db";
 import { parseCSV, generateSampleCSV } from "../csvParser";
 import { storagePut } from "../storage";
+import { generateActivityLogExcel, generateActivityLogStats } from "../activityLogExport";
+import { generateActivityLogPdfHtml } from "../activityLogPdfExport";
 
 /**
  * User Management Enhancement Router
@@ -284,5 +286,161 @@ export const userManagementRouter = router({
       });
 
       return { success: true };
+    }),
+
+  // ============================================
+  // Activity Log Export
+  // ============================================
+
+  /**
+   * Export activity logs to Excel
+   */
+  exportActivityLogsExcel: roleBasedProcedure("users", "view")
+    .input(
+      z.object({
+        userId: z.number().optional(),
+        action: z.string().optional(),
+        module: z.string().optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        limit: z.number().optional().default(1000),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Get logs with user information
+      const logs = await db.getAllActivityLogs(input);
+      
+      // Get user information for each log
+      const logsWithUsers = await Promise.all(
+        logs.map(async (log) => {
+          const user = await db.getUserById(log.userId);
+          return {
+            ...log,
+            userName: user?.name || "Unknown",
+            userEmail: user?.email || "-",
+          };
+        })
+      );
+
+      // Generate Excel file
+      const buffer = await generateActivityLogExcel(logsWithUsers);
+
+      // Upload to S3
+      const fileName = `activity-logs-${Date.now()}.xlsx`;
+      const { url } = await storagePut(
+        `exports/${ctx.user!.id}/${fileName}`,
+        buffer,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+
+      // Log export activity
+      await db.logUserActivity({
+        userId: ctx.user!.id,
+        action: "export_activity_logs",
+        module: "users",
+        details: {
+          format: "excel",
+          recordCount: logs.length,
+          filters: input,
+        },
+      });
+
+      return {
+        url,
+        fileName,
+        recordCount: logs.length,
+      };
+    }),
+
+  /**
+   * Export activity logs to PDF
+   */
+  exportActivityLogsPdf: roleBasedProcedure("users", "view")
+    .input(
+      z.object({
+        userId: z.number().optional(),
+        action: z.string().optional(),
+        module: z.string().optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        limit: z.number().optional().default(1000),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Get logs with user information
+      const logs = await db.getAllActivityLogs(input);
+      
+      // Get user information for each log
+      const logsWithUsers = await Promise.all(
+        logs.map(async (log) => {
+          const user = await db.getUserById(log.userId);
+          return {
+            ...log,
+            userName: user?.name || "Unknown",
+            userEmail: user?.email || "-",
+          };
+        })
+      );
+
+      // Generate PDF HTML
+      const html = generateActivityLogPdfHtml(logsWithUsers);
+
+      // Upload HTML to S3 (user can convert to PDF in browser)
+      const fileName = `activity-logs-${Date.now()}.html`;
+      const { url } = await storagePut(
+        `exports/${ctx.user!.id}/${fileName}`,
+        Buffer.from(html, "utf-8"),
+        "text/html"
+      );
+
+      // Log export activity
+      await db.logUserActivity({
+        userId: ctx.user!.id,
+        action: "export_activity_logs",
+        module: "users",
+        details: {
+          format: "pdf",
+          recordCount: logs.length,
+          filters: input,
+        },
+      });
+
+      return {
+        url,
+        fileName,
+        recordCount: logs.length,
+      };
+    }),
+
+  /**
+   * Get activity log statistics
+   */
+  getActivityLogStats: roleBasedProcedure("users", "view")
+    .input(
+      z.object({
+        userId: z.number().optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const logs = await db.getAllActivityLogs({
+        ...input,
+        limit: 10000, // Get more logs for stats
+      });
+
+      // Get user information for each log
+      const logsWithUsers = await Promise.all(
+        logs.map(async (log) => {
+          const user = await db.getUserById(log.userId);
+          return {
+            ...log,
+            userName: user?.name || "Unknown",
+            userEmail: user?.email || "-",
+          };
+        })
+      );
+
+      return generateActivityLogStats(logsWithUsers);
     }),
 });
