@@ -311,3 +311,17 @@
 - [x] อัปเดต DashboardLayout.tsx ให้สอดคล้องกับโครงสร้างใหม่
 - [x] เพิ่มฟังก์ชัน expand/collapse สำหรับ submenu
 - [x] ทดสอบการทำงานของเมนูทั้งหมด - ทำงานถูกต้อง submenu แสดงครบทุกรายการ
+
+## 🔵 UX Improvements (18 พ.ย. 2568)
+- [x] ปรับปรุง Mobile Bottom Navigation ให้รองรับ QC Inspection submenu
+- [x] เพิ่มระบบ Breadcrumbs สำหรับแสดง navigation path ในทุกหน้า
+- [x] เพิ่มระบบ Keyboard Shortcuts (Ctrl+K สำหรับค้นหา, G+I สำหรับ Inspections, etc.)
+- [x] สร้าง Keyboard Shortcuts Help Modal (แสดงด้วย ? หรือ Ctrl+/)
+- [ ] ทดสอบ Mobile Navigation บน mobile devices
+- [ ] ทดสอบ Breadcrumbs navigation ในทุกหน้า
+- [ ] ทดสอบ Keyboard Shortcuts ทั้งหมด
+
+## 🔴 Urgent: Change QC Inspection Submenu Style (18 พ.ย. 2568) - เสร็จสมบูรณ์
+- [x] เปลี่ยน QC Inspection submenu จากแบบ expand/collapse เป็นแบบ flyout menu (แสดงด้านข้าง)
+- [x] ใช้ SidebarMenu, SidebarMenuSub components จาก shadcn/ui
+- [x] ทดสอบการทำงานของ flyout menu - ทำงานถูกต้อง submenu แสดงด้านข้าง

@@ -16,6 +16,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarTrigger,
   useSidebar,
@@ -41,13 +44,15 @@ import {
   Sun,
   Bell,
   History,
-  ChevronDown,
   ChevronRight,
 } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
 import { UserDropdown } from "@/components/UserDropdown";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
@@ -254,18 +259,13 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
   // eslint-disable-next-line no-undef
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
 
-  const toggleMenu = (label: string) => {
-    setExpandedMenus(prev => ({
-      ...prev,
-      [label]: !prev[label],
-    }));
-  };
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts();
 
   useEffect(() => {
     if (isCollapsed) {
@@ -342,61 +342,48 @@ function DashboardLayoutContent({
                 .map(item => {
                   const isActive = location === item.path;
                   const hasSubmenu = item.submenu && item.submenu.length > 0;
-                  const isExpanded = expandedMenus[item.label];
                   const hasActiveSubmenu = item.submenu?.some(sub => sub.path === location);
 
                   return (
-                    <React.Fragment key={item.path || item.label}>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          isActive={isActive || hasActiveSubmenu}
-                          onClick={() => {
-                            if (hasSubmenu) {
-                              toggleMenu(item.label);
-                            }
-                            if (item.path) {
-                              setLocation(item.path);
-                            }
-                          }}
-                          tooltip={item.label}
-                          className={`h-10 transition-all font-normal ${isActive || hasActiveSubmenu ? "bg-white/10 text-white hover:bg-white/15" : "text-white/80 hover:bg-white/5 hover:text-white"}`}
-                        >
-                          <item.icon className={`h-4 w-4`} />
-                          <span>{item.label}</span>
-                          {hasSubmenu && (
-                            <div className="ml-auto">
-                              {isExpanded ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4" />
-                              )}
-                            </div>
-                          )}
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      {hasSubmenu && isExpanded && (
-                        <div className="ml-6 space-y-0.5">
+                    <SidebarMenuItem key={item.path || item.label}>
+                      <SidebarMenuButton
+                        isActive={isActive || hasActiveSubmenu}
+                        onClick={() => {
+                          if (item.path) {
+                            setLocation(item.path);
+                          }
+                        }}
+                        tooltip={item.label}
+                        className={`h-10 transition-all font-normal ${isActive || hasActiveSubmenu ? "bg-white/10 text-white hover:bg-white/15" : "text-white/80 hover:bg-white/5 hover:text-white"}`}
+                      >
+                        <item.icon className={`h-4 w-4`} />
+                        <span>{item.label}</span>
+                        {hasSubmenu && (
+                          <ChevronRight className="ml-auto h-4 w-4" />
+                        )}
+                      </SidebarMenuButton>
+                      {hasSubmenu && (
+                        <SidebarMenuSub>
                           {item.submenu
                             ?.filter(subItem => !subItem.adminOnly || user?.role === "admin" || user?.role === "owner")
                             .map(subItem => {
                               const isSubActive = location === subItem.path;
                               return (
-                                <SidebarMenuItem key={subItem.path}>
-                                  <SidebarMenuButton
+                                <SidebarMenuSubItem key={subItem.path}>
+                                  <SidebarMenuSubButton
                                     isActive={isSubActive}
                                     onClick={() => subItem.path && setLocation(subItem.path)}
-                                    tooltip={subItem.label}
-                                    className={`h-9 transition-all font-normal text-sm ${isSubActive ? "bg-white/10 text-white hover:bg-white/15" : "text-white/70 hover:bg-white/5 hover:text-white"}`}
+                                    className="text-white/80 hover:text-white hover:bg-white/5 data-[active=true]:bg-white/10 data-[active=true]:text-white"
                                   >
-                                    <subItem.icon className={`h-3.5 w-3.5`} />
+                                    <subItem.icon className="h-4 w-4" />
                                     <span>{subItem.label}</span>
-                                  </SidebarMenuButton>
-                                </SidebarMenuItem>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
                               );
                             })}
-                        </div>
+                        </SidebarMenuSub>
                       )}
-                    </React.Fragment>
+                    </SidebarMenuItem>
                   );
                 })}
             </SidebarMenu>
@@ -475,9 +462,13 @@ function DashboardLayoutContent({
             <UserDropdown />
           </div>
         </div>
-        <main className="flex-1 p-4 pb-20 md:pb-4">{children}</main>
+        <main className="flex-1 p-4 pb-20 md:pb-4">
+          <Breadcrumbs />
+          {children}
+        </main>
         {isMobile && <BottomNavigation />}
       </SidebarInset>
+      <KeyboardShortcutsModal />
     </>
   );
 }

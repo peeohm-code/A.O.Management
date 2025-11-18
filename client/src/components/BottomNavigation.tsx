@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
-import { Home, ClipboardList, AlertCircle, Users, Bell } from "lucide-react";
+import { LayoutDashboard, FolderKanban, ListTodo, ClipboardCheck, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -10,10 +10,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: "/", icon: Home, label: "หน้าหลัก" },
-  { path: "/tasks", icon: ClipboardList, label: "งาน" },
-  { path: "/defects", icon: AlertCircle, label: "ปัญหา" },
-  { path: "/team", icon: Users, label: "ทีม" },
+  { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { path: "/projects", icon: FolderKanban, label: "Projects" },
+  { path: "/tasks", icon: ListTodo, label: "Tasks" },
+  { path: "/inspections", icon: ClipboardCheck, label: "QC" },
   { path: "/notifications", icon: Bell, label: "แจ้งเตือน" },
 ];
 
@@ -32,7 +32,14 @@ export default function BottomNavigation() {
       <div className="grid grid-cols-5 h-16 safe-area-inset-bottom">
         {navItems.map((item: any) => {
           const Icon = item.icon;
-          const isActive = location === item.path;
+          const isActive = location === item.path || 
+            (item.path === "/inspections" && (
+              location.startsWith("/inspections") ||
+              location.startsWith("/defects") ||
+              location.startsWith("/templates") ||
+              location.startsWith("/reports") ||
+              location.startsWith("/escalation")
+            ));
 
           return (
             <Link
