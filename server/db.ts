@@ -1455,6 +1455,41 @@ export async function getChecklistItemResults(taskChecklistId: number) {
 // Alias for consistency
 export const saveChecklistItemResult = addChecklistItemResult;
 
+export async function updateChecklistItemResult(
+  id: number,
+  data: {
+    result?: "pass" | "fail" | "na";
+    photoUrls?: string;
+    comments?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db
+    .update(checklistItemResults)
+    .set({
+      result: data.result,
+      photoUrls: data.photoUrls,
+      comments: data.comments,
+      updatedAt: new Date(),
+    })
+    .where(eq(checklistItemResults.id, id));
+}
+
+export async function getChecklistItemResultById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(checklistItemResults)
+    .where(eq(checklistItemResults.id, id))
+    .limit(1);
+
+  return results.length > 0 ? results[0] : null;
+}
+
 /**
  * Defect Management
  */

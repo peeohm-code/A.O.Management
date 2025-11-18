@@ -228,6 +228,7 @@ export const checklistItemResults = mysqlTable("checklistItemResults", {
   templateItemId: int("templateItemId").notNull(),
   result: mysqlEnum("result", ["pass", "fail", "na"]).notNull(),
   photoUrls: text("photoUrls"), // JSON array of photo URLs
+  comments: text("comments"), // Comments for this checklist item
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

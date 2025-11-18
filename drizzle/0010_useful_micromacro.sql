@@ -1,0 +1,1 @@
+ALTER TABLE `checklistItemResults` ADD `comments` text;

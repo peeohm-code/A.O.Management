@@ -20,10 +20,16 @@ import {
 import { useLocation, useRoute } from "wouter";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ImageGalleryViewer } from "@/components/MobileDocumentViewer";
 import { useIsMobile } from "@/hooks/useMobile";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pencil, Filter } from "lucide-react";
 
 // Helper functions
 const getResultIcon = (result: string) => {
@@ -95,13 +101,63 @@ export default function InspectionDetail() {
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const isMobile = useIsMobile();
 
-  // Fetch inspection detail
-  const { data: inspection, isLoading } = trpc.checklist.getInspectionDetail.useQuery(
+  // Edit checklist item state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editResult, setEditResult] = useState<"pass" | "fail" | "na">("pass");
+  const [editComments, setEditComments] = useState("");
+
+  // Filter state
+  const [stageFilter, setStageFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // Fetch inspection detail (MUST be declared before using inspection variable)
+  const { data: inspection, isLoading, refetch } = trpc.checklist.getInspectionDetail.useQuery(
     { inspectionId: inspectionId! },
     { enabled: !!inspectionId }
   );
 
   const pdfMutation = trpc.checklist.generateInspectionPDF.useMutation();
+
+  // Update checklist item mutation
+  const updateItemMutation = trpc.inspection.updateChecklistItem.useMutation({
+    onSuccess: () => {
+      toast.success("อัปเดตรายการตรวจสอบสำเร็จ");
+      setEditDialogOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    },
+  });
+
+  // Filter items by stage and status
+  const filteredItems = useMemo(() => {
+    if (!inspection?.items) return [];
+    return inspection.items.filter((item: any) => {
+      const stageMatch = stageFilter === "all" || inspection.stage === stageFilter;
+      const statusMatch = statusFilter === "all" || item.result === statusFilter;
+      return stageMatch && statusMatch;
+    });
+  }, [inspection?.items, inspection?.stage, stageFilter, statusFilter]);
+
+  // Handle edit item
+  const handleEditItem = (item: any) => {
+    setEditingItem(item);
+    setEditResult(item.result);
+    setEditComments(item.comments || "");
+    setEditDialogOpen(true);
+  };
+
+  // Handle save edit
+  const handleSaveEdit = () => {
+    if (!editingItem) return;
+    updateItemMutation.mutate({
+      itemResultId: editingItem.id,
+      result: editResult,
+      comments: editComments,
+    });
+  };
 
   const handleDownloadPDF = async () => {
     if (!inspectionId) return;
@@ -256,22 +312,50 @@ export default function InspectionDetail() {
       {/* Checklist Items */}
       <Card>
         <CardHeader>
-          <CardTitle>รายการตรวจสอบ</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>รายการตรวจสอบ</CardTitle>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="กรองสถานะ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทุกสถานะ</SelectItem>
+                  <SelectItem value="pass">ผ่าน</SelectItem>
+                  <SelectItem value="fail">ไม่ผ่าน</SelectItem>
+                  <SelectItem value="na">N/A</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {inspection.items && inspection.items.length > 0 ? (
+          {filteredItems && filteredItems.length > 0 ? (
             <div className="space-y-4">
-              {inspection.items.map((item: any, index: number) => {
+              {filteredItems.map((item: any, index: number) => {
                 const photos = parsePhotoUrls(item.photoUrls);
                 return (
                   <div key={index} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-medium">{item.itemName}</h3>
+                        {item.comments && (
+                          <p className="text-sm text-muted-foreground mt-1">{item.comments}</p>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         {getResultIcon(item.result)}
                         {getResultBadge(item.result)}
+                        {user && (user.role === "admin" || user.role === "qc_inspector") && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditItem(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
 
@@ -306,10 +390,76 @@ export default function InspectionDetail() {
               })}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8">ไม่มีรายการตรวจสอบ</p>
+            <p className="text-center text-muted-foreground py-8">
+              {inspection.items && inspection.items.length > 0 
+                ? "ไม่พบรายการที่ตรงกับเงื่อนไขการกรอง" 
+                : "ไม่มีรายการตรวจสอบ"}
+            </p>
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Item Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>แก้ไขรายการตรวจสอบ</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="font-medium">รายการ</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                {editingItem?.itemName}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>ผลการตรวจสอบ</Label>
+              <RadioGroup value={editResult} onValueChange={(value: any) => setEditResult(value)}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="pass" id="pass" />
+                  <Label htmlFor="pass" className="flex items-center gap-2 cursor-pointer">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    ผ่าน
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="fail" id="fail" />
+                  <Label htmlFor="fail" className="flex items-center gap-2 cursor-pointer">
+                    <XCircle className="h-4 w-4 text-red-600" />
+                    ไม่ผ่าน
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="na" id="na" />
+                  <Label htmlFor="na" className="flex items-center gap-2 cursor-pointer">
+                    <MinusCircle className="h-4 w-4 text-gray-400" />
+                    N/A
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="comments">หมายเหตุ</Label>
+              <Textarea
+                id="comments"
+                value={editComments}
+                onChange={(e) => setEditComments(e.target.value)}
+                placeholder="เพิ่มหมายเหตุ (ถ้ามี)"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              ยกเลิก
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={updateItemMutation.isPending}>
+              {updateItemMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              บันทึก
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Image Gallery */}
       {galleryOpen && (

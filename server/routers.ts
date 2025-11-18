@@ -1757,6 +1757,56 @@ const checklistRouter = router({
       return { html: htmlContent };
     }),
 
+  // Update individual checklist item result
+  updateChecklistItem: protectedProcedure
+    .input(
+      z.object({
+        itemResultId: z.number(),
+        result: z.enum(["pass", "fail", "na"]),
+        comments: z.string().optional(),
+        photoUrls: z.string().optional(), // JSON string of photo URLs
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Get the item result to find the checklist
+      const itemResult = await db.getChecklistItemResultById(input.itemResultId);
+      if (!itemResult) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Checklist item result not found",
+        });
+      }
+
+      // Update the item result
+      await db.updateChecklistItemResult(input.itemResultId, {
+        result: input.result,
+        comments: input.comments,
+        photoUrls: input.photoUrls,
+      });
+
+      // Log activity
+      const checklist = await db.getTaskChecklistById(itemResult.taskChecklistId);
+      if (checklist) {
+        await db.logActivity({
+          userId: ctx.user!.id,
+          taskId: checklist.taskId,
+          action: "checklist_item_updated",
+          details: JSON.stringify({
+            itemResultId: input.itemResultId,
+            result: input.result,
+          }),
+        });
+
+        // Auto-update task progress
+        const { calculateAndUpdateTaskProgress } = await import(
+          "./taskProgressHelper"
+        );
+        await calculateAndUpdateTaskProgress(checklist.taskId);
+      }
+
+      return { success: true };
+    }),
+
   // Get all task checklists with template and task info
   getAllTaskChecklists: protectedProcedure.query(async () => {
     const checklists = await db.getAllTaskChecklists();
