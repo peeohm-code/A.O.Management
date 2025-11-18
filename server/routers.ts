@@ -1093,6 +1093,9 @@ const inspectionRouter = router({
     .input(z.object({
       page: z.number().int().min(1).default(1),
       pageSize: z.number().int().min(1).max(100).default(25),
+      search: z.string().optional(),
+      status: z.enum(["not_started", "pending_inspection", "in_progress", "completed", "failed"]).optional(),
+      projectId: z.number().optional(),
     }).optional())
     .query(async ({ input }) => {
       const page = input?.page || 1;
@@ -1100,7 +1103,26 @@ const inspectionRouter = router({
       const offset = (page - 1) * pageSize;
 
       // Get all inspections
-      const allInspections = await db.getAllTaskChecklists();
+      let allInspections = await db.getAllTaskChecklists();
+
+      // Apply filters
+      if (input?.search) {
+        const searchLower = input.search.toLowerCase();
+        allInspections = allInspections.filter((inspection: any) => 
+          inspection.taskName?.toLowerCase().includes(searchLower) ||
+          inspection.templateName?.toLowerCase().includes(searchLower) ||
+          inspection.projectName?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      if (input?.status) {
+        allInspections = allInspections.filter((inspection: any) => inspection.status === input.status);
+      }
+
+      if (input?.projectId) {
+        allInspections = allInspections.filter((inspection: any) => inspection.projectId === input.projectId);
+      }
+
       const totalItems = allInspections.length;
 
       // Apply pagination
@@ -1117,6 +1139,35 @@ const inspectionRouter = router({
           hasMore: page < totalPages,
           hasPrevious: page > 1,
         },
+      };
+    }),
+
+  // Get inspection statistics
+  getStats: protectedProcedure
+    .input(z.object({
+      projectId: z.number().optional(),
+    }).optional())
+    .query(async ({ input }) => {
+      let allInspections = await db.getAllTaskChecklists();
+
+      // Filter by project if specified
+      if (input?.projectId) {
+        allInspections = allInspections.filter((inspection: any) => inspection.projectId === input.projectId);
+      }
+
+      const total = allInspections.length;
+      const pending = allInspections.filter((i: any) => 
+        i.status === "not_started" || i.status === "pending_inspection" || i.status === "in_progress"
+      ).length;
+      const passed = allInspections.filter((i: any) => i.status === "completed").length;
+      const failed = allInspections.filter((i: any) => i.status === "failed").length;
+
+      return {
+        total,
+        pending,
+        passed,
+        failed,
+        passRate: total > 0 ? Math.round((passed / total) * 100) : 0,
       };
     }),
 });

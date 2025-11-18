@@ -858,7 +858,7 @@ export async function createTask(data: {
   const startDateStr = startDate instanceof Date ? startDate.toISOString().split('T')[0] : startDate;
   const endDateStr = endDate instanceof Date ? endDate.toISOString().split('T')[0] : endDate;
   
-  return await db.insert(tasks).values({
+  const [result] = await db.insert(tasks).values({
     ...taskData,
     status: (taskData.status as any) || "todo",
     priority: (taskData.priority as any) || "medium",
@@ -867,6 +867,10 @@ export async function createTask(data: {
     startDate: startDateStr || null,
     endDate: endDateStr || null,
   });
+  
+  // @ts-ignore - Handle BigInt conversion properly
+  const taskId = parseInt(String(result.insertId));
+  return { insertId: taskId, id: taskId };
 }
 
 export async function getTaskById(id: number) {
@@ -1276,6 +1280,7 @@ export async function getTaskChecklistsByProject(projectId: number) {
       signature: taskChecklists.signature,
       createdAt: taskChecklists.createdAt,
       updatedAt: taskChecklists.updatedAt,
+      projectId: tasks.projectId,
       taskName: tasks.name,
       templateName: checklistTemplates.name,
       allowGeneralComments: checklistTemplates.allowGeneralComments,

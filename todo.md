@@ -427,3 +427,26 @@
   - [x] อัปเดตสถานะ error (new, investigating, resolved, ignored)เพิ่ม notification สำหรับ critical errors
 - [x] ทดสอบ error tracking และการบันทึก logs
 - [ ] (Optional) พิจารณาเชื่อมต่อ Sentry หรือ external error tracking service
+
+## 📊 Inspection Statistics & List Integration (New Request)
+
+### Requirements
+- [ ] รวม Statistics Cards และ Inspection List ไว้ในหน้าเดียว (Dashboard-style)
+- [ ] แสดง Stats Cards ด้านบน (Total, Pending, Pass, Fail)
+- [ ] แสดง Actions Bar (Search, Filter, + New Inspection)
+- [ ] แสดง Inspection Table/List ด้านล่าง
+- [ ] ใช้ Layout แบบ Task-oriented เพื่อลด Cognitive Load
+
+### Backend
+- [x] สร้าง tRPC procedure: inspections.getStats (Total, Pending, Pass, Fail)
+- [x] ปรับปรุง inspections.list ให้รองรับ search และ filter
+- [x] เพิ่ม pagination สำหรับ inspection list
+
+### Frontend
+- [x] สร้าง InspectionStatsCards component (4 cards)
+- [x] สร้าง InspectionActionsBar component (Search, Filter, New)
+- [x] ปรับปรุง InspectionList component ให้รองรับ pagination
+- [x] รวม components ทั้งหมดในหน้า Inspections
+- [x] เพิ่ม responsive design สำหรับ mobile
+- [x] เพิ่ม loading states และ empty states
+- [x] ทดสอบการทำงานทั้งหมด

@@ -52,6 +52,7 @@ const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
 const InspectionStatistics = lazy(() => import("./pages/InspectionStatistics"));
 const ErrorTracking = lazy(() => import("./pages/ErrorTracking"));
+const Inspections = lazy(() => import("./pages/Inspections"));
 
 
 // Loading component
@@ -172,7 +173,7 @@ function Router() {
               pageName="Inspections"
               fallbackPath="/dashboard"
             >
-              <QCInspection />
+              <Inspections />
             </PageErrorBoundary>
           </DashboardLayout>
         )}
