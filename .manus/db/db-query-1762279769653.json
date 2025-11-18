@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO projectMembers (projectId, userId, role) \nSELECT p.id, u.id, 'pm' FROM projects p CROSS JOIN users u WHERE p.id IN (1, 2) LIMIT 2",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO projectMembers (projectId, userId, role) \nSELECT p.id, u.id, 'pm' FROM projects p CROSS JOIN users u WHERE p.id IN (1, 2) LIMIT 2",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 1561
-}
