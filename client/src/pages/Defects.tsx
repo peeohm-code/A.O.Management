@@ -5,6 +5,14 @@ import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import { LoadingState } from "@/components/LoadingState";
 import { EmptyState } from "@/components/EmptyState";
 import { useLocation, Link } from "wouter";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -111,8 +119,12 @@ export default function Defects() {
   
   // Inline status change state
   const [updatingDefectId, setUpdatingDefectId] = useState<number | null>(null);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
-  const allDefectsQuery = trpc.defect.allDefects.useQuery();
+  const allDefectsQuery = trpc.defect.allDefects.useQuery({ page: currentPage, pageSize });
   const updateDefectMutation = trpc.defect.update.useMutation();
   const usersQuery = trpc.user.list.useQuery();
 
@@ -153,7 +165,8 @@ export default function Defects() {
     },
   });
 
-  const defects = allDefectsQuery.data || [];
+  const defects = allDefectsQuery.data?.items || [];
+  const pagination = allDefectsQuery.data?.pagination;
 
   // Bulk operation handlers
   const toggleDefectSelection = (defectId: number) => {
@@ -1772,6 +1785,70 @@ export default function Defects() {
           label="รายงานปัญหา"
           variant="destructive"
         />
+      )}
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 mb-20">
+          <div className="text-sm text-gray-600">
+            แสดง {defects.length} จาก {pagination.totalItems} รายการ
+          </div>
+          <div className="flex items-center gap-4">
+            <Select value={pageSize.toString()} onValueChange={(value) => {
+              setPageSize(Number(value));
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 / หน้า</SelectItem>
+                <SelectItem value="25">25 / หน้า</SelectItem>
+                <SelectItem value="50">50 / หน้า</SelectItem>
+                <SelectItem value="100">100 / หน้า</SelectItem>
+              </SelectContent>
+            </Select>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    className={!pagination.hasPrevious ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (pagination.totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= pagination.totalPages - 2) {
+                    pageNum = pagination.totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                    className={!pagination.hasMore ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        </div>
       )}
       </div>
     </PullToRefresh>

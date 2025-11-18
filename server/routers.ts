@@ -59,23 +59,48 @@ const projectRouter = router({
     return await db.generateProjectCode();
   }),
 
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const projects = await db.getAllProjects();
-    const projectIds = projects.map((p: any) => p.id);
-    const statsMap = await db.getBatchProjectStats(projectIds);
-    
-    const projectsWithStats = projects.map((p: any) => {
-      const stats = statsMap.get(p.id);
+  list: protectedProcedure
+    .input(z.object({
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(25),
+    }).optional())
+    .query(async ({ ctx, input }) => {
+      const page = input?.page || 1;
+      const pageSize = input?.pageSize || 25;
+      const offset = (page - 1) * pageSize;
+
+      const projects = await db.getAllProjects();
+      const totalItems = projects.length;
+      
+      // Apply pagination
+      const paginatedProjects = projects.slice(offset, offset + pageSize);
+      const projectIds = paginatedProjects.map((p: any) => p.id);
+      const statsMap = await db.getBatchProjectStats(projectIds);
+      
+      const projectsWithStats = paginatedProjects.map((p: any) => {
+        const stats = statsMap.get(p.id);
+        return {
+          ...p,
+          taskCount: stats?.totalTasks || 0,
+          completedTasks: stats?.completedTasks || 0,
+          progressPercentage: stats?.progressPercentage || 0,
+          projectStatus: stats?.projectStatus || "on_track",
+        };
+      });
+
+      const totalPages = Math.ceil(totalItems / pageSize);
       return {
-        ...p,
-        taskCount: stats?.totalTasks || 0,
-        completedTasks: stats?.completedTasks || 0,
-        progressPercentage: stats?.progressPercentage || 0,
-        projectStatus: stats?.projectStatus || "on_track",
+        items: projectsWithStats,
+        pagination: {
+          currentPage: page,
+          pageSize,
+          totalItems,
+          totalPages,
+          hasMore: page < totalPages,
+          hasPrevious: page > 1,
+        },
       };
-    });
-    return projectsWithStats;
-  }),
+    }),
 
   get: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -481,18 +506,30 @@ const projectRouter = router({
  */
 const taskRouter = router({
   list: protectedProcedure
-    .input(z.object({ projectId: z.number().optional() }))
+    .input(z.object({ 
+      projectId: z.number().optional(),
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(25),
+    }))
     .query(async ({ input, ctx }) => {
+      const { projectId, page = 1, pageSize = 25 } = input;
+      const offset = (page - 1) * pageSize;
+
       let tasks;
-      if (input.projectId) {
-        tasks = await db.getTasksByProject(input.projectId);
+      if (projectId) {
+        tasks = await db.getTasksByProject(projectId);
       } else {
         // Return all tasks for user if no projectId specified
         tasks = await db.getTasksByAssignee(ctx.user!.id);
       }
 
+      const totalItems = tasks.length;
+
+      // Apply pagination
+      const paginatedTasks = tasks.slice(offset, offset + pageSize);
+
       // Add computed display status to each task
-      return tasks.map((task: any) => {
+      const tasksWithStatus = paginatedTasks.map((task: any) => {
         const displayStatus = getTaskDisplayStatus(task);
         return {
           ...task,
@@ -501,6 +538,19 @@ const taskRouter = router({
           displayStatusColor: getTaskDisplayStatusColor(displayStatus),
         };
       });
+
+      const totalPages = Math.ceil(totalItems / pageSize);
+      return {
+        items: tasksWithStatus,
+        pagination: {
+          currentPage: page,
+          pageSize,
+          totalItems,
+          totalPages,
+          hasMore: page < totalPages,
+          hasPrevious: page > 1,
+        },
+      };
     }),
 
   get: protectedProcedure
@@ -1646,15 +1696,51 @@ const defectRouter = router({
   }),
 
   // Get all defects
-  allDefects: protectedProcedure.query(async () => {
-    try {
-      const defects = await db.getAllDefects();
-      return Array.isArray(defects) ? defects : [];
-    } catch (error) {
-      logger.error("[defectRouter.allDefects] Error:", error);
-      return [];
-    }
-  }),
+  allDefects: protectedProcedure
+    .input(z.object({
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(25),
+    }).optional())
+    .query(async ({ input }) => {
+      try {
+        const page = input?.page || 1;
+        const pageSize = input?.pageSize || 25;
+        const offset = (page - 1) * pageSize;
+
+        const defects = await db.getAllDefects();
+        const allDefects = Array.isArray(defects) ? defects : [];
+        const totalItems = allDefects.length;
+
+        // Apply pagination
+        const paginatedDefects = allDefects.slice(offset, offset + pageSize);
+
+        const totalPages = Math.ceil(totalItems / pageSize);
+        return {
+          items: paginatedDefects,
+          pagination: {
+            currentPage: page,
+            pageSize,
+            totalItems,
+            totalPages,
+            hasMore: page < totalPages,
+            hasPrevious: page > 1,
+          },
+        };
+      } catch (error) {
+        logger.error("[defectRouter.allDefects] Error:", error);
+        return {
+          items: [],
+          pagination: {
+            currentPage: 1,
+            pageSize: 25,
+            totalItems: 0,
+            totalPages: 0,
+            hasMore: false,
+            hasPrevious: false,
+          },
+        };
+      }
+    }),
 
   // Get single defect by ID
   get: protectedProcedure

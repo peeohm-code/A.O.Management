@@ -30,6 +30,14 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import NewTaskDialog from "@/components/NewTaskDialog";
 import { SwipeableCard } from "@/components/SwipeableCard";
@@ -55,6 +63,8 @@ export default function Tasks() {
   const [bulkStatus, setBulkStatus] = useState<string>("");
   const [bulkAssignee, setBulkAssignee] = useState<string>("");
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   // Use search query with filters
   const searchQuery = trpc.task.search.useQuery({
@@ -65,7 +75,8 @@ export default function Tasks() {
   });
   
   const myTasksQuery = trpc.task.myTasks.useQuery();
-  const projectsQuery = trpc.project.list.useQuery();
+  const allTasksQuery = trpc.task.list.useQuery({ page: currentPage, pageSize });
+  const projectsQuery = trpc.project.list.useQuery({});
   const utils = trpc.useUtils();
   
   const handleRefresh = async () => {
@@ -146,10 +157,11 @@ export default function Tasks() {
     }
   };
 
-  // Use search results if any filter is active, otherwise use myTasks
+  // Use search results if any filter is active, otherwise use paginated tasks
   const hasActiveFilter = searchTerm || projectFilter || displayStatusFilter !== 'all' || assigneeFilter;
-  const tasks = hasActiveFilter ? (searchQuery.data || []) : (myTasksQuery.data || []);
-  const projects = projectsQuery.data || [];
+  const tasks = hasActiveFilter ? (searchQuery.data || []) : (allTasksQuery.data?.items || []);
+  const pagination = !hasActiveFilter ? allTasksQuery.data?.pagination : undefined;
+  const projects = projectsQuery.data?.items || [];
   
   // Extract unique assignees from tasks
   const members = Array.from(
@@ -719,6 +731,70 @@ export default function Tasks() {
       {filteredTasks.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500">No tasks found</p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!hasActiveFilter && pagination && pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+          <div className="text-sm text-gray-600">
+            แสดง {tasks.length} จาก {pagination.totalItems} งาน
+          </div>
+          <div className="flex items-center gap-4">
+            <Select value={pageSize.toString()} onValueChange={(value) => {
+              setPageSize(Number(value));
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 / หน้า</SelectItem>
+                <SelectItem value="25">25 / หน้า</SelectItem>
+                <SelectItem value="50">50 / หน้า</SelectItem>
+                <SelectItem value="100">100 / หน้า</SelectItem>
+              </SelectContent>
+            </Select>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    className={!pagination.hasPrevious ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (pagination.totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= pagination.totalPages - 2) {
+                    pageNum = pagination.totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                    className={!pagination.hasMore ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       )}
 

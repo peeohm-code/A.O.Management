@@ -14,6 +14,14 @@ import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
 import { Link } from "wouter";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -38,6 +46,8 @@ export function ActiveProjectsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});
   const [sortBy, setSortBy] = useState<string>("name");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const [isOpen, setIsOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -63,7 +73,7 @@ export function ActiveProjectsList() {
   });
 
   const utils = trpc.useUtils();
-  const projectsQuery = trpc.project.list.useQuery();
+  const projectsQuery = trpc.project.list.useQuery({ page: currentPage, pageSize });
   const createProjectMutation = trpc.project.create.useMutation();
   const updateProjectMutation = trpc.project.update.useMutation();
 
@@ -152,7 +162,8 @@ export function ActiveProjectsList() {
     }
   };
 
-  const projects = projectsQuery.data || [];
+  const projects = projectsQuery.data?.items || [];
+  const pagination = projectsQuery.data?.pagination;
   
   let filteredProjects = projects.filter((p) => {
     const matchesSearch = !searchTerm || 
@@ -744,6 +755,70 @@ export function ActiveProjectsList() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+          <div className="text-sm text-gray-600">
+            แสดง {projects.length} จาก {pagination.totalItems} โครงการ
+          </div>
+          <div className="flex items-center gap-4">
+            <Select value={pageSize.toString()} onValueChange={(value) => {
+              setPageSize(Number(value));
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 / หน้า</SelectItem>
+                <SelectItem value="25">25 / หน้า</SelectItem>
+                <SelectItem value="50">50 / หน้า</SelectItem>
+                <SelectItem value="100">100 / หน้า</SelectItem>
+              </SelectContent>
+            </Select>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    className={!pagination.hasPrevious ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (pagination.totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= pagination.totalPages - 2) {
+                    pageNum = pagination.totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                    className={!pagination.hasMore ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
