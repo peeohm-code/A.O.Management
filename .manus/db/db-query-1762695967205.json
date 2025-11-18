@@ -1,0 +1,13 @@
+{
+  "query": "SELECT id FROM projects WHERE code = 'TEST-ARCHIVE-001'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id FROM projects WHERE code = 'TEST-ARCHIVE-001'",
+  "rows": [
+    {
+      "id": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\n1\n",
+  "stderr": "",
+  "execution_time_ms": 1536
+}

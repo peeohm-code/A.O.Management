@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE tasks SET category = 'preparation' WHERE name LIKE '%ทดสอบ Task จาก Project%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute UPDATE tasks SET category = 'preparation' WHERE name LIKE '%ทดสอบ Task จาก Project%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1506
+}

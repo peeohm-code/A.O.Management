@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `permissions` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `module` enum('projects','tasks','inspections','defects','reports','users','settings','dashboard') NOT NULL,\n  `action` enum('view','create','edit','delete') NOT NULL,\n  `name` varchar(255) NOT NULL,\n  `description` text,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `permissions_id` PRIMARY KEY(`id`),\n  KEY `moduleActionIdx` (`module`, `action`)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute CREATE TABLE IF NOT EXISTS `permissions` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `module` enum('projects','tasks','inspections','defects','reports','users','settings','dashboard') NOT NULL,\n  `action` enum('view','create','edit','delete') NOT NULL,\n  `name` varchar(255) NOT NULL,\n  `description` text,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `permissions_id` PRIMARY KEY(`id`),\n  KEY `moduleActionIdx` (`module`, `action`)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1532
+}
