@@ -1338,11 +1338,13 @@ export async function getAllTaskChecklists() {
       templateName: checklistTemplates.name,
       projectId: tasks.projectId,
       projectName: projects.name,
+      inspectorName: users.name,
     })
     .from(taskChecklists)
     .leftJoin(tasks, eq(taskChecklists.taskId, tasks.id))
     .leftJoin(projects, eq(tasks.projectId, projects.id))
     .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id))
+    .leftJoin(users, eq(taskChecklists.inspectedBy, users.id))
     .orderBy(desc(taskChecklists.createdAt));
 
   return result;
