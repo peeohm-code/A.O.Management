@@ -6,6 +6,7 @@ import path from "path";
 import { defineConfig } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { VitePWA } from "vite-plugin-pwa";
+import { visualizer } from "rollup-plugin-visualizer";
 
 
 const plugins = [
@@ -13,6 +14,13 @@ const plugins = [
   tailwindcss(),
   jsxLocPlugin(),
   vitePluginManusRuntime(),
+  // Bundle analyzer - run with ANALYZE=true pnpm build
+  process.env.ANALYZE === 'true' && visualizer({
+    filename: './dist/stats.html',
+    open: false,
+    gzipSize: true,
+    brotliSize: true,
+  }),
   VitePWA({
     registerType: "autoUpdate",
     includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],

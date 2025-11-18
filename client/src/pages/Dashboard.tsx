@@ -92,10 +92,11 @@ export default function Dashboard() {
     { projectId: selectedProjectId || 0 },
     { enabled: !!selectedProjectId }
   );
-  const { data: allInspections = [], isLoading: inspectionsLoading } = trpc.inspection.listByProject.useQuery(
-    { projectId: selectedProjectId || 0 },
+  const { data: inspectionsData, isLoading: inspectionsLoading } = trpc.inspection.listByProject.useQuery(
+    { projectId: selectedProjectId || 0, page: 1, pageSize: 100 },
     { enabled: !!selectedProjectId }
   );
+  const allInspections = inspectionsData?.items || [];
   const { data: allDefects = [], isLoading: defectsLoading } = trpc.defect.list.useQuery(
     { taskId: 0 },
     { enabled: !!selectedProjectId }

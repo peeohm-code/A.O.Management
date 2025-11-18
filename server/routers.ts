@@ -1052,6 +1052,75 @@ const taskRouter = router({
 /**
  * Checklist Router - QC Management
  */
+/**
+ * Inspection Router - QC Inspection Management
+ */
+const inspectionRouter = router({
+  // List inspections by project with pagination
+  listByProject: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(25),
+    }))
+    .query(async ({ input }) => {
+      const { projectId, page = 1, pageSize = 25 } = input;
+      const offset = (page - 1) * pageSize;
+
+      // Get all inspections for the project
+      const allInspections = await db.getTaskChecklistsByProject(projectId);
+      const totalItems = allInspections.length;
+
+      // Apply pagination
+      const paginatedInspections = allInspections.slice(offset, offset + pageSize);
+
+      const totalPages = Math.ceil(totalItems / pageSize);
+      return {
+        items: paginatedInspections,
+        pagination: {
+          currentPage: page,
+          pageSize,
+          totalItems,
+          totalPages,
+          hasMore: page < totalPages,
+          hasPrevious: page > 1,
+        },
+      };
+    }),
+
+  // List all inspections with pagination (for admin)
+  list: protectedProcedure
+    .input(z.object({
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(25),
+    }).optional())
+    .query(async ({ input }) => {
+      const page = input?.page || 1;
+      const pageSize = input?.pageSize || 25;
+      const offset = (page - 1) * pageSize;
+
+      // Get all inspections
+      const allInspections = await db.getAllTaskChecklists();
+      const totalItems = allInspections.length;
+
+      // Apply pagination
+      const paginatedInspections = allInspections.slice(offset, offset + pageSize);
+
+      const totalPages = Math.ceil(totalItems / pageSize);
+      return {
+        items: paginatedInspections,
+        pagination: {
+          currentPage: page,
+          pageSize,
+          totalItems,
+          totalPages,
+          hasMore: page < totalPages,
+          hasPrevious: page > 1,
+        },
+      };
+    }),
+});
+
 const checklistRouter = router({
   templates: protectedProcedure.query(async () => {
     // Return all templates grouped by stage
@@ -3166,6 +3235,7 @@ export const appRouter = router({
   project: projectRouter,
   task: taskRouter,
   checklist: checklistRouter,
+  inspection: inspectionRouter,
   defect: defectRouter,
   comment: commentRouter,
   attachment: attachmentRouter,
