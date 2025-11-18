@@ -41,6 +41,8 @@ import {
   Sun,
   Bell,
   History,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
@@ -86,13 +88,20 @@ function ThemeToggleButton() {
   );
 }
 
-const menuItems = [
+type MenuItem = {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  path?: string;
+  adminOnly?: boolean;
+  submenu?: MenuItem[];
+};
+
+const menuItems: MenuItem[] = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
     path: "/dashboard",
   },
-
   {
     icon: FolderKanban,
     label: "Projects",
@@ -107,33 +116,35 @@ const menuItems = [
     icon: ClipboardCheck,
     label: "QC Inspection",
     path: "/inspections",
-  },
-  {
-    icon: AlertTriangle,
-    label: "Defects",
-    path: "/defects",
-  },
-  {
-    icon: FileText,
-    label: "Templates",
-    path: "/templates",
-  },
-  {
-    icon: BarChart3,
-    label: "Reports",
-    path: "/reports",
-  },
-  {
-    icon: Bell,
-    label: "Escalation Settings",
-    path: "/escalation-settings",
-    adminOnly: true,
-  },
-  {
-    icon: History,
-    label: "Escalation Logs",
-    path: "/escalation-logs",
-    adminOnly: true,
+    submenu: [
+      {
+        icon: AlertTriangle,
+        label: "Defects",
+        path: "/defects",
+      },
+      {
+        icon: FileText,
+        label: "Templates",
+        path: "/templates",
+      },
+      {
+        icon: BarChart3,
+        label: "Reports",
+        path: "/reports",
+      },
+      {
+        icon: Bell,
+        label: "Escalation Settings",
+        path: "/escalation-settings",
+        adminOnly: true,
+      },
+      {
+        icon: History,
+        label: "Escalation Logs",
+        path: "/escalation-logs",
+        adminOnly: true,
+      },
+    ],
   },
 ];
 
@@ -243,10 +254,18 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
   // eslint-disable-next-line no-undef
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+
+  const toggleMenu = (label: string) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [label]: !prev[label],
+    }));
+  };
 
   useEffect(() => {
     if (isCollapsed) {
@@ -322,18 +341,62 @@ function DashboardLayoutContent({
                 .filter(item => !item.adminOnly || user?.role === "admin" || user?.role === "owner")
                 .map(item => {
                   const isActive = location === item.path;
+                  const hasSubmenu = item.submenu && item.submenu.length > 0;
+                  const isExpanded = expandedMenus[item.label];
+                  const hasActiveSubmenu = item.submenu?.some(sub => sub.path === location);
+
                   return (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton
-                        isActive={isActive}
-                        onClick={() => setLocation(item.path)}
-                        tooltip={item.label}
-                        className={`h-10 transition-all font-normal ${isActive ? "bg-white/10 text-white hover:bg-white/15" : "text-white/80 hover:bg-white/5 hover:text-white"}`}
-                      >
-                        <item.icon className={`h-4 w-4`} />
-                        <span>{item.label}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <React.Fragment key={item.path || item.label}>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          isActive={isActive || hasActiveSubmenu}
+                          onClick={() => {
+                            if (hasSubmenu) {
+                              toggleMenu(item.label);
+                            }
+                            if (item.path) {
+                              setLocation(item.path);
+                            }
+                          }}
+                          tooltip={item.label}
+                          className={`h-10 transition-all font-normal ${isActive || hasActiveSubmenu ? "bg-white/10 text-white hover:bg-white/15" : "text-white/80 hover:bg-white/5 hover:text-white"}`}
+                        >
+                          <item.icon className={`h-4 w-4`} />
+                          <span>{item.label}</span>
+                          {hasSubmenu && (
+                            <div className="ml-auto">
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </div>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      {hasSubmenu && isExpanded && (
+                        <div className="ml-6 space-y-0.5">
+                          {item.submenu
+                            ?.filter(subItem => !subItem.adminOnly || user?.role === "admin" || user?.role === "owner")
+                            .map(subItem => {
+                              const isSubActive = location === subItem.path;
+                              return (
+                                <SidebarMenuItem key={subItem.path}>
+                                  <SidebarMenuButton
+                                    isActive={isSubActive}
+                                    onClick={() => subItem.path && setLocation(subItem.path)}
+                                    tooltip={subItem.label}
+                                    className={`h-9 transition-all font-normal text-sm ${isSubActive ? "bg-white/10 text-white hover:bg-white/15" : "text-white/70 hover:bg-white/5 hover:text-white"}`}
+                                  >
+                                    <subItem.icon className={`h-3.5 w-3.5`} />
+                                    <span>{subItem.label}</span>
+                                  </SidebarMenuButton>
+                                </SidebarMenuItem>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </React.Fragment>
                   );
                 })}
             </SidebarMenu>
