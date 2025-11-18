@@ -61,18 +61,19 @@ const projectRouter = router({
 
   list: protectedProcedure.query(async ({ ctx }) => {
     const projects = await db.getAllProjects();
-    const projectsWithStats = await Promise.all(
-      projects.map(async (p: any) => {
-        const stats = await db.getProjectStats(p.id);
-        return {
-          ...p,
-          taskCount: stats?.totalTasks || 0,
-          completedTasks: stats?.completedTasks || 0,
-          progressPercentage: stats?.progressPercentage || 0,
-          projectStatus: stats?.projectStatus || "on_track",
-        };
-      })
-    );
+    const projectIds = projects.map((p: any) => p.id);
+    const statsMap = await db.getBatchProjectStats(projectIds);
+    
+    const projectsWithStats = projects.map((p: any) => {
+      const stats = statsMap.get(p.id);
+      return {
+        ...p,
+        taskCount: stats?.totalTasks || 0,
+        completedTasks: stats?.completedTasks || 0,
+        progressPercentage: stats?.progressPercentage || 0,
+        projectStatus: stats?.projectStatus || "on_track",
+      };
+    });
     return projectsWithStats;
   }),
 
@@ -217,17 +218,18 @@ const projectRouter = router({
 
   listArchived: protectedProcedure.query(async ({ ctx }) => {
     const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
-    const projectsWithStats = await Promise.all(
-      archivedProjects.map(async (project: any) => {
-        const stats = await db.getProjectStats(project.id);
-        return {
-          ...project,
-          taskCount: stats?.totalTasks || 0,
-          completedTasks: stats?.completedTasks || 0,
-          progressPercentage: stats?.progressPercentage || 0,
-        };
-      })
-    );
+    const projectIds = archivedProjects.map((p: any) => p.id);
+    const statsMap = await db.getBatchProjectStats(projectIds);
+    
+    const projectsWithStats = archivedProjects.map((project: any) => {
+      const stats = statsMap.get(project.id);
+      return {
+        ...project,
+        taskCount: stats?.totalTasks || 0,
+        completedTasks: stats?.completedTasks || 0,
+        progressPercentage: stats?.progressPercentage || 0,
+      };
+    });
     return projectsWithStats;
   }),
 
@@ -460,15 +462,16 @@ const projectRouter = router({
 
   listWithStats: protectedProcedure.query(async ({ ctx }) => {
     const projects = await db.getProjectsByUser(ctx.user!.id);
-    const projectsWithStats = await Promise.all(
-      projects.map(async (p: any) => {
-        const stats = await db.getProjectStats(p.projects.id);
-        return {
-          ...p.projects,
-          stats,
-        };
-      })
-    );
+    const projectIds = projects.map((p: any) => p.projects.id);
+    const statsMap = await db.getBatchProjectStats(projectIds);
+    
+    const projectsWithStats = projects.map((p: any) => {
+      const stats = statsMap.get(p.projects.id);
+      return {
+        ...p.projects,
+        stats,
+      };
+    });
     return projectsWithStats;
   }),
 });
@@ -519,11 +522,11 @@ const taskRouter = router({
   myTasks: protectedProcedure.query(async ({ ctx }) => {
     // Get all projects where user is a member
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
-    const projectIds = userProjects.map((p: any) => p.projects.id);
+    const myProjectIds = userProjects.map((p: any) => p.projects.id);
 
     // Get all tasks from those projects
     const allTasks: any[] = [];
-    for (const projectId of projectIds) {
+    for (const projectId of myProjectIds) {
       const projectTasks = await db.getTasksByProject(projectId);
       allTasks.push(...projectTasks);
     }
@@ -1547,13 +1550,14 @@ const checklistRouter = router({
     const tasks = await db.getAllTasks();
     const templates = await db.getAllChecklistTemplates();
 
-    // Get all template items for all templates
-    const allTemplateItems = await Promise.all(
-      templates.map(async (template: any) => ({
-        templateId: template.id,
-        items: await db.getChecklistTemplateItems(template.id),
-      }))
-    );
+    // Get all template items for all templates (optimized batch query)
+    const templateIds = templates.map((t: any) => t.id);
+    const itemsMap = await db.getBatchChecklistTemplateItems(templateIds);
+    
+    const allTemplateItems = templates.map((template: any) => ({
+      templateId: template.id,
+      items: itemsMap.get(template.id) || [],
+    }));
 
     // Map checklists with task and template info
     return checklists.map((checklist: any) => {
@@ -2557,12 +2561,13 @@ const dashboardRouter = router({
   getStats: protectedProcedure.query(async ({ ctx }) => {
     // Get all projects (admin can see all projects)
     const allProjects = await db.getAllProjects();
-    const projectsWithStats = await Promise.all(
-      allProjects.map(async (project: any) => {
-        const stats = await db.getProjectStats(project.id);
-        return { ...project, stats };
-      })
-    );
+    const projectIds = allProjects.map((p: any) => p.id);
+    const statsMap = await db.getBatchProjectStats(projectIds);
+    
+    const projectsWithStats = allProjects.map((project: any) => {
+      const stats = statsMap.get(project.id);
+      return { ...project, stats };
+    });
 
     // Count projects by new 4-status logic:
     // 1. total = all projects
@@ -2605,10 +2610,10 @@ const dashboardRouter = router({
 
     // Get tasks from user's projects only (consistent with Tasks page)
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
-    const projectIds = userProjects.map((p: any) => p.projects.id);
+    const userProjectIds = userProjects.map((p: any) => p.projects.id);
 
     const allTasks: any[] = [];
-    for (const projectId of projectIds) {
+    for (const projectId of userProjectIds) {
       const projectTasks = await db.getTasksByProject(projectId);
       allTasks.push(...projectTasks);
     }

@@ -184,3 +184,81 @@
 - [x] เพิ่มฟีเจอร์เลือก template เมื่อสร้างผู้ใช้ใหม่
 - [x] เพิ่มฟีเจอร์ apply template ให้ผู้ใช้ที่มีอยู่แล้ว (bulk action)
 - [x] แสดงรายการ permissions ที่มาจาก template ในหน้า edit user
+
+
+## 🔴 Priority 1: Critical Issues (System Improvements)
+
+### 1.1 Performance & Scalability
+- [x] Database Query Optimization: แก้ไข N+1 query problems ใน dashboard และ task list
+- [x] เพิ่ม database indexes สำหรับ queries ที่ใช้บ่อย
+- [x] ใช้ getBatchProjectStats และ getBatchChecklistTemplateItems เพื่อ optimize queries
+- [ ] Lazy Loading: เพิ่ม pagination สำหรับ projects, tasks, inspections list
+- [ ] เพิ่ม infinite scroll สำหรับ mobile view
+- [ ] Image Optimization: เพิ่ม image compression ก่อน upload
+- [ ] เพิ่ม lazy loading สำหรับรูปภาพ defects/inspections
+- [ ] เพิ่ม image thumbnails generation
+- [ ] Bundle Size: วิเคราะห์ bundle size ด้วย vite-plugin-bundle-analyzer
+- [ ] ลด bundle size โดย code splitting และ dynamic imports
+
+### 1.2 Error Handling & Logging
+- [x] Centralized Error Handling: สร้าง global error handler (client + server)
+- [x] ปรับปรุง ErrorBoundary ให้ครอบคลุมทุก component tree
+- [x] User-friendly Error Messages: แปล error messages เป็นภาษาไทย
+- [x] เพิ่ม error message mapping สำหรับ common errors
+- [x] เพิ่ม structured logging ที่ backend
+- [ ] Error Tracking Service: เชื่อมต่อ Sentry หรือ logging service (TODO)
+- [ ] เพิ่ม error reporting UI สำหรับ users
+
+### 1.3 Security Enhancements
+- [x] Input Validation: สร้าง Zod schemas และ validation helpers
+- [x] เพิ่ม input sanitization สำหรับ text fields (HTML, SQL, XSS)
+- [x] SQL Injection Prevention: สร้าง validation functions
+- [x] ใช้ Drizzle ORM (parameterized queries อัตโนมัติ)
+- [x] File Upload Security: เพิ่ม file type, size, extension validation
+- [x] เพิ่ม file name sanitization
+- [x] ตรวจสอบ executable file signatures
+- [x] Rate Limiting: สร้าง rate limiting middleware
+- [x] เพิ่ม security headers (XSS, clickjacking, MIME sniffing)
+- [ ] เพิ่ม virus scanning (ClamAV) - TODO
+- [ ] เพิ่ม CAPTCHA สำหรับ login/register - TODO และ sensitive endpoints
+- [ ] เพิ่ม CSRF protection
+
+## 🟡 Priority 2: Important Improvements
+
+### 2.4 User Experience (UX)
+- [ ] Loading States: เพิ่ม skeleton loaders ให้ครบทุกหน้า
+- [ ] เพิ่ม loading indicators สำหรับ mutations
+- [ ] Empty States: ปรับปรุง empty states ให้มี call-to-action ชัดเจน
+- [ ] เพิ่ม illustrations สำหรับ empty states
+- [ ] Form Validation: เพิ่ม real-time validation feedback
+- [ ] เพิ่ม field-level error messages
+- [ ] Keyboard Shortcuts: เพิ่ม keyboard shortcuts (Ctrl+K สำหรับ search, etc.)
+- [ ] เพิ่ม keyboard shortcut help modal
+- [ ] Undo/Redo: เพิ่ม undo functionality สำหรับ critical actions
+- [ ] เพิ่ม confirmation dialogs สำหรับ destructive actions
+
+### 2.5 Mobile Experience
+- [ ] Touch Gestures: ปรับปรุง touch interactions
+- [ ] เพิ่ม swipe gestures สำหรับ navigation
+- [ ] เพิ่ม pinch-to-zoom สำหรับรูปภาพ
+- [ ] Offline Sync Improvements: ทดสอบ offline queue
+- [ ] เพิ่ม conflict resolution สำหรับ offline sync
+- [ ] เพิ่ม sync status indicators
+- [ ] Camera Optimization: ปรับปรุงการถ่ายรูปและ upload
+- [ ] เพิ่ม image preview ก่อน upload
+- [ ] เพิ่ม multiple image selection
+- [ ] GPS Accuracy: เพิ่มความแม่นยำของ location tagging
+- [ ] เพิ่ม location accuracy indicator
+- [ ] เพิ่ม manual location correction
+
+### 2.6 Testing Coverage
+- [ ] Unit Tests: เพิ่ม unit tests สำหรับ business logic
+- [ ] เพิ่ม tests สำหรับ tRPC procedures
+- [ ] เพิ่ม tests สำหรับ database helpers
+- [ ] Integration Tests: เขียน integration tests สำหรับ critical workflows
+- [ ] เพิ่ม tests สำหรับ authentication flow
+- [ ] เพิ่ม tests สำหรับ inspection workflow
+- [ ] E2E Tests: เพิ่ม end-to-end tests ด้วย Playwright
+- [ ] เพิ่ม E2E tests สำหรับ mobile workflows
+- [ ] Load Testing: ทดสอบระบบภายใต้ load สูง
+- [ ] เพิ่ม performance benchmarks

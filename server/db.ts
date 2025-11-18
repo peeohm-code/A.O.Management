@@ -550,6 +550,92 @@ export async function getProjectStats(projectId: number) {
   };
 }
 
+/**
+ * Batch get project stats for multiple projects - Optimized version to prevent N+1 queries
+ * @param projectIds Array of project IDs to get stats for
+ * @returns Map of projectId to stats
+ */
+export async function getBatchProjectStats(projectIds: number[]) {
+  const db = await getDb();
+  if (!db || projectIds.length === 0) return new Map();
+
+  // Get all projects in one query
+  const projectsData = await db
+    .select()
+    .from(projects)
+    .where(inArray(projects.id, projectIds));
+
+  // Get all tasks for these projects in one query
+  const allTasks = await db
+    .select()
+    .from(tasks)
+    .where(inArray(tasks.projectId, projectIds));
+
+  // Group tasks by project ID
+  const tasksByProject = new Map<number, any[]>();
+  for (const task of allTasks) {
+    const projectTasks = tasksByProject.get(task.projectId) || [];
+    projectTasks.push(task);
+    tasksByProject.set(task.projectId, projectTasks);
+  }
+
+  // Calculate stats for each project
+  const statsMap = new Map();
+  const now = new Date();
+
+  for (const projectData of projectsData) {
+    const projectTasks = tasksByProject.get(projectData.id) || [];
+    const totalTasks = projectTasks.length;
+
+    if (totalTasks === 0) {
+      statsMap.set(projectData.id, {
+        totalTasks: 0,
+        completedTasks: 0,
+        inProgressTasks: 0,
+        notStartedTasks: 0,
+        overdueTasks: 0,
+        progressPercentage: 0,
+        projectStatus: 'on_track' as const,
+      });
+      continue;
+    }
+
+    const completedTasks = projectTasks.filter((t: any) => t.status === 'completed').length;
+    const inProgressTasks = projectTasks.filter((t: any) => t.status === 'in_progress').length;
+    const notStartedTasks = projectTasks.filter((t: any) => t.status === 'not_started').length;
+    const overdueTasks = projectTasks.filter((t: any) => 
+      t.endDate && new Date(t.endDate) < now && t.status !== 'completed'
+    ).length;
+
+    const totalProgress = projectTasks.reduce((sum: any, t: any) => sum + (t.progress || 0), 0);
+    const progress = Math.round(totalProgress / totalTasks);
+
+    let status: 'on_track' | 'delayed' | 'overdue' | 'completed';
+    
+    if (completedTasks === totalTasks || projectData?.status === 'completed') {
+      status = 'completed';
+    } else if (projectData?.endDate && new Date(projectData.endDate) < now) {
+      status = 'overdue';
+    } else if (overdueTasks > 0) {
+      status = 'delayed';
+    } else {
+      status = 'on_track';
+    }
+
+    statsMap.set(projectData.id, {
+      totalTasks,
+      completedTasks,
+      inProgressTasks,
+      notStartedTasks,
+      overdueTasks,
+      progressPercentage: progress,
+      projectStatus: status,
+    });
+  }
+
+  return statsMap;
+}
+
 export async function updateProject(
   id: number,
   data: Partial<{
@@ -1005,6 +1091,33 @@ export async function getChecklistTemplateItems(templateId: number) {
     .from(checklistTemplateItems)
     .where(eq(checklistTemplateItems.templateId, templateId))
     .orderBy(asc(checklistTemplateItems.order));
+}
+
+/**
+ * Batch get checklist template items for multiple templates - Optimized version
+ * @param templateIds Array of template IDs
+ * @returns Map of templateId to items array
+ */
+export async function getBatchChecklistTemplateItems(templateIds: number[]) {
+  const db = await getDb();
+  if (!db || templateIds.length === 0) return new Map();
+
+  // Get all items for these templates in one query
+  const allItems = await db
+    .select()
+    .from(checklistTemplateItems)
+    .where(inArray(checklistTemplateItems.templateId, templateIds))
+    .orderBy(asc(checklistTemplateItems.order));
+
+  // Group items by template ID
+  const itemsByTemplate = new Map<number, any[]>();
+  for (const item of allItems) {
+    const items = itemsByTemplate.get(item.templateId) || [];
+    items.push(item);
+    itemsByTemplate.set(item.templateId, items);
+  }
+
+  return itemsByTemplate;
 }
 
 /**
