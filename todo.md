@@ -262,3 +262,43 @@
 - [ ] เพิ่ม E2E tests สำหรับ mobile workflows
 - [ ] Load Testing: ทดสอบระบบภายใต้ load สูง
 - [ ] เพิ่ม performance benchmarks
+
+## 🎨 UX Improvements Phase (Current)
+
+### Loading States & Skeleton Screens
+- [x] สร้าง Skeleton Components สำหรับ Dashboard widgets
+- [x] สร้าง Skeleton Components สำหรับ Project List
+- [x] สร้าง Skeleton Components สำหรับ Task List
+- [x] สร้าง Skeleton Components สำหรับ Inspection List
+- [x] สร้าง Skeleton Components สำหรับ Defect List
+- [x] เพิ่ม loading indicators สำหรับ mutations (buttons, forms)
+- [ ] ปรับปรุง loading states ในทุกหน้าให้ใช้ skeleton แทน spinner (ต้องนำไปใช้ในแต่ละหน้า)
+
+### Pagination & Infinite Scroll
+- [x] เพิ่ม pagination backend สำหรับ projects list
+- [x] เพิ่ม pagination backend สำหรับ tasks list
+- [ ] เพิ่ม pagination backend สำหรับ inspections list (TODO)
+- [x] เพิ่ม pagination backend สำหรับ defects list
+- [x] สร้าง Pagination Component (desktop)
+- [x] สร้าง Infinite Scroll Component (mobile)
+- [x] เพิ่ม page size selector (10, 25, 50, 100)
+- [x] เพิ่ม total count และ page info display
+- [x] สร้าง pagination types และ utilities
+- [ ] ทดสอบ pagination กับข้อมูลจำนวนมาก (100+ records)
+- [ ] นำ pagination ไปใช้ในหน้า Projects, Tasks, Defects
+
+### Mobile Touch Optimization
+- [x] สร้าง mobile gesture hooks (swipe, long press, pinch zoom)
+- [x] เพิ่ม Pull-to-Refresh Component
+- [x] เพิ่ม Load More Button Component
+- [x] ปรับปรุง camera capture UI สำหรับ mobile
+- [x] เพิ่ม image preview ก่อน upload
+- [x] เพิ่ม multiple image selection
+- [x] เพิ่ม image compression utility
+- [x] ปรับปรุง offline sync indicators
+- [x] สร้าง OfflineSyncStatus Component
+- [x] สร้าง CompactSyncStatus Badge
+- [ ] นำ mobile gestures ไปใช้ในหน้า task list, defects
+- [ ] นำ MobileCamera component ไปใช้แทน file input เดิม
+- [ ] นำ OfflineSyncStatus ไปใช้ใน DashboardLayout
+- [ ] ทดสอบ touch gestures บน mobile devices

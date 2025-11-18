@@ -353,6 +353,32 @@ export async function getAllProjects() {
     .where(isNull(projects.archivedAt)); // Filter out archived projects
 }
 
+// Pagination: Get projects with pagination
+export async function getProjectsPaginated(page: number, pageSize: number) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+
+  const offset = (page - 1) * pageSize;
+
+  // Get total count
+  const countResult = await db
+    .select({ count: count() })
+    .from(projects)
+    .where(isNull(projects.archivedAt));
+  const total = countResult[0]?.count || 0;
+
+  // Get paginated items
+  const items = await db
+    .select()
+    .from(projects)
+    .where(isNull(projects.archivedAt))
+    .orderBy(desc(projects.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+
+  return { items, total };
+}
+
 export async function getProjectsByUser(userId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -882,6 +908,54 @@ export async function getAllTasks() {
     .select()
     .from(tasks)
     .orderBy(desc(tasks.updatedAt));
+}
+
+// Pagination: Get tasks with pagination
+export async function getTasksPaginated(page: number, pageSize: number, filters?: {
+  projectId?: number;
+  assigneeId?: number;
+  status?: string;
+  priority?: string;
+}) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+
+  const offset = (page - 1) * pageSize;
+
+  // Build where conditions
+  const conditions = [];
+  if (filters?.projectId) {
+    conditions.push(eq(tasks.projectId, filters.projectId));
+  }
+  if (filters?.assigneeId) {
+    conditions.push(eq(tasks.assigneeId, filters.assigneeId));
+  }
+  if (filters?.status) {
+    conditions.push(eq(tasks.status, filters.status as any));
+  }
+  if (filters?.priority) {
+    conditions.push(eq(tasks.priority, filters.priority as any));
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  // Get total count
+  const countResult = await db
+    .select({ count: count() })
+    .from(tasks)
+    .where(whereClause);
+  const total = countResult[0]?.count || 0;
+
+  // Get paginated items
+  const items = await db
+    .select()
+    .from(tasks)
+    .where(whereClause)
+    .orderBy(desc(tasks.updatedAt))
+    .limit(pageSize)
+    .offset(offset);
+
+  return { items, total };
 }
 
 export async function updateTask(
@@ -1473,6 +1547,106 @@ export async function getAllDefects() {
     .orderBy(desc(defects.createdAt));
   
   return results;
+}
+
+// Pagination: Get defects with pagination
+export async function getDefectsPaginated(page: number, pageSize: number, filters?: {
+  projectId?: number;
+  taskId?: number;
+  status?: string;
+  severity?: string;
+  assignedTo?: number;
+}) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+
+  const offset = (page - 1) * pageSize;
+
+  // Build where conditions
+  const conditions = [];
+  if (filters?.taskId) {
+    conditions.push(eq(defects.taskId, filters.taskId));
+  }
+  if (filters?.status) {
+    conditions.push(eq(defects.status, filters.status as any));
+  }
+  if (filters?.severity) {
+    conditions.push(eq(defects.severity, filters.severity as any));
+  }
+  if (filters?.assignedTo) {
+    conditions.push(eq(defects.assignedTo, filters.assignedTo));
+  }
+  // Note: projectId filter requires join with tasks table
+  if (filters?.projectId) {
+    conditions.push(eq(tasks.projectId, filters.projectId));
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  // Get total count
+  const countQuery = db
+    .select({ count: count() })
+    .from(defects)
+    .leftJoin(tasks, eq(defects.taskId, tasks.id));
+  
+  if (whereClause) {
+    countQuery.where(whereClause);
+  }
+  
+  const countResult = await countQuery;
+  const total = countResult[0]?.count || 0;
+
+  // Get paginated items
+  const itemsQuery = db
+    .select({
+      id: defects.id,
+      taskId: defects.taskId,
+      projectId: tasks.projectId,
+      checklistItemResultId: defects.checklistItemResultId,
+      title: defects.title,
+      description: defects.description,
+      photoUrls: defects.photoUrls,
+      status: defects.status,
+      severity: defects.severity,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      resolvedBy: defects.resolvedBy,
+      resolvedAt: defects.resolvedAt,
+      resolutionPhotoUrls: defects.resolutionPhotoUrls,
+      resolutionComment: defects.resolutionComment,
+      type: defects.type,
+      checklistId: defects.checklistId,
+      rootCause: defects.rootCause,
+      correctiveAction: defects.correctiveAction,
+      preventiveAction: defects.preventiveAction,
+      dueDate: defects.dueDate,
+      ncrLevel: defects.ncrLevel,
+      verifiedBy: defects.verifiedBy,
+      verifiedAt: defects.verifiedAt,
+      verificationComment: defects.verificationComment,
+      createdAt: defects.createdAt,
+      updatedAt: defects.updatedAt,
+      detectedAt: defects.createdAt,
+      taskName: tasks.name,
+      checklistTemplateName: checklistTemplates.name,
+      assignedToName: sql<string | null>`(SELECT name FROM ${users} WHERE ${users.id} = ${defects.assignedTo})`,
+      detectedByName: sql<string | null>`(SELECT name FROM ${users} WHERE ${users.id} = ${defects.reportedBy})`,
+    })
+    .from(defects)
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .leftJoin(taskChecklists, eq(defects.checklistId, taskChecklists.id))
+    .leftJoin(checklistTemplates, eq(taskChecklists.templateId, checklistTemplates.id));
+  
+  if (whereClause) {
+    itemsQuery.where(whereClause);
+  }
+  
+  const items = await itemsQuery
+    .orderBy(desc(defects.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+
+  return { items, total };
 }
 
 export async function updateDefect(
