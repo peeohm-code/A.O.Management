@@ -1383,6 +1383,8 @@ export async function updateTaskChecklist(
     generalComments: string;
     photoUrls: string;
     signature: string;
+    notificationSent: boolean;
+    notifiedAt: Date;
   }>
 ) {
   const db = await getDb();
@@ -1395,6 +1397,8 @@ export async function updateTaskChecklist(
   if (data.generalComments !== undefined) updateData.generalComments = data.generalComments;
   if (data.photoUrls !== undefined) updateData.photoUrls = data.photoUrls;
   if (data.signature !== undefined) updateData.signature = data.signature;
+  if (data.notificationSent !== undefined) updateData.notificationSent = data.notificationSent;
+  if (data.notifiedAt !== undefined) updateData.notifiedAt = data.notifiedAt;
 
   return await db.update(taskChecklists).set(updateData).where(eq(taskChecklists.id, id));
 }

@@ -201,6 +201,8 @@ export const taskChecklists = mysqlTable("taskChecklists", {
   signature: text("signature"), // Base64 encoded signature image
   originalInspectionId: int("originalInspectionId"), // Reference to original inspection if this is a re-inspection
   reinspectionCount: int("reinspectionCount").default(0).notNull(), // Number of times this has been re-inspected
+  notificationSent: boolean("notificationSent").default(false).notNull(), // Flag to track if notification was sent for failed inspection
+  notifiedAt: timestamp("notifiedAt"), // Timestamp when notification was sent
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

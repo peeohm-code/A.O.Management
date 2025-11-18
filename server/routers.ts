@@ -1523,6 +1523,47 @@ const checklistRouter = router({
       );
       await calculateAndUpdateTaskProgress(checklist.taskId);
 
+      // Send automatic notification when inspection fails
+      if (input.status === "failed") {
+        const task = await db.getTaskById(checklist.taskId);
+        const project = task ? await db.getProjectById(task.projectId) : null;
+        const template = await db.getChecklistTemplateById(checklist.templateId);
+        
+        // Notify task assignee
+        if (task && task.assigneeId) {
+          await createNotification({
+            userId: task.assigneeId,
+            type: "inspection_failed",
+            title: "การตรวจสอบไม่ผ่าน",
+            content: `การตรวจสอบ "${template?.name || 'Checklist'}" สำหรับงาน "${task.name}" ไม่ผ่าน กรุณาดำเนินการแก้ไข`,
+            priority: "high",
+            relatedTaskId: task.id,
+            relatedProjectId: task.projectId,
+            sendEmail: true,
+          });
+        }
+
+        // Notify project manager
+        if (project && project.createdBy) {
+          await createNotification({
+            userId: project.createdBy,
+            type: "inspection_failed",
+            title: "การตรวจสอบไม่ผ่าน",
+            content: `โครงการ "${project.name}" - งาน "${task?.name}" การตรวจสอบไม่ผ่าน`,
+            priority: "high",
+            relatedTaskId: task?.id,
+            relatedProjectId: project.id,
+            sendEmail: true,
+          });
+        }
+
+        // Update notification sent flag
+        await db.updateTaskChecklist(input.id, {
+          notificationSent: true,
+          notifiedAt: new Date(),
+        });
+      }
+
       return { success: true };
     }),
 
