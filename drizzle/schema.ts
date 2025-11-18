@@ -100,6 +100,8 @@ export const tasks = mysqlTable("tasks", {
   priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
   order: int("order").default(0).notNull(), // For sorting
   photoUrls: text("photoUrls"), // JSON array of photo URLs
+  // Escalation tracking
+  escalation: text("escalation"), // JSON: {lastEscalatedAt, escalationCount, escalationLevel}
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -282,6 +284,8 @@ export const defects = mysqlTable("defects", {
   beforePhotos: text("beforePhotos"), // JSON array of photo URLs before fix
   afterPhotos: text("afterPhotos"), // JSON array of photo URLs after fix
   closureNotes: text("closureNotes"), // Notes when changing status to closed
+  // Escalation tracking
+  escalation: text("escalation"), // JSON: {lastEscalatedAt, escalationCount, escalationLevel}
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

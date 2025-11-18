@@ -7770,7 +7770,131 @@ export async function checkAndTriggerEscalations() {
         }
       }
 
-      // TODO: เพิ่มการตรวจสอบสำหรับ defect และ task_overdue
+      // ตรวจสอบ defects ที่ยังไม่แก้ไข
+      if (ruleData.triggerType === "defect_unresolved") {
+        const unresolvedDefects = await db.execute(sql`
+          SELECT d.*, t.projectId
+          FROM defects d
+          JOIN tasks t ON d.taskId = t.id
+          WHERE d.status IN ('reported', 'analysis', 'in_progress', 'pending_reinspection')
+            AND (d.escalation IS NULL OR JSON_EXTRACT(d.escalation, '$.lastEscalatedAt') IS NULL
+                 OR JSON_EXTRACT(d.escalation, '$.lastEscalatedAt') <= ${hoursAgo.toISOString()})
+            AND d.createdAt <= ${hoursAgo.toISOString()}
+        `);
+
+        for (const defect of unresolvedDefects.rows) {
+          const defectData = defect as any;
+          const userIds = await getEscalationRecipients(ruleData);
+
+          if (userIds.length > 0) {
+            // สร้าง escalation log
+            await createEscalationLog({
+              ruleId: ruleData.id,
+              entityType: "defect",
+              entityId: defectData.id,
+              projectId: defectData.projectId,
+              taskId: defectData.taskId,
+              escalatedToUserIds: userIds,
+              notificationsSent: 0,
+            });
+
+            // ส่งการแจ้งเตือน
+            for (const userId of userIds) {
+              await createNotification({
+                userId,
+                type: "defect_escalation",
+                title: `⚠️ Escalation: Defect ยังไม่ได้รับการแก้ไข`,
+                message: `Defect "${defectData.title}" ยังไม่ได้รับการแก้ไขมากกว่า ${ruleData.hoursUntilEscalation} ชั่วโมง (Severity: ${defectData.severity})`,
+                relatedEntityType: "defect",
+                relatedEntityId: defectData.id,
+                actionUrl: `/defects/${defectData.id}`,
+              });
+            }
+
+            // อัปเดต escalation tracking ใน defects
+            const currentEscalation = defectData.escalation ? JSON.parse(defectData.escalation) : {};
+            const newEscalation = {
+              lastEscalatedAt: new Date().toISOString(),
+              escalationCount: (currentEscalation.escalationCount || 0) + 1,
+              escalationLevel: ruleData.severityLevel || 'medium',
+            };
+
+            await db.execute(sql`
+              UPDATE defects
+              SET escalation = ${JSON.stringify(newEscalation)}
+              WHERE id = ${defectData.id}
+            `);
+
+            logger.info(`[Escalation] Triggered for defect #${defectData.id}, notified ${userIds.length} users`);
+          }
+        }
+      }
+
+      // ตรวจสอบ tasks ที่เกินกำหนด
+      if (ruleData.triggerType === "task_overdue") {
+        const today = new Date().toISOString().split('T')[0];
+        const overdueTasks = await db.execute(sql`
+          SELECT t.*, p.name as projectName
+          FROM tasks t
+          JOIN projects p ON t.projectId = p.id
+          WHERE t.endDate < ${today}
+            AND t.status NOT IN ('completed', 'not_started')
+            AND (t.escalation IS NULL OR JSON_EXTRACT(t.escalation, '$.lastEscalatedAt') IS NULL
+                 OR JSON_EXTRACT(t.escalation, '$.lastEscalatedAt') <= ${hoursAgo.toISOString()})
+        `);
+
+        for (const task of overdueTasks.rows) {
+          const taskData = task as any;
+          const userIds = await getEscalationRecipients(ruleData);
+
+          if (userIds.length > 0) {
+            // สร้าง escalation log
+            await createEscalationLog({
+              ruleId: ruleData.id,
+              entityType: "task",
+              entityId: taskData.id,
+              projectId: taskData.projectId,
+              taskId: taskData.id,
+              escalatedToUserIds: userIds,
+              notificationsSent: 0,
+            });
+
+            // คำนวณจำนวนวันที่เกินกำหนด
+            const daysOverdue = Math.floor(
+              (new Date().getTime() - new Date(taskData.endDate).getTime()) / (1000 * 60 * 60 * 24)
+            );
+
+            // ส่งการแจ้งเตือน
+            for (const userId of userIds) {
+              await createNotification({
+                userId,
+                type: "task_overdue",
+                title: `⚠️ Escalation: งานเกินกำหนด`,
+                message: `งาน "${taskData.name}" เกินกำหนดแล้ว ${daysOverdue} วัน (โครงการ: ${taskData.projectName})`,
+                relatedEntityType: "task",
+                relatedEntityId: taskData.id,
+                actionUrl: `/tasks/${taskData.id}`,
+              });
+            }
+
+            // อัปเดต escalation tracking ใน tasks
+            const currentEscalation = taskData.escalation ? JSON.parse(taskData.escalation) : {};
+            const newEscalation = {
+              lastEscalatedAt: new Date().toISOString(),
+              escalationCount: (currentEscalation.escalationCount || 0) + 1,
+              escalationLevel: ruleData.severityLevel || 'medium',
+            };
+
+            await db.execute(sql`
+              UPDATE tasks
+              SET escalation = ${JSON.stringify(newEscalation)}
+              WHERE id = ${taskData.id}
+            `);
+
+            logger.info(`[Escalation] Triggered for task #${taskData.id}, notified ${userIds.length} users`);
+          }
+        }
+      }
     }
   } catch (error) {
     logger.error("[Escalation] Error checking escalations:", error);

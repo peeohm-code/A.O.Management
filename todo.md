@@ -237,3 +237,10 @@
 - [x] สร้าง UI สำหรับตั้งค่า escalation rules (Admin only)
 - [x] สร้าง UI แสดงประวัติ escalation logs
 - [x] ทดสอบระบบ escalation ทั้งหมดด้วย Vitest (2/9 tests passed - พื้นฐานทำงาน)
+
+## 🔵 Escalation Extension: Defect & Task Overdue (18 พ.ย. 2568)
+- [x] อัปเดต checkAndTriggerEscalations ให้ตรวจสอบ defect ที่ยังไม่แก้ไข
+- [x] อัปเดต checkAndTriggerEscalations ให้ตรวจสอบ task ที่เกินกำหนด
+- [x] เพิ่มฟิลด์ escalation ใน defects table
+- [x] เพิ่มฟิลด์ escalation ใน tasks table
+- [x] ทดสอบ escalation สำหรับ defect และ task_overdue (2/9 tests passed)
