@@ -90,11 +90,7 @@ const menuItems = [
     label: "Dashboard",
     path: "/dashboard",
   },
-  {
-    icon: LineChart,
-    label: "CEO Dashboard",
-    path: "/ceo-dashboard",
-  },
+
   {
     icon: FolderKanban,
     label: "Projects",

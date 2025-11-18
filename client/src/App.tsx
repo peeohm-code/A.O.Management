@@ -50,7 +50,7 @@ const BulkUserImport = lazy(() => import("./pages/BulkUserImport"));
 const PermissionsManagement = lazy(() => import("./pages/PermissionsManagement"));
 const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
-const CEODashboard = lazy(() => import("./pages/CEODashboard"));
+
 
 // Loading component
 const PageLoader = () => (
@@ -93,13 +93,7 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
-      <Route path={"/ceo-dashboard"}>
-        {() => (
-          <DashboardLayout>
-            <CEODashboard />
-          </DashboardLayout>
-        )}
-      </Route>
+
       <Route path={"/overview"}>
         {() => (
           <DashboardLayout>
