@@ -5791,3 +5791,454 @@ export async function applyRoleTemplateToUser(data: {
     grantedBy: data.grantedBy,
   });
 }
+
+// ==================== CEO Dashboard Helpers ====================
+
+/**
+ * Get CEO Dashboard Overview - Project stats with trend indicators
+ */
+export async function getCEOProjectOverview() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Total active projects (not archived)
+    const totalResult = await db
+      .select({ count: count() })
+      .from(projects)
+      .where(isNull(projects.archivedAt));
+    
+    // Active projects (status = active)
+    const activeResult = await db
+      .select({ count: count() })
+      .from(projects)
+      .where(and(eq(projects.status, "active"), isNull(projects.archivedAt)));
+    
+    // Delayed projects (endDate < today but not completed)
+    const delayedResult = await db
+      .select({ count: count() })
+      .from(projects)
+      .where(
+        and(
+          lt(projects.endDate, today),
+          ne(projects.status, "completed"),
+          ne(projects.status, "cancelled"),
+          isNull(projects.archivedAt)
+        )
+      );
+    
+    // Overdue projects (endDate < today - 7 days and not completed)
+    const overdueThreshold = new Date();
+    overdueThreshold.setDate(overdueThreshold.getDate() - 7);
+    const overdueDate = overdueThreshold.toISOString().split('T')[0];
+    
+    const overdueResult = await db
+      .select({ count: count() })
+      .from(projects)
+      .where(
+        and(
+          lt(projects.endDate, overdueDate),
+          ne(projects.status, "completed"),
+          ne(projects.status, "cancelled"),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    return {
+      total: totalResult[0]?.count || 0,
+      active: activeResult[0]?.count || 0,
+      delayed: delayedResult[0]?.count || 0,
+      overdue: overdueResult[0]?.count || 0,
+    };
+  } catch (error) {
+    logger.error('[getCEOProjectOverview] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get Project Status Breakdown for Donut Chart
+ * Categories: on_track, at_risk, critical
+ */
+export async function getCEOProjectStatusBreakdown() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const allProjects = await db
+      .select({
+        id: projects.id,
+        status: projects.status,
+        endDate: projects.endDate,
+        completionPercentage: projects.completionPercentage,
+      })
+      .from(projects)
+      .where(
+        and(
+          isNull(projects.archivedAt),
+          ne(projects.status, "completed"),
+          ne(projects.status, "cancelled")
+        )
+      );
+
+    let onTrack = 0;
+    let atRisk = 0;
+    let critical = 0;
+
+    for (const project of allProjects) {
+      // Critical: overdue by 7+ days OR completion < 50% and < 30 days to deadline
+      if (project.endDate) {
+        const daysToDeadline = Math.ceil(
+          (new Date(project.endDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        const completion = project.completionPercentage || 0;
+
+        if (daysToDeadline < -7) {
+          critical++;
+        } else if (daysToDeadline < 0) {
+          atRisk++;
+        } else if (daysToDeadline < 30 && completion < 50) {
+          atRisk++;
+        } else {
+          onTrack++;
+        }
+      } else {
+        // No end date = on track
+        onTrack++;
+      }
+    }
+
+    return {
+      onTrack,
+      atRisk,
+      critical,
+      total: allProjects.length,
+    };
+  } catch (error) {
+    logger.error('[getCEOProjectStatusBreakdown] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get Tasks Overview Stats
+ */
+export async function getCEOTasksOverview() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Total tasks
+    const totalResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(isNull(projects.archivedAt));
+
+    // Completed tasks
+    const completedResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(tasks.status, "completed"), isNull(projects.archivedAt)));
+
+    // In progress tasks
+    const inProgressResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(tasks.status, "in_progress"), isNull(projects.archivedAt)));
+
+    // Overdue tasks
+    const overdueResult = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          ne(tasks.status, "completed"),
+          lt(tasks.endDate, today),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const total = totalResult[0]?.count || 0;
+    const completed = completedResult[0]?.count || 0;
+    const inProgress = inProgressResult[0]?.count || 0;
+    const overdue = overdueResult[0]?.count || 0;
+
+    return {
+      total,
+      completed,
+      inProgress,
+      overdue,
+      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+    };
+  } catch (error) {
+    logger.error('[getCEOTasksOverview] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get Inspection Stats
+ */
+export async function getCEOInspectionStats() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    // Total inspections
+    const totalResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(isNull(projects.archivedAt));
+
+    // Passed inspections
+    const passedResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(taskChecklists.status, "passed"), isNull(projects.archivedAt)));
+
+    // Failed inspections
+    const failedResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(taskChecklists.status, "failed"), isNull(projects.archivedAt)));
+
+    // Pending inspections
+    const pendingResult = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(eq(taskChecklists.status, "pending_inspection"), isNull(projects.archivedAt)));
+
+    const total = totalResult[0]?.count || 0;
+    const passed = passedResult[0]?.count || 0;
+    const failed = failedResult[0]?.count || 0;
+    const pending = pendingResult[0]?.count || 0;
+
+    return {
+      total,
+      passed,
+      failed,
+      pending,
+      passRate: total > 0 ? Math.round((passed / total) * 100) : 0,
+    };
+  } catch (error) {
+    logger.error('[getCEOInspectionStats] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get Defect Stats by Severity
+ */
+export async function getCEODefectStats() {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    // Critical defects (open)
+    const criticalResult = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.severity, "critical"),
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    // Major defects (open)
+    const majorResult = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.severity, "major"),
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    // Minor defects (open)
+    const minorResult = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.severity, "minor"),
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    // Total open defects
+    const totalResult = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(and(ne(defects.status, "resolved"), isNull(projects.archivedAt)));
+
+    return {
+      critical: criticalResult[0]?.count || 0,
+      major: majorResult[0]?.count || 0,
+      minor: minorResult[0]?.count || 0,
+      total: totalResult[0]?.count || 0,
+    };
+  } catch (error) {
+    logger.error('[getCEODefectStats] Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get Alerts - urgent items requiring action
+ */
+export async function getCEOAlerts() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const alerts: Array<{
+      type: 'project_overdue' | 'task_overdue' | 'inspection_pending' | 'defect_critical';
+      severity: 'high' | 'medium' | 'low';
+      message: string;
+      count?: number;
+      projectId?: number;
+      projectName?: string;
+    }> = [];
+
+    // 1. Overdue projects
+    const overdueProjects = await db
+      .select({
+        id: projects.id,
+        name: projects.name,
+        endDate: projects.endDate,
+      })
+      .from(projects)
+      .where(
+        and(
+          lt(projects.endDate, today),
+          ne(projects.status, "completed"),
+          ne(projects.status, "cancelled"),
+          isNull(projects.archivedAt)
+        )
+      )
+      .limit(5);
+
+    for (const project of overdueProjects) {
+      const daysOverdue = Math.ceil(
+        (new Date(today).getTime() - new Date(project.endDate!).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      alerts.push({
+        type: 'project_overdue',
+        severity: daysOverdue > 30 ? 'high' : 'medium',
+        message: `โครงการ "${project.name}" เลยกำหนด ${daysOverdue} วัน`,
+        projectId: project.id,
+        projectName: project.name,
+      });
+    }
+
+    // 2. Critical defects
+    const criticalDefectsCount = await db
+      .select({ count: count() })
+      .from(defects)
+      .innerJoin(tasks, eq(defects.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(defects.severity, "critical"),
+          ne(defects.status, "resolved"),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const criticalCount = criticalDefectsCount[0]?.count || 0;
+    if (criticalCount > 0) {
+      alerts.push({
+        type: 'defect_critical',
+        severity: 'high',
+        message: `มี ${criticalCount} ข้อบกพร่องร้ายแรงที่ต้องแก้ไขด่วน`,
+        count: criticalCount,
+      });
+    }
+
+    // 3. Pending inspections (more than 7 days)
+    const oldPendingInspections = await db
+      .select({ count: count() })
+      .from(taskChecklists)
+      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          eq(taskChecklists.status, "pending_inspection"),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const pendingCount = oldPendingInspections[0]?.count || 0;
+    if (pendingCount > 0) {
+      alerts.push({
+        type: 'inspection_pending',
+        severity: pendingCount > 10 ? 'high' : 'medium',
+        message: `มี ${pendingCount} การตรวจสอบรออนุมัติ`,
+        count: pendingCount,
+      });
+    }
+
+    // 4. Overdue tasks
+    const overdueTasksCount = await db
+      .select({ count: count() })
+      .from(tasks)
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(
+        and(
+          ne(tasks.status, "completed"),
+          lt(tasks.endDate, today),
+          isNull(projects.archivedAt)
+        )
+      );
+
+    const overdueCount = overdueTasksCount[0]?.count || 0;
+    if (overdueCount > 0) {
+      alerts.push({
+        type: 'task_overdue',
+        severity: overdueCount > 20 ? 'high' : 'medium',
+        message: `มี ${overdueCount} งานที่เลยกำหนดเวลา`,
+        count: overdueCount,
+      });
+    }
+
+    // Sort by severity
+    return alerts.sort((a, b) => {
+      const severityOrder = { high: 0, medium: 1, low: 2 };
+      return severityOrder[a.severity] - severityOrder[b.severity];
+    });
+  } catch (error) {
+    logger.error('[getCEOAlerts] Error:', error);
+    return [];
+  }
+}

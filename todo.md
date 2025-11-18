@@ -315,3 +315,39 @@
 - [x] ลบฟิลด์ budget จาก client/src/pages/Projects.tsx (form และ display)
 - [x] ลบฟิลด์ budget จาก client/src/pages/ProjectDetail.tsx (display)
 - [x] ทดสอบระบบหลังลบ budget ให้ทำงานได้ปกติ
+
+## 📊 CEO Dashboard Redesign (Core Features Only)
+
+### Requirements
+- [ ] ไม่ต้องการ Financial Dashboard (งบประมาณ/ค่าใช้จ่าย)
+- [ ] ไม่ต้องการ Team Workload (ภาระงานทีม)
+- [ ] เน้น Core Features: Project Overview, Tasks, Inspections, Defects, Alerts
+
+### Backend Updates
+- [x] สร้าง tRPC procedure สำหรับ getCEODashboard (รวมข้อมูลทั้งหมด)
+- [x] สร้าง database helper สำหรับ getProjectOverviewStats (total, active, delayed, overdue)
+- [x] สร้าง database helper สำหรับ getProjectStatusBreakdown (on track, at risk, critical)
+- [x] สร้าง database helper สำหรับ getTasksOverviewStats
+- [x] สร้าง database helper สำหรับ getInspectionStats (passed, failed, pending)
+- [x] สร้าง database helper สำหรับ getDefectStats (critical, major, minor)
+- [x] สร้าง database helper สำหรับ getAlerts (urgent items requiring action)
+
+### Frontend Components
+- [x] สร้าง CEODashboard page (/ceo-dashboard)
+- [x] สร้าง ProjectOverviewCards component (4 cards: total, active, delayed, overdue)
+- [x] สร้าง ProjectStatusDonutChart component (on track, at risk, critical)
+- [x] สร้าง TasksOverviewCard component
+- [x] สร้าง InspectionOverviewCard component พร้อม bar chart
+- [x] สร้าง DefectOverviewCard component พร้อม severity breakdown
+- [x] สร้าง AlertsSection component (urgent actions required)
+- [x] เพิ่ม route /ceo-dashboard ใน App.tsx
+- [x] เพิ่ม navigation link ไปยัง CEO Dashboard
+
+### UI/UX Implementation
+- [x] ใช้ Color Palette: Deep Blue (#1E3A8A), Green (#10B981), Amber (#F59E0B), Red (#EF4444), Slate (#64748B)
+- [x] ใช้ Traffic Light System (🟢🟡🔴) สำหรับ status indicators
+- [x] เพิ่ม trend indicators (↗️ ↘️) ใน overview cards
+- [x] ทดสอบ responsive design (mobile/tablet/desktop)
+- [x] เพิ่ม skeleton loaders สำหรับทุก components
+- [x] เพิ่ม empty states พร้อม helpful messages
+- [x] ทดสอบการทำงานกับข้อมูลจริง

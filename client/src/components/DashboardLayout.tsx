@@ -91,6 +91,11 @@ const menuItems = [
     path: "/dashboard",
   },
   {
+    icon: LineChart,
+    label: "CEO Dashboard",
+    path: "/ceo-dashboard",
+  },
+  {
     icon: FolderKanban,
     label: "Projects",
     path: "/projects",

@@ -2840,6 +2840,28 @@ const dashboardRouter = router({
       trends,
     };
   }),
+
+  // CEO Dashboard - Core Features
+  ceoDashboard: protectedProcedure.query(async () => {
+    const [projectOverview, projectStatus, tasksOverview, inspectionStats, defectStats, alerts] =
+      await Promise.all([
+        db.getCEOProjectOverview(),
+        db.getCEOProjectStatusBreakdown(),
+        db.getCEOTasksOverview(),
+        db.getCEOInspectionStats(),
+        db.getCEODefectStats(),
+        db.getCEOAlerts(),
+      ]);
+
+    return {
+      projectOverview,
+      projectStatus,
+      tasksOverview,
+      inspectionStats,
+      defectStats,
+      alerts,
+    };
+  }),
 });
 
 /**
@@ -3494,6 +3516,28 @@ export const appRouter = router({
     // Get project progress data
     projectProgress: protectedProcedure.query(async () => {
       return await db.getProjectProgressForDashboard();
+    }),
+
+    // CEO Dashboard - Core Features
+    ceoDashboard: protectedProcedure.query(async () => {
+      const [projectOverview, projectStatus, tasksOverview, inspectionStats, defectStats, alerts] =
+        await Promise.all([
+          db.getCEOProjectOverview(),
+          db.getCEOProjectStatusBreakdown(),
+          db.getCEOTasksOverview(),
+          db.getCEOInspectionStats(),
+          db.getCEODefectStats(),
+          db.getCEOAlerts(),
+        ]);
+
+      return {
+        projectOverview,
+        projectStatus,
+        tasksOverview,
+        inspectionStats,
+        defectStats,
+        alerts,
+      };
     }),
   }),
 });
