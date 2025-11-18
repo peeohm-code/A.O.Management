@@ -193,7 +193,7 @@ export function validateNoSqlInjection(input: string, fieldName: string = "input
 
   for (const pattern of sqlPatterns) {
     if (pattern.test(input)) {
-      logger.warn(String("[SQL Injection Attempt]", {
+      logger.warn("[SQL Injection Attempt]", {
         input,
         fieldName,
         pattern: pattern.source,
