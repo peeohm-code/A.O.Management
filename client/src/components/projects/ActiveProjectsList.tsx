@@ -55,7 +55,6 @@ export function ActiveProjectsList() {
     name: "",
     code: "",
     location: "",
-    budget: "",
     startDate: "",
     endDate: "",
     ownerName: "",
@@ -90,7 +89,6 @@ export function ActiveProjectsList() {
         name: formData.name,
         code: formData.code || undefined,
         location: formData.location || undefined,
-        budget: formData.budget ? parseFloat(formData.budget) : undefined,
         startDate: formData.startDate || undefined,
         endDate: formData.endDate || undefined,
         ownerName: formData.ownerName || undefined,
@@ -98,7 +96,7 @@ export function ActiveProjectsList() {
       });
 
       toast.success("Project created successfully");
-      setFormData({ name: "", code: "", location: "", budget: "", startDate: "", endDate: "", ownerName: "", color: "#3B82F6" });
+      setFormData({ name: "", code: "", location: "", startDate: "", endDate: "", ownerName: "", color: "#3B82F6" });
       setIsOpen(false);
       projectsQuery.refetch();
     } catch (error) {

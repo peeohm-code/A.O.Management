@@ -188,14 +188,6 @@ export default function Reports() {
                     <p className="text-xs text-gray-600">Location</p>
                     <p className="font-semibold mt-1">{selectedProject.location || "N/A"}</p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-600">Budget</p>
-                    <p className="font-semibold mt-1">
-                      {selectedProject.budget
-                        ? `฿${selectedProject.budget.toLocaleString()}`
-                        : "N/A"}
-                    </p>
-                  </div>
                 </div>
               </CardContent>
             </Card>

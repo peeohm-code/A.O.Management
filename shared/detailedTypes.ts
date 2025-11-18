@@ -376,7 +376,6 @@ export type ProjectUpdateData = Partial<{
   startDate: Date | string | null;
   endDate: Date | string | null;
   status: string;
-  budget: number | null;
   notificationDaysAdvance: number;
 }>;
 

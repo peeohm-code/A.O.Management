@@ -361,7 +361,6 @@ export function validateProjectCreateInput(input: {
   location?: string;
   startDate?: string | Date;
   endDate?: string | Date;
-  budget?: number;
 }): ValidationResult<{
   name: string;
   createdBy: number;
@@ -369,7 +368,6 @@ export function validateProjectCreateInput(input: {
   location?: string;
   startDate?: Date;
   endDate?: Date;
-  budget?: number;
 }> {
   const errors: ValidationError[] = [];
 
@@ -405,14 +403,6 @@ export function validateProjectCreateInput(input: {
     errors.push({ field: 'dateRange', message: 'Start date must be before end date' });
   }
 
-  // Validate budget if provided
-  if (input.budget !== undefined) {
-    const budget = parseIntSafe(input.budget);
-    if (budget !== null && budget < 0) {
-      errors.push({ field: 'budget', message: 'Budget must be non-negative' });
-    }
-  }
-
   if (errors.length > 0) {
     return { valid: false, errors: errors.map(e => `${e.field}: ${e.message}`) };
   }
@@ -426,7 +416,6 @@ export function validateProjectCreateInput(input: {
       location: input.location,
       startDate,
       endDate,
-      budget: input.budget,
     },
   };
 }

@@ -460,7 +460,6 @@ const projectRouter = router({
           location: project.location,
           startDate: project.startDate,
           endDate: project.endDate,
-          budget: project.budget,
           projectStatus: project.status,
           archivedAt: project.archivedAt,
           archivedReason: project.archivedReason,

@@ -15,7 +15,6 @@ export const projectSchema = z.object({
   ownerName: z.string().max(255, "ชื่อเจ้าของโครงการยาวเกินไป").optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  budget: z.number().int().positive("งบประมาณต้องเป็นจำนวนเต็มบวก").optional(),
   status: z.enum(["draft", "planning", "active", "on_hold", "completed", "cancelled"]).optional(),
   completionPercentage: z.number().int().min(0).max(100).optional(),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "รูปแบบสีไม่ถูกต้อง").optional(),

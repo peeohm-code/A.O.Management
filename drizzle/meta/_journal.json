@@ -36,6 +36,13 @@
       "when": 1763428455935,
       "tag": "0004_milky_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1763434203625,
+      "tag": "0005_petite_loki",
+      "breakpoints": true
     }
   ]
 }

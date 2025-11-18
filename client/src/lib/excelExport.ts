@@ -217,10 +217,6 @@ export async function exportProjectSummaryToExcel(data: {
     field: 'วันสิ้นสุด',
     value: data.project.endDate ? format(new Date(data.project.endDate), 'dd/MM/yyyy', { locale: th }) : '-',
   });
-  projectSheet.addRow({
-    field: 'งบประมาณ',
-    value: data.project.budget ? `${data.project.budget.toLocaleString()} บาท` : '-',
-  });
   projectSheet.addRow({ field: 'ความคืบหน้า', value: `${data.project.progress || 0}%` });
   projectSheet.addRow({ field: '', value: '' });
   projectSheet.addRow({ field: 'สรุปสถิติ', value: '' });

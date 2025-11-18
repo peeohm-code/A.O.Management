@@ -305,3 +305,13 @@
 - [ ] นำ MobileCamera component ไปใช้แทน file input เดิม
 - [ ] นำ OfflineSyncStatus ไปใช้ใน DashboardLayout
 - [ ] ทดสอบ touch gestures บน mobile devices
+
+## 🗑️ Remove Budget System (ลบระบบงบประมาณ)
+
+- [x] ลบฟิลด์ budget จาก drizzle/schema.ts (ตาราง projects)
+- [x] Push database migration เพื่อลบคอลัมน์ budget
+- [x] ลบโค้ดที่เกี่ยวข้องกับ budget จาก server/db.ts
+- [x] ลบโค้ดที่เกี่ยวข้องกับ budget จาก server/routers.ts
+- [x] ลบฟิลด์ budget จาก client/src/pages/Projects.tsx (form และ display)
+- [x] ลบฟิลด์ budget จาก client/src/pages/ProjectDetail.tsx (display)
+- [x] ทดสอบระบบหลังลบ budget ให้ทำงานได้ปกติ

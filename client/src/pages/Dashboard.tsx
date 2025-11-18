@@ -47,7 +47,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { QualityMetrics } from "@/components/dashboard/QualityMetrics";
 import { TeamWorkload } from "@/components/dashboard/TeamWorkload";
 import { DocumentStatus } from "@/components/dashboard/DocumentStatus";
-import { FinancialOverview } from "@/components/dashboard/FinancialOverview";
 import { SafetyCompliance } from "@/components/dashboard/SafetyCompliance";
 import { AdvancedAnalytics } from "@/components/dashboard/AdvancedAnalytics";
 
@@ -673,13 +672,6 @@ export default function Dashboard() {
 
         {/* Phase 3: Nice to Have Features */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Financial Overview */}
-          <FinancialOverview
-            project={currentProject}
-            tasks={allTasks}
-            isLoading={projectsLoading || tasksLoading}
-          />
-
           {/* Safety & Compliance */}
           <SafetyCompliance
             inspections={allInspections}

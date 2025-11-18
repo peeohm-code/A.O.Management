@@ -288,7 +288,6 @@ export async function createProject(data: {
   ownerName?: string;
   startDate?: string;
   endDate?: string;
-  budget?: number;
   createdBy: number;
 }) {
   const db = await getDb();
@@ -313,7 +312,6 @@ export async function createProject(data: {
   if (data.ownerName) values.ownerName = data.ownerName;
   if (data.startDate) values.startDate = data.startDate;
   if (data.endDate) values.endDate = data.endDate;
-  if (data.budget !== undefined) values.budget = data.budget;
 
   const [result] = await db.insert(projects).values(values);
   
