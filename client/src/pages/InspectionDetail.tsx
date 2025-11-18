@@ -101,11 +101,9 @@ export default function InspectionDetail() {
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const isMobile = useIsMobile();
 
-  // Edit checklist item state
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
-  const [editResult, setEditResult] = useState<"pass" | "fail" | "na">("pass");
-  const [editComments, setEditComments] = useState("");
+  // Edit checklist item state - track editing state for each item
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [itemStates, setItemStates] = useState<Record<number, { result: "pass" | "fail" | "na"; comments: string }>>({});
 
   // Filter state
   const [stageFilter, setStageFilter] = useState<string>("all");
@@ -120,16 +118,31 @@ export default function InspectionDetail() {
   const pdfMutation = trpc.checklist.generateInspectionPDF.useMutation();
 
   // Update checklist item mutation
-  const updateItemMutation = trpc.inspection.updateChecklistItem.useMutation({
+  const updateItemMutation = trpc.checklist.updateChecklistItem.useMutation({
     onSuccess: () => {
       toast.success("อัปเดตรายการตรวจสอบสำเร็จ");
-      setEditDialogOpen(false);
+      // Clear editing state
+      setEditingItemId(null);
       refetch();
     },
     onError: (error) => {
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
     },
   });
+
+  // Initialize item states from inspection data
+  useMemo(() => {
+    if (inspection?.items) {
+      const initialStates: Record<number, { result: "pass" | "fail" | "na"; comments: string }> = {};
+      inspection.items.forEach((item: any) => {
+        initialStates[item.id] = {
+          result: item.result,
+          comments: item.comments || "",
+        };
+      });
+      setItemStates(initialStates);
+    }
+  }, [inspection?.items]);
 
   // Filter items by stage and status
   const filteredItems = useMemo(() => {
@@ -141,22 +154,34 @@ export default function InspectionDetail() {
     });
   }, [inspection?.items, inspection?.stage, stageFilter, statusFilter]);
 
-  // Handle edit item
-  const handleEditItem = (item: any) => {
-    setEditingItem(item);
-    setEditResult(item.result);
-    setEditComments(item.comments || "");
-    setEditDialogOpen(true);
+  // Handle update item state
+  const handleUpdateItemState = (itemId: number, field: "result" | "comments", value: any) => {
+    setItemStates(prev => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId],
+        [field]: value,
+      },
+    }));
   };
 
-  // Handle save edit
-  const handleSaveEdit = () => {
-    if (!editingItem) return;
+  // Handle save item
+  const handleSaveItem = (item: any) => {
+    const state = itemStates[item.id];
+    if (!state) return;
+    
     updateItemMutation.mutate({
-      itemResultId: editingItem.id,
-      result: editResult,
-      comments: editComments,
+      itemResultId: item.id,
+      result: state.result,
+      comments: state.comments,
     });
+  };
+
+  // Check if item has changes
+  const hasChanges = (item: any) => {
+    const state = itemStates[item.id];
+    if (!state) return false;
+    return state.result !== item.result || state.comments !== (item.comments || "");
   };
 
   const handleDownloadPDF = async () => {
@@ -335,29 +360,122 @@ export default function InspectionDetail() {
             <div className="space-y-4">
               {filteredItems.map((item: any, index: number) => {
                 const photos = parsePhotoUrls(item.photoUrls);
+                const isEditing = editingItemId === item.id;
+                const currentState = itemStates[item.id] || { result: item.result, comments: item.comments || "" };
+                const canEdit = user && (user.role === "admin" || user.role === "qc_inspector");
+                
                 return (
-                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                  <div key={item.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-medium">{item.itemName}</h3>
-                        {item.comments && (
-                          <p className="text-sm text-muted-foreground mt-1">{item.comments}</p>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                          <h3 className="font-medium">{item.itemName}</h3>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getResultIcon(item.result)}
-                        {getResultBadge(item.result)}
-                        {user && (user.role === "admin" || user.role === "qc_inspector") && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditItem(item)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
+                      {!isEditing && (
+                        <div className="flex items-center gap-2">
+                          {getResultIcon(item.result)}
+                          {getResultBadge(item.result)}
+                          {canEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingItemId(item.id)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
+
+                    {/* Editing mode */}
+                    {isEditing && canEdit && (
+                      <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">ผลการตรวจสอบ</Label>
+                          <RadioGroup 
+                            value={currentState.result} 
+                            onValueChange={(value: any) => handleUpdateItemState(item.id, "result", value)}
+                            className="flex gap-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="pass" id={`pass-${item.id}`} />
+                              <Label htmlFor={`pass-${item.id}`} className="flex items-center gap-2 cursor-pointer font-normal">
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                ผ่าน
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="fail" id={`fail-${item.id}`} />
+                              <Label htmlFor={`fail-${item.id}`} className="flex items-center gap-2 cursor-pointer font-normal">
+                                <XCircle className="h-4 w-4 text-red-600" />
+                                ไม่ผ่าน
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="na" id={`na-${item.id}`} />
+                              <Label htmlFor={`na-${item.id}`} className="flex items-center gap-2 cursor-pointer font-normal">
+                                <MinusCircle className="h-4 w-4 text-gray-400" />
+                                N/A
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`comments-${item.id}`} className="text-sm font-medium">รายละเอียด/หมายเหตุ</Label>
+                          <Textarea
+                            id={`comments-${item.id}`}
+                            value={currentState.comments}
+                            onChange={(e) => handleUpdateItemState(item.id, "comments", e.target.value)}
+                            placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)"
+                            rows={3}
+                            className="resize-none"
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingItemId(null);
+                              // Reset to original values
+                              setItemStates(prev => ({
+                                ...prev,
+                                [item.id]: {
+                                  result: item.result,
+                                  comments: item.comments || "",
+                                },
+                              }));
+                            }}
+                          >
+                            ยกเลิก
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              handleSaveItem(item);
+                              setEditingItemId(null);
+                            }}
+                            disabled={updateItemMutation.isPending || !hasChanges(item)}
+                          >
+                            {updateItemMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : null}
+                            บันทึก
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* View mode - show comments if exists */}
+                    {!isEditing && item.comments && (
+                      <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded">
+                        <span className="font-medium">หมายเหตุ: </span>
+                        {item.comments}
+                      </div>
+                    )}
 
 
 
@@ -399,67 +517,7 @@ export default function InspectionDetail() {
         </CardContent>
       </Card>
 
-      {/* Edit Item Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>แก้ไขรายการตรวจสอบ</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label className="font-medium">รายการ</Label>
-              <p className="text-sm text-muted-foreground mt-1">
-                {editingItem?.itemName}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label>ผลการตรวจสอบ</Label>
-              <RadioGroup value={editResult} onValueChange={(value: any) => setEditResult(value)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="pass" id="pass" />
-                  <Label htmlFor="pass" className="flex items-center gap-2 cursor-pointer">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    ผ่าน
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fail" id="fail" />
-                  <Label htmlFor="fail" className="flex items-center gap-2 cursor-pointer">
-                    <XCircle className="h-4 w-4 text-red-600" />
-                    ไม่ผ่าน
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="na" id="na" />
-                  <Label htmlFor="na" className="flex items-center gap-2 cursor-pointer">
-                    <MinusCircle className="h-4 w-4 text-gray-400" />
-                    N/A
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="comments">หมายเหตุ</Label>
-              <Textarea
-                id="comments"
-                value={editComments}
-                onChange={(e) => setEditComments(e.target.value)}
-                placeholder="เพิ่มหมายเหตุ (ถ้ามี)"
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-              ยกเลิก
-            </Button>
-            <Button onClick={handleSaveEdit} disabled={updateItemMutation.isPending}>
-              {updateItemMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              บันทึก
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
 
       {/* Image Gallery */}
       {galleryOpen && (
