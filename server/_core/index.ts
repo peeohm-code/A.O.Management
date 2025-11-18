@@ -4,6 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import multer from "multer";
 import sharp from "sharp";
+import cookieParser from "cookie-parser";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -16,6 +17,9 @@ import { initializeMonitoring } from "../monitoring/startMonitoring";
 import { initializeCronJobs as initializeMonitoringCronJobs } from "../monitoring/cronJobs";
 import { apiRateLimit, strictRateLimit } from "../middleware/rateLimiter";
 import { validateFile, sanitizeFilename } from "../utils/sanitize";
+import { setCsrfToken, verifyCsrfToken, getCsrfToken } from "./csrf";
+import { generalLimiter, uploadLimiter } from "./rateLimiter";
+import { scanBuffer } from "./virusScanner";
 
 import { handleSSE } from "../sse";
 
@@ -46,8 +50,19 @@ async function startServer() {
   
   // Initialize Socket.io
   initializeSocket(server);
-  // Apply rate limiting to all API routes
-  app.use("/api", apiRateLimit);
+  
+  // Cookie parser (required for CSRF)
+  app.use(cookieParser());
+  
+  // Apply enhanced rate limiting
+  app.use("/api", generalLimiter);
+  
+  // CSRF protection middleware
+  app.use(setCsrfToken);
+  app.use(verifyCsrfToken);
+  
+  // CSRF token endpoint
+  app.get("/api/csrf-token", getCsrfToken);
   
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
@@ -59,8 +74,8 @@ async function startServer() {
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
   });
   
-  // File upload endpoint with image compression (with stricter rate limit)
-  app.post("/api/upload", strictRateLimit, upload.single('file'), async (req, res): Promise<any> => {
+  // File upload endpoint with image compression (with stricter rate limit and virus scanning)
+  app.post("/api/upload", uploadLimiter, upload.single('file'), async (req, res): Promise<any> => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
@@ -70,6 +85,19 @@ async function startServer() {
       const validation = validateFile(req.file);
       if (!validation.valid) {
         return res.status(400).json({ error: validation.error });
+      }
+      
+      // Virus scan
+      const scanResult = await scanBuffer(req.file.buffer, req.file.originalname);
+      if (scanResult.isInfected) {
+        console.warn(`[Security] Infected file blocked: ${req.file.originalname}`, scanResult.virus);
+        return res.status(400).json({ 
+          error: "File contains malicious content and has been blocked",
+          code: "VIRUS_DETECTED"
+        });
+      }
+      if (scanResult.error) {
+        console.warn(`[Security] Virus scan error (allowing upload): ${scanResult.error}`);
       }
       
       let fileBuffer = req.file.buffer;

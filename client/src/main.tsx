@@ -10,6 +10,7 @@ import "./index.css";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import * as serviceWorkerRegistration from "./lib/serviceWorkerRegistration";
 import { toast } from "sonner";
+import { initializeCsrf, getCsrfToken } from "./hooks/useCsrf";
 
 // Configure React Query with optimized caching strategies
 const queryClient = new QueryClient({
@@ -75,15 +76,25 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
+// Initialize CSRF token before creating tRPC client
+initializeCsrf().catch(console.error);
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
+        const csrfToken = getCsrfToken();
+        const headers = {
+          ...(init?.headers || {}),
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        };
+        
         return globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
+          headers,
         });
       },
     }),

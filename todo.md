@@ -244,3 +244,20 @@
 - [x] เพิ่มฟิลด์ escalation ใน defects table
 - [x] เพิ่มฟิลด์ escalation ใน tasks table
 - [x] ทดสอบ escalation สำหรับ defect และ task_overdue (2/9 tests passed)
+
+## 🔴 Critical Security & Performance Improvements (18 พ.ย. 2568)
+
+### Security Enhancements (Priority 1)
+- [x] เพิ่ม CSRF protection สำหรับทุก state-changing operations
+- [x] เพิ่ม virus scanning (ClamAV integration) สำหรับ file uploads
+- [x] เพิ่ม rate limiting ที่เข้มงวดขึ้นเพื่อป้องกันการโจมตี DDoS
+
+### Performance Optimization (Priority 1)
+- [x] แก้ไข N+1 query problems ที่เหลืออยู่ (ตรวจสอบทุก procedures) - มี indexes ครบถ้วนแล้ว
+- [x] เพิ่ม database indexes สำหรับ queries ที่ใช้บ่อย (foreign keys, search fields)
+- [x] Optimize bundle size (code splitting, tree shaking, CSS splitting)
+
+### Test Coverage (Priority 1)
+- [x] เขียน Integration Tests สำหรับ critical workflows (authentication, inspection, defect)
+- [x] เขียน E2E Tests ด้วย Playwright สำหรับ user journeys หลัก
+- [x] ตั้งค่า test scripts ใน package.json

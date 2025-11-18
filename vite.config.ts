@@ -184,6 +184,13 @@ export default defineConfig({
     sourcemap: false,
     minify: 'esbuild',
     target: 'es2020',
+    // Additional optimization settings
+    cssCodeSplit: true, // Split CSS into separate files
+    reportCompressedSize: true, // Report compressed bundle sizes
+    // Tree shaking optimization
+    modulePreload: {
+      polyfill: false, // Disable polyfill for modern browsers
+    },
   },
   server: {
     host: true,
