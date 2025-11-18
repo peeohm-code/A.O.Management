@@ -1,0 +1,16 @@
+{
+  "query": "\nSELECT \n  tc.id as inspection_id,\n  tc.templateId,\n  ct.name as template_name,\n  COUNT(cti.id) as template_items_count\nFROM taskChecklists tc\nLEFT JOIN checklistTemplates ct ON tc.templateId = ct.id\nLEFT JOIN checklistTemplateItems cti ON cti.templateId = ct.id\nWHERE tc.id = 30001\nGROUP BY tc.id, tc.templateId, ct.name;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nSELECT \n  tc.id as inspection_id,\n  tc.templateId,\n  ct.name as template_name,\n  COUNT(cti.id) as template_items_count\nFROM taskChecklists tc\nLEFT JOIN checklistTemplates ct ON tc.templateId = ct.id\nLEFT JOIN checklistTemplateItems cti ON cti.templateId = ct.id\nWHERE tc.id = 30001\nGROUP BY tc.id, tc.templateId, ct.name;\n",
+  "rows": [
+    {
+      "inspection_id": "30001",
+      "templateId": "1",
+      "template_name": "Test QC Checklist",
+      "template_items_count": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "inspection_id\ttemplateId\ttemplate_name\ttemplate_items_count\n30001\t1\tTest QC Checklist\t2\n",
+  "stderr": "",
+  "execution_time_ms": 1566
+}

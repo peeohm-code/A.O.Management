@@ -1,0 +1,28 @@
+{
+  "query": "\nSELECT * FROM checklistItemResults WHERE taskChecklistId = 30001;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nSELECT * FROM checklistItemResults WHERE taskChecklistId = 30001;\n",
+  "rows": [
+    {
+      "id": "30001",
+      "taskChecklistId": "30001",
+      "templateItemId": "1",
+      "result": "na",
+      "photoUrls": "NULL",
+      "createdAt": "2025-11-18 12:27:58",
+      "updatedAt": "2025-11-18 12:27:58"
+    },
+    {
+      "id": "30002",
+      "taskChecklistId": "30001",
+      "templateItemId": "2",
+      "result": "na",
+      "photoUrls": "NULL",
+      "createdAt": "2025-11-18 12:27:58",
+      "updatedAt": "2025-11-18 12:27:58"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskChecklistId\ttemplateItemId\tresult\tphotoUrls\tcreatedAt\tupdatedAt\n30001\t30001\t1\tna\tNULL\t2025-11-18 12:27:58\t2025-11-18 12:27:58\n30002\t30001\t2\tna\tNULL\t2025-11-18 12:27:58\t2025-11-18 12:27:58\n",
+  "stderr": "",
+  "execution_time_ms": 1498
+}

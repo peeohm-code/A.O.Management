@@ -7,16 +7,19 @@ import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true as const,
-  };
-
   const vite = await createViteServer({
     ...viteConfig,
     configFile: false,
-    server: serverOptions,
+    server: {
+      ...viteConfig.server,
+      middlewareMode: true,
+      hmr: { server },
+      watch: {
+        ...viteConfig.server?.watch,
+        usePolling: true,
+        interval: 1000,
+      },
+    },
     appType: "custom",
   });
 

@@ -1,5 +1,83 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1763357107431,
+      "tag": "0000_dazzling_purple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1763359343882,
+      "tag": "0001_daily_the_watchers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763359672048,
+      "tag": "0002_warm_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763400580902,
+      "tag": "0003_late_gunslinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1763428455935,
+      "tag": "0004_milky_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1763434203625,
+      "tag": "0005_petite_loki",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1763452664897,
+      "tag": "0006_romantic_warbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1763465273164,
+      "tag": "0007_lethal_mongoose",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1763465683562,
+      "tag": "0008_flashy_dreadnoughts",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1763466629568,
+      "tag": "0009_concerned_tinkerer",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1763469218156,
+      "tag": "0010_useful_micromacro",
+      "breakpoints": true
+    }
+  ]
 }
