@@ -1705,7 +1705,7 @@ const checklistRouter = router({
   // Generate PDF report for inspection
   generateInspectionPDF: protectedProcedure
     .input(z.object({ inspectionId: z.number() }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       const { generateInspectionPDF } = await import(
         "./inspectionPdfGenerator"
       );

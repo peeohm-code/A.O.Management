@@ -23,6 +23,7 @@ import { th } from "date-fns/locale";
 import { useState } from "react";
 import { ImageGalleryViewer } from "@/components/MobileDocumentViewer";
 import { useIsMobile } from "@/hooks/useMobile";
+import { toast } from "sonner";
 
 // Helper functions
 const getResultIcon = (result: string) => {
@@ -100,29 +101,38 @@ export default function InspectionDetail() {
     { enabled: !!inspectionId }
   );
 
-  const pdfMutation = trpc.checklist.generateInspectionPDF.useQuery(
-    { inspectionId: inspectionId! },
-    { enabled: false }
-  );
+  const pdfMutation = trpc.checklist.generateInspectionPDF.useMutation();
 
   const handleDownloadPDF = async () => {
+    if (!inspectionId) return;
+    
+    const toastId = toast.loading("กำลังสร้าง PDF...");
+    
     try {
-      const result = await pdfMutation.refetch();
-      if (result.data?.html) {
+      const result = await pdfMutation.mutateAsync({ inspectionId });
+      
+      if (result?.html) {
+        toast.success("สร้าง PDF สำเร็จ", { id: toastId });
+        
         // Open HTML in new window for printing
         const printWindow = window.open("", "_blank");
         if (printWindow) {
-          printWindow.document.write(result.data.html);
+          printWindow.document.write(result.html);
           printWindow.document.close();
           // Trigger print dialog after a short delay
           setTimeout(() => {
             printWindow.print();
           }, 500);
+        } else {
+          toast.error("ไม่สามารถเปิดหน้าต่างใหม่ได้ กรุณาอนุญาต popup", { id: toastId });
         }
+      } else {
+        toast.error("ไม่มีข้อมูล PDF", { id: toastId });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating PDF:", error);
-      alert("เกิดข้อผิดพลาดในการสร้าง PDF");
+      const errorMessage = error?.message || "เกิดข้อผิดพลาดในการสร้าง PDF";
+      toast.error(errorMessage, { id: toastId });
     }
   };
 
@@ -161,8 +171,8 @@ export default function InspectionDetail() {
           </Button>
           <h1 className="text-3xl font-bold">รายละเอียดการตรวจสอบ #{inspection.id}</h1>
         </div>
-        <Button onClick={handleDownloadPDF} disabled={pdfMutation.isFetching}>
-          {pdfMutation.isFetching ? (
+        <Button onClick={handleDownloadPDF} disabled={pdfMutation.isPending}>
+          {pdfMutation.isPending ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <Download className="h-4 w-4 mr-2" />

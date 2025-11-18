@@ -75,14 +75,67 @@ export default function Inspections() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">การตรวจสอบคุณภาพ (QC Inspections)</h1>
-          <p className="text-muted-foreground mt-1">
-            ติดตามและจัดการการตรวจสอบคุณภาพงานก่อสร้าง
-          </p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold">การตรวจสอบคุณภาพ (QC Inspections)</h1>
+        <p className="text-muted-foreground mt-1">
+          ติดตามและจัดการการตรวจสอบคุณภาพงานก่อสร้าง
+        </p>
       </div>
+
+      {/* Search & Filter Bar - Moved to top */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="ค้นหางาน, โครงการ, checklist..."
+                className="pl-8"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+            
+            <Select value={statusFilter} onValueChange={(value) => {
+              setStatusFilter(value);
+              setPage(1);
+            }}>
+              <SelectTrigger className="w-[180px]">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="สถานะ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">สถานะทั้งหมด</SelectItem>
+                <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+                <SelectItem value="pending_inspection">รอตรวจสอบ</SelectItem>
+                <SelectItem value="in_progress">กำลังตรวจ</SelectItem>
+                <SelectItem value="completed">ผ่าน</SelectItem>
+                <SelectItem value="failed">ไม่ผ่าน</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={projectFilter} onValueChange={(value) => {
+              setProjectFilter(value);
+              setPage(1);
+            }}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="โครงการ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">โครงการทั้งหมด</SelectItem>
+                {projects?.map((project) => (
+                  <SelectItem key={project.id} value={project.id.toString()}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -163,67 +216,7 @@ export default function Inspections() {
         </Card>
       </div>
 
-      {/* Actions Bar */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-1 gap-2">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="ค้นหางาน, โครงการ, checklist..."
-                  className="pl-8"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                />
-              </div>
-              
-              <Select value={statusFilter} onValueChange={(value) => {
-                setStatusFilter(value);
-                setPage(1);
-              }}>
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="สถานะ" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">สถานะทั้งหมด</SelectItem>
-                  <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
-                  <SelectItem value="pending_inspection">รอตรวจสอบ</SelectItem>
-                  <SelectItem value="in_progress">กำลังตรวจ</SelectItem>
-                  <SelectItem value="completed">ผ่าน</SelectItem>
-                  <SelectItem value="failed">ไม่ผ่าน</SelectItem>
-                </SelectContent>
-              </Select>
 
-              <Select value={projectFilter} onValueChange={(value) => {
-                setProjectFilter(value);
-                setPage(1);
-              }}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="โครงการ" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">โครงการทั้งหมด</SelectItem>
-                  {projects?.map((project) => (
-                    <SelectItem key={project.id} value={project.id.toString()}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button onClick={() => setLocation("/qc-inspection")}>
-              <Plus className="h-4 w-4 mr-2" />
-              สร้างการตรวจสอบใหม่
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Inspection List */}
       <Card>
@@ -239,15 +232,11 @@ export default function Inspections() {
             <div className="text-center py-12">
               <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">ไม่พบรายการตรวจสอบ</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground">
                 {search || statusFilter !== "all" || projectFilter !== "all"
                   ? "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง"
-                  : "เริ่มต้นสร้างการตรวจสอบคุณภาพใหม่"}
+                  : "ยังไม่มีรายการตรวจสอบในระบบ"}
               </p>
-              <Button onClick={() => setLocation("/qc-inspection")}>
-                <Plus className="h-4 w-4 mr-2" />
-                สร้างการตรวจสอบใหม่
-              </Button>
             </div>
           ) : (
             <>
@@ -263,12 +252,15 @@ export default function Inspections() {
                       <TableHead>สถานะ</TableHead>
                       <TableHead>ผู้ตรวจ</TableHead>
                       <TableHead>วันที่ตรวจ</TableHead>
-                      <TableHead className="text-right">การกระทำ</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {inspections.map((inspection: any) => (
-                      <TableRow key={inspection.id}>
+                      <TableRow 
+                        key={inspection.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => setLocation(`/inspections/${inspection.id}`)}
+                      >
                         <TableCell className="font-medium">#{inspection.id}</TableCell>
                         <TableCell>{inspection.projectName || "-"}</TableCell>
                         <TableCell>{inspection.taskName || "-"}</TableCell>
@@ -286,15 +278,6 @@ export default function Inspections() {
                           {inspection.inspectedAt
                             ? format(new Date(inspection.inspectedAt), "dd MMM yyyy", { locale: th })
                             : "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setLocation(`/inspections/${inspection.id}`)}
-                          >
-                            ดูรายละเอียด
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
