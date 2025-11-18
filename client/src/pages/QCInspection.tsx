@@ -352,12 +352,65 @@ export default function QCInspection() {
             ระบบตรวจสอบคุณภาพงานก่อสร้าง
           </p>
         </div>
-        <Button onClick={() => setIsCreatingInspection(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          สร้าง Inspection
-        </Button>
       </div>
 
+      {/* Search and Filters - Moved to top */}
+      <div className="mb-6 flex gap-4">
+        {/* Search Box */}
+        <Input
+          placeholder="ค้นหา checklist..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1"
+        />
+        
+        {/* Status Filter Dropdown */}
+        <Select 
+          value={statusFilter || 'all'} 
+          onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="ทุกสถานะ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">ทุกสถานะ</SelectItem>
+            <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
+            <SelectItem value="pending_inspection">รอตรวจสอบ</SelectItem>
+            <SelectItem value="completed">ผ่าน</SelectItem>
+            <SelectItem value="failed">ไม่ผ่าน</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Active Filters Display - Only show if filters are active */}
+      {(searchQuery || statusFilter) && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-muted-foreground">กรองโดย:</span>
+            {searchQuery && (
+              <Badge variant="secondary">
+                ค้นหา: "{searchQuery}"
+              </Badge>
+            )}
+            {statusFilter && (
+              <Badge variant="secondary">
+                สถานะ: {statusFilter === 'not_started' ? 'ยังไม่เริ่ม' : statusFilter === 'pending_inspection' ? 'รอตรวจสอบ' : statusFilter === 'completed' ? 'ผ่าน' : 'ไม่ผ่าน'}
+              </Badge>
+            )}
+            <span className="text-sm text-muted-foreground">({filteredChecklists.length} รายการ)</span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter(null);
+              }}
+            >
+              ล้างตัวกรอง
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Checklist Overview Stats */}
       <Card className="mb-8">
         <CardHeader>
@@ -441,65 +494,6 @@ export default function QCInspection() {
         </CardContent>
       </Card>
 
-      {/* Search and Filters - Simple style like Tasks page */}
-      <div className="mb-6 flex gap-4">
-        {/* Search Box */}
-        <Input
-          placeholder="Search checklists..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1"
-        />
-        
-        {/* Status Filter Dropdown */}
-        <Select 
-          value={statusFilter || 'all'} 
-          onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="not_started">ยังไม่เริ่ม</SelectItem>
-            <SelectItem value="pending_inspection">รอตรวจสอบ</SelectItem>
-            <SelectItem value="completed">ผ่าน</SelectItem>
-            <SelectItem value="failed">ไม่ผ่าน</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      {/* Active Filters Display - Only show if filters are active */}
-      {(searchQuery || statusFilter) && (
-        <div className="mb-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-muted-foreground">กรองโดย:</span>
-            {searchQuery && (
-              <Badge variant="secondary">
-                ค้นหา: "{searchQuery}"
-              </Badge>
-            )}            {statusFilter && (
-              <Badge variant="secondary">
-                สถานะ: {statusFilter === 'not_started' ? 'ยังไม่เริ่ม' : statusFilter === 'pending_inspection' ? 'รอตรวจสอบ' : statusFilter === 'completed' ? 'ผ่าน' : 'ไม่ผ่าน'}
-              </Badge>
-            )}
-            <span className="text-sm text-muted-foreground">({filteredChecklists.length} รายการ)</span>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                setSearchQuery("");
-                setStatusFilter(null);
-              }}
-            >
-              ล้างตัวกรอง
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Checklists Grid */}
-      <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">
             Checklists ({filteredChecklists.length})
@@ -529,7 +523,7 @@ export default function QCInspection() {
             >
               <Card 
                 className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setSelectedChecklistId(checklist.id)}
+                onClick={() => handleStartInspection(checklist.id)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
@@ -1015,7 +1009,7 @@ export default function QCInspection() {
                   <SelectValue placeholder="เลือกโครงการ" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects?.map((project: any) => (
+                  {(projects?.items || []).map((project: any) => (
                     <SelectItem key={project.id} value={project.id.toString()}>
                       {project.name}
                     </SelectItem>
@@ -1137,7 +1131,6 @@ export default function QCInspection() {
           label="ตรวจสอบ"
         />
       )}
-      </div>
     </PullToRefresh>
   );
 }
