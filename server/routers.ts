@@ -3513,6 +3513,61 @@ export const appRouter = router({
   project: projectRouter,
   task: taskRouter,
   checklist: checklistRouter,
+  templates: router({
+    list: protectedProcedure.query(async () => {
+      const templates = await db.getAllChecklistTemplates();
+      const templateIds = templates.map((t: any) => t.id);
+      const itemsMap = await db.getBatchChecklistTemplateItems(templateIds);
+      
+      return templates.map((template: any) => ({
+        ...template,
+        items: itemsMap.get(template.id) || [],
+      }));
+    }),
+    
+    create: protectedProcedure
+      .input(
+        z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+          stage: z.enum(["pre", "in_progress", "post"]),
+          items: z.array(
+            z.object({
+              description: z.string(),
+              order: z.number(),
+            })
+          ),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        // Map stage to database enum
+        const stageMap: Record<string, string> = {
+          pre: "pre_execution",
+          in_progress: "in_progress",
+          post: "post_execution",
+        };
+        
+        const templateResult = await db.createChecklistTemplate({
+          name: input.name,
+          description: input.description,
+          stage: stageMap[input.stage] as "pre_execution" | "in_progress" | "post_execution",
+          createdBy: ctx.user!.id,
+        });
+        
+        const templateId = templateResult.insertId;
+        
+        // Add items
+        for (const item of input.items) {
+          await db.addChecklistTemplateItem({
+            templateId,
+            itemText: item.description,
+            order: item.order,
+          });
+        }
+        
+        return { success: true, templateId };
+      }),
+  }),
   inspection: inspectionRouter,
   defect: defectRouter,
   comment: commentRouter,

@@ -53,6 +53,7 @@ const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
 const InspectionStatistics = lazy(() => import("./pages/InspectionStatistics"));
 const ErrorTracking = lazy(() => import("./pages/ErrorTracking"));
 const Inspections = lazy(() => import("./pages/Inspections"));
+const NewTemplate = lazy(() => import("./pages/NewTemplate"));
 
 
 // Loading component
@@ -182,6 +183,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <ChecklistTemplates />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/templates/new"}>
+        {() => (
+          <DashboardLayout>
+            <NewTemplate />
           </DashboardLayout>
         )}
       </Route>
