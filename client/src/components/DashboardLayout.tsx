@@ -39,6 +39,8 @@ import {
   LineChart,
   Moon,
   Sun,
+  Bell,
+  History,
 } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
@@ -120,6 +122,18 @@ const menuItems = [
     icon: BarChart3,
     label: "Reports",
     path: "/reports",
+  },
+  {
+    icon: Bell,
+    label: "Escalation Settings",
+    path: "/escalation-settings",
+    adminOnly: true,
+  },
+  {
+    icon: History,
+    label: "Escalation Logs",
+    path: "/escalation-logs",
+    adminOnly: true,
   },
 ];
 
@@ -304,7 +318,9 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
+              {menuItems
+                .filter(item => !item.adminOnly || user?.role === "admin" || user?.role === "owner")
+                .map(item => {
                   const isActive = location === item.path;
                   return (
                     <SidebarMenuItem key={item.path}>

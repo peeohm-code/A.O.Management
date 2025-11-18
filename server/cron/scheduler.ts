@@ -11,6 +11,7 @@ import { runDeadlineReminders } from "./deadlineReminders";
 import { checkChecklistReminders } from "../jobs/checklistReminderJob";
 import { checkOverdueTasks } from "../jobs/taskOverdueJob";
 import { sendDailySummaryEmails } from "../dailySummaryJob";
+import { runEscalationCheck } from "../jobs/escalationCheck";
 
 /**
  * Initialize all cron jobs
@@ -56,6 +57,17 @@ export function initializeCronJobs() {
       await sendDailySummaryEmails();
     } catch (error) {
       console.error("[CronScheduler] Daily summary emails failed:", error);
+    }
+  }, {
+    timezone: "Asia/Bangkok"
+  });
+
+  // Run escalation checks every hour
+  cron.schedule("0 * * * *", async () => {
+    try {
+      await runEscalationCheck();
+    } catch (error) {
+      console.error("[CronScheduler] Escalation check failed:", error);
     }
   }, {
     timezone: "Asia/Bangkok"

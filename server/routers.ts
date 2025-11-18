@@ -49,7 +49,10 @@ import { monitoringRouter } from "./routers/monitoring";
 import { teamRouter } from "./routers/teamRouter";
 import { userManagementRouter } from "./routers/userManagementRouter";
 import { roleTemplatesRouter } from "./routers/roleTemplatesRouter";
+import { escalationRouter } from "./routers/escalationRouter";
 import { logger } from "./logger";
+import { getSessionCookieOptions } from "./_core/cookies";
+import { getVapidPublicKey } from "./_core/pushNotification";
 
 /**
  * Project Router - Project Management
@@ -3213,6 +3216,9 @@ export const appRouter = router({
   // Role Templates Router
   roleTemplates: roleTemplatesRouter,
 
+  // Escalation Router
+  escalation: escalationRouter,
+
   // Inspection Statistics Router
   inspectionStats: inspectionStatsRouter,
 
@@ -3362,8 +3368,6 @@ export const appRouter = router({
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
-      const { COOKIE_NAME } = require("@shared/const");
-      const { getSessionCookieOptions } = require("./_core/cookies");
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
@@ -3678,7 +3682,6 @@ export const appRouter = router({
 
     // Get VAPID public key
     getVapidPublicKey: publicProcedure.query(() => {
-      const { getVapidPublicKey } = require("./_core/pushNotification");
       return { publicKey: getVapidPublicKey() };
     }),
   }),

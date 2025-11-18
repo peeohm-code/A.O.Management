@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, lt, ne, notInArray } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, lt, ne } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql, { type Pool } from "mysql2/promise";
 import {
@@ -7396,4 +7396,466 @@ export async function updateErrorStatus(params: {
       updatedAt: new Date(),
     })
     .where(eq(errorLogs.id, params.errorId));
+}
+
+// ==================== ESCALATION MANAGEMENT ====================
+
+/**
+ * สร้างกฎการ escalate ใหม่
+ */
+export async function createEscalationRule(data: {
+  name: string;
+  description?: string;
+  enabled?: boolean;
+  triggerType: "defect" | "inspection_failed" | "task_overdue";
+  severityLevel?: "low" | "medium" | "high" | "critical";
+  hoursUntilEscalation: number;
+  escalateToRoles?: string[]; // Array of role names
+  escalateToUserIds?: number[]; // Array of user IDs
+  notificationChannels?: string[]; // e.g., ["in_app", "email"]
+  notificationTemplate?: string;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.execute(sql`
+    INSERT INTO escalationRules (
+      name, description, enabled, triggerType, severityLevel, 
+      hoursUntilEscalation, escalateToRoles, escalateToUserIds,
+      notificationChannels, notificationTemplate, createdBy
+    ) VALUES (
+      ${data.name},
+      ${data.description || null},
+      ${data.enabled !== undefined ? data.enabled : true},
+      ${data.triggerType},
+      ${data.severityLevel || null},
+      ${data.hoursUntilEscalation},
+      ${data.escalateToRoles ? JSON.stringify(data.escalateToRoles) : null},
+      ${data.escalateToUserIds ? JSON.stringify(data.escalateToUserIds) : null},
+      ${data.notificationChannels ? JSON.stringify(data.notificationChannels) : JSON.stringify(["in_app", "email"])},
+      ${data.notificationTemplate || null},
+      ${data.createdBy}
+    )
+  `);
+
+  return result;
+}
+
+/**
+ * ดึงกฎการ escalate ทั้งหมด
+ */
+export async function getAllEscalationRules() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.execute(sql`
+    SELECT * FROM escalationRules
+    ORDER BY createdAt DESC
+  `);
+
+  return result.rows;
+}
+
+/**
+ * ดึงกฎการ escalate ที่เปิดใช้งาน
+ */
+export async function getActiveEscalationRules() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.execute(sql`
+    SELECT * FROM escalationRules
+    WHERE enabled = TRUE
+    ORDER BY hoursUntilEscalation ASC
+  `);
+
+  return result.rows;
+}
+
+/**
+ * ดึงกฎการ escalate ตาม ID
+ */
+export async function getEscalationRuleById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.execute(sql`
+    SELECT * FROM escalationRules
+    WHERE id = ${id}
+    LIMIT 1
+  `);
+
+  return result.rows.length > 0 ? result.rows[0] : null;
+}
+
+/**
+ * อัปเดตกฎการ escalate
+ */
+export async function updateEscalationRule(
+  id: number,
+  data: Partial<{
+    name: string;
+    description: string;
+    enabled: boolean;
+    triggerType: "defect" | "inspection_failed" | "task_overdue";
+    severityLevel: "low" | "medium" | "high" | "critical";
+    hoursUntilEscalation: number;
+    escalateToRoles: string[];
+    escalateToUserIds: number[];
+    notificationChannels: string[];
+    notificationTemplate: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updates: string[] = [];
+  const values: any[] = [];
+
+  if (data.name !== undefined) {
+    updates.push(`name = ?`);
+    values.push(data.name);
+  }
+  if (data.description !== undefined) {
+    updates.push(`description = ?`);
+    values.push(data.description);
+  }
+  if (data.enabled !== undefined) {
+    updates.push(`enabled = ?`);
+    values.push(data.enabled);
+  }
+  if (data.triggerType !== undefined) {
+    updates.push(`triggerType = ?`);
+    values.push(data.triggerType);
+  }
+  if (data.severityLevel !== undefined) {
+    updates.push(`severityLevel = ?`);
+    values.push(data.severityLevel);
+  }
+  if (data.hoursUntilEscalation !== undefined) {
+    updates.push(`hoursUntilEscalation = ?`);
+    values.push(data.hoursUntilEscalation);
+  }
+  if (data.escalateToRoles !== undefined) {
+    updates.push(`escalateToRoles = ?`);
+    values.push(JSON.stringify(data.escalateToRoles));
+  }
+  if (data.escalateToUserIds !== undefined) {
+    updates.push(`escalateToUserIds = ?`);
+    values.push(JSON.stringify(data.escalateToUserIds));
+  }
+  if (data.notificationChannels !== undefined) {
+    updates.push(`notificationChannels = ?`);
+    values.push(JSON.stringify(data.notificationChannels));
+  }
+  if (data.notificationTemplate !== undefined) {
+    updates.push(`notificationTemplate = ?`);
+    values.push(data.notificationTemplate);
+  }
+
+  if (updates.length === 0) {
+    return;
+  }
+
+  values.push(id);
+
+  await db.execute(sql.raw(`
+    UPDATE escalationRules
+    SET ${updates.join(", ")}, updatedAt = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `, values));
+}
+
+/**
+ * ลบกฎการ escalate
+ */
+export async function deleteEscalationRule(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.execute(sql`
+    DELETE FROM escalationRules
+    WHERE id = ${id}
+  `);
+}
+
+/**
+ * สร้าง escalation log
+ */
+export async function createEscalationLog(data: {
+  ruleId: number;
+  entityType: "defect" | "inspection" | "task";
+  entityId: number;
+  projectId?: number;
+  taskId?: number;
+  escalatedToUserIds: number[];
+  notificationsSent?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.execute(sql`
+    INSERT INTO escalationLogs (
+      ruleId, entityType, entityId, projectId, taskId,
+      escalatedToUserIds, notificationsSent
+    ) VALUES (
+      ${data.ruleId},
+      ${data.entityType},
+      ${data.entityId},
+      ${data.projectId || null},
+      ${data.taskId || null},
+      ${JSON.stringify(data.escalatedToUserIds)},
+      ${data.notificationsSent || 0}
+    )
+  `);
+
+  return result;
+}
+
+/**
+ * ดึง escalation logs ทั้งหมด
+ */
+export async function getAllEscalationLogs(filters?: {
+  resolved?: boolean;
+  entityType?: "defect" | "inspection" | "task";
+  projectId?: number;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // สร้าง query โดยใช้ Drizzle ORM
+  const conditions: any[] = [];
+
+  if (filters?.resolved !== undefined) {
+    conditions.push(sql`resolved = ${filters.resolved}`);
+  }
+
+  if (filters?.entityType) {
+    conditions.push(sql`entityType = ${filters.entityType}`);
+  }
+
+  if (filters?.projectId) {
+    conditions.push(sql`projectId = ${filters.projectId}`);
+  }
+
+  let query = sql`SELECT * FROM escalationLogs`;
+  
+  if (conditions.length > 0) {
+    query = sql`${query} WHERE ${sql.join(conditions, sql` AND `)}`;
+  }
+
+  query = sql`${query} ORDER BY escalatedAt DESC`;
+
+  if (filters?.limit) {
+    query = sql`${query} LIMIT ${filters.limit}`;
+  }
+
+  const result = await db.execute(query);
+  return result.rows;
+}
+
+/**
+ * ดึง escalation log ตาม entity
+ */
+export async function getEscalationLogsByEntity(
+  entityType: "defect" | "inspection" | "task",
+  entityId: number
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.execute(sql`
+    SELECT * FROM escalationLogs
+    WHERE entityType = ${entityType} AND entityId = ${entityId}
+    ORDER BY escalatedAt DESC
+  `);
+
+  return result.rows;
+}
+
+/**
+ * แก้ไข escalation log (mark as resolved)
+ */
+export async function resolveEscalationLog(
+  id: number,
+  resolvedBy: number,
+  resolutionNotes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.execute(sql`
+    UPDATE escalationLogs
+    SET resolved = TRUE,
+        resolvedAt = CURRENT_TIMESTAMP,
+        resolvedBy = ${resolvedBy},
+        resolutionNotes = ${resolutionNotes || null}
+    WHERE id = ${id}
+  `);
+}
+
+/**
+ * ตรวจสอบและส่งการแจ้งเตือน escalation
+ * ฟังก์ชันนี้จะถูกเรียกโดย cron job
+ */
+export async function checkAndTriggerEscalations() {
+  const db = await getDb();
+  if (!db) {
+    logger.warn("[Escalation] Database not available");
+    return;
+  }
+
+  try {
+    // ดึงกฎที่เปิดใช้งาน
+    const rules = await getActiveEscalationRules();
+    
+    for (const rule of rules) {
+      const ruleData = rule as any;
+      const hoursAgo = new Date(Date.now() - ruleData.hoursUntilEscalation * 60 * 60 * 1000);
+
+      if (ruleData.triggerType === "inspection_failed") {
+        // ตรวจสอบ inspections ที่ failed และยังไม่ได้แก้ไข
+        const failedInspections = await db.execute(sql`
+          SELECT tc.*, t.projectId, t.id as taskId
+          FROM taskChecklists tc
+          JOIN tasks t ON tc.taskId = t.id
+          WHERE tc.status = 'failed'
+            AND tc.escalationTriggered = FALSE
+            AND tc.updatedAt <= ${hoursAgo.toISOString()}
+        `);
+
+        for (const inspection of failedInspections.rows) {
+          const inspectionData = inspection as any;
+          
+          // ดึงรายชื่อผู้ที่จะได้รับการแจ้งเตือน
+          const userIds = await getEscalationRecipients(ruleData);
+
+          if (userIds.length > 0) {
+            // สร้าง escalation log
+            await createEscalationLog({
+              ruleId: ruleData.id,
+              entityType: "inspection",
+              entityId: inspectionData.id,
+              projectId: inspectionData.projectId,
+              taskId: inspectionData.taskId,
+              escalatedToUserIds: userIds,
+              notificationsSent: 0,
+            });
+
+            // ส่งการแจ้งเตือนไปยังผู้ที่เกี่ยวข้อง
+            for (const userId of userIds) {
+              await createNotification({
+                userId,
+                type: "inspection_failed",
+                title: `⚠️ Escalation: การตรวจสอบไม่ผ่านเกินกำหนด`,
+                message: `การตรวจสอบ #${inspectionData.id} ไม่ผ่านและยังไม่ได้รับการแก้ไขมากกว่า ${ruleData.hoursUntilEscalation} ชั่วโมง`,
+                relatedEntityType: "inspection",
+                relatedEntityId: inspectionData.id,
+                actionUrl: `/inspections/${inspectionData.id}`,
+              });
+            }
+
+            // อัปเดตสถานะ escalation ใน taskChecklists
+            await db.execute(sql`
+              UPDATE taskChecklists
+              SET escalationTriggered = TRUE,
+                  escalationTriggeredAt = CURRENT_TIMESTAMP
+              WHERE id = ${inspectionData.id}
+            `);
+
+            logger.info(`[Escalation] Triggered for inspection #${inspectionData.id}, notified ${userIds.length} users`);
+          }
+        }
+      }
+
+      // TODO: เพิ่มการตรวจสอบสำหรับ defect และ task_overdue
+    }
+  } catch (error) {
+    logger.error("[Escalation] Error checking escalations:", error);
+  }
+}
+
+/**
+ * ดึงรายชื่อผู้รับการแจ้งเตือน escalation
+ */
+async function getEscalationRecipients(rule: any): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const userIds: number[] = [];
+
+  // เพิ่มผู้ใช้ที่ระบุโดยตรง
+  if (rule.escalateToUserIds) {
+    try {
+      const directUserIds = JSON.parse(rule.escalateToUserIds);
+      userIds.push(...directUserIds);
+    } catch (e) {
+      logger.warn("[Escalation] Failed to parse escalateToUserIds:", e);
+    }
+  }
+
+  // เพิ่มผู้ใช้ตาม role
+  if (rule.escalateToRoles) {
+    try {
+      const roles = JSON.parse(rule.escalateToRoles);
+      for (const role of roles) {
+        const usersWithRole = await db.execute(sql`
+          SELECT id FROM users
+          WHERE role = ${role}
+        `);
+        userIds.push(...usersWithRole.rows.map((u: any) => u.id));
+      }
+    } catch (e) {
+      logger.warn("[Escalation] Failed to parse escalateToRoles:", e);
+    }
+  }
+
+  // ลบ duplicate
+  return [...new Set(userIds)];
+}
+
+/**
+ * ดึงสถิติ escalation
+ */
+export async function getEscalationStatistics(filters?: {
+  startDate?: string;
+  endDate?: string;
+  projectId?: number;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+
+  let query = `
+    SELECT 
+      COUNT(*) as totalEscalations,
+      SUM(CASE WHEN resolved = TRUE THEN 1 ELSE 0 END) as resolvedCount,
+      SUM(CASE WHEN resolved = FALSE THEN 1 ELSE 0 END) as unresolvedCount,
+      entityType,
+      COUNT(DISTINCT projectId) as affectedProjects
+    FROM escalationLogs
+    WHERE 1=1
+  `;
+  const params: any[] = [];
+
+  if (filters?.startDate) {
+    query += ` AND escalatedAt >= ?`;
+    params.push(filters.startDate);
+  }
+
+  if (filters?.endDate) {
+    query += ` AND escalatedAt <= ?`;
+    params.push(filters.endDate);
+  }
+
+  if (filters?.projectId) {
+    query += ` AND projectId = ?`;
+    params.push(filters.projectId);
+  }
+
+  query += ` GROUP BY entityType`;
+
+  const result = await db.execute(sql.raw(query, params));
+  return result.rows;
 }

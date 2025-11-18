@@ -94,6 +94,12 @@ export const PERMISSIONS = {
     edit: [ROLES.OWNER, ROLES.ADMIN],
     monitor: [ROLES.OWNER, ROLES.ADMIN],
   },
+  escalation: {
+    view: [ROLES.OWNER, ROLES.ADMIN],
+    create: [ROLES.OWNER, ROLES.ADMIN],
+    edit: [ROLES.OWNER, ROLES.ADMIN],
+    delete: [ROLES.OWNER, ROLES.ADMIN],
+  },
 } as const;
 
 /**

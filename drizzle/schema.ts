@@ -203,6 +203,9 @@ export const taskChecklists = mysqlTable("taskChecklists", {
   reinspectionCount: int("reinspectionCount").default(0).notNull(), // Number of times this has been re-inspected
   notificationSent: boolean("notificationSent").default(false).notNull(), // Flag to track if notification was sent for failed inspection
   notifiedAt: timestamp("notifiedAt"), // Timestamp when notification was sent
+  // Escalation tracking
+  escalationTriggered: boolean("escalationTriggered").default(false).notNull(), // Flag to track if escalation was triggered
+  escalationTriggeredAt: timestamp("escalationTriggeredAt"), // Timestamp when escalation was triggered
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -996,3 +999,74 @@ export const roleTemplatePermissions = mysqlTable("roleTemplatePermissions", {
 
 export type RoleTemplatePermission = typeof roleTemplatePermissions.$inferSelect;
 export type InsertRoleTemplatePermission = typeof roleTemplatePermissions.$inferInsert;
+
+/**
+ * Escalation Rules - กำหนดกฎการ escalate การแจ้งเตือนไปยังผู้บริหารระดับสูง
+ */
+export const escalationRules = mysqlTable("escalationRules", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(), // ชื่อกฎ เช่น "Critical Defect Escalation"
+  description: text("description"), // คำอธิบายกฎ
+  enabled: boolean("enabled").default(true).notNull(), // เปิด/ปิดการใช้งานกฎ
+  
+  // เงื่อนไขการ escalate
+  triggerType: mysqlEnum("triggerType", ["defect", "inspection_failed", "task_overdue"]).notNull(), // ประเภทเหตุการณ์ที่จะ trigger
+  severityLevel: mysqlEnum("severityLevel", ["low", "medium", "high", "critical"]), // ระดับความรุนแรงที่จะ trigger (สำหรับ defect)
+  hoursUntilEscalation: int("hoursUntilEscalation").notNull(), // จำนวนชั่วโมงที่รอก่อน escalate
+  
+  // ผู้รับการแจ้งเตือน
+  escalateToRoles: text("escalateToRoles"), // JSON array ของ roles ที่จะแจ้งเตือน เช่น ["admin", "project_manager"]
+  escalateToUserIds: text("escalateToUserIds"), // JSON array ของ user IDs ที่จะแจ้งเตือน
+  
+  // การตั้งค่าการแจ้งเตือน
+  notificationChannels: text("notificationChannels"), // JSON array เช่น ["in_app", "email"]
+  notificationTemplate: text("notificationTemplate"), // Template สำหรับข้อความแจ้งเตือน
+  
+  // Metadata
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  triggerTypeIdx: index("triggerTypeIdx").on(table.triggerType),
+  enabledIdx: index("enabledIdx").on(table.enabled),
+}));
+
+export type EscalationRule = typeof escalationRules.$inferSelect;
+export type InsertEscalationRule = typeof escalationRules.$inferInsert;
+
+/**
+ * Escalation Logs - บันทึกประวัติการ escalate
+ */
+export const escalationLogs = mysqlTable("escalationLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  ruleId: int("ruleId").notNull(), // อ้างอิง escalationRules
+  
+  // ข้อมูลเหตุการณ์ที่ถูก escalate
+  entityType: mysqlEnum("entityType", ["defect", "inspection", "task"]).notNull(),
+  entityId: int("entityId").notNull(), // ID ของ defect, inspection, หรือ task
+  projectId: int("projectId"), // โครงการที่เกี่ยวข้อง
+  taskId: int("taskId"), // งานที่เกี่ยวข้อง
+  
+  // รายละเอียดการ escalate
+  escalatedAt: timestamp("escalatedAt").defaultNow().notNull(), // เวลาที่ escalate
+  escalatedToUserIds: text("escalatedToUserIds"), // JSON array ของ user IDs ที่ถูกแจ้งเตือน
+  notificationsSent: int("notificationsSent").default(0).notNull(), // จำนวนการแจ้งเตือนที่ส่งไป
+  
+  // สถานะการแก้ไข
+  resolved: boolean("resolved").default(false).notNull(), // แก้ไขแล้วหรือยัง
+  resolvedAt: timestamp("resolvedAt"), // เวลาที่แก้ไข
+  resolvedBy: int("resolvedBy"), // ผู้แก้ไข
+  resolutionNotes: text("resolutionNotes"), // หมายเหตุการแก้ไข
+  
+  // Metadata
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  ruleIdIdx: index("ruleIdIdx").on(table.ruleId),
+  entityIdx: index("entityIdx").on(table.entityType, table.entityId),
+  projectIdIdx: index("projectIdIdx").on(table.projectId),
+  escalatedAtIdx: index("escalatedAtIdx").on(table.escalatedAt),
+  resolvedIdx: index("resolvedIdx").on(table.resolved),
+}));
+
+export type EscalationLog = typeof escalationLogs.$inferSelect;
+export type InsertEscalationLog = typeof escalationLogs.$inferInsert;
