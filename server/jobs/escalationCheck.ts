@@ -17,7 +17,7 @@ export async function runEscalationCheck() {
 }
 
 // ถ้ารันไฟล์นี้โดยตรง ให้เรียกใช้ฟังก์ชันทันที
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   runEscalationCheck().then(() => {
     process.exit(0);
   }).catch((error) => {
