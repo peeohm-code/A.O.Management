@@ -105,7 +105,7 @@ const menuItems = [
   },
   {
     icon: ClipboardCheck,
-    label: "Inspections",
+    label: "QC Inspection",
     path: "/inspections",
   },
   {
