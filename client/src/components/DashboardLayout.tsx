@@ -315,7 +315,7 @@ function DashboardLayoutContent({
       <div className="relative hidden md:block" ref={sidebarRef}>
         <Sidebar
           collapsible="none"
-          className="border-r-0 bg-[#1e3a8a] text-white"
+          className="border-r-0 bg-[#3B4D99] text-white"
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-16 justify-center">
