@@ -9,7 +9,7 @@ import PageErrorBoundary from "./components/PageErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import LoginDemo from "./pages/LoginDemo";
-import DashboardLayout from "./components/DashboardLayout";
+import TopNavLayout from "./components/TopNavLayout";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
 // Lazy load heavy pages
@@ -72,326 +72,326 @@ function Router() {
       <Route path={"/login-demo"} component={LoginDemo} />
       <Route path={"/tasks/new"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <NewTask />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/projects/new"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <NewProject />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/system-overview"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <SystemOverview />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/advanced-analytics"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <AdvancedAnalytics />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
 
       <Route path={"/overview"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Overview />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/dashboard"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Dashboard />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/dashboard-old"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <NewDashboard />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/projects"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <PageErrorBoundary
               pageName="Projects"
               fallbackPath="/dashboard"
             >
               <Projects />
             </PageErrorBoundary>
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/tasks"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <PageErrorBoundary
               pageName="Tasks"
               fallbackPath="/dashboard"
             >
               <Tasks />
             </PageErrorBoundary>
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/qc"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <PageErrorBoundary
               pageName="QCInspection"
               fallbackPath="/dashboard"
             >
               <QCInspection />
             </PageErrorBoundary>
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/qc-inspection"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <PageErrorBoundary
               pageName="QCInspection"
               fallbackPath="/dashboard"
             >
               <QCInspection />
             </PageErrorBoundary>
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
 
       <Route path={"/checklist-templates"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <ChecklistTemplates />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/templates/new"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <NewTemplate />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/templates"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Templates />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/defects/:id"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <DefectDetailErrorBoundary
               onGoBack={() => window.location.href = "/defects"}
               onReset={() => window.location.reload()}
             >
               <DefectDetail />
             </DefectDetailErrorBoundary>
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/defects"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Defects />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/notifications"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <NotificationCenter />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/projects/:id"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <ProjectDetail />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/tasks/:taskId/inspections">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <InspectionHistory />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
 
       <Route path={"/tasks/:id"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <TaskDetail />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/settings"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Settings />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/settings/notifications"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <NotificationSettings />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/user-management">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <UserManagement />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/bulk-user-import">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <BulkUserImport />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/permissions-management">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <PermissionsManagement />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/escalations">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Escalations />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/user-activity-log">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <UserActivityLog />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path="/role-templates">
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <RoleTemplates />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/users"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <UserManagement />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/team"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <TeamManagement />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/my-tasks"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <MyTasks />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/projects/:projectId/team"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <ProjectTeam />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
 
       <Route path={"/profile"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <UserProfile />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/reports"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Reports />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/analytics"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Analytics />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/inspection-statistics"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <InspectionStatistics />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/error-tracking"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <ErrorTracking />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/archive"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <Archive />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/archive/rules"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <ArchiveRules />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       {/* System Monitoring - รวม DB, System, Memory ในหน้าเดียว */}
       <Route path={"/system-monitoring"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <SystemMonitoring />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/alert-settings"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <AlertSettings />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/gantt"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <GanttChartPage />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       {/* Legacy routes - redirect to new unified page */}
@@ -404,23 +404,23 @@ function Router() {
       </Route>
       <Route path={"/monitoring"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <SystemMonitoring />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/system-monitor"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <SystemMonitoring />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/memory-monitoring"}>
         {() => (
-          <DashboardLayout>
+          <TopNavLayout>
             <SystemMonitoring />
-          </DashboardLayout>
+          </TopNavLayout>
         )}
       </Route>
       <Route path={"/404"} component={NotFound} />

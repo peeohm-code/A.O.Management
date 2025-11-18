@@ -373,3 +373,19 @@
 - [x] ย้ายเนื้อหาจากหน้า EscalationLogs.tsx มาไว้ใน Tab Logs
 - [x] อัปเดต route ใน App.tsx ให้ใช้ /escalations
 - [x] ปรับปรุง UI ของ EscalationSettings และ EscalationLogs ให้เหมาะกับการใช้เป็น Tab
+
+## 🔴 Urgent: เปลี่ยนจาก Sidebar เป็น Top Navigation Bar (18 พ.ย. 2568)
+- [ ] สร้าง TopNavLayout component ใหม่แทน DashboardLayout
+- [ ] ออกแบบ Top Navigation Bar พร้อมเมนูหลัก
+- [ ] เพิ่ม User Menu (profile, logout) ที่มุมขวาบนของ Top Bar
+- [ ] ปรับเมนูหลักให้แสดงใน Top Navigation: Dashboard, Projects, Tasks, QC Inspection, Defects, Templates, Reports, Escalations, User Management
+- [ ] ลบ Sidebar Navigation ออกทั้งหมด
+- [ ] ปรับ Mobile Navigation ให้เหมาะสมกับ Top Nav
+- [ ] อัปเดตทุกหน้าให้ใช้ TopNavLayout แทน DashboardLayout
+- [ ] ทดสอบการนำทางและ responsive design
+- [ ] ตรวจสอบ user menu และ authentication flow
+
+## 🔴 Bug Fixes (18 พ.ย. 2568 - Error Fixes)
+- [x] แก้ไข nested anchor tags ใน TopNavLayout (Error 4 & 5)
+- [x] เพิ่ม notifications.list procedure ที่หายไป (Error 1 & 3)
+- [x] แก้ไข permission error สำหรับ notifications (Error 2)

@@ -2727,17 +2727,44 @@ const attachmentRouter = router({
  * Notification Router
  */
 const notificationRouter = router({
-  list: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      const notifications = await db.getUserNotifications(ctx.user!.id);
-      // Ensure we always return an array
-      return Array.isArray(notifications) ? notifications : [];
-    } catch (error) {
-      logger.error("[notificationRouter.list] Error:", error);
-      // Return empty array instead of throwing to prevent frontend crashes
-      return [];
-    }
-  }),
+  list: protectedProcedure
+    .input(z.object({
+      page: z.number().int().min(1).default(1).optional(),
+      limit: z.number().int().min(1).max(100).default(50).optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
+      try {
+        const notifications = await db.getUserNotifications(ctx.user!.id);
+        // Ensure we always return an array
+        const notificationArray = Array.isArray(notifications) ? notifications : [];
+        
+        // Apply pagination if requested
+        if (input?.page && input?.limit) {
+          const page = input.page;
+          const limit = input.limit;
+          const offset = (page - 1) * limit;
+          const paginatedNotifications = notificationArray.slice(offset, offset + limit);
+          
+          return {
+            items: paginatedNotifications,
+            pagination: {
+              currentPage: page,
+              pageSize: limit,
+              totalItems: notificationArray.length,
+              totalPages: Math.ceil(notificationArray.length / limit),
+              hasMore: offset + limit < notificationArray.length,
+            },
+          };
+        }
+        
+        // Return all notifications if no pagination
+        return notificationArray;
+      } catch (error) {
+        logger.error("[notificationRouter.list] Error:", error);
+        // Return empty array instead of throwing to prevent frontend crashes
+        return [];
+      }
+    }),
 
   markAsRead: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -3668,6 +3695,7 @@ export const appRouter = router({
   comment: commentRouter,
   attachment: attachmentRouter,
   notification: notificationRouter,
+  notifications: notificationRouter,
   activity: activityRouter,
   categoryColor: categoryColorRouter,
   monitoring: monitoringRouter,
