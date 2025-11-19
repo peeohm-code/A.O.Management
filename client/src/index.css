@@ -43,9 +43,10 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
+  /* Construction theme - Orange primary for action, Blue for trust */
+  --primary: var(--color-orange-600);
+  --primary-foreground: var(--color-orange-50);
+  --sidebar-primary: var(--color-blue-700);
   --sidebar-primary-foreground: var(--color-blue-50);
   --chart-1: var(--color-blue-300);
   --chart-2: var(--color-blue-500);
