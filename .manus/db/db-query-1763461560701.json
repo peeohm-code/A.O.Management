@@ -1,0 +1,136 @@
+{
+  "query": "SHOW TABLES",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SHOW TABLES",
+  "rows": [
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "activityLog"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "alertThresholds"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "approvalSteps"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "approvals"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "archiveHistory"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "archiveRules"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "bulkImportLogs"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "categoryColors"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "checklistItemResults"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "checklistResults"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "checklistTemplateItems"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "checklistTemplates"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "dbStatistics"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "defectAttachments"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "defect_inspections"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "defects"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "errorLogs"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "memoryLogs"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "notificationSettings"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "notifications"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "oomEvents"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "permissions"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "projectMembers"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "projects"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "pushSubscriptions"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "queryLogs"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "roleTemplatePermissions"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "roleTemplates"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "scheduledNotifications"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "signatures"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "systemLogs"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "taskAssignments"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "taskAttachments"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "taskChecklists"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "taskComments"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "taskDependencies"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "taskFollowers"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "tasks"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "userActivityLogs"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "userPermissions"
+    },
+    {
+      "Tables_in_XGUfRkFw3wTJbZrCqsFJBu": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_XGUfRkFw3wTJbZrCqsFJBu\n__drizzle_migrations\nactivityLog\nalertThresholds\napprovalSteps\napprovals\narchiveHistory\narchiveRules\nbulkImportLogs\ncategoryColors\nchecklistItemResults\nchecklistResults\nchecklistTemplateItems\nchecklistTemplates\ndbStatistics\ndefectAttachments\ndefect_inspections\ndefects\nerrorLogs\nmemoryLogs\nnotificationSettings\nnotifications\noomEvents\npermissions\nprojectMembers\nprojects\npushSubscriptions\nqueryLogs\nroleTemplatePermissions\nroleTemplates\nscheduledNotifications\nsignatures\nsystemLogs\ntaskAssignments\ntaskAttachments\ntaskChecklists\ntaskComments\ntaskDependencies\ntaskFollowers\ntasks\nuserActivityLogs\nuserPermissions\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 1530
+}

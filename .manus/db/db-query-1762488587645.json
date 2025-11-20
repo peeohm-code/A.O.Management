@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, name, stage FROM checklistTemplates LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name, stage FROM checklistTemplates LIMIT 10",
+  "rows": [
+    {
+      "id": "90001",
+      "name": "งานวางผัง",
+      "stage": "pre_execution"
+    },
+    {
+      "id": "90002",
+      "name": "การตรวจสอบงานฐานราก (ทดสอบ)",
+      "stage": "pre_execution"
+    },
+    {
+      "id": "90003",
+      "name": "การตรวจสอบงานคอนกรีต (ทดสอบ 2)",
+      "stage": "pre_execution"
+    },
+    {
+      "id": "90006",
+      "name": "ทดสอบ Success (5)",
+      "stage": "pre_execution"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstage\n90001\tงานวางผัง\tpre_execution\n90002\tการตรวจสอบงานฐานราก (ทดสอบ)\tpre_execution\n90003\tการตรวจสอบงานคอนกรีต (ทดสอบ 2)\tpre_execution\n90006\tทดสอบ Success (5)\tpre_execution\n",
+  "stderr": "",
+  "execution_time_ms": 1545
+}

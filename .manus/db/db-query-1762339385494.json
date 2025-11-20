@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, name, assigneeId, projectId, assigneeId IS NULL as no_assignee, projectId IS NULL as no_project FROM tasks WHERE id = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name, assigneeId, projectId, assigneeId IS NULL as no_assignee, projectId IS NULL as no_project FROM tasks WHERE id = 1;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "งานฐานราก",
+      "assigneeId": "1",
+      "projectId": "3",
+      "no_assignee": "0",
+      "no_project": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tassigneeId\tprojectId\tno_assignee\tno_project\n1\tงานฐานราก\t1\t3\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1542
+}
