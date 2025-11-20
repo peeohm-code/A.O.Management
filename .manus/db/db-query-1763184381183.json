@@ -1,9 +1,0 @@
-{
-  "query": "\nCREATE INDEX IF NOT EXISTS statusIdx ON tasks(status);\nCREATE INDEX IF NOT EXISTS categoryIdx ON tasks(category);\nCREATE INDEX IF NOT EXISTS startDateIdx ON tasks(startDate);\nCREATE INDEX IF NOT EXISTS endDateIdx ON tasks(endDate);\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nCREATE INDEX IF NOT EXISTS statusIdx ON tasks(status);\nCREATE INDEX IF NOT EXISTS categoryIdx ON tasks(category);\nCREATE INDEX IF NOT EXISTS startDateIdx ON tasks(startDate);\nCREATE INDEX IF NOT EXISTS endDateIdx ON tasks(endDate);\n",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 4274
-}

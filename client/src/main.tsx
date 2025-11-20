@@ -7,47 +7,8 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
-import { NotificationProvider } from "./contexts/NotificationContext";
-import * as serviceWorkerRegistration from "./lib/serviceWorkerRegistration";
-import { toast } from "sonner";
-import { initializeCsrf, getCsrfToken } from "./hooks/useCsrf";
 
-// Configure React Query with optimized caching strategies
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Stale time: Data is considered fresh for 5 minutes
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      
-      // Cache time: Unused data is garbage collected after 10 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      
-      // Retry failed requests 3 times with exponential backoff
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      
-      // Refetch on window focus for real-time data
-      refetchOnWindowFocus: true,
-      
-      // Don't refetch on mount if data is still fresh
-      refetchOnMount: false,
-      
-      // Enable request deduplication
-      // Multiple components requesting the same data will share a single request
-      structuralSharing: true,
-      
-      // Network mode: online only (fail fast when offline)
-      networkMode: 'online',
-    },
-    mutations: {
-      // Retry mutations once on failure
-      retry: 1,
-      
-      // Network mode for mutations
-      networkMode: 'online',
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
@@ -76,25 +37,15 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
-// Initialize CSRF token before creating tRPC client
-initializeCsrf().catch(console.error);
-
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
-        const csrfToken = getCsrfToken();
-        const headers = {
-          ...(init?.headers || {}),
-          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
-        };
-        
         return globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
-          headers,
         });
       },
     }),
@@ -102,41 +53,9 @@ const trpcClient = trpc.createClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <NotificationProvider>
-        <App />
-      </NotificationProvider>
-    </trpc.Provider>
-  </QueryClientProvider>
+  <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </trpc.Provider>
 );
-
-// Register service worker for offline support
-serviceWorkerRegistration.register({
-  onSuccess: () => {
-    console.log('[App] Service Worker registered successfully');
-  },
-  onUpdate: (registration) => {
-    console.log('[App] New content available, please refresh');
-    toast.info('มีเวอร์ชันใหม่พร้อมใช้งาน', {
-      description: 'กรุณารีเฟรชหน้าเพื่ออัปเดต',
-      action: {
-        label: 'รีเฟรช',
-        onClick: () => window.location.reload(),
-      },
-      duration: 10000,
-    });
-  },
-  onOffline: () => {
-    console.log('[App] App is offline');
-    toast.warning('คุณกำลังออฟไลน์', {
-      description: 'ข้อมูลบางส่วนอาจไม่เป็นปัจจุบัน',
-    });
-  },
-  onOnline: () => {
-    console.log('[App] App is back online');
-    toast.success('กลับมาออนไลน์แล้ว', {
-      description: 'กำลังซิงค์ข้อมูล...',
-    });
-  },
-});
