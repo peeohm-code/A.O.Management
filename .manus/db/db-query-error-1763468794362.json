@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  tc.id as inspection_id,\n  tc.task_id,\n  tc.template_id,\n  tc.status,\n  tc.stage,\n  COUNT(cir.id) as item_count\nFROM task_checklists tc\nLEFT JOIN checklist_item_results cir ON cir.task_checklist_id = tc.id\nWHERE tc.id = 30001\nGROUP BY tc.id, tc.task_id, tc.template_id, tc.status, tc.stage;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \nSELECT \n  tc.id as inspection_id,\n  tc.task_id,\n  tc.template_id,\n  tc.status,\n  tc.stage,\n  COUNT(cir.id) as item_count\nFROM task_checklists tc\nLEFT JOIN checklist_item_results cir ON cir.task_checklist_id = tc.id\nWHERE tc.id = 30001\nGROUP BY tc.id, tc.task_id, tc.template_id, tc.status, tc.stage;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 2: Table 'xgufrkfw3wtjbzrcqsfjbu.task_checklists' doesn't exist"
+  ]
+}

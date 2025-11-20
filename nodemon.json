@@ -1,0 +1,22 @@
+{
+  "watch": ["server"],
+  "ext": "ts,js,json",
+  "ignore": [
+    "node_modules/**",
+    ".git/**",
+    "dist/**",
+    "build/**",
+    "client/**",
+    "drizzle/**",
+    "*.log",
+    "todo.md",
+    "ideas.md"
+  ],
+  "exec": "node --max-old-space-size=2048 --import tsx server/_core/index.ts",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "delay": 1000,
+  "legacyWatch": true,
+  "signal": "SIGTERM"
+}

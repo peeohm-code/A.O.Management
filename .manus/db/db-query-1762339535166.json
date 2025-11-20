@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, name FROM projects LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name FROM projects LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "อาคารสำนักงาน ABC Tower"
+    },
+    {
+      "id": "2",
+      "name": "โครงการคอนโดมิเนียม The Residence"
+    },
+    {
+      "id": "3",
+      "name": "อาคารสำนักงาน ABC Tower"
+    },
+    {
+      "id": "4",
+      "name": "โครงการคอนโดมิเนียม The Residence"
+    },
+    {
+      "id": "5",
+      "name": "อาคารสำนักงาน ABC Tower"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n1\tอาคารสำนักงาน ABC Tower\n2\tโครงการคอนโดมิเนียม The Residence\n3\tอาคารสำนักงาน ABC Tower\n4\tโครงการคอนโดมิเนียม The Residence\n5\tอาคารสำนักงาน ABC Tower\n",
+  "stderr": "",
+  "execution_time_ms": 1531
+}
