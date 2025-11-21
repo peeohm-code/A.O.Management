@@ -764,3 +764,35 @@ export type Notification = typeof notifications.$inferSelect;
 export type TaskDependency = typeof taskDependencies.$inferSelect;
 export type TaskAssignment = typeof taskAssignments.$inferSelect;
 export type TaskFollower = typeof taskFollowers.$inferSelect;
+
+// Additional composite types
+export type ActivityLogWithUser = ActivityLog & {
+  user: Pick<User, 'id' | 'name' | 'email'> | null;
+};
+
+export type DefectAttachment = typeof defectAttachments.$inferSelect;
+export type DefectInspection = typeof defectInspections.$inferSelect;
+export type EscalationRule = typeof escalationRules.$inferSelect;
+export type EscalationLog = typeof escalationLogs.$inferSelect;
+export type ErrorLog = typeof errorLogs.$inferSelect;
+export type Permission = typeof permissions.$inferSelect;
+export type UserPermission = typeof userPermissions.$inferInsert;
+export type UserActivityLog = typeof userActivityLogs.$inferSelect;
+export type BulkImportLog = typeof bulkImportLogs.$inferSelect;
+export type RoleTemplate = typeof roleTemplates.$inferSelect;
+export type ScheduledNotification = typeof scheduledNotifications.$inferSelect;
+export type NotificationSetting = typeof notificationSettings.$inferSelect;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type Signature = typeof signatures.$inferSelect;
+export type Approval = typeof approvals.$inferSelect;
+export type ApprovalStep = typeof approvalSteps.$inferSelect;
+export type ArchiveRule = typeof archiveRules.$inferSelect;
+export type ArchiveHistory = typeof archiveHistory.$inferSelect;
+export type CategoryColor = typeof categoryColors.$inferSelect;
+export type AlertThreshold = typeof alertThresholds.$inferSelect;
+export type QueryLog = typeof queryLogs.$inferSelect;
+export type DbStatistic = typeof dbStatistics.$inferSelect;
+export type MemoryLog = typeof memoryLogs.$inferSelect;
+export type OomEvent = typeof oomEvents.$inferSelect;
+export type SystemLog = typeof systemLogs.$inferSelect;
+export type ProjectMember = typeof projectMembers.$inferSelect;

@@ -79,7 +79,7 @@ export default function Reports() {
       }
       
       toast.success("Export Excel สำเร็จ");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Excel export error:", error);
       toast.error("เกิดข้อผิดพลาดในการ export Excel");
     }

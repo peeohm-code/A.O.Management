@@ -40,7 +40,7 @@ export default function ArchiveRules() {
       setIsCreateOpen(false);
       resetForm();
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด");
     }
   };
@@ -60,7 +60,7 @@ export default function ArchiveRules() {
       setEditingRule(null);
       resetForm();
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด");
     }
   };
@@ -70,7 +70,7 @@ export default function ArchiveRules() {
       await updateMutation.mutateAsync({ id, enabled: !enabled });
       toast.success(enabled ? "ปิดใช้งานกฎแล้ว" : "เปิดใช้งานกฎแล้ว");
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด");
     }
   };
@@ -81,7 +81,7 @@ export default function ArchiveRules() {
       await deleteMutation.mutateAsync({ id });
       toast.success("ลบกฎสำเร็จ!");
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด");
     }
   };

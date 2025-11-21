@@ -152,7 +152,7 @@ export default function TaskDetail() {
         toast.success("อัปโหลดไฟล์สำเร็จ");
       };
       reader.readAsDataURL(selectedFile);
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์");
     } finally {
       setUploading(false);
@@ -165,7 +165,7 @@ export default function TaskDetail() {
       attachmentsQuery.refetch();
       activityQuery.refetch();
       toast.success("ลบไฟล์สำเร็จ");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาดในการลบไฟล์");
     }
   };
@@ -215,7 +215,7 @@ export default function TaskDetail() {
       taskQuery.refetch();
       activityQuery.refetch();
       toast.success("แก้ไขงานสำเร็จ");
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Edit Task Error]', error);
       toast.error("เกิดข้อผิดพลาดในการแก้ไขงาน");
     }
@@ -431,7 +431,7 @@ export default function TaskDetail() {
                           await deleteTaskMutation.mutateAsync({ id: taskId });
                           toast.success("ลบงานสำเร็จ");
                           setLocation("/tasks");
-                        } catch (error) {
+                        } catch (error: any) {
                           toast.error("เกิดข้อผิดพลาด");
                         }
                       }}

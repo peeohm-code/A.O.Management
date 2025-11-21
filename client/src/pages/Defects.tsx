@@ -347,7 +347,7 @@ export default function Defects() {
       setSelectedDefect(null);
       setResolutionComment("");
       allDefectsQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to update defect");
     }
   };
@@ -369,7 +369,7 @@ export default function Defects() {
       setShowRCAForm(false);
       setShowActionPlanForm(true);
       allDefectsQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to save RCA");
     }
   };
@@ -453,7 +453,7 @@ export default function Defects() {
       setAssignedTo(null);
       setAfterPhotos([]);
       allDefectsQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       setUploadingAfterPhotos(false);
       console.error('Error saving Action Plan:', error);
       toast.error("Failed to save Action Plan: " + (error as Error).message);
@@ -520,7 +520,7 @@ export default function Defects() {
       setImplementationPhotos([]);
       setResolutionNotes("");
       allDefectsQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       setUploadingImplementationPhotos(false);
       console.error('Error saving Implementation:', error);
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
@@ -1408,7 +1408,7 @@ export default function Defects() {
                     setSelectedDefect(null);
                     setVerificationComment("");
                     allDefectsQuery.refetch();
-                  } catch (error) {
+                  } catch (error: any) {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}
@@ -1442,7 +1442,7 @@ export default function Defects() {
                     setSelectedDefect(null);
                     setVerificationComment("");
                     allDefectsQuery.refetch();
-                  } catch (error) {
+                  } catch (error: any) {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}
@@ -1551,7 +1551,7 @@ export default function Defects() {
                     setSelectedDefect(null);
                     setEffectivenessComment("");
                     allDefectsQuery.refetch();
-                  } catch (error) {
+                  } catch (error: any) {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}
@@ -1756,7 +1756,7 @@ export default function Defects() {
                     setSelectedDefect(null);
                     setClosureNotes("");
                     allDefectsQuery.refetch();
-                  } catch (error) {
+                  } catch (error: any) {
                     toast.error("เกิดข้อผิดพลาด");
                   }
                 }}

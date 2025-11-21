@@ -1,12 +1,12 @@
 {
   "summary": {
-    "total_errors": 247,
+    "total_errors": 231,
     "files_with_errors": 41,
     "error_types": {
       "TS2353": 4,
-      "TS2345": 64,
+      "TS2345": 41,
       "TS2358": 2,
-      "TS2339": 99,
+      "TS2339": 106,
       "TS7006": 7,
       "TS7053": 5,
       "TS2554": 7,
@@ -28,12 +28,12 @@
     },
     "top_files": [
       [
-        "server/routers.ts",
-        43
-      ],
-      [
         "server/db.ts",
         28
+      ],
+      [
+        "server/routers.ts",
+        20
       ],
       [
         "server/activityLogExport.ts",
@@ -56,26 +56,26 @@
         9
       ],
       [
+        "client/src/pages/GanttChartPage.tsx",
+        8
+      ],
+      [
         "server/activityLogPdfExport.ts",
         8
       ],
       [
         "server/services/analytics.service.ts",
         7
-      ],
-      [
-        "server/services/defect.service.ts",
-        7
       ]
     ],
     "top_error_types": [
       [
         "TS2339",
-        99
+        106
       ],
       [
         "TS2345",
-        64
+        41
       ],
       [
         "TS2769",
@@ -194,7 +194,7 @@
       },
       {
         "file": "server/db.ts",
-        "line": 5445,
+        "line": 5452,
         "col": 9,
         "code": "TS2322",
         "message": "Type 'boolean' is not assignable to type 'number | SQL<unknown> | undefined'."
@@ -345,7 +345,7 @@
       },
       {
         "file": "server/db.ts",
-        "line": 1919,
+        "line": 1920,
         "col": 49,
         "code": "TS2769",
         "message": "No overload matches this call."
@@ -367,7 +367,7 @@
         "line": 3464,
         "col": 11,
         "code": "TS2353",
-        "message": "Object literal may only specify known properties, and 'entityType' does not exist in type '{ userId: number; projectId?: number | undefined; taskId?: number | undefined; action: string; details?: string | undefined; }'."
+        "message": "Object literal may only specify known properties, and 'entityType' does not exist in type '{ userId: number; projectId?: number | undefined; taskId?: number | undefined; defectId?: number | undefined; action: string; details?: string | undefined; }'."
       },
       {
         "file": "server/services/notification.service.ts",
@@ -511,7 +511,7 @@
     "TS2741": [
       {
         "file": "client/src/pages/InspectionDetail.tsx",
-        "line": 524,
+        "line": 530,
         "col": 10,
         "code": "TS2741",
         "message": "Property 'open' is missing in type '{ images: { url: string; fileName?: string | undefined; }[]; initialIndex: number; onClose: () => void; }' but required in type 'ImageGalleryViewerProps'."
@@ -616,7 +616,7 @@
       },
       {
         "file": "server/db.ts",
-        "line": 1919,
+        "line": 1920,
         "col": 49,
         "code": "TS2769",
         "message": "No overload matches this call."
@@ -632,7 +632,7 @@
       },
       {
         "file": "server/db.ts",
-        "line": 5445,
+        "line": 5452,
         "col": 9,
         "code": "TS2322",
         "message": "Type 'boolean' is not assignable to type 'number | SQL<unknown> | undefined'."
@@ -648,21 +648,21 @@
     "TS2552": [
       {
         "file": "server/db.ts",
-        "line": 4181,
+        "line": 4188,
         "col": 9,
         "code": "TS2552",
         "message": "Cannot find name 'notInArray'. Did you mean 'inArray'?"
       },
       {
         "file": "server/db.ts",
-        "line": 4212,
+        "line": 4219,
         "col": 9,
         "code": "TS2552",
         "message": "Cannot find name 'notInArray'. Did you mean 'inArray'?"
       },
       {
         "file": "server/db.ts",
-        "line": 6581,
+        "line": 6588,
         "col": 9,
         "code": "TS2552",
         "message": "Cannot find name 'notNull'. Did you mean 'isNotNull'?"
@@ -671,14 +671,14 @@
     "TS2367": [
       {
         "file": "server/db.ts",
-        "line": 6421,
+        "line": 6428,
         "col": 54,
         "code": "TS2367",
         "message": "This comparison appears to be unintentional because the types '\"low\" | \"medium\" | \"high\" | \"critical\"' and '\"major\"' have no overlap."
       },
       {
         "file": "server/db.ts",
-        "line": 6422,
+        "line": 6429,
         "col": 54,
         "code": "TS2367",
         "message": "This comparison appears to be unintentional because the types '\"low\" | \"medium\" | \"high\" | \"critical\"' and '\"minor\"' have no overlap."

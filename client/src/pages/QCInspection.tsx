@@ -162,7 +162,7 @@ export default function QCInspection() {
             signatureData: inspectorSignature,
             signedBy: 1, // TODO: Use actual user ID from context
           });
-        } catch (error) {
+        } catch (error: any) {
           console.error("Failed to save signature:", error);
         }
       }
@@ -265,7 +265,7 @@ export default function QCInspection() {
       });
       setDefectPhotos([]);
       refetchChecklists();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating defect:', error);
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }

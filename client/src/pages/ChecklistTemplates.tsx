@@ -159,7 +159,7 @@ export default function ChecklistTemplates() {
       setIsCreateDialogOpen(false);
       resetForm();
       templatesQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาดในการสร้าง Template");
       console.error(error);
     }
@@ -237,7 +237,7 @@ export default function ChecklistTemplates() {
       setIsEditDialogOpen(false);
       resetForm();
       templatesQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาดในการแก้ไข Template");
       console.error(error);
     }

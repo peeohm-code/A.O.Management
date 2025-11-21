@@ -792,3 +792,53 @@
 - [x] ทดสอบ Inspection Detail page - ยืนยันว่าปุ่มแก้ไขรายการที่ 1, 2, 3 ทำงานได้ทั้งหมด
 - [x] แก้ไข logActivity function เพื่อรองรับ defectId parameter
 - [x] ทดสอบการบันทึก comments ใน browser - สถานะ "ผ่าน" บันทึกสำเร็จ
+
+
+## 🔧 TypeScript Errors Fix (Systematic Approach)
+
+### Phase 1: Fix Schema Exports (Priority: CRITICAL)
+- [ ] เพิ่ม missing type exports ใน drizzle/schema.ts
+- [ ] สร้าง ActivityLogWithUser type ที่ complete
+- [ ] แก้ไข imports ใน activityLogExport.ts
+- [ ] แก้ไข imports ใน services/defect.service.ts
+
+### Phase 2: Fix Boolean/Number Mismatches (Priority: HIGH)
+- [x] สร้าง helper functions (boolToInt, intToBool) - สร้างไว้ที่ server/utils/typeHelpers.ts
+- [x] แก้ไข NotificationSettings.tsx (6 errors)
+- [x] แก้ไข upsertNotificationSettings (1 error)
+- [x] แก้ไข updateAlertThreshold (1 error)
+- [x] แก้ไข createAlertThreshold (1 error)
+- [x] แก้ไข p256dh → p256Dh (1 error)
+- [x] แก้ไข notification.isRead (1 error)
+
+### Phase 3: Fix tRPC Type Issues (Priority: HIGH)
+- [ ] แก้ไข router exports ที่ขาดหายไป
+- [ ] แก้ไข frontend code ที่เรียกใช้ procedures ผิด
+- [ ] เพิ่ม type annotations สำหรับ error handlers
+
+### Phase 4: Fix Implicit Any (Priority: MEDIUM)
+- [ ] เพิ่ม type annotations สำหรับ parameters
+- [ ] แก้ไข object/array index access
+- [ ] เพิ่ม type annotations สำหรับ destructured parameters
+
+### Phase 5: Install Missing Types (Priority: LOW)
+- [ ] Install @types/cookie-parser
+- [ ] สร้าง declaration file สำหรับ clamscan
+
+### Quick Wins (ทำก่อน - ได้ผลเร็ว)
+- [x] Quick Win 1: Fix Schema Exports (~40 errors)
+- [x] Quick Win 2: Fix ActivityLog Import Names (~16 errors)
+- [x] Quick Win 3: Add Error Type Annotations (~10 errors)
+- [x] Quick Win 4: Install @types/cookie-parser (~1 error)
+- [x] Quick Win 5: Skip (ไม่มีการใช้ getAllUsers)
+
+### Testing & Verification
+- [ ] รัน pnpm tsc --noEmit และตรวจสอบ errors
+- [ ] ทดสอบ dev server
+- [ ] ทดสอบ build
+- [ ] รัน tests
+- [ ] ทดสอบบน browser
+
+### Documentation
+- [ ] อัปเดต TYPESCRIPT_FIX_PLAN.md
+- [ ] บันทึก lessons learned

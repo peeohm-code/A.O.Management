@@ -4138,18 +4138,39 @@ export async function upsertNotificationSettings(data: {
 
   const existing = await getNotificationSettings(data.userId);
 
+  // Convert boolean fields to numbers for MySQL
+  const convertedData: any = { ...data };
+  if (data.enableTaskDeadlineReminders !== undefined) {
+    convertedData.enableTaskDeadlineReminders = data.enableTaskDeadlineReminders ? 1 : 0;
+  }
+  if (data.enableDefectOverdueReminders !== undefined) {
+    convertedData.enableDefectOverdueReminders = data.enableDefectOverdueReminders ? 1 : 0;
+  }
+  if (data.enableDailySummary !== undefined) {
+    convertedData.enableDailySummary = data.enableDailySummary ? 1 : 0;
+  }
+  if (data.enableInAppNotifications !== undefined) {
+    convertedData.enableInAppNotifications = data.enableInAppNotifications ? 1 : 0;
+  }
+  if (data.enableEmailNotifications !== undefined) {
+    convertedData.enableEmailNotifications = data.enableEmailNotifications ? 1 : 0;
+  }
+  if (data.enablePushNotifications !== undefined) {
+    convertedData.enablePushNotifications = data.enablePushNotifications ? 1 : 0;
+  }
+
   if (existing) {
     // Update existing settings
     await db
       .update(notificationSettings)
       .set({
-        ...data,
+        ...convertedData,
         updatedAt: new Date(),
       })
       .where(eq(notificationSettings.userId, data.userId));
   } else {
     // Create new settings
-    const { userId, ...settingsData } = data;
+    const { userId, ...settingsData } = convertedData;
     await db.insert(notificationSettings).values({
       userId,
       ...settingsData,
@@ -4641,7 +4662,13 @@ export async function createAlertThreshold(data: InsertAlertThreshold) {
     throw new Error(`Alert threshold for ${data.metricType} already exists`);
   }
 
-  const result = await db.insert(alertThresholds).values(data);
+  // Convert boolean to number for MySQL
+  const convertedData: any = { ...data };
+  if (data.isEnabled !== undefined && typeof data.isEnabled === 'boolean') {
+    convertedData.isEnabled = data.isEnabled ? 1 : 0;
+  }
+
+  const result = await db.insert(alertThresholds).values(convertedData);
   return result;
 }
 
@@ -4655,7 +4682,13 @@ export async function updateAlertThreshold(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db.update(alertThresholds).set(data).where(eq(alertThresholds.id, id));
+  // Convert boolean to number for MySQL
+  const convertedData: any = { ...data };
+  if (data.isEnabled !== undefined) {
+    convertedData.isEnabled = data.isEnabled ? 1 : 0;
+  }
+
+  await db.update(alertThresholds).set(convertedData).where(eq(alertThresholds.id, id));
 }
 
 export async function deleteAlertThreshold(id: number) {

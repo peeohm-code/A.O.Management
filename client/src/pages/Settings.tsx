@@ -37,7 +37,7 @@ export default function Settings() {
       // For now, we'll just show a success message
 
       toast.success("Profile updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to update profile");
     }
   };
@@ -46,7 +46,7 @@ export default function Settings() {
     try {
       await logout();
       toast.success("Logged out successfully");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to logout");
     }
   };

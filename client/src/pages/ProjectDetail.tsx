@@ -87,7 +87,7 @@ export default function ProjectDetail() {
       const result = await exportExcelMutation.mutateAsync({ id: projectId });
       downloadFile(result.data, result.filename);
       toast.success('ส่งออกไฟล์ Excel สำเร็จ');
-    } catch (error) {
+    } catch (error: any) {
       toast.error('ไม่สามารถส่งออกไฟล์ได้');
     } finally {
       setIsExporting(false);
@@ -100,7 +100,7 @@ export default function ProjectDetail() {
       const result = await exportPDFMutation.mutateAsync({ id: projectId });
       downloadFile(result.data, result.filename);
       toast.success('ส่งออกไฟล์ PDF สำเร็จ');
-    } catch (error) {
+    } catch (error: any) {
       toast.error('ไม่สามารถส่งออกไฟล์ได้');
     } finally {
       setIsExporting(false);

@@ -28,9 +28,9 @@ export default function NotificationSettings() {
   useEffect(() => {
     if (settings) {
       setNotificationDaysAdvance(settings.notificationDaysAdvance || 3);
-      setEnableInAppNotifications(settings.enableInAppNotifications ?? true);
-      setEnableEmailNotifications(settings.enableEmailNotifications ?? true);
-      setEnableDailySummaryEmail(settings.enableDailySummaryEmail ?? false);
+      setEnableInAppNotifications(settings.enableInAppNotifications === 1 || settings.enableInAppNotifications === true);
+      setEnableEmailNotifications(settings.enableEmailNotifications === 1 || settings.enableEmailNotifications === true);
+      setEnableDailySummaryEmail(settings.enableDailySummaryEmail === 1 || settings.enableDailySummaryEmail === true);
       setDailySummaryTime(settings.dailySummaryTime || "08:00");
     }
   }, [settings]);
@@ -46,7 +46,7 @@ export default function NotificationSettings() {
       });
       toast.success("บันทึกการตั้งค่าเรียบร้อยแล้ว");
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาดในการบันทึกการตั้งค่า");
       console.error("Error saving notification settings:", error);
     }
@@ -253,9 +253,9 @@ export default function NotificationSettings() {
             onClick={() => {
               if (settings) {
                 setNotificationDaysAdvance(settings.notificationDaysAdvance || 3);
-                setEnableInAppNotifications(settings.enableInAppNotifications ?? true);
-                setEnableEmailNotifications(settings.enableEmailNotifications ?? true);
-                setEnableDailySummaryEmail(settings.enableDailySummaryEmail ?? false);
+                setEnableInAppNotifications(settings.enableInAppNotifications === 1 || settings.enableInAppNotifications === true);
+                setEnableEmailNotifications(settings.enableEmailNotifications === 1 || settings.enableEmailNotifications === true);
+                setEnableDailySummaryEmail(settings.enableDailySummaryEmail === 1 || settings.enableDailySummaryEmail === true);
                 setDailySummaryTime(settings.dailySummaryTime || "08:00");
               }
               toast.info("ยกเลิกการเปลี่ยนแปลง");

@@ -2814,7 +2814,7 @@ const notificationRouter = router({
             title: notification.title,
             message: notification.content || "",
             timestamp: notification.createdAt,
-            read: notification.isRead,
+            read: notification.isRead === 1,
           });
         }
 
@@ -3706,7 +3706,7 @@ export const appRouter = router({
       .input(
         z.object({
           endpoint: z.string(),
-          p256dh: z.string(),
+          p256Dh: z.string(),
           auth: z.string(),
           userAgent: z.string().optional(),
         })

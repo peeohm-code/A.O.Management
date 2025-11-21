@@ -1,7 +1,7 @@
 import ExcelJS from "exceljs";
-import { UserActivityLog } from "../drizzle/schema";
+import { ActivityLog, ActivityLogWithUser as SchemaActivityLogWithUser } from "../drizzle/schema";
 
-export interface ActivityLogWithUser extends UserActivityLog {
+export interface ActivityLogWithUser extends ActivityLog {
   userName?: string;
   userEmail?: string;
 }

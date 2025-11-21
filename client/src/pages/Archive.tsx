@@ -239,7 +239,7 @@ export default function Archive() {
                   window.URL.revokeObjectURL(url);
                   
                   toast.success("ส่งออก Excel สำเร็จ!");
-                } catch (error) {
+                } catch (error: any) {
                   toast.error("เกิดข้อผิดพลาดในการส่งออก Excel");
                 }
               }}
@@ -553,7 +553,7 @@ export default function Archive() {
                   }
                   
                   await refetch();
-                } catch (error) {
+                } catch (error: any) {
                   toast.error("เกิดข้อผิดพลาดในการลบโครงการ");
                 }
                 

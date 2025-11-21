@@ -123,7 +123,7 @@ export default function DefectDetail() {
       toast.success("อัปเดตข้อมูลสำเร็จ");
       setShowEditDialog(false);
       defectQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -145,7 +145,7 @@ export default function DefectDetail() {
       toast.success("อัปเดตสถานะสำเร็จ");
       setShowStatusDialog(false);
       defectQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error('[handleUpdateStatus] Error:', error);
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
@@ -175,7 +175,7 @@ export default function DefectDetail() {
       setRcaCorrectiveAction("");
       setRcaPreventiveAction("");
       defectQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -209,7 +209,7 @@ export default function DefectDetail() {
       setActionDeadline("");
       setActionNotes("");
       defectQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -239,7 +239,7 @@ export default function DefectDetail() {
       setClosureLessonsLearned("");
       setClosureApproved(false);
       defectQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -254,7 +254,7 @@ export default function DefectDetail() {
       setShowReinspectionDialog(false);
       setReinspectionComments("");
       defectQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -280,7 +280,7 @@ export default function DefectDetail() {
       setReinspectionResultComments("");
       defectQuery.refetch();
       inspectionHistoryQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -303,7 +303,7 @@ export default function DefectDetail() {
       defectQuery.refetch();
       afterPhotosQuery.refetch();
       beforePhotosQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -352,7 +352,7 @@ export default function DefectDetail() {
       toast.success("อัปโหลดรูปภาพสำเร็จ");
       beforePhotosQuery.refetch();
       afterPhotosQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = (error as Error).message;
       // Categorize file upload errors for better error messages
       if (errorMessage.includes('size') || errorMessage.includes('large')) {
@@ -379,7 +379,7 @@ export default function DefectDetail() {
       toast.success("ลบรูปภาพสำเร็จ");
       if (type === "before") beforePhotosQuery.refetch();
       else afterPhotosQuery.refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
     }
   };
@@ -511,7 +511,7 @@ export default function DefectDetail() {
             pdf.addImage(img, "JPEG", 20, yPos, imgWidth, imgHeight);
             yPos += imgHeight + 5;
             addText(photo.fileName, 10);
-          } catch (error) {
+          } catch (error: any) {
             addText(`[Image failed to load: ${photo.fileName}]`, 10);
           }
         }
@@ -532,7 +532,7 @@ export default function DefectDetail() {
             pdf.addImage(img, "JPEG", 20, yPos, imgWidth, imgHeight);
             yPos += imgHeight + 5;
             addText(photo.fileName, 10);
-          } catch (error) {
+          } catch (error: any) {
             addText(`[Image failed to load: ${photo.fileName}]`, 10);
           }
         }
@@ -541,7 +541,7 @@ export default function DefectDetail() {
       // Save PDF
       pdf.save(`Defect_Report_${defect.type as any}_${defect.id}.pdf`);
       toast.success("สร้าง PDF สำเร็จ");
-    } catch (error) {
+    } catch (error: any) {
       console.error("PDF generation error:", error);
       toast.error("เกิดข้อผิดพลาดในการสร้าง PDF");
     }

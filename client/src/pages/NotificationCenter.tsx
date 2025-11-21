@@ -135,7 +135,7 @@ export default function NotificationCenter() {
       await markAsReadMutation.mutateAsync({ id });
       notificationsQuery.refetch();
       toast.success("ทำเครื่องหมายว่าอ่านแล้ว");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด");
     }
   };
@@ -145,7 +145,7 @@ export default function NotificationCenter() {
       await markAllAsReadMutation.mutateAsync();
       notificationsQuery.refetch();
       toast.success("ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("เกิดข้อผิดพลาด");
     }
   };
