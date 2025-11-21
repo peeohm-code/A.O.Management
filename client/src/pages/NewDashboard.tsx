@@ -33,6 +33,24 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { DashboardFullSkeleton } from "@/components/skeletons";
 
+type Activity = {
+  id: number;
+  userId: number;
+  userName: string | null;
+  action: string;
+  module: string;
+  entityType: string | null;
+  entityId: number | null;
+  details: any;
+  createdAt: Date;
+};
+
+type ProjectProgress = {
+  id: number;
+  name: string;
+  progressPercentage: number;
+};
+
 /**
  * Dashboard หลัก - แสดงภาพรวมของระบบบริหารโครงการก่อสร้างและ QC
  */
@@ -291,7 +309,7 @@ export default function NewDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                  {recentActivities.map((activity: any) => (
+                  {recentActivities.map((activity: Activity) => (
                     <div
                       key={activity.id}
                       className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
@@ -352,7 +370,7 @@ export default function NewDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {projectProgress.map((project: any) => (
+                  {projectProgress.map((project: ProjectProgress) => (
                     <div key={project.id} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Link href={`/projects/${project.id}`}>

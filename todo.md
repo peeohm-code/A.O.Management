@@ -196,6 +196,7 @@
 - [ ] แก้ไข mock database setup ใน service tests
 - [ ] อัปเดต security test expectations
 - [ ] แก้ไข transaction mock ให้สมบูรณ์
+- [ ] แก้ไข database method mocks ให้ครบถ้วน
 
 **หมายเหตุ:** Tests ที่ fail ไม่กระทบการทำงานจริงของระบบ - เป็นเพียง mock/test setup issues
 
@@ -223,6 +224,11 @@
 - [ ] E2E Tests สำหรับ Mobile Workflows
 - [ ] Load Testing ภายใต้ Load สูง
 - [ ] Performance Benchmarks
+
+### Real-time Features
+- [ ] เพิ่ม real-time notifications ด้วย Server-Sent Events
+- [ ] ทดสอบ real-time notifications ให้ทำงานได้ถูกต้อง
+- [ ] เพิ่ม notification badge แบบ real-time
 
 ### UX Improvements
 - [ ] ปรับปรุง Empty States ให้มี Call-to-Action ชัดเจน

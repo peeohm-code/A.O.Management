@@ -1,5 +1,16 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+
+type RoleTemplate = {
+  id: number;
+  name: string;
+  description: string | null;
+  permissions: string;
+  isDefault: number;
+  createdBy: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +31,7 @@ import {
 
 export default function RoleTemplates() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [editingTemplate, setEditingTemplate] = useState<RoleTemplate | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
 
@@ -44,7 +55,7 @@ export default function RoleTemplates() {
     setDialogOpen(true);
   };
 
-  const handleEdit = (template: any) => {
+  const handleEdit = (template: RoleTemplate) => {
     setEditingTemplate(template);
     setDialogOpen(true);
   };

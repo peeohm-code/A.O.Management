@@ -1233,14 +1233,14 @@ export async function createTaskChecklist(data: {
   if (!db) throw new Error("Database not available");
 
   // Create the task checklist
-  const [result] = await db.insert(taskChecklists).values({
+  const result = await db.insert(taskChecklists).values({
     taskId: data.taskId,
     templateId: data.templateId,
     stage: data.stage,
     status: "not_started",
-  }).$returningId();
+  });
 
-  const checklistId = result.id;
+  const checklistId = result[0].insertId;
 
   // Get all template items
   const templateItems = await db
@@ -5630,6 +5630,7 @@ export async function createBulkImportLog(data: {
   importedBy: number;
   fileName: string;
   fileUrl?: string;
+  fileSize?: number;
   totalRows: number;
 }) {
   const db = await getDb();

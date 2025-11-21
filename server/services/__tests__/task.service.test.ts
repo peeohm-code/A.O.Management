@@ -29,11 +29,12 @@ describe('Task Service', () => {
     // Reset mocks
     vi.clearAllMocks();
 
-    // Mock transaction
-    mockTransaction = {
-      insert: vi.fn().mockReturnThis(),
+    // Mock transaction with proper chaining
+    const mockInsertChain = {
       values: vi.fn().mockResolvedValue([{ insertId: BigInt(123) }]),
-      select: vi.fn().mockReturnThis(),
+    };
+    
+    const mockSelectChain = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockResolvedValue([{
         id: 123,
@@ -43,9 +44,22 @@ describe('Task Service', () => {
         priority: 'medium',
         progress: 0,
       }]),
-      update: vi.fn().mockReturnThis(),
+    };
+    
+    const mockUpdateChain = {
       set: vi.fn().mockReturnThis(),
-      delete: vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([{ affectedRows: 1 }]),
+    };
+    
+    const mockDeleteChain = {
+      where: vi.fn().mockResolvedValue([{ affectedRows: 1 }]),
+    };
+    
+    mockTransaction = {
+      insert: vi.fn(() => mockInsertChain),
+      select: vi.fn(() => mockSelectChain),
+      update: vi.fn(() => mockUpdateChain),
+      delete: vi.fn(() => mockDeleteChain),
     };
 
     // Mock database with transaction support
