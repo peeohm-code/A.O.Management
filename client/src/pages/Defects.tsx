@@ -702,13 +702,23 @@ export default function Defects() {
       {/* Defects List */}
       <div className="space-y-3">
         {filteredDefects.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-gray-500">
-                {defects.length === 0 ? "No defects reported" : "No defects match your filter"}
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={AlertTriangle}
+            title={defects.length === 0 ? "ยังไม่มีข้อบกพร่อง" : "ไม่พบข้อบกพร่องที่ตรงกับเงื่อนไข"}
+            description={
+              defects.length === 0
+                ? "เริ่มต้นด้วยการรายงานข้อบกพร่องที่พบจากการตรวจสอบ QC หรือสร้างข้อบกพร่องใหม่"
+                : "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง หรือล้างค่าการค้นหา"
+            }
+            action={
+              defects.length === 0 && permissions.canCreate
+                ? {
+                    label: "ไปที่หน้า Inspections",
+                    onClick: () => setLocation("/inspections"),
+                  }
+                : undefined
+            }
+          />
         ) : (
           <>
             {/* Select All Checkbox */}

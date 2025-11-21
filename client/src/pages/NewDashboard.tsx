@@ -305,7 +305,22 @@ export default function NewDashboard() {
               ) : recentActivities.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">ยังไม่มีกิจกรรม</p>
+                  <p className="text-sm font-medium mb-1">ยังไม่มีกิจกรรม</p>
+                  <p className="text-xs mb-4">เริ่มต้นด้วยการสร้างโครงการหรืองานใหม่</p>
+                  <div className="flex gap-2 justify-center">
+                    <Link href="/projects/new">
+                      <Button size="sm" variant="outline">
+                        <Plus className="h-4 w-4 mr-1" />
+                        สร้างโครงการ
+                      </Button>
+                    </Link>
+                    <Link href="/tasks/new">
+                      <Button size="sm" variant="outline">
+                        <Plus className="h-4 w-4 mr-1" />
+                        สร้างงาน
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
@@ -366,7 +381,14 @@ export default function NewDashboard() {
               {projectProgress.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Briefcase className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">ยังไม่มีโครงการที่กำลังดำเนินการ</p>
+                  <p className="text-sm font-medium mb-1">ยังไม่มีโครงการที่กำลังดำเนินการ</p>
+                  <p className="text-xs mb-4">สร้างโครงการใหม่เพื่อเริ่มต้นบริหารงานก่อสร้าง</p>
+                  <Link href="/projects/new">
+                    <Button size="sm">
+                      <Plus className="h-4 w-4 mr-1" />
+                      สร้างโครงการแรก
+                    </Button>
+                  </Link>
                 </div>
               ) : (
                 <div className="space-y-4">

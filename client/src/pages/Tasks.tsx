@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag } from "lucide-react";
+import { Loader2, Calendar, User, Building2, CheckSquare, X, PieChart as PieChartIcon, Flag, Tag, ListTodo } from "lucide-react";
 import { TaskCardSkeleton } from "@/components/skeletons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/LazyChart";
 import { SearchBar } from "@/components/SearchBar";
@@ -729,9 +729,23 @@ export default function Tasks() {
       </div>
 
       {filteredTasks.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No tasks found</p>
-        </div>
+        <EmptyState
+          icon={ListTodo}
+          title={tasks.length === 0 ? "ยังไม่มีงาน" : "ไม่พบงานที่ตรงกับเงื่อนไข"}
+          description={
+            tasks.length === 0
+              ? "เริ่มต้นด้วยการสร้างงานใหม่ในโครงการ หรือไปที่หน้าโครงการเพื่อเพิ่มงาน"
+              : "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง หรือล้างค่าการค้นหา"
+          }
+          action={
+            tasks.length === 0
+              ? {
+                  label: "สร้างงานแรก",
+                  onClick: () => setLocation("/tasks/new"),
+                }
+              : undefined
+          }
+        />
       )}
 
       {/* Pagination */}

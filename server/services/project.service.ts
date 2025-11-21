@@ -49,7 +49,7 @@ async function generateProjectCode(): Promise<string> {
     .limit(1);
 
   let nextNumber = 1;
-  if (result.length > 0) {
+  if (result.length > 0 && result[0].code) {
     const lastCode = result[0].code;
     const lastNumber = parseInt(lastCode.split("-")[2] || "0");
     nextNumber = lastNumber + 1;
@@ -167,7 +167,7 @@ export async function deleteProject(id: number): Promise<void> {
       .from(tasks)
       .where(eq(tasks.projectId, projectId));
 
-    const taskIds = projectTasks.map((t) => bigIntToNumber(t.id));
+    const taskIds = projectTasks.map((t: { id: number }) => bigIntToNumber(t.id));
 
     if (taskIds.length > 0) {
       logger.info(`[Project Service] Deleting ${taskIds.length} tasks and related data`);
@@ -194,7 +194,7 @@ export async function deleteProject(id: number): Promise<void> {
         .from(taskChecklists)
         .where(inArray(taskChecklists.taskId, taskIds));
 
-      const checklistIds = taskChecklistRecords.map((tc) => bigIntToNumber(tc.id));
+      const checklistIds = taskChecklistRecords.map((tc: { id: number }) => bigIntToNumber(tc.id));
 
       if (checklistIds.length > 0) {
         // Delete checklist item results

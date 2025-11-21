@@ -21,11 +21,12 @@ export async function createNotification(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [notification] = await db.insert(notifications).values(data).$returningId();
+  const result = await db.insert(notifications).values(data);
+  const insertId = (result as any)[0]?.insertId || (result as any).insertId;
   const [created] = await db
     .select()
     .from(notifications)
-    .where(eq(notifications.id, notification.id));
+    .where(eq(notifications.id, insertId));
 
   if (!created) throw new Error("Failed to create notification");
   return created;

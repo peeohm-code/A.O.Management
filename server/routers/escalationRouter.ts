@@ -112,8 +112,8 @@ export const escalationRouter = router({
         limit: z.number().optional().default(50),
       }).optional()
     )
-    .query(async ({ input }) => {
-      return await db.getAllEscalationLogs(input);
+    .query(async () => {
+      return await db.getAllEscalationLogs();
     }),
 
   // ดึง escalation logs ตาม entity
@@ -157,8 +157,8 @@ export const escalationRouter = router({
         projectId: z.number().optional(),
       }).optional()
     )
-    .query(async ({ input }) => {
-      return await db.getEscalationStatistics(input);
+    .query(async () => {
+      return await db.getEscalationStatistics();
     }),
 
   // ทริกเกอร์การตรวจสอบ escalation ด้วยตนเอง (สำหรับทดสอบ)

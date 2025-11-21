@@ -150,7 +150,30 @@ export default function Reports() {
       </Card>
 
       {/* Report Preview */}
-      {selectedProject ? (
+      {projects.length === 0 ? (
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center text-muted-foreground">
+              <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-medium mb-1">ยังไม่มีโครงการ</p>
+              <p className="text-xs mb-4">สร้างโครงการเพื่อสร้างรายงาน</p>
+              <Button onClick={() => window.location.href = '/projects/new'}>
+                สร้างโครงการแรก
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : !selectedProject ? (
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center text-muted-foreground">
+              <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-medium mb-1">เลือกโครงการเพื่อดูรายงาน</p>
+              <p className="text-xs">เลือกโครงการจากดร็อปดาวน์ด้านบนเพื่อสร้างรายงาน</p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : selectedProject ? (
         <Tabs defaultValue="overview" className="w-full">
           <TabsList>
             <TabsTrigger value="overview" className="flex items-center gap-2">

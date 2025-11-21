@@ -22,8 +22,9 @@ export async function createUser(data: InsertUser): Promise<User> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [user] = await db.insert(users).values(data).$returningId();
-  const [created] = await db.select().from(users).where(eq(users.id, user.id));
+  const result = await db.insert(users).values(data);
+  const insertId = (result as any)[0]?.insertId || (result as any).insertId;
+  const [created] = await db.select().from(users).where(eq(users.id, insertId));
 
   if (!created) throw new Error("Failed to create user");
   return created;
@@ -137,11 +138,12 @@ export async function createActivityLog(data: InsertActivityLog): Promise<Activi
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [log] = await db.insert(activityLog).values(data).$returningId();
+  const result = await db.insert(activityLog).values(data);
+  const insertId = (result as any)[0]?.insertId || (result as any).insertId;
   const [created] = await db
     .select()
     .from(activityLog)
-    .where(eq(activityLog.id, log.id));
+    .where(eq(activityLog.id, insertId));
 
   if (!created) throw new Error("Failed to create activity log");
   return created;

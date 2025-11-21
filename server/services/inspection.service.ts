@@ -94,6 +94,11 @@ export async function submitInspection(data: {
   try {
     logger.info(`[Inspection Service] Starting inspection submission for checklist ${taskChecklistId}`);
 
+    // Get task to retrieve projectId
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId));
+    if (!task) throw new Error(`Task ${taskId} not found`);
+    const projectId = task.projectId;
+
     // Start transaction by using db.transaction()
     const result = await db.transaction(async (tx) => {
       // 1. Save all checklist item results with photos
@@ -144,6 +149,7 @@ export async function submitInspection(data: {
           const resultId = insertedResults[data.itemResults.indexOf(item)]?.insertId;
 
           await tx.insert(defects).values({
+            projectId,
             taskId,
             checklistId: taskChecklistId,
             checklistItemResultId: resultId,

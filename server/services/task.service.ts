@@ -113,11 +113,12 @@ export async function createTaskDependency(
     throw new Error("Circular dependency detected");
   }
 
-  const [dep] = await db.insert(taskDependencies).values(data).$returningId();
+  const result = await db.insert(taskDependencies).values(data);
+  const insertId = bigIntToNumber((result as any)[0]?.insertId || (result as any).insertId);
   const [created] = await db
     .select()
     .from(taskDependencies)
-    .where(eq(taskDependencies.id, dep.id));
+    .where(eq(taskDependencies.id, insertId));
 
   if (!created) throw new Error("Failed to create task dependency");
   return created;
@@ -189,11 +190,12 @@ export async function createTaskComment(data: InsertTaskComment): Promise<TaskCo
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [comment] = await db.insert(taskComments).values(data).$returningId();
+  const result = await db.insert(taskComments).values(data);
+  const insertId = bigIntToNumber((result as any)[0]?.insertId || (result as any).insertId);
   const [created] = await db
     .select()
     .from(taskComments)
-    .where(eq(taskComments.id, comment.id));
+    .where(eq(taskComments.id, insertId));
 
   if (!created) throw new Error("Failed to create task comment");
   return created;
