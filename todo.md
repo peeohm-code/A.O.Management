@@ -231,7 +231,9 @@
 - [ ] เพิ่ม notification badge แบบ real-time
 
 ### UX Improvements
-- [ ] ปรับปรุง Empty States ให้มี Call-to-Action ชัดเจน
+- [ ] แก้ไข TypeScript errors - เปลี่ยน timestamp mode จาก 'string' เป็น 'date' ใน schema
+- [x] ปรับปรุง mock database setup - แก้ไข service layer tests ให้ pass ทั้งหมด (28/28 tests passed)
+- [x] ปรับปรุง Empty States ให้มี Call-to-Action ชัดเจน (Templates, Inspections)
 - [ ] เพิ่ม Illustrations สำหรับ Empty States
 - [ ] เพิ่ม Field-level Error Messages
 - [ ] Undo Functionality สำหรับ Critical Actions

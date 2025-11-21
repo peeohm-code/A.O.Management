@@ -279,7 +279,7 @@ export async function createDefectAttachment(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [attachment] = await db.insert(defectAttachments).values(data).$returningId();
+  const [attachment] = await db.insert(defectAttachments).values(data).$returningId() as [{ id: number }];
   const [created] = await db
     .select()
     .from(defectAttachments)

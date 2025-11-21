@@ -26,11 +26,13 @@ import {
   Trash2,
   Copy,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { StatusBadge } from "@/components/StatusBadge";
+import { EmptyState } from "@/components/EmptyState";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 /**
  * Templates Page - Checklist Template Management
@@ -130,31 +132,23 @@ export default function Templates() {
 
       {/* Templates Grid */}
       {filteredTemplates.length === 0 ? (
-        <Card className="shadow-sm">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 mb-6">
-              <ClipboardList className="h-10 w-10 text-slate-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">
-              {searchQuery || stageFilter !== "all"
-                ? "ไม่พบ Template ที่ค้นหา"
-                : "ยังไม่มี Template"}
-            </h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-md">
-              {searchQuery || stageFilter !== "all"
-                ? "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง"
-                : "สร้าง Checklist Template แรกของคุณเพื่อเริ่มต้นการตรวจสอบคุณภาพ"}
-            </p>
-            {!searchQuery && stageFilter === "all" && (
-              <Link href="/templates/new">
-                <Button size="lg" className="gap-2">
-                  <Plus className="h-5 w-5" />
-                  สร้าง Template ใหม่
-                </Button>
-              </Link>
-            )}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={ClipboardList}
+          title={searchQuery || stageFilter !== "all" ? "ไม่พบ Template ที่ค้นหา" : "ยังไม่มี Template"}
+          description={
+            searchQuery || stageFilter !== "all"
+              ? "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง หรือล้างค่าการค้นหา"
+              : "สร้าง Checklist Template แรกของคุณเพื่อเริ่มต้นการตรวจสอบคุณภาพ Templates จะช่วยให้การตรวจสอบมีมาตรฐานเดียวกัน"
+          }
+          action={
+            !searchQuery && stageFilter === "all"
+              ? {
+                  label: "สร้าง Template ใหม่",
+                  onClick: () => window.location.href = "/templates/new",
+                }
+              : undefined
+          }
+        />
       ) : (
         <>
           {/* Results Count */}

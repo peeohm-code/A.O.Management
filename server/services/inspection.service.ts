@@ -155,7 +155,7 @@ export async function submitInspection(data: {
               data.photoUrls && data.photoUrls.length > 0 ? JSON.stringify(data.photoUrls) : null,
             severity: DEFECT_SEVERITY.MEDIUM,
             reportedBy: inspectedBy,
-            status: DEFECT_STATUS.OPEN,
+            status: 'reported' as const,
           });
         }
 

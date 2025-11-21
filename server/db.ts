@@ -4717,7 +4717,7 @@ export async function checkAlertThresholds(userId: number, currentMetrics: { cpu
     .where(
       and(
         eq(alertThresholds.userId, userId),
-        eq(alertThresholds.isEnabled, true)
+        eq(alertThresholds.isEnabled, 1)
       )
     );
 

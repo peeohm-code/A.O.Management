@@ -34,6 +34,7 @@ import {
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useLocation } from "wouter";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function Inspections() {
   const [, setLocation] = useLocation();
@@ -229,15 +230,27 @@ export default function Inspections() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : inspections.length === 0 ? (
-            <div className="text-center py-12">
-              <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">ไม่พบรายการตรวจสอบ</h3>
-              <p className="text-muted-foreground">
-                {search || statusFilter !== "all" || projectFilter !== "all"
-                  ? "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง"
-                  : "ยังไม่มีรายการตรวจสอบในระบบ"}
-              </p>
-            </div>
+            <EmptyState
+              icon={ClipboardCheck}
+              title={
+                search || statusFilter !== "all" || projectFilter !== "all"
+                  ? "ไม่พบรายการตรวจสอบ"
+                  : "ยังไม่มีรายการตรวจสอบ"
+              }
+              description={
+                search || statusFilter !== "all" || projectFilter !== "all"
+                  ? "ลองเปลี่ยนเงื่อนไขการค้นหาหรือกรอง หรือล้างค่าการค้นหา"
+                  : "เริ่มต้นด้วยการตรวจสอบงานในโครงการ ไปที่หน้า Tasks เพื่อทำการตรวจสอบ QC"
+              }
+              action={
+                !search && statusFilter === "all" && projectFilter === "all"
+                  ? {
+                      label: "ไปที่หน้า Tasks",
+                      onClick: () => setLocation("/tasks"),
+                    }
+                  : undefined
+              }
+            />
           ) : (
             <>
               <div className="rounded-md border">
