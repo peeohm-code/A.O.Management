@@ -5559,8 +5559,6 @@ export async function logUserActivity(data: {
       userId: data.userId,
       action: data.action,
       module: data.module,
-      entityType: data.entityType,
-      entityId: data.entityId,
       details: data.details ? JSON.stringify(data.details) : null,
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
@@ -5642,8 +5640,8 @@ export async function createBulkImportLog(data: {
   const result = await db.insert(bulkImportLogs).values({
     importedBy: data.importedBy,
     fileName: data.fileName,
-    fileUrl: data.fileUrl,
-    totalRows: data.totalRows,
+    fileSize: data.fileSize,
+    totalRecords: data.totalRows || 0,
     status: "pending",
   });
   
@@ -6225,8 +6223,8 @@ export async function getProjectTimelineOverview() {
       if (!stats) continue;
 
       const progress = stats.progressPercentage || 0;
-      const endDate = new Date(project.endDate);
-      const startDate = new Date(project.startDate);
+      const endDate = project.endDate ? new Date(project.endDate) : new Date();
+      const startDate = project.startDate ? new Date(project.startDate) : new Date();
       const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       const elapsedDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       const expectedProgress = totalDays > 0 ? (elapsedDays / totalDays) * 100 : 0;
@@ -6408,7 +6406,7 @@ export async function getQCStatusSummary() {
       .innerJoin(projects, eq(tasks.projectId, projects.id))
       .where(
         and(
-          eq(taskChecklists.status, 'passed'),
+          eq(taskChecklists.status, 'completed'),
           isNull(projects.archivedAt)
         )
       );
