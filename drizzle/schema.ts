@@ -520,6 +520,8 @@ export const taskChecklists = mysqlTable("taskChecklists", {
 	signature: text(),
 	originalInspectionId: int(),
 	reinspectionCount: int().default(0).notNull(),
+	notificationSent: tinyint().default(0).notNull(),
+	notifiedAt: timestamp({ mode: 'date' }),
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
 });

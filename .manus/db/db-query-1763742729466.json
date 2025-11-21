@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS escalationLogs (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  ruleId INT NOT NULL,\n  eventType ENUM('failed_inspection', 'unresolved_defect', 'overdue_task') NOT NULL,\n  entityId INT NOT NULL,\n  notifiedUsers TEXT NOT NULL,\n  escalatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX ruleIdIdx (ruleId),\n  INDEX eventTypeIdx (eventType),\n  INDEX entityIdIdx (entityId),\n  INDEX escalatedAtIdx (escalatedAt)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute CREATE TABLE IF NOT EXISTS escalationLogs (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  ruleId INT NOT NULL,\n  eventType ENUM('failed_inspection', 'unresolved_defect', 'overdue_task') NOT NULL,\n  entityId INT NOT NULL,\n  notifiedUsers TEXT NOT NULL,\n  escalatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX ruleIdIdx (ruleId),\n  INDEX eventTypeIdx (eventType),\n  INDEX entityIdIdx (entityId),\n  INDEX escalatedAtIdx (escalatedAt)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1745
+}

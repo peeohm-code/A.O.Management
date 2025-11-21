@@ -39,7 +39,8 @@ import {
   taskAssignments,
   alertThresholds,
   InsertAlertThreshold,
-
+  escalationRules,
+  escalationLogs,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
@@ -7078,57 +7079,129 @@ export async function getProjectQualityScore(projectId: number): Promise<{
 // ============================================================================
 
 export async function getAllEscalationRules() {
-  // TODO: Implement escalation rules
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  const rules = await db.select().from(escalationRules);
+  return rules.map(r => ({
+    ...r,
+    triggerType: r.eventType,
+    hoursUntilEscalation: r.thresholdUnit === 'hours' ? r.thresholdValue : r.thresholdValue * 24,
+    escalateToRoles: r.notifyRoles ? JSON.parse(r.notifyRoles) : [],
+    escalateToUserIds: r.notifyUsers ? JSON.parse(r.notifyUsers) : [],
+    enabled: Boolean(r.isActive),
+  }));
 }
 
 export async function getEscalationRuleById(id: number) {
-  // TODO: Implement escalation rules
-  return null;
+  const db = await getDb();
+  if (!db) return null;
+  const [rule] = await db.select().from(escalationRules).where(eq(escalationRules.id, id)).limit(1);
+  if (!rule) return null;
+  return {
+    ...rule,
+    triggerType: rule.eventType,
+    hoursUntilEscalation: rule.thresholdUnit === 'hours' ? rule.thresholdValue : rule.thresholdValue * 24,
+    escalateToRoles: rule.notifyRoles ? JSON.parse(rule.notifyRoles) : [],
+    escalateToUserIds: rule.notifyUsers ? JSON.parse(rule.notifyUsers) : [],
+    enabled: Boolean(rule.isActive),
+  };
 }
 
 export async function createEscalationRule(data: any) {
-  // TODO: Implement escalation rules
-  return { id: 1, ...data };
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const hours = data.hoursUntilEscalation || 24;
+  const thresholdUnit = hours < 24 ? 'hours' : 'days';
+  const thresholdValue = hours < 24 ? hours : Math.ceil(hours / 24);
+  
+  const result = await db.insert(escalationRules).values({
+    name: data.name,
+    description: data.description || null,
+    eventType: data.triggerType,
+    thresholdValue,
+    thresholdUnit,
+    notifyRoles: JSON.stringify(data.escalateToRoles || []),
+    notifyUsers: data.escalateToUserIds ? JSON.stringify(data.escalateToUserIds) : null,
+    isActive: data.enabled !== false ? 1 : 0,
+    createdBy: data.createdBy,
+  });
+  
+  return { id: Number(result.insertId), ...data };
 }
 
 export async function updateEscalationRule(id: number, data: any) {
-  // TODO: Implement escalation rules
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const updateData: any = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.triggerType !== undefined) updateData.eventType = data.triggerType;
+  if (data.hoursUntilEscalation !== undefined) {
+    const hours = data.hoursUntilEscalation;
+    updateData.thresholdUnit = hours < 24 ? 'hours' : 'days';
+    updateData.thresholdValue = hours < 24 ? hours : Math.ceil(hours / 24);
+  }
+  if (data.escalateToRoles !== undefined) updateData.notifyRoles = JSON.stringify(data.escalateToRoles);
+  if (data.escalateToUserIds !== undefined) updateData.notifyUsers = JSON.stringify(data.escalateToUserIds);
+  if (data.enabled !== undefined) updateData.isActive = data.enabled ? 1 : 0;
+  
+  await db.update(escalationRules).set(updateData).where(eq(escalationRules.id, id));
   return { id, ...data };
 }
 
 export async function deleteEscalationRule(id: number) {
-  // TODO: Implement escalation rules
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  await db.delete(escalationRules).where(eq(escalationRules.id, id));
   return true;
 }
 
 export async function getAllEscalationLogs() {
-  // TODO: Implement escalation logs
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(escalationLogs);
 }
 
 export async function getEscalationLogsByEntity(entityType: string, entityId: number) {
-  // TODO: Implement escalation logs
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(escalationLogs)
+    .where(and(
+      eq(escalationLogs.eventType, entityType as any),
+      eq(escalationLogs.entityId, entityId)
+    ));
 }
 
 export async function resolveEscalationLog(id: number, resolvedBy: number, resolution: string) {
-  // TODO: Implement escalation logs
+  // Note: escalationLogs table doesn't have resolved status field
+  // This is a placeholder - in production, add resolvedAt/resolvedBy fields
   return true;
 }
 
 export async function getEscalationStatistics() {
-  // TODO: Implement escalation statistics
-  return {
+  const db = await getDb();
+  if (!db) return {
     totalEscalations: 0,
     resolvedEscalations: 0,
     pendingEscalations: 0,
+    averageResolutionTime: 0,
+  };
+  
+  const logs = await db.select().from(escalationLogs);
+  return {
+    totalEscalations: logs.length,
+    resolvedEscalations: 0, // TODO: Add resolved field to schema
+    pendingEscalations: logs.length,
     averageResolutionTime: 0,
   };
 }
 
 export async function checkAndTriggerEscalations() {
   // TODO: Implement escalation trigger logic
+  // This should check for failed inspections, unresolved defects, overdue tasks
+  // and create escalation logs based on rules
   return [];
 }
 
