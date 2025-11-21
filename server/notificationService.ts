@@ -66,7 +66,7 @@ export async function createNotification(
       relatedTaskId: params.relatedTaskId || null,
       relatedProjectId: params.relatedProjectId || null,
       relatedDefectId: params.relatedDefectId || null,
-      isRead: false,
+      isRead: 0,
     });
 
     // Get the created notification
@@ -99,7 +99,7 @@ export async function createNotification(
         message: notification.content || "",
         link: getNotificationLink(notification),
         timestamp: notification.createdAt,
-        read: notification.isRead,
+        read: Boolean(notification.isRead),
       };
       emitNotification(params.userId, socketNotification);
     } catch (error) {

@@ -56,11 +56,51 @@ export async function getDefectsByProjectId(projectId: number): Promise<Defect[]
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return db
-    .select()
+  const result = await db
+    .select({
+      id: defects.id,
+      taskId: defects.taskId,
+      checklistItemResultId: defects.checklistItemResultId,
+      title: defects.title,
+      description: defects.description,
+      photoUrls: defects.photoUrls,
+      status: defects.status,
+      severity: defects.severity,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      resolvedBy: defects.resolvedBy,
+      resolvedAt: defects.resolvedAt,
+      resolutionPhotoUrls: defects.resolutionPhotoUrls,
+      resolutionComment: defects.resolutionComment,
+      type: defects.type,
+      checklistId: defects.checklistId,
+      rootCause: defects.rootCause,
+      correctiveAction: defects.correctiveAction,
+      preventiveAction: defects.preventiveAction,
+      dueDate: defects.dueDate,
+      actionMethod: defects.actionMethod,
+      actionResponsible: defects.actionResponsible,
+      actionDeadline: defects.actionDeadline,
+      actionNotes: defects.actionNotes,
+      ncrLevel: defects.ncrLevel,
+      verifiedBy: defects.verifiedBy,
+      verifiedAt: defects.verifiedAt,
+      verificationComment: defects.verificationComment,
+      resolutionNotes: defects.resolutionNotes,
+      implementationMethod: defects.implementationMethod,
+      beforePhotos: defects.beforePhotos,
+      afterPhotos: defects.afterPhotos,
+      closureNotes: defects.closureNotes,
+      createdAt: defects.createdAt,
+      updatedAt: defects.updatedAt,
+      escalation: defects.escalation,
+    })
     .from(defects)
-    .where(eq(defects.projectId, projectId))
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(eq(tasks.projectId, projectId))
     .orderBy(desc(defects.createdAt));
+  
+  return result as Defect[];
 }
 
 export async function getDefectsByStatus(
@@ -70,11 +110,51 @@ export async function getDefectsByStatus(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return db
-    .select()
+  const result = await db
+    .select({
+      id: defects.id,
+      taskId: defects.taskId,
+      checklistItemResultId: defects.checklistItemResultId,
+      title: defects.title,
+      description: defects.description,
+      photoUrls: defects.photoUrls,
+      status: defects.status,
+      severity: defects.severity,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      resolvedBy: defects.resolvedBy,
+      resolvedAt: defects.resolvedAt,
+      resolutionPhotoUrls: defects.resolutionPhotoUrls,
+      resolutionComment: defects.resolutionComment,
+      type: defects.type,
+      checklistId: defects.checklistId,
+      rootCause: defects.rootCause,
+      correctiveAction: defects.correctiveAction,
+      preventiveAction: defects.preventiveAction,
+      dueDate: defects.dueDate,
+      actionMethod: defects.actionMethod,
+      actionResponsible: defects.actionResponsible,
+      actionDeadline: defects.actionDeadline,
+      actionNotes: defects.actionNotes,
+      ncrLevel: defects.ncrLevel,
+      verifiedBy: defects.verifiedBy,
+      verifiedAt: defects.verifiedAt,
+      verificationComment: defects.verificationComment,
+      resolutionNotes: defects.resolutionNotes,
+      implementationMethod: defects.implementationMethod,
+      beforePhotos: defects.beforePhotos,
+      afterPhotos: defects.afterPhotos,
+      closureNotes: defects.closureNotes,
+      createdAt: defects.createdAt,
+      updatedAt: defects.updatedAt,
+      escalation: defects.escalation,
+    })
     .from(defects)
-    .where(and(eq(defects.projectId, projectId), eq(defects.status, status)))
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(and(eq(tasks.projectId, projectId), eq(defects.status, status)))
     .orderBy(desc(defects.createdAt));
+  
+  return result as Defect[];
 }
 
 export async function getDefectsBySeverity(
@@ -84,11 +164,51 @@ export async function getDefectsBySeverity(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return db
-    .select()
+  const result = await db
+    .select({
+      id: defects.id,
+      taskId: defects.taskId,
+      checklistItemResultId: defects.checklistItemResultId,
+      title: defects.title,
+      description: defects.description,
+      photoUrls: defects.photoUrls,
+      status: defects.status,
+      severity: defects.severity,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      resolvedBy: defects.resolvedBy,
+      resolvedAt: defects.resolvedAt,
+      resolutionPhotoUrls: defects.resolutionPhotoUrls,
+      resolutionComment: defects.resolutionComment,
+      type: defects.type,
+      checklistId: defects.checklistId,
+      rootCause: defects.rootCause,
+      correctiveAction: defects.correctiveAction,
+      preventiveAction: defects.preventiveAction,
+      dueDate: defects.dueDate,
+      actionMethod: defects.actionMethod,
+      actionResponsible: defects.actionResponsible,
+      actionDeadline: defects.actionDeadline,
+      actionNotes: defects.actionNotes,
+      ncrLevel: defects.ncrLevel,
+      verifiedBy: defects.verifiedBy,
+      verifiedAt: defects.verifiedAt,
+      verificationComment: defects.verificationComment,
+      resolutionNotes: defects.resolutionNotes,
+      implementationMethod: defects.implementationMethod,
+      beforePhotos: defects.beforePhotos,
+      afterPhotos: defects.afterPhotos,
+      closureNotes: defects.closureNotes,
+      createdAt: defects.createdAt,
+      updatedAt: defects.updatedAt,
+      escalation: defects.escalation,
+    })
     .from(defects)
-    .where(and(eq(defects.projectId, projectId), eq(defects.severity, severity)))
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(and(eq(tasks.projectId, projectId), eq(defects.severity, severity)))
     .orderBy(desc(defects.createdAt));
+  
+  return result as Defect[];
 }
 
 export async function getDefectsByAssignee(assigneeId: number): Promise<Defect[]> {
@@ -222,18 +342,24 @@ export async function getDefectStatsByProject(projectId: number): Promise<{
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const allDefects = await db
-    .select()
+  const result = await db
+    .select({
+      status: defects.status,
+      severity: defects.severity,
+    })
     .from(defects)
-    .where(eq(defects.projectId, projectId));
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
+    .where(eq(tasks.projectId, projectId));
 
   const byStatus: Record<string, number> = {};
   const bySeverity: Record<string, number> = {};
 
-  for (const defect of allDefects) {
+  for (const defect of result) {
     byStatus[defect.status] = (byStatus[defect.status] || 0) + 1;
     bySeverity[defect.severity] = (bySeverity[defect.severity] || 0) + 1;
   }
+
+  const allDefects = result;
 
   return {
     total: allDefects.length,
@@ -246,15 +372,55 @@ export async function getCriticalDefects(projectId: number): Promise<Defect[]> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return db
-    .select()
+  const result = await db
+    .select({
+      id: defects.id,
+      taskId: defects.taskId,
+      checklistItemResultId: defects.checklistItemResultId,
+      title: defects.title,
+      description: defects.description,
+      photoUrls: defects.photoUrls,
+      status: defects.status,
+      severity: defects.severity,
+      assignedTo: defects.assignedTo,
+      reportedBy: defects.reportedBy,
+      resolvedBy: defects.resolvedBy,
+      resolvedAt: defects.resolvedAt,
+      resolutionPhotoUrls: defects.resolutionPhotoUrls,
+      resolutionComment: defects.resolutionComment,
+      type: defects.type,
+      checklistId: defects.checklistId,
+      rootCause: defects.rootCause,
+      correctiveAction: defects.correctiveAction,
+      preventiveAction: defects.preventiveAction,
+      dueDate: defects.dueDate,
+      actionMethod: defects.actionMethod,
+      actionResponsible: defects.actionResponsible,
+      actionDeadline: defects.actionDeadline,
+      actionNotes: defects.actionNotes,
+      ncrLevel: defects.ncrLevel,
+      verifiedBy: defects.verifiedBy,
+      verifiedAt: defects.verifiedAt,
+      verificationComment: defects.verificationComment,
+      resolutionNotes: defects.resolutionNotes,
+      implementationMethod: defects.implementationMethod,
+      beforePhotos: defects.beforePhotos,
+      afterPhotos: defects.afterPhotos,
+      closureNotes: defects.closureNotes,
+      createdAt: defects.createdAt,
+      updatedAt: defects.updatedAt,
+      escalation: defects.escalation,
+    })
     .from(defects)
+    .leftJoin(tasks, eq(defects.taskId, tasks.id))
     .where(
       and(
-        eq(defects.projectId, projectId),
+        eq(tasks.projectId, projectId),
         eq(defects.severity, "critical"),
         sql`${defects.status} != 'resolved'`
       )
     )
     .orderBy(desc(defects.createdAt));
+  
+  return result as Defect[];
 }

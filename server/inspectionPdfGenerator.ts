@@ -431,7 +431,7 @@ export async function generateInspectionPDF(inspectionId: number): Promise<strin
   <!-- Inspection Items -->
   <div class="items-section">
     <h2>รายการตรวจสอบ</h2>
-    ${inspection.itemResults
+    ${inspection.items
       .map(
         (item: any, index: any) => `
       <div class="item item-${item.result}">

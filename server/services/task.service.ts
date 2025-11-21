@@ -59,7 +59,7 @@ export async function getTasksByAssignee(assigneeId: number): Promise<Task[]> {
     .select()
     .from(tasks)
     .where(eq(tasks.assigneeId, assigneeId))
-    .orderBy(desc(tasks.dueDate));
+    .orderBy(desc(tasks.endDate));
 }
 
 export async function updateTask(
@@ -262,9 +262,9 @@ export async function getOverdueTasks(): Promise<Task[]> {
     .from(tasks)
     .where(
       and(
-        sql`${tasks.dueDate} < ${now}`,
+        sql`${tasks.endDate} < ${now}`,
         sql`${tasks.status} != 'completed'`
       )
     )
-    .orderBy(tasks.dueDate);
+    .orderBy(tasks.endDate);
 }

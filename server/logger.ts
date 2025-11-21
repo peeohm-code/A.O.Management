@@ -57,7 +57,7 @@ class Logger {
     this.log('warn', message, context, data);
   }
 
-  error(message: string, context?: string, data?: unknown): void {
+  error(message: string, context?: string | any, data?: unknown): void {
     this.log('error', message, context, data);
   }
 
