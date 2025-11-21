@@ -1,0 +1,220 @@
+import { and, desc, eq } from "drizzle-orm";
+import { getDb } from "../db/client";
+import {
+  notifications,
+  type Notification,
+  type InsertNotification,
+} from "../../drizzle/schema";
+
+/**
+ * Notification Service
+ * Handles all notification-related operations
+ */
+
+// ============================================================================
+// Notification CRUD Operations
+// ============================================================================
+
+export async function createNotification(
+  data: InsertNotification
+): Promise<Notification> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [notification] = await db.insert(notifications).values(data).$returningId();
+  const [created] = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.id, notification.id));
+
+  if (!created) throw new Error("Failed to create notification");
+  return created;
+}
+
+export async function getNotificationById(
+  notificationId: number
+): Promise<Notification | undefined> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [notification] = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.id, notificationId));
+
+  return notification;
+}
+
+export async function getNotificationsByUser(userId: number): Promise<Notification[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId))
+    .orderBy(desc(notifications.createdAt));
+}
+
+export async function getUnreadNotifications(userId: number): Promise<Notification[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db
+    .select()
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
+    .orderBy(desc(notifications.createdAt));
+}
+
+export async function markNotificationAsRead(notificationId: number): Promise<Notification> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ isRead: true })
+    .where(eq(notifications.id, notificationId));
+
+  const [updated] = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.id, notificationId));
+
+  if (!updated) throw new Error("Notification not found after update");
+  return updated;
+}
+
+export async function markAllNotificationsAsRead(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ isRead: true })
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+}
+
+export async function deleteNotification(notificationId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(notifications).where(eq(notifications.id, notificationId));
+}
+
+export async function deleteAllNotifications(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(notifications).where(eq(notifications.userId, userId));
+}
+
+// ============================================================================
+// Notification Statistics
+// ============================================================================
+
+export async function getUnreadCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const unread = await db
+    .select()
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+
+  return unread.length;
+}
+
+// ============================================================================
+// Bulk Notification Creation
+// ============================================================================
+
+export async function createBulkNotifications(
+  userIds: number[],
+  data: Omit<InsertNotification, "userId">
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const notifications = userIds.map((userId) => ({
+    ...data,
+    userId,
+  }));
+
+  await db.insert(notifications).values(notifications);
+}
+
+// ============================================================================
+// Notification Templates
+// ============================================================================
+
+export async function notifyTaskAssignment(
+  userId: number,
+  taskId: number,
+  taskTitle: string
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "task_assigned",
+    title: "งานใหม่ถูกมอบหมาย",
+    message: `คุณได้รับมอบหมายงาน: ${taskTitle}`,
+    relatedId: taskId,
+  });
+}
+
+export async function notifyDefectAssignment(
+  userId: number,
+  defectId: number,
+  defectTitle: string
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "defect_assigned",
+    title: "ข้อบกพร่องใหม่ถูกมอบหมาย",
+    message: `คุณได้รับมอบหมายข้อบกพร่อง: ${defectTitle}`,
+    relatedId: defectId,
+  });
+}
+
+export async function notifyTaskDueSoon(
+  userId: number,
+  taskId: number,
+  taskTitle: string,
+  dueDate: Date
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "task_due_soon",
+    title: "งานใกล้ครบกำหนด",
+    message: `งาน "${taskTitle}" จะครบกำหนดในวันที่ ${dueDate.toLocaleDateString("th-TH")}`,
+    relatedId: taskId,
+  });
+}
+
+export async function notifyQCInspectionScheduled(
+  userId: number,
+  inspectionId: number,
+  inspectionTitle: string,
+  scheduledDate: Date
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "qc_inspection_scheduled",
+    title: "การตรวจสอบ QC ถูกกำหนดเวลา",
+    message: `การตรวจสอบ "${inspectionTitle}" กำหนดไว้ในวันที่ ${scheduledDate.toLocaleDateString("th-TH")}`,
+    relatedId: inspectionId,
+  });
+}
+
+export async function notifyProjectUpdate(
+  userIds: number[],
+  projectId: number,
+  updateMessage: string
+): Promise<void> {
+  await createBulkNotifications(userIds, {
+    type: "project_update",
+    title: "อัปเดตโครงการ",
+    message: updateMessage,
+    relatedId: projectId,
+  });
+}
