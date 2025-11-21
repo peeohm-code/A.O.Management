@@ -193,7 +193,7 @@ export default function Analytics() {
                   <SelectValue placeholder="เลือกโครงการ" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects?.map((project: any) => (
+                  {projects?.items?.map((project: any) => (
                     <SelectItem key={project.id} value={project.id.toString()}>
                       {project.name}
                     </SelectItem>

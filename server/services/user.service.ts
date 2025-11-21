@@ -2,7 +2,7 @@ import { desc, eq, like, or, sql } from "drizzle-orm";
 import { getDb } from "../db/client";
 import {
   users,
-  activityLogs,
+  activityLog,
   type User,
   type InsertUser,
   type ActivityLog,
@@ -97,7 +97,7 @@ export async function deleteUser(userId: number): Promise<void> {
   if (!db) throw new Error("Database not available");
 
   // Delete activity logs
-  await db.delete(activityLogs).where(eq(activityLogs.userId, userId));
+  await db.delete(activityLog).where(eq(activityLog.userId, userId));
 
   // Delete user
   await db.delete(users).where(eq(users.id, userId));
@@ -137,11 +137,11 @@ export async function createActivityLog(data: InsertActivityLog): Promise<Activi
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [log] = await db.insert(activityLogs).values(data).$returningId();
+  const [log] = await db.insert(activityLog).values(data).$returningId();
   const [created] = await db
     .select()
-    .from(activityLogs)
-    .where(eq(activityLogs.id, log.id));
+    .from(activityLog)
+    .where(eq(activityLog.id, log.id));
 
   if (!created) throw new Error("Failed to create activity log");
   return created;
@@ -153,9 +153,9 @@ export async function getActivityLogsByUser(userId: number): Promise<ActivityLog
 
   return db
     .select()
-    .from(activityLogs)
-    .where(eq(activityLogs.userId, userId))
-    .orderBy(desc(activityLogs.createdAt));
+    .from(activityLog)
+    .where(eq(activityLog.userId, userId))
+    .orderBy(desc(activityLog.createdAt));
 }
 
 export async function getActivityLogsByProject(projectId: number): Promise<ActivityLog[]> {
@@ -164,9 +164,9 @@ export async function getActivityLogsByProject(projectId: number): Promise<Activ
 
   return db
     .select()
-    .from(activityLogs)
-    .where(eq(activityLogs.projectId, projectId))
-    .orderBy(desc(activityLogs.createdAt));
+    .from(activityLog)
+    .where(eq(activityLog.projectId, projectId))
+    .orderBy(desc(activityLog.createdAt));
 }
 
 export async function getRecentActivityLogs(limit: number = 50): Promise<ActivityLog[]> {
@@ -175,8 +175,8 @@ export async function getRecentActivityLogs(limit: number = 50): Promise<Activit
 
   return db
     .select()
-    .from(activityLogs)
-    .orderBy(desc(activityLogs.createdAt))
+    .from(activityLog)
+    .orderBy(desc(activityLog.createdAt))
     .limit(limit);
 }
 
@@ -194,8 +194,8 @@ export async function getUserStats(userId: number): Promise<{
 
   const logs = await db
     .select()
-    .from(activityLogs)
-    .where(eq(activityLogs.userId, userId));
+    .from(activityLog)
+    .where(eq(activityLog.userId, userId));
 
   const uniqueProjects = new Set(logs.map((log) => log.projectId).filter(Boolean));
 

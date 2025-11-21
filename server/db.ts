@@ -1078,7 +1078,15 @@ export async function updateChecklistTemplate(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.update(checklistTemplates).set(data).where(eq(checklistTemplates.id, id));
+  const updateData: any = { ...data };
+  if (data.allowGeneralComments !== undefined) {
+    updateData.allowGeneralComments = data.allowGeneralComments ? 1 : 0;
+  }
+  if (data.allowPhotos !== undefined) {
+    updateData.allowPhotos = data.allowPhotos ? 1 : 0;
+  }
+
+  return await db.update(checklistTemplates).set(updateData).where(eq(checklistTemplates.id, id));
 }
 
 export async function deleteChecklistTemplateItems(templateId: number) {
@@ -1469,7 +1477,6 @@ export async function updateChecklistItemResult(
     .set({
       result: data.result,
       photoUrls: data.photoUrls,
-      comments: data.comments,
       updatedAt: new Date(),
     })
     .where(eq(checklistItemResults.id, id));
@@ -1938,7 +1945,7 @@ export async function markNotificationAsRead(id: number) {
   if (!db) throw new Error("Database not available");
 
   try {
-    const result = await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+    const result = await db.update(notifications).set({ isRead: 1 }).where(eq(notifications.id, id));
     return result;
   } catch (error: unknown) {
     console.error('[markNotificationAsRead] Error updating notification:', error);
@@ -1951,7 +1958,7 @@ export async function markAllNotificationsAsRead(userId: number) {
   if (!db) throw new Error("Database not available");
 
   try {
-    const result = await db.update(notifications).set({ isRead: true }).where(eq(notifications.userId, userId));
+    const result = await db.update(notifications).set({ isRead: 1 }).where(eq(notifications.userId, userId));
     return result;
   } catch (error: unknown) {
     console.error('[markAllNotificationsAsRead] Error updating notifications:', error);
@@ -2630,7 +2637,11 @@ export async function updateArchiveRule(
   if (!db) throw new Error("Database not available");
   
   const { archiveRules } = await import("../drizzle/schema");
-  await db.update(archiveRules).set(data).where(eq(archiveRules.id, id));
+  const updateData: any = { ...data };
+  if (data.enabled !== undefined) {
+    updateData.enabled = data.enabled ? 1 : 0;
+  }
+  await db.update(archiveRules).set(updateData).where(eq(archiveRules.id, id));
 }
 
 export async function deleteArchiveRule(id: number) {
@@ -3590,7 +3601,7 @@ export async function resolveOomEvent(eventId: number, userId: number, resolutio
     await db
       .update(oomEvents)
       .set({
-        resolved: true,
+        resolved: 1,
         resolvedAt: new Date(),
         resolvedBy: userId,
         resolutionNotes,
@@ -3663,7 +3674,7 @@ export async function createPushSubscription(subscription: InsertPushSubscriptio
       await db
         .update(pushSubscriptions)
         .set({
-          p256dh: subscription.p256dh,
+          p256Dh: subscription.p256Dh,
           auth: subscription.auth,
           userAgent: subscription.userAgent,
           lastUsedAt: new Date(),
@@ -5262,7 +5273,7 @@ export async function getDashboardStats(userId?: number) {
       completionRate,
     };
   } catch (error: unknown) {
-    logger.error('[getDashboardStats] Error:', error as Error);
+    logger.error('[getDashboardStats] Error:', (error as Error).message);
     return null;
   }
 }
@@ -5290,7 +5301,7 @@ export async function getRecentActivitiesForDashboard(limit = 10) {
 
     return activities;
   } catch (error: unknown) {
-    logger.error('[getRecentActivitiesForDashboard] Error:', error as Error);
+    logger.error('[getRecentActivitiesForDashboard] Error:', (error as Error).message);
     return [];
   }
 }
@@ -5312,7 +5323,7 @@ export async function getTaskStatusDistribution() {
 
     return distribution;
   } catch (error: unknown) {
-    logger.error('[getTaskStatusDistribution] Error:', error as Error);
+    logger.error('[getTaskStatusDistribution] Error:', (error as Error).message);
     return [];
   }
 }
@@ -5340,7 +5351,7 @@ export async function getDefectSeverityDistribution() {
 
     return distribution;
   } catch (error: unknown) {
-    logger.error('[getDefectSeverityDistribution] Error:', error as Error);
+    logger.error('[getDefectSeverityDistribution] Error:', (error as Error).message);
     return [];
   }
 }
@@ -5363,7 +5374,7 @@ export async function getProjectProgressForDashboard() {
 
     return projectsData;
   } catch (error: unknown) {
-    logger.error('[getProjectProgressForDashboard] Error:', error as Error);
+    logger.error('[getProjectProgressForDashboard] Error:', (error as Error).message);
     return [];
   }
 }
@@ -5730,7 +5741,7 @@ export async function getCEOProjectOverview() {
       overdue: overdueResult[0]?.count || 0,
     };
   } catch (error: unknown) {
-    logger.error('[getCEOProjectOverview] Error:', error as Error);
+    logger.error('[getCEOProjectOverview] Error:', (error as Error).message);
     return null;
   }
 }
@@ -5795,7 +5806,7 @@ export async function getCEOProjectStatusBreakdown() {
       total: allProjects.length,
     };
   } catch (error: unknown) {
-    logger.error('[getCEOProjectStatusBreakdown] Error:', error as Error);
+    logger.error('[getCEOProjectStatusBreakdown] Error:', (error as Error).message);
     return null;
   }
 }
@@ -5857,7 +5868,7 @@ export async function getCEOTasksOverview() {
       completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
     };
   } catch (error: unknown) {
-    logger.error('[getCEOTasksOverview] Error:', error as Error);
+    logger.error('[getCEOTasksOverview] Error:', (error as Error).message);
     return null;
   }
 }
@@ -5915,7 +5926,7 @@ export async function getCEOInspectionStats() {
       passRate: total > 0 ? Math.round((passed / total) * 100) : 0,
     };
   } catch (error: unknown) {
-    logger.error('[getCEOInspectionStats] Error:', error as Error);
+    logger.error('[getCEOInspectionStats] Error:', (error as Error).message);
     return null;
   }
 }
@@ -5950,7 +5961,7 @@ export async function getCEODefectStats() {
       .innerJoin(projects, eq(tasks.projectId, projects.id))
       .where(
         and(
-          eq(defects.severity, "major"),
+          eq(defects.severity, "high"),
           ne(defects.status, "resolved"),
           isNull(projects.archivedAt)
         )
@@ -5964,7 +5975,7 @@ export async function getCEODefectStats() {
       .innerJoin(projects, eq(tasks.projectId, projects.id))
       .where(
         and(
-          eq(defects.severity, "minor"),
+          eq(defects.severity, "medium"),
           ne(defects.status, "resolved"),
           isNull(projects.archivedAt)
         )
@@ -5985,7 +5996,7 @@ export async function getCEODefectStats() {
       total: totalResult[0]?.count || 0,
     };
   } catch (error: unknown) {
-    logger.error('[getCEODefectStats] Error:', error as Error);
+    logger.error('[getCEODefectStats] Error:', (error as Error).message);
     return null;
   }
 }
@@ -6115,7 +6126,7 @@ export async function getCEOAlerts() {
       return severityOrder[a.severity] - severityOrder[b.severity];
     });
   } catch (error: unknown) {
-    logger.error('[getCEOAlerts] Error:', error as Error);
+    logger.error('[getCEOAlerts] Error:', (error as Error).message);
     return [];
   }
 }
@@ -6212,7 +6223,7 @@ export async function getProjectTimelineOverview() {
       }),
     };
   } catch (error: unknown) {
-    logger.error('[getProjectTimelineOverview] Error:', error as Error);
+    logger.error('[getProjectTimelineOverview] Error:', (error as Error).message);
     return null;
   }
 }
@@ -6318,7 +6329,7 @@ export async function getTeamPerformanceMetrics() {
       members: performanceData.sort((a, b) => b.completionRate - a.completionRate),
     };
   } catch (error: unknown) {
-    logger.error('[getTeamPerformanceMetrics] Error:', error as Error);
+    logger.error('[getTeamPerformanceMetrics] Error:', (error as Error).message);
     return null;
   }
 }
@@ -6475,7 +6486,7 @@ export async function getQCStatusSummary() {
       },
     };
   } catch (error: unknown) {
-    logger.error('[getQCStatusSummary] Error:', error as Error);
+    logger.error('[getQCStatusSummary] Error:', (error as Error).message);
     return null;
   }
 }
@@ -6512,7 +6523,7 @@ export async function getRecentActivitiesEnhanced(limit = 15) {
 
     return activities;
   } catch (error: unknown) {
-    logger.error('[getRecentActivitiesEnhanced] Error:', error as Error);
+    logger.error('[getRecentActivitiesEnhanced] Error:', (error as Error).message);
     return [];
   }
 }

@@ -25,8 +25,8 @@ export async function createTask(data: InsertTask): Promise<Task> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [task] = await db.insert(tasks).values(data).$returningId();
-  const [created] = await db.select().from(tasks).where(eq(tasks.id, task.id));
+  const [result] = await db.insert(tasks).values(data);
+  const [created] = await db.select().from(tasks).where(eq(tasks.id, result.insertId));
   
   if (!created) throw new Error("Failed to create task");
   return created;

@@ -8,7 +8,7 @@ export const activityLog = mysqlTable("activityLog", {
 	taskId: int(),
 	action: varchar({ length: 100 }).notNull(),
 	details: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("userIdx").on(table.userId),
@@ -24,7 +24,7 @@ export const alertThresholds = mysqlTable("alertThresholds", {
 	metricType: mysqlEnum(['cpu','memory']).notNull(),
 	threshold: int().notNull(),
 	isEnabled: tinyint().default(1).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },
 (table) => [
@@ -39,7 +39,7 @@ export const approvalSteps = mysqlTable("approvalSteps", {
 	comments: text(),
 	signatureData: text(),
 	approvedAt: timestamp(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("approvalIdx").on(table.approvalId),
@@ -52,7 +52,7 @@ export const approvals = mysqlTable("approvals", {
 	entityId: int().notNull(),
 	status: mysqlEnum(['pending','approved','rejected']).default('pending').notNull(),
 	createdBy: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },
 (table) => [
@@ -66,7 +66,7 @@ export const archiveHistory = mysqlTable("archiveHistory", {
 	performedBy: int().notNull(),
 	reason: text(),
 	ruleId: int(),
-	performedAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	performedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("projectIdIdx").on(table.projectId),
@@ -82,7 +82,7 @@ export const archiveRules = mysqlTable("archiveRules", {
 	daysAfterCompletion: int(),
 	daysAfterEndDate: int(),
 	createdBy: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 	lastRunAt: timestamp(),
 });
@@ -92,7 +92,7 @@ export const categoryColors = mysqlTable("categoryColors", {
 	projectId: int().notNull(),
 	category: mysqlEnum(['preparation','structure','architecture','mep','other']).notNull(),
 	color: varchar({ length: 7 }).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },
 (table) => [
@@ -105,7 +105,7 @@ export const checklistItemResults = mysqlTable("checklistItemResults", {
 	templateItemId: int().notNull(),
 	result: mysqlEnum(['pass','fail','na']).notNull(),
 	photoUrls: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },
 (table) => [
@@ -120,7 +120,7 @@ export const checklistResults = mysqlTable("checklistResults", {
 	comment: text(),
 	photoUrls: text(),
 	inspectedBy: int().notNull(),
-	inspectedAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	inspectedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("checklistIdx").on(table.checklistId),
@@ -132,7 +132,7 @@ export const checklistTemplateItems = mysqlTable("checklistTemplateItems", {
 	templateId: int().notNull(),
 	itemText: text().notNull(),
 	order: int().default(0).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("templateIdx").on(table.templateId),
@@ -147,7 +147,7 @@ export const checklistTemplates = mysqlTable("checklistTemplates", {
 	allowGeneralComments: tinyint().default(1).notNull(),
 	allowPhotos: tinyint().default(1).notNull(),
 	createdBy: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },
 (table) => [
@@ -163,7 +163,7 @@ export const dbStatistics = mysqlTable("dbStatistics", {
 	indexSize: int().notNull(),
 	avgQueryTime: int(),
 	queryCount: int().default(0).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("tableNameIdx").on(table.tableName),
@@ -180,7 +180,7 @@ export const defectAttachments = mysqlTable("defectAttachments", {
 	fileSize: int().notNull(),
 	attachmentType: mysqlEnum(['before','after','supporting']).notNull(),
 	uploadedBy: int().notNull(),
-	uploadedAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	uploadedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("defectIdx").on(table.defectId),
@@ -195,8 +195,8 @@ export const defectInspections = mysqlTable("defect_inspections", {
 	result: varchar({ length: 20 }).default('pending').notNull(),
 	comments: text(),
 	photoUrls: text(),
-	inspectedAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	inspectedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("defectIdx").on(table.defectId),
@@ -238,7 +238,7 @@ export const defects = mysqlTable("defects", {
 	beforePhotos: text(),
 	afterPhotos: text(),
 	closureNotes: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 	escalation: text(),
 },
@@ -252,7 +252,7 @@ export const defects = mysqlTable("defects", {
 
 export const memoryLogs = mysqlTable("memoryLogs", {
 	id: int().autoincrement().notNull(),
-	timestamp: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	timestamp: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	totalMemoryMb: int().notNull(),
 	usedMemoryMb: int().notNull(),
 	freeMemoryMb: int().notNull(),
@@ -262,7 +262,7 @@ export const memoryLogs = mysqlTable("memoryLogs", {
 	swapTotalMb: int(),
 	swapUsedMb: int(),
 	swapFreePercentage: int(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("timestampIdx").on(table.timestamp),
@@ -281,7 +281,7 @@ export const notificationSettings = mysqlTable("notificationSettings", {
 	enableInAppNotifications: tinyint().default(1).notNull(),
 	enableEmailNotifications: tinyint().default(1).notNull(),
 	enablePushNotifications: tinyint().default(1).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },
 (table) => [
@@ -300,7 +300,7 @@ export const notifications = mysqlTable("notifications", {
 	relatedProjectId: int(),
 	relatedDefectId: int(),
 	isRead: tinyint().default(0).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("userIdx").on(table.userId),
@@ -313,7 +313,7 @@ export const notifications = mysqlTable("notifications", {
 
 export const oomEvents = mysqlTable("oomEvents", {
 	id: int().autoincrement().notNull(),
-	timestamp: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	timestamp: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	processName: varchar({ length: 255 }),
 	processId: int(),
 	killedProcessName: varchar({ length: 255 }),
@@ -325,7 +325,7 @@ export const oomEvents = mysqlTable("oomEvents", {
 	resolvedAt: timestamp(),
 	resolvedBy: int(),
 	resolutionNotes: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("timestampIdx").on(table.timestamp),
@@ -338,7 +338,7 @@ export const projectMembers = mysqlTable("projectMembers", {
 	projectId: int().notNull(),
 	userId: int().notNull(),
 	role: mysqlEnum(['project_manager','qc_inspector','worker']).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("projectUserIdx").on(table.projectId, table.userId),
@@ -359,7 +359,7 @@ export const projects = mysqlTable("projects", {
 	completionPercentage: int().default(0),
 	color: varchar({ length: 7 }).default('#3B82F6'),
 	createdBy: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 	archivedAt: timestamp(),
 	archivedBy: int(),
@@ -377,8 +377,8 @@ export const pushSubscriptions = mysqlTable("pushSubscriptions", {
 	p256Dh: text().notNull(),
 	auth: text().notNull(),
 	userAgent: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
-	lastUsedAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+	lastUsedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
 	index("userIdx").on(table.userId),
@@ -389,7 +389,7 @@ export const qcChecklistItems = mysqlTable("qc_checklist_items", {
 	checklistId: int().notNull(),
 	itemText: text().notNull(),
 	orderIndex: int().default(0).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const qcChecklists = mysqlTable("qc_checklists", {
@@ -400,7 +400,7 @@ export const qcChecklists = mysqlTable("qc_checklists", {
 	isTemplate: tinyint().default(1).notNull(),
 	projectId: int(),
 	createdBy: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 });
 
@@ -411,7 +411,7 @@ export const qcInspectionResults = mysqlTable("qc_inspection_results", {
 	result: mysqlEnum(['pass','fail','na']).notNull(),
 	remarks: text(),
 	photoUrl: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const qcInspections = mysqlTable("qc_inspections", {
@@ -425,7 +425,7 @@ export const qcInspections = mysqlTable("qc_inspections", {
 	status: mysqlEnum(['pending','in_progress','completed','failed']).default('pending').notNull(),
 	overallResult: mysqlEnum(['pass','fail','conditional']),
 	notes: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 });
 
@@ -438,7 +438,7 @@ export const queryLogs = mysqlTable("queryLogs", {
 	userId: int(),
 	endpoint: varchar({ length: 255 }),
 	errorMessage: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const scheduledNotifications = mysqlTable("scheduledNotifications", {
@@ -455,7 +455,7 @@ export const scheduledNotifications = mysqlTable("scheduledNotifications", {
 	priority: mysqlEnum(['urgent','high','normal','low']).default('normal').notNull(),
 	sentAt: timestamp(),
 	errorMessage: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 });
 
@@ -464,7 +464,7 @@ export const signatures = mysqlTable("signatures", {
 	checklistId: int().notNull(),
 	signatureData: text().notNull(),
 	signedBy: int().notNull(),
-	signedAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	signedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const systemLogs = mysqlTable("systemLogs", {
@@ -480,14 +480,14 @@ export const systemLogs = mysqlTable("systemLogs", {
 	resolved: tinyint().default(0).notNull(),
 	resolvedBy: int(),
 	resolvedAt: timestamp(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const taskAssignments = mysqlTable("taskAssignments", {
 	id: int().autoincrement().notNull(),
 	taskId: int().notNull(),
 	userId: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const taskAttachments = mysqlTable("taskAttachments", {
@@ -499,7 +499,7 @@ export const taskAttachments = mysqlTable("taskAttachments", {
 	fileSize: int(),
 	mimeType: varchar({ length: 100 }),
 	uploadedBy: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const taskChecklists = mysqlTable("taskChecklists", {
@@ -515,7 +515,7 @@ export const taskChecklists = mysqlTable("taskChecklists", {
 	signature: text(),
 	originalInspectionId: int(),
 	reinspectionCount: int().default(0).notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 });
 
@@ -526,7 +526,7 @@ export const taskComments = mysqlTable("taskComments", {
 	content: text().notNull(),
 	mentions: text(),
 	attachmentUrls: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 });
 
@@ -535,14 +535,14 @@ export const taskDependencies = mysqlTable("taskDependencies", {
 	taskId: int().notNull(),
 	dependsOnTaskId: int().notNull(),
 	type: mysqlEnum(['finish_to_start','start_to_start','finish_to_finish']).default('finish_to_start').notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const taskFollowers = mysqlTable("taskFollowers", {
 	id: int().autoincrement().notNull(),
 	taskId: int().notNull(),
 	userId: int().notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const tasks = mysqlTable("tasks", {
@@ -560,10 +560,135 @@ export const tasks = mysqlTable("tasks", {
 	priority: mysqlEnum(['low','medium','high','urgent']).default('medium').notNull(),
 	order: int().default(0).notNull(),
 	photoUrls: text(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 	escalation: text(),
 });
+
+export const errorLogs = mysqlTable("errorLogs", {
+	id: int().autoincrement().notNull(),
+	errorMessage: text().notNull(),
+	errorStack: text(),
+	userAgent: text(),
+	url: text(),
+	userId: int(),
+	severity: mysqlEnum(['low','medium','high','critical']).default('medium').notNull(),
+	resolved: tinyint().default(0).notNull(),
+	resolvedBy: int(),
+	resolvedAt: timestamp(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("createdAtIdx").on(table.createdAt),
+	index("severityIdx").on(table.severity),
+	index("resolvedIdx").on(table.resolved),
+]);
+
+export const permissions = mysqlTable("permissions", {
+	id: int().autoincrement().notNull(),
+	module: varchar({ length: 100 }).notNull(),
+	action: varchar({ length: 100 }).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("moduleActionIdx").on(table.module, table.action),
+]);
+
+export const userPermissions = mysqlTable("userPermissions", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	permissionId: int().notNull(),
+	granted: tinyint().default(1).notNull(),
+	grantedBy: int().notNull(),
+	grantedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("userIdIdx").on(table.userId),
+	index("permissionIdIdx").on(table.permissionId),
+]);
+
+export const userActivityLogs = mysqlTable("userActivityLogs", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	action: varchar({ length: 255 }).notNull(),
+	module: varchar({ length: 100 }),
+	details: text(),
+	ipAddress: varchar({ length: 45 }),
+	userAgent: text(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("userIdIdx").on(table.userId),
+	index("actionIdx").on(table.action),
+	index("moduleIdx").on(table.module),
+	index("createdAtIdx").on(table.createdAt),
+]);
+
+export const bulkImportLogs = mysqlTable("bulkImportLogs", {
+	id: int().autoincrement().notNull(),
+	importedBy: int().notNull(),
+	fileName: varchar({ length: 255 }).notNull(),
+	fileSize: int(),
+	totalRecords: int().notNull(),
+	successCount: int().default(0).notNull(),
+	failureCount: int().default(0).notNull(),
+	errorDetails: text(),
+	status: mysqlEnum(['pending','processing','completed','failed']).default('pending').notNull(),
+	completedAt: timestamp(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("importedByIdx").on(table.importedBy),
+	index("statusIdx").on(table.status),
+	index("createdAtIdx").on(table.createdAt),
+]);
+
+export const roleTemplates = mysqlTable("roleTemplates", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	permissions: text().notNull(),
+	isDefault: tinyint().default(0).notNull(),
+	createdBy: int().notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
+});
+
+export const escalationRules = mysqlTable("escalationRules", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	eventType: mysqlEnum(['failed_inspection','unresolved_defect','overdue_task']).notNull(),
+	thresholdValue: int().notNull(),
+	thresholdUnit: mysqlEnum(['hours','days']).default('hours').notNull(),
+	notifyRoles: text().notNull(),
+	notifyUsers: text(),
+	isActive: tinyint().default(1).notNull(),
+	createdBy: int().notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("eventTypeIdx").on(table.eventType),
+	index("isActiveIdx").on(table.isActive),
+]);
+
+export const escalationLogs = mysqlTable("escalationLogs", {
+	id: int().autoincrement().notNull(),
+	ruleId: int().notNull(),
+	eventType: mysqlEnum(['failed_inspection','unresolved_defect','overdue_task']).notNull(),
+	entityId: int().notNull(),
+	notifiedUsers: text().notNull(),
+	escalatedAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
+},
+(table) => [
+	index("ruleIdIdx").on(table.ruleId),
+	index("eventTypeIdx").on(table.eventType),
+	index("entityIdIdx").on(table.entityId),
+	index("escalatedAtIdx").on(table.escalatedAt),
+]);
 
 export const users = mysqlTable("users", {
 	id: int().autoincrement().notNull(),
@@ -572,9 +697,9 @@ export const users = mysqlTable("users", {
 	email: varchar({ length: 320 }),
 	loginMethod: varchar({ length: 64 }),
 	role: mysqlEnum(['owner','admin','project_manager','qc_inspector','worker']).default('worker').notNull(),
-	createdAt: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
-	lastSignedIn: timestamp().default('CURRENT_TIMESTAMP').notNull(),
+	lastSignedIn: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	notificationDaysAdvance: int().default(3).notNull(),
 	enableInAppNotifications: tinyint().default(1).notNull(),
 	enableEmailNotifications: tinyint().default(1).notNull(),
@@ -584,3 +709,55 @@ export const users = mysqlTable("users", {
 (table) => [
 	index("openId").on(table.openId),
 ]);
+
+
+// Export Insert Types
+export type InsertUser = typeof users.$inferInsert;
+export type InsertProject = typeof projects.$inferInsert;
+export type InsertTask = typeof tasks.$inferInsert;
+export type InsertDefect = typeof defects.$inferInsert;
+export type InsertDefectAttachment = typeof defectAttachments.$inferInsert;
+export type InsertDefectInspection = typeof defectInspections.$inferInsert;
+export type InsertNotification = typeof notifications.$inferInsert;
+export type InsertScheduledNotification = typeof scheduledNotifications.$inferInsert;
+export type InsertTaskComment = typeof taskComments.$inferInsert;
+export type InsertTaskAttachment = typeof taskAttachments.$inferInsert;
+export type InsertChecklistTemplate = typeof checklistTemplates.$inferInsert;
+export type InsertChecklistTemplateItem = typeof checklistTemplateItems.$inferInsert;
+export type InsertTaskChecklist = typeof taskChecklists.$inferInsert;
+export type InsertChecklistItemResult = typeof checklistItemResults.$inferInsert;
+export type InsertActivityLog = typeof activityLog.$inferInsert;
+export type InsertEscalationRule = typeof escalationRules.$inferInsert;
+export type InsertEscalationLog = typeof escalationLogs.$inferInsert;
+export type InsertQueryLog = typeof queryLogs.$inferInsert;
+export type InsertDbStatistic = typeof dbStatistics.$inferInsert;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+export type InsertAlertThreshold = typeof alertThresholds.$inferInsert;
+export type InsertTaskDependency = typeof taskDependencies.$inferInsert;
+export type InsertTaskAssignment = typeof taskAssignments.$inferInsert;
+export type InsertTaskFollower = typeof taskFollowers.$inferInsert;
+export type InsertArchiveRule = typeof archiveRules.$inferInsert;
+export type InsertArchiveHistory = typeof archiveHistory.$inferInsert;
+export type InsertErrorLog = typeof errorLogs.$inferInsert;
+export type InsertPermission = typeof permissions.$inferInsert;
+export type InsertUserPermission = typeof userPermissions.$inferInsert;
+export type InsertUserActivityLog = typeof userActivityLogs.$inferInsert;
+export type InsertBulkImportLog = typeof bulkImportLogs.$inferInsert;
+export type InsertRoleTemplate = typeof roleTemplates.$inferInsert;
+
+// Export Select Types
+export type User = typeof users.$inferSelect;
+export type Project = typeof projects.$inferSelect;
+export type Task = typeof tasks.$inferSelect;
+export type Defect = typeof defects.$inferSelect;
+export type ChecklistTemplate = typeof checklistTemplates.$inferSelect;
+export type ChecklistTemplateItem = typeof checklistTemplateItems.$inferSelect;
+export type TaskChecklist = typeof taskChecklists.$inferSelect;
+export type ChecklistItemResult = typeof checklistItemResults.$inferSelect;
+export type TaskComment = typeof taskComments.$inferSelect;
+export type TaskAttachment = typeof taskAttachments.$inferSelect;
+export type ActivityLog = typeof activityLog.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
+export type TaskDependency = typeof taskDependencies.$inferSelect;
+export type TaskAssignment = typeof taskAssignments.$inferSelect;
+export type TaskFollower = typeof taskFollowers.$inferSelect;

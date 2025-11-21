@@ -85,9 +85,9 @@ export default function Dashboard() {
         failed: statsData.checklistStats.failed,
       },
       defects: {
-        total: statsData.defectStats?.totalDefects || 0,
-        open: statsData.defectStats?.openDefects || 0,
-        critical: statsData.defectStats?.criticalDefects || 0,
+        total: statsData.defectStats?.total || 0,
+        open: statsData.defectStats?.open || 0,
+        critical: statsData.defectStats?.overdue || 0,
       },
     };
   }, [statsData]);

@@ -14,7 +14,7 @@ interface AlertThreshold {
   userId: number;
   metricType: "cpu" | "memory";
   threshold: number;
-  isEnabled: boolean;
+  isEnabled: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,11 +36,11 @@ export default function AlertSettings() {
       
       if (cpu) {
         setCpuThreshold(cpu.threshold);
-        setCpuEnabled(cpu.isEnabled);
+        setCpuEnabled(Boolean(cpu.isEnabled));
       }
       if (memory) {
         setMemoryThreshold(memory.threshold);
-        setMemoryEnabled(memory.isEnabled);
+        setMemoryEnabled(Boolean(memory.isEnabled));
       }
     }
   }, [thresholds]);
