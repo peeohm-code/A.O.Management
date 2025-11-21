@@ -54,12 +54,12 @@ export function createTRPCError(
   const trpcCode = ErrorCodes[code];
   
   // Log error
-  logger.error(`[TRPC Error] ${code}: ${message}`, {
+  logger.error(`[TRPC Error] ${code}: ${message}`, JSON.stringify({
     code,
     trpcCode,
     message,
     context,
-  });
+  }));
 
   return new TRPCError({
     code: trpcCode as any,
@@ -72,7 +72,7 @@ export function createTRPCError(
  * Handle database errors
  */
 export function handleDatabaseError(error: any, context?: ErrorContext): never {
-  logger.error("[Database Error]", { error, context });
+  logger.error("[Database Error]", JSON.stringify({ error: error?.message || String(error), context }));
 
   // Check for specific database errors
   if (error.code === "ER_DUP_ENTRY" || error.message?.includes("duplicate")) {
@@ -189,10 +189,10 @@ export async function safeAsync<T>(
     }
 
     // Log unexpected error
-    logger.error(`[Unexpected Error] ${errorMessage}`, {
-      error,
+    logger.error(`[Unexpected Error] ${errorMessage}`, JSON.stringify({
+      error: error instanceof Error ? error.message : String(error),
       context,
-    });
+    }));
 
     // Throw generic error
     throw createTRPCError(
@@ -218,12 +218,12 @@ function isDatabaseError(error: any): boolean {
  * Log and track errors (for monitoring)
  */
 export function trackError(error: Error, context?: ErrorContext): void {
-  logger.error("[Error Tracked]", {
+  logger.error("[Error Tracked]", JSON.stringify({
     name: error.name,
     message: error.message,
     stack: error.stack,
     context,
-  });
+  }));
 
   // TODO: Send to error tracking service (Sentry, etc.)
   // if (process.env.SENTRY_DSN) {

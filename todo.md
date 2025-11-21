@@ -875,3 +875,101 @@
 - [x] รัน vitest สำหรับ projects router (5/8 tests passed)
 - [ ] สร้าง checkpoint สุดท้าย
 - [ ] จัดทำเอกสารสรุปฟีเจอร์และปัญหาที่แก้ไข
+
+
+---
+
+## 🚀 แผนการปรับปรุงระบบ (ตามคำแนะนำจาก Manus + Gemini Pro)
+
+### Phase 1: Critical Fixes (สัปดาห์ที่ 1) 🔴 HIGH PRIORITY
+
+#### Security Vulnerabilities
+- [x] ตรวจสอบและแก้ SQL Injection vulnerabilities ทั้งหมด - ✅ ใช้ Drizzle ORM + parameterized queries ทั้งหมด
+- [x] ตรวจสอบ parameterized queries ใน database helpers - ✅ ผ่าน
+- [x] เพิ่ม input validation และ sanitization ทุกจุด - ✅ มี Zod schemas + sanitization functions
+- [x] ตรวจสอบ file upload security - ✅ มี type/size validation + virus scanning
+
+#### TypeScript Errors (121 errors - ลดลงจาก 131 → ลด 10 errors แล้ว)
+- [x] แก้ TypeScript errors ใน server/db/client.ts (4 errors) - ✅ เสร็จ
+- [x] แก้ TypeScript errors ใน server/errorHandlerService.ts (4 errors) - ✅ เสร็จ
+- [x] แก้ TypeScript errors ใน server/jobs/autoArchiveJob.ts (1 error) - ✅ เสร็จ
+- [x] แก้ TypeScript errors ใน server/jobs/escalationCheck.ts (1 error) - ✅ เสร็จ
+- [ ] แก้ TypeScript errors ใน server/inspectionPdfGenerator.ts
+- [ ] แก้ TypeScript errors ใน server/notificationService.ts
+- [ ] แก้ TypeScript errors ใน server/routers.ts
+- [ ] แก้ TypeScript errors ใซ้อื่นๆ (~111 errors เหลือ)
+
+#### Database Connection Management
+- [ ] เพิ่ม database connection cleanup
+- [ ] ตรวจสอบ connection pooling configuration
+- [ ] เพิ่ม connection timeout handling
+- [ ] เพิ่ม connection retry logic
+
+### Phase 2: Code Quality (สัปดาห์ที่ 2-3) 🟡 MEDIUM PRIORITY
+
+#### Type Safety Improvements
+- [ ] แก้ implicit 'any' types ทั้งหมด
+- [ ] เพิ่ม interface definitions ที่ขาดหายไป
+- [ ] ปรับปรุง type exports
+- [ ] เพิ่ม type guards สำหรับ runtime checks
+
+#### Error Handling Consistency
+- [ ] ทำ error handling ให้ consistent ทั่วทั้งระบบ
+- [ ] เพิ่ม custom error classes
+- [ ] ปรับปรุง error logging
+- [ ] เพิ่ม error recovery mechanisms
+
+#### Pagination & Query Optimization
+- [ ] ปรับปรุง pagination implementation
+- [ ] เพิ่ม query optimization
+- [ ] เพิ่ม database indexes ที่จำเป็น
+- [ ] ตรวจสอบ N+1 query problems
+
+### Phase 3: Testing (สัปดาห์ที่ 4-6) 🟢 MEDIUM PRIORITY
+
+#### Unit Tests (เป้าหมาย 80%+ coverage)
+- [ ] เพิ่ม unit tests สำหรับ database helpers
+- [ ] เพิ่ม unit tests สำหรับ tRPC procedures
+- [ ] เพิ่ม unit tests สำหรับ service layer
+- [ ] เพิ่ม unit tests สำหรับ utility functions
+
+#### Integration Tests
+- [ ] เขียน integration tests สำหรับ API endpoints
+- [ ] ทดสอบ authentication flow
+- [ ] ทดสอบ authorization logic
+- [ ] ทดสอบ file upload workflows
+
+#### E2E Tests
+- [ ] เพิ่ม E2E tests สำหรับ critical user flows
+- [ ] ทดสอบ form submissions
+- [ ] ทดสอบ inspection workflows
+- [ ] ทดสอบ defect workflows
+
+### Phase 4: Architecture (สัปดาห์ที่ 7-8) 🔵 LOW PRIORITY
+
+#### Database Layer Refactoring
+- [ ] Refactor database access layer
+- [ ] แยก business logic จาก data access
+- [ ] เพิ่ม repository pattern
+- [ ] ปรับปรุง transaction handling
+
+#### Caching Implementation
+- [ ] Implement caching strategy
+- [ ] เพิ่ม memory cache สำหรับ frequently accessed data
+- [ ] เพิ่ม cache invalidation logic
+- [ ] ตรวจสอบ cache hit rate
+
+#### Performance Optimization
+- [ ] Optimize database queries
+- [ ] เพิ่ม lazy loading สำหรับ large datasets
+- [ ] ปรับปรุง bundle size
+- [ ] เพิ่ม code splitting
+
+---
+
+## 📝 หมายเหตุการปรับปรุง
+
+**วันที่เริ่มต้น:** 21 พฤศจิกายน 2568  
+**แผนการทำงาน:** 8 สัปดาห์  
+**ผู้รับผิดชอบ:** Manus AI + Gemini Pro  
+**สถานะ:** เริ่มต้น Phase 1

@@ -44,7 +44,7 @@ export async function getDb(): Promise<DbInstance | null> {
       // Test connection
       await testConnection();
     } catch (error: unknown) {
-      logger.error('[Database] Failed to connect:', error);
+      logger.error('[Database] Failed to connect:', error instanceof Error ? error.message : String(error));
       _db = null;
       _pool = null;
     }
@@ -80,7 +80,7 @@ export async function testConnection(): Promise<void> {
     connection.release();
     logger.info('[Database] Connection test successful');
   } catch (error: unknown) {
-    logger.error('[Database] Connection test failed:', error);
+    logger.error('[Database] Connection test failed:', error instanceof Error ? error.message : String(error));
     throw error;
   }
 }
@@ -97,7 +97,7 @@ export async function closeDbConnection(): Promise<void> {
       _pool = null;
       _db = null;
     } catch (error: unknown) {
-      logger.error('[Database] Error closing connection pool:', error);
+      logger.error('[Database] Error closing connection pool:', error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
@@ -170,7 +170,7 @@ export async function withTransaction<T>(
     return result;
   } catch (error: unknown) {
     await connection.rollback();
-    logger.error('[Database] Transaction rolled back:', error);
+    logger.error('[Database] Transaction rolled back:', error instanceof Error ? error.message : String(error));
     throw error;
   } finally {
     connection.release();

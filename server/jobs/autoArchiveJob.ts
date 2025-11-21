@@ -28,7 +28,7 @@ async function runAutoArchive() {
     const rules = await db
       .select()
       .from(archiveRules)
-      .where(eq(archiveRules.enabled, true));
+      .where(eq(archiveRules.enabled, 1));
 
 
     let totalArchived = 0;

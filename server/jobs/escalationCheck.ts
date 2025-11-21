@@ -1,4 +1,4 @@
-import { checkAndTriggerEscalations } from "../db";
+import * as db from "../db";
 import { logger } from "../logger";
 
 /**
@@ -9,10 +9,10 @@ import { logger } from "../logger";
 export async function runEscalationCheck() {
   try {
     logger.info("[EscalationJob] Starting escalation check...");
-    await checkAndTriggerEscalations();
+    await db.checkAndTriggerEscalations();
     logger.info("[EscalationJob] Escalation check completed successfully");
   } catch (error) {
-    logger.error("[EscalationJob] Error during escalation check:", error);
+    logger.error("[EscalationJob] Error during escalation check:", error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -21,7 +21,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   runEscalationCheck().then(() => {
     process.exit(0);
   }).catch((error) => {
-    logger.error("[EscalationJob] Fatal error:", error);
+    logger.error("[EscalationJob] Fatal error:", error instanceof Error ? error.message : String(error));
     process.exit(1);
   });
 }
