@@ -1079,3 +1079,30 @@
 - [x] แก้ไข implicit any types ใน components - แก้ไข QCInspection.tsx
 - [x] แก้ไข type errors ทั้งหมด - ลดจาก 42 เหลือ 32 errors
 - [x] รัน `pnpm tsc --noEmit` เพื่อ verify - เหลือ 32 errors
+
+---
+
+## 🔧 Escalation System Improvements (ใหม่)
+
+### แก้ไข Escalation Test Dependencies
+- [x] ปรับโครงสร้าง escalation.test.ts ให้แต่ละ test สร้าง test data เป็นของตัวเอง
+- [x] ลบการพึ่งพา testRuleId จาก test อื่น
+- [x] เพิ่ม helper functions สำหรับสร้าง test data (createTestUser, createTestRule, cleanupTestRule)
+
+### เพิ่ม Resolved Status ใน Escalation Logs
+- [x] เพิ่ม resolvedAt field (timestamp, nullable) ใน escalationLogs table
+- [x] เพิ่ม resolvedBy field (int, nullable, foreign key to users) ใน escalationLogs table
+- [x] สร้าง index สำหรับ resolvedAt และ resolvedBy
+- [x] Run database migration (SQL ALTER TABLE)
+- [x] อัปเดต escalation procedures ให้รองรับ resolved status (resolveEscalationLog, getEscalationStatistics)
+
+### Implement Escalation Trigger Logic
+- [x] พัฒนา checkAndTriggerEscalations() function ใน db.ts
+- [x] ตรวจสอบ failed inspections ที่เกินเวลาที่กำหนด
+- [x] ตรวจสอบ unresolved defects ที่เกินเวลาที่กำหนด
+- [x] ตรวจสอบ overdue tasks ที่เกินเวลาที่กำหนด
+- [x] สร้าง escalation logs อัตโนมัติเมื่อตรงตามเงื่อนไข
+- [x] ส่ง notifications ไปยังผู้ที่เกี่ยวข้อง (sendEscalationNotifications)
+- [x] ตรวจสอบว่าไม่มี escalation log ซ้ำก่อนสร้างใหม่
+- [x] แก้ไข database enum ให้รองรับทั้ง triggerType และ eventType
+- [x] ทดสอบ escalation tests ผ่านทั้งหมด (9/9 tests passed)

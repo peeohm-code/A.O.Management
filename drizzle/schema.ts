@@ -689,12 +689,16 @@ export const escalationLogs = mysqlTable("escalationLogs", {
 	entityId: int().notNull(),
 	notifiedUsers: text().notNull(),
 	escalatedAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	resolvedAt: timestamp({ mode: 'date' }),
+	resolvedBy: int(),
 },
 (table) => [
 	index("ruleIdIdx").on(table.ruleId),
 	index("eventTypeIdx").on(table.eventType),
 	index("entityIdIdx").on(table.entityId),
 	index("escalatedAtIdx").on(table.escalatedAt),
+	index("resolvedAtIdx").on(table.resolvedAt),
+	index("resolvedByIdx").on(table.resolvedBy),
 ]);
 
 export const users = mysqlTable("users", {

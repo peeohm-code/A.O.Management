@@ -7174,9 +7174,17 @@ export async function getEscalationLogsByEntity(entityType: string, entityId: nu
     ));
 }
 
-export async function resolveEscalationLog(id: number, resolvedBy: number, resolution: string) {
-  // Note: escalationLogs table doesn't have resolved status field
-  // This is a placeholder - in production, add resolvedAt/resolvedBy fields
+export async function resolveEscalationLog(id: number, resolvedBy: number, resolutionNotes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db.update(escalationLogs)
+    .set({
+      resolvedAt: new Date(),
+      resolvedBy: resolvedBy,
+    })
+    .where(eq(escalationLogs.id, id));
+  
   return true;
 }
 
@@ -7190,19 +7198,239 @@ export async function getEscalationStatistics() {
   };
   
   const logs = await db.select().from(escalationLogs);
+  const resolvedLogs = logs.filter(log => log.resolvedAt !== null);
+  const pendingLogs = logs.filter(log => log.resolvedAt === null);
+  
+  // คำนวณเวลาเฉลี่ยในการแก้ไข (ในหน่วยชั่วโมง)
+  let averageResolutionTime = 0;
+  if (resolvedLogs.length > 0) {
+    const totalResolutionTime = resolvedLogs.reduce((sum, log) => {
+      if (log.resolvedAt && log.escalatedAt) {
+        const diff = log.resolvedAt.getTime() - log.escalatedAt.getTime();
+        return sum + (diff / (1000 * 60 * 60)); // แปลงเป็นชั่วโมง
+      }
+      return sum;
+    }, 0);
+    averageResolutionTime = Math.round(totalResolutionTime / resolvedLogs.length);
+  }
+  
   return {
     totalEscalations: logs.length,
-    resolvedEscalations: 0, // TODO: Add resolved field to schema
-    pendingEscalations: logs.length,
-    averageResolutionTime: 0,
+    resolvedEscalations: resolvedLogs.length,
+    pendingEscalations: pendingLogs.length,
+    averageResolutionTime,
   };
 }
 
 export async function checkAndTriggerEscalations() {
-  // TODO: Implement escalation trigger logic
-  // This should check for failed inspections, unresolved defects, overdue tasks
-  // and create escalation logs based on rules
-  return [];
+  const db = await getDb();
+  if (!db) {
+    logger.warn('[Escalation] Database not available');
+    return [];
+  }
+
+  try {
+    // ดึงกฎ escalation ที่เปิดใช้งานทั้งหมด
+    const rules = await db.select().from(escalationRules).where(eq(escalationRules.isActive, true));
+    
+    if (rules.length === 0) {
+      logger.info('[Escalation] No active escalation rules found');
+      return [];
+    }
+
+    const triggeredEscalations = [];
+    const now = new Date();
+
+    for (const rule of rules) {
+      const thresholdHours = rule.thresholdValue || 24;
+      const thresholdDate = new Date(now.getTime() - thresholdHours * 60 * 60 * 1000);
+
+      // ตรวจสอบตาม event type
+      if (rule.eventType === 'failed_inspection') {
+        // ค้นหา inspections ที่ fail และยังไม่ได้แก้ไข
+        const failedInspections = await db.select({
+          id: taskChecklists.id,
+          taskId: taskChecklists.taskId,
+          inspectedAt: taskChecklists.inspectedAt,
+        })
+          .from(taskChecklists)
+          .where(
+            and(
+              eq(taskChecklists.status, 'fail'),
+              lt(taskChecklists.inspectedAt, thresholdDate),
+              isNull(taskChecklists.reinspectedAt)
+            )
+          );
+
+        // สร้าง escalation log สำหรับแต่ละ failed inspection
+        for (const inspection of failedInspections) {
+          // ตรวจสอบว่ามี escalation log อยู่แล้วหรือไม่
+          const existingLog = await db.select()
+            .from(escalationLogs)
+            .where(
+              and(
+                eq(escalationLogs.ruleId, rule.id),
+                eq(escalationLogs.eventType, 'failed_inspection'),
+                eq(escalationLogs.entityId, inspection.id),
+                isNull(escalationLogs.resolvedAt)
+              )
+            )
+            .limit(1);
+
+          if (existingLog.length === 0) {
+            // สร้าง escalation log ใหม่
+            const notifiedUsers = rule.escalateToUserIds || '[]';
+            await db.insert(escalationLogs).values({
+              ruleId: rule.id,
+              eventType: 'failed_inspection',
+              entityId: inspection.id,
+              notifiedUsers,
+            });
+
+            triggeredEscalations.push({
+              ruleId: rule.id,
+              eventType: 'failed_inspection',
+              entityId: inspection.id,
+            });
+
+            // ส่ง notification ถึงผู้ที่เกี่ยวข้อง
+            await sendEscalationNotifications(rule, 'failed_inspection', inspection.id, inspection.taskId);
+          }
+        }
+      }
+
+      if (rule.eventType === 'unresolved_defect') {
+        // ค้นหา defects ที่ยังไม่ได้แก้ไข
+        const unresolvedDefects = await db.select({
+          id: defects.id,
+          taskId: defects.taskId,
+          projectId: defects.projectId,
+          createdAt: defects.createdAt,
+        })
+          .from(defects)
+          .where(
+            and(
+              ne(defects.status, 'resolved'),
+              lt(defects.createdAt, thresholdDate)
+            )
+          );
+
+        for (const defect of unresolvedDefects) {
+          const existingLog = await db.select()
+            .from(escalationLogs)
+            .where(
+              and(
+                eq(escalationLogs.ruleId, rule.id),
+                eq(escalationLogs.eventType, 'unresolved_defect'),
+                eq(escalationLogs.entityId, defect.id),
+                isNull(escalationLogs.resolvedAt)
+              )
+            )
+            .limit(1);
+
+          if (existingLog.length === 0) {
+            const notifiedUsers = rule.escalateToUserIds || '[]';
+            await db.insert(escalationLogs).values({
+              ruleId: rule.id,
+              eventType: 'unresolved_defect',
+              entityId: defect.id,
+              notifiedUsers,
+            });
+
+            triggeredEscalations.push({
+              ruleId: rule.id,
+              eventType: 'unresolved_defect',
+              entityId: defect.id,
+            });
+
+            await sendEscalationNotifications(rule, 'unresolved_defect', defect.id, defect.taskId, defect.projectId);
+          }
+        }
+      }
+
+      if (rule.eventType === 'overdue_task') {
+        // ค้นหา tasks ที่เลยกำหนด
+        const overdueTasks = await db.select({
+          id: tasks.id,
+          projectId: tasks.projectId,
+          dueDate: tasks.dueDate,
+        })
+          .from(tasks)
+          .where(
+            and(
+              ne(tasks.status, 'completed'),
+              lt(tasks.dueDate, thresholdDate)
+            )
+          );
+
+        for (const task of overdueTasks) {
+          const existingLog = await db.select()
+            .from(escalationLogs)
+            .where(
+              and(
+                eq(escalationLogs.ruleId, rule.id),
+                eq(escalationLogs.eventType, 'overdue_task'),
+                eq(escalationLogs.entityId, task.id),
+                isNull(escalationLogs.resolvedAt)
+              )
+            )
+            .limit(1);
+
+          if (existingLog.length === 0) {
+            const notifiedUsers = rule.escalateToUserIds || '[]';
+            await db.insert(escalationLogs).values({
+              ruleId: rule.id,
+              eventType: 'overdue_task',
+              entityId: task.id,
+              notifiedUsers,
+            });
+
+            triggeredEscalations.push({
+              ruleId: rule.id,
+              eventType: 'overdue_task',
+              entityId: task.id,
+            });
+
+            await sendEscalationNotifications(rule, 'overdue_task', task.id, task.id, task.projectId);
+          }
+        }
+      }
+    }
+
+    logger.info(`[Escalation] Triggered ${triggeredEscalations.length} escalations`);
+    return triggeredEscalations;
+  } catch (error) {
+    logger.error('[Escalation] Error during escalation check:', error);
+    throw error;
+  }
+}
+
+// Helper function สำหรับส่ง notifications
+async function sendEscalationNotifications(
+  rule: any,
+  eventType: string,
+  entityId: number,
+  taskId?: number,
+  projectId?: number
+) {
+  try {
+    const userIds = rule.escalateToUserIds ? JSON.parse(rule.escalateToUserIds) : [];
+    
+    // ส่ง notification ให้แต่ละ user
+    for (const userId of userIds) {
+      await sendNotification({
+        userId,
+        type: 'escalation',
+        priority: 'high',
+        title: `Escalation: ${rule.name}`,
+        content: rule.notificationTemplate || `Escalation triggered for ${eventType}`,
+        relatedTaskId: taskId,
+        relatedProjectId: projectId,
+      });
+    }
+  } catch (error) {
+    logger.error('[Escalation] Error sending notifications:', error);
+  }
 }
 
 // ============================================
