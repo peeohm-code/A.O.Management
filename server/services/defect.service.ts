@@ -7,6 +7,7 @@ import {
   defects,
   defectAttachments,
   activityLog,
+  tasks,
   type Defect,
   type InsertDefect,
   type DefectAttachment,

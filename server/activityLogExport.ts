@@ -4,11 +4,11 @@ import { ActivityLog } from "../drizzle/schema";
 export interface ActivityLogWithUser {
   id: number;
   userId: number;
-  projectId: number | null;
-  taskId: number | null;
-  defectId: number | null;
   action: string;
+  module: string | null;
   details: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
   createdAt: Date;
   userName?: string;
   userEmail?: string;

@@ -7022,8 +7022,7 @@ export async function getProjectQualityScore(projectId: number): Promise<{
       status: defects.status,
     })
     .from(defects)
-    .leftJoin(tasks, eq(defects.taskId, tasks.id))
-    .where(eq(tasks.projectId, projectId));
+    .where(eq(defects.projectId, projectId));
 
   const totalDefects = allDefects.length;
   const criticalDefects = allDefects.filter((d) => d.severity === "critical").length;
@@ -7130,4 +7129,196 @@ export async function getEscalationStatistics() {
 export async function checkAndTriggerEscalations() {
   // TODO: Implement escalation trigger logic
   return [];
+}
+
+// ============================================
+// Role Templates
+// ============================================
+
+export async function getAllRoleTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  return await db.select().from(roleTemplates).orderBy(desc(roleTemplates.createdAt));
+}
+
+export async function getRoleTemplatesByType(roleType: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  // Note: roleType field doesn't exist in schema, returning all templates
+  return await db
+    .select()
+    .from(roleTemplates)
+    .orderBy(desc(roleTemplates.isDefault), desc(roleTemplates.createdAt));
+}
+
+export async function getDefaultRoleTemplate(roleType: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  // Note: roleType field doesn't exist in schema, returning first default template
+  const results = await db
+    .select()
+    .from(roleTemplates)
+    .where(eq(roleTemplates.isDefault, 1))
+    .limit(1);
+  
+  return results[0] || null;
+}
+
+export async function getRoleTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  const results = await db
+    .select()
+    .from(roleTemplates)
+    .where(eq(roleTemplates.id, id))
+    .limit(1);
+  
+  return results[0] || null;
+}
+
+export async function getRoleTemplatePermissions(templateId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { roleTemplates, permissions } = await import("../drizzle/schema");
+  
+  // Get the template
+  const template = await getRoleTemplateById(templateId);
+  if (!template) return [];
+  
+  // Parse permissions JSON
+  try {
+    const permissionIds = JSON.parse(template.permissions as string);
+    if (!Array.isArray(permissionIds)) return [];
+    
+    // Get permission details
+    return await db
+      .select()
+      .from(permissions)
+      .where(inArray(permissions.id, permissionIds));
+  } catch (error) {
+    console.error("Error parsing role template permissions:", error);
+    return [];
+  }
+}
+
+export async function createRoleTemplate(data: {
+  name: string;
+  roleType?: string;
+  description?: string;
+  isDefault?: boolean;
+  permissionIds: number[];
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  
+  // If this is set as default, unset other defaults
+  if (data.isDefault) {
+    await db
+      .update(roleTemplates)
+      .set({ isDefault: 0 });
+  }
+  
+  const result = await db.insert(roleTemplates).values({
+    name: data.name,
+    description: data.description || null,
+    permissions: JSON.stringify(data.permissionIds),
+    isDefault: data.isDefault ? 1 : 0,
+    createdBy: data.createdBy,
+  });
+  
+  return result[0].insertId;
+}
+
+export async function updateRoleTemplate(
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    isDefault?: boolean;
+    isActive?: boolean;
+    permissionIds?: number[];
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  
+  // Get current template
+  const currentTemplate = await getRoleTemplateById(id);
+  if (!currentTemplate) {
+    throw new Error("Template not found");
+  }
+  
+  // If setting as default, unset other defaults
+  if (data.isDefault) {
+    await db
+      .update(roleTemplates)
+      .set({ isDefault: 0 });
+  }
+  
+  const updateData: any = {};
+  if (data.name) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.isDefault !== undefined) updateData.isDefault = data.isDefault ? 1 : 0;
+  if (data.permissionIds) updateData.permissions = JSON.stringify(data.permissionIds);
+  
+  await db.update(roleTemplates).set(updateData).where(eq(roleTemplates.id, id));
+}
+
+export async function deleteRoleTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { roleTemplates } = await import("../drizzle/schema");
+  
+  // Check if this is a default template
+  const template = await getRoleTemplateById(id);
+  if (template?.isDefault) {
+    throw new Error("Cannot delete default template");
+  }
+  
+  await db.delete(roleTemplates).where(eq(roleTemplates.id, id));
+}
+
+export async function applyRoleTemplateToUser(data: {
+  userId: number;
+  templateId: number;
+  grantedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { userPermissions } = await import("../drizzle/schema");
+  
+  // Get template permissions
+  const permissions = await getRoleTemplatePermissions(data.templateId);
+  if (permissions.length === 0) {
+    throw new Error("Template has no permissions");
+  }
+  
+  // Delete existing permissions for this user
+  await db.delete(userPermissions).where(eq(userPermissions.userId, data.userId));
+  
+  // Insert new permissions
+  const permissionValues = permissions.map((perm) => ({
+    userId: data.userId,
+    permissionId: perm.id,
+    grantedBy: data.grantedBy,
+    grantedAt: new Date(),
+  }));
+  
+  await db.insert(userPermissions).values(permissionValues);
 }

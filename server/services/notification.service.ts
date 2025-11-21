@@ -63,7 +63,7 @@ export async function getUnreadNotifications(userId: number): Promise<Notificati
   return db
     .select()
     .from(notifications)
-    .where(and(eq(notifications.recipientId, userId), eq(notifications.isRead, 0)))
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)))
     .orderBy(desc(notifications.createdAt));
 }
 
@@ -92,7 +92,7 @@ export async function markAllNotificationsAsRead(userId: number): Promise<void> 
   await db
     .update(notifications)
     .set({ isRead: 1 })
-    .where(and(eq(notifications.recipientId, userId), eq(notifications.isRead, 0)));
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)));
 }
 
 export async function deleteNotification(notificationId: number): Promise<void> {
@@ -120,7 +120,7 @@ export async function getUnreadCount(userId: number): Promise<number> {
   const unread = await db
     .select()
     .from(notifications)
-    .where(and(eq(notifications.recipientId, userId), eq(notifications.isRead, 0)));;
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)));;
 
   return unread.length;
 }
@@ -157,8 +157,8 @@ export async function notifyTaskAssignment(
     userId,
     type: "task_assigned",
     title: "งานใหม่ถูกมอบหมาย",
-    message: `คุณได้รับมอบหมายงาน: ${taskTitle}`,
-    relatedId: taskId,
+    content: `คุณได้รับมอบหมายงาน: ${taskTitle}`,
+    relatedTaskId: taskId,
   });
 }
 
@@ -171,8 +171,8 @@ export async function notifyDefectAssignment(
     userId,
     type: "defect_assigned",
     title: "ข้อบกพร่องใหม่ถูกมอบหมาย",
-    message: `คุณได้รับมอบหมายข้อบกพร่อง: ${defectTitle}`,
-    relatedId: defectId,
+    content: `คุณได้รับมอบหมายข้อบกพร่อง: ${defectTitle}`,
+    relatedDefectId: defectId,
   });
 }
 
@@ -184,10 +184,10 @@ export async function notifyTaskDueSoon(
 ): Promise<Notification> {
   return createNotification({
     userId,
-    type: "task_due_soon",
+    type: "task_deadline_approaching",
     title: "งานใกล้ครบกำหนด",
-    message: `งาน "${taskTitle}" จะครบกำหนดในวันที่ ${dueDate.toLocaleDateString("th-TH")}`,
-    relatedId: taskId,
+    content: `งาน "${taskTitle}" จะครบกำหนดในวันที่ ${dueDate.toLocaleDateString("th-TH")}`,
+    relatedTaskId: taskId,
   });
 }
 
@@ -199,10 +199,10 @@ export async function notifyQCInspectionScheduled(
 ): Promise<Notification> {
   return createNotification({
     userId,
-    type: "qc_inspection_scheduled",
+    type: "inspection_requested",
     title: "การตรวจสอบ QC ถูกกำหนดเวลา",
-    message: `การตรวจสอบ "${inspectionTitle}" กำหนดไว้ในวันที่ ${scheduledDate.toLocaleDateString("th-TH")}`,
-    relatedId: inspectionId,
+    content: `การตรวจสอบ "${inspectionTitle}" กำหนดไว้ในวันที่ ${scheduledDate.toLocaleDateString("th-TH")}`,
+    relatedTaskId: inspectionId,
   });
 }
 
@@ -214,7 +214,7 @@ export async function notifyProjectUpdate(
   await createBulkNotifications(userIds, {
     type: "project_status_changed",
     title: "อัปเดตโครงการ",
-    message: updateMessage,
-    relatedId: projectId,
+    content: updateMessage,
+    relatedProjectId: projectId,
   });
 }

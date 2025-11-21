@@ -209,6 +209,7 @@ export const defectInspections = mysqlTable("defect_inspections", {
 
 export const defects = mysqlTable("defects", {
 	id: int().autoincrement().notNull(),
+	projectId: int().notNull(),
 	taskId: int().notNull(),
 	checklistItemResultId: int(),
 	title: varchar({ length: 255 }).notNull(),
@@ -246,6 +247,7 @@ export const defects = mysqlTable("defects", {
 	escalation: text(),
 },
 (table) => [
+	index("projectIdx").on(table.projectId),
 	index("taskIdx").on(table.taskId),
 	index("statusIdx").on(table.status),
 	index("assignedToIdx").on(table.assignedTo),
