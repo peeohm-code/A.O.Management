@@ -2912,11 +2912,10 @@ const dashboardRouter = router({
     const userProjects = await db.getProjectsByUser(ctx.user!.id);
     const userProjectIds = userProjects.map((p: any) => p.projects.id);
 
-    const allTasks: any[] = [];
-    for (const projectId of userProjectIds) {
-      const projectTasks = await db.getTasksByProject(projectId);
-      allTasks.push(...projectTasks);
-    }
+    // Fix N+1 query: Use single query with inArray instead of loop
+    const allTasks = userProjectIds.length > 0
+      ? await db.getTasksByProjectIds(userProjectIds)
+      : [];
 
     const tasksWithStatus = allTasks.map(task => ({
       ...task,

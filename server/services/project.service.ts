@@ -25,8 +25,9 @@ import {
   activityLog,
   taskAssignments,
 } from "../../drizzle/schema";
-import { toNumber } from "../utils/db-helpers";
-import { PROJECT_STATUS } from "../utils/constants";
+import { bigIntToNumber } from "../utils/bigint";
+import { withTransaction } from "../utils/transaction";
+import { PROJECT_STATUS } from "../constants/statuses";
 import { logger } from "../logger";
 
 /**
@@ -82,15 +83,13 @@ export async function createProject(data: {
   endDate?: string;
   createdBy: number;
 }): Promise<{ insertId: number; id: number }> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  try {
+  // Use transaction to ensure atomicity
+  return await withTransaction(async (tx) => {
     // Prepare project values
     const values: typeof projects.$inferInsert = {
       name: data.name,
       createdBy: data.createdBy,
-      status: PROJECT_STATUS.DRAFT, // Use constant instead of hardcoded string
+      status: PROJECT_STATUS.DRAFT,
     };
 
     // Auto-generate code if not provided
@@ -108,18 +107,14 @@ export async function createProject(data: {
     if (data.startDate) values.startDate = data.startDate;
     if (data.endDate) values.endDate = data.endDate;
 
-    // Insert project
-    const [result] = await db.insert(projects).values(values);
+    // Insert project within transaction
+    const [result] = await tx.insert(projects).values(values);
 
     // Convert insertId to number safely
-    const projectId = toNumber(result.insertId);
+    const projectId = bigIntToNumber(result.insertId);
 
-    if (!projectId) {
-      throw new Error("Failed to get project ID after insertion");
-    }
-
-    // Add creator as project manager
-    await db.insert(projectMembers).values({
+    // Add creator as project manager within same transaction
+    await tx.insert(projectMembers).values({
       projectId,
       userId: data.createdBy,
       role: "project_manager",
@@ -128,10 +123,7 @@ export async function createProject(data: {
     logger.info(`[Project Service] Created project ${projectId} with code ${values.code}`);
 
     return { insertId: projectId, id: projectId };
-  } catch (error) {
-    logger.error("[Project Service] Failed to create project:", error);
-    throw error;
-  }
+  });
 }
 
 /**
@@ -161,87 +153,75 @@ export async function createProject(data: {
  * Uses toNumber() for safe ID conversions throughout the process
  */
 export async function deleteProject(id: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  const projectId = bigIntToNumber(id);
+  logger.info(`[Project Service] Starting deletion of project ${projectId}`);
 
-  try {
-    // Convert ID to number safely
-    const projectId = toNumber(id);
-    if (!projectId) {
-      throw new Error("Invalid project ID");
-    }
-
-    logger.info(`[Project Service] Starting deletion of project ${projectId}`);
-
+  // Use transaction to ensure all-or-nothing deletion
+  await withTransaction(async (tx) => {
     // 1. Delete activity logs
-    await db.delete(activityLog).where(eq(activityLog.projectId, projectId));
+    await tx.delete(activityLog).where(eq(activityLog.projectId, projectId));
 
     // 2. Get all tasks for this project
-    const projectTasks = await db
+    const projectTasks = await tx
       .select({ id: tasks.id })
       .from(tasks)
       .where(eq(tasks.projectId, projectId));
 
-    const taskIds = projectTasks.map((t) => toNumber(t.id)).filter((id): id is number => id !== undefined);
+    const taskIds = projectTasks.map((t) => bigIntToNumber(t.id));
 
     if (taskIds.length > 0) {
       logger.info(`[Project Service] Deleting ${taskIds.length} tasks and related data`);
 
       // Delete task dependencies (both directions)
-      await db.delete(taskDependencies).where(inArray(taskDependencies.taskId, taskIds));
-      await db.delete(taskDependencies).where(inArray(taskDependencies.dependsOnTaskId, taskIds));
+      await tx.delete(taskDependencies).where(inArray(taskDependencies.taskId, taskIds));
+      await tx.delete(taskDependencies).where(inArray(taskDependencies.dependsOnTaskId, taskIds));
 
       // Delete task followers
-      await db.delete(taskFollowers).where(inArray(taskFollowers.taskId, taskIds));
+      await tx.delete(taskFollowers).where(inArray(taskFollowers.taskId, taskIds));
 
       // Delete task attachments
-      await db.delete(taskAttachments).where(inArray(taskAttachments.taskId, taskIds));
+      await tx.delete(taskAttachments).where(inArray(taskAttachments.taskId, taskIds));
 
       // Delete task comments
-      await db.delete(taskComments).where(inArray(taskComments.taskId, taskIds));
+      await tx.delete(taskComments).where(inArray(taskComments.taskId, taskIds));
 
       // Delete task assignments
-      await db.delete(taskAssignments).where(inArray(taskAssignments.taskId, taskIds));
+      await tx.delete(taskAssignments).where(inArray(taskAssignments.taskId, taskIds));
 
       // Get all task checklist IDs
-      const taskChecklistRecords = await db
+      const taskChecklistRecords = await tx
         .select({ id: taskChecklists.id })
         .from(taskChecklists)
         .where(inArray(taskChecklists.taskId, taskIds));
 
-      const checklistIds = taskChecklistRecords
-        .map((tc) => toNumber(tc.id))
-        .filter((id): id is number => id !== undefined);
+      const checklistIds = taskChecklistRecords.map((tc) => bigIntToNumber(tc.id));
 
       if (checklistIds.length > 0) {
         // Delete checklist item results
-        await db
+        await tx
           .delete(checklistItemResults)
           .where(inArray(checklistItemResults.taskChecklistId, checklistIds));
       }
 
       // Delete task checklists
-      await db.delete(taskChecklists).where(inArray(taskChecklists.taskId, taskIds));
+      await tx.delete(taskChecklists).where(inArray(taskChecklists.taskId, taskIds));
 
       // Delete defects
-      await db.delete(defects).where(inArray(defects.taskId, taskIds));
+      await tx.delete(defects).where(inArray(defects.taskId, taskIds));
 
       // Delete tasks
-      await db.delete(tasks).where(eq(tasks.projectId, projectId));
+      await tx.delete(tasks).where(eq(tasks.projectId, projectId));
     }
 
     // 3. Delete notifications
-    await db.delete(notifications).where(eq(notifications.relatedProjectId, projectId));
+    await tx.delete(notifications).where(eq(notifications.relatedProjectId, projectId));
 
     // 4. Delete project members
-    await db.delete(projectMembers).where(eq(projectMembers.projectId, projectId));
+    await tx.delete(projectMembers).where(eq(projectMembers.projectId, projectId));
 
     // 5. Finally delete the project
-    await db.delete(projects).where(eq(projects.id, projectId));
+    await tx.delete(projects).where(eq(projects.id, projectId));
 
     logger.info(`[Project Service] Successfully deleted project ${projectId}`);
-  } catch (error) {
-    logger.error(`[Project Service] Failed to delete project ${id}:`, error);
-    throw error;
-  }
+  });
 }

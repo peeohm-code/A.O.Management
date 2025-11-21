@@ -1,4 +1,5 @@
 import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, lt, ne } from "drizzle-orm";
+import { bigIntToNumber } from "./utils/bigint";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql, { type Pool } from "mysql2/promise";
 import {
@@ -314,8 +315,7 @@ export async function createProject(data: {
 
   const [result] = await db.insert(projects).values(values);
   
-  // @ts-ignore - Handle BigInt conversion properly
-  const projectId = parseInt(String(result.insertId));
+  const projectId = bigIntToNumber(result.insertId);
   
   if (projectId && !isNaN(projectId)) {
     await db.insert(projectMembers).values({
@@ -866,8 +866,7 @@ export async function createTask(data: {
     endDate: endDateStr || null,
   });
   
-  // @ts-ignore - Handle BigInt conversion properly
-  const taskId = parseInt(String(result.insertId));
+  const taskId = bigIntToNumber(result.insertId);
   return { insertId: taskId, id: taskId };
 }
 
@@ -887,6 +886,24 @@ export async function getTasksByProject(projectId: number) {
     .select()
     .from(tasks)
     .where(eq(tasks.projectId, projectId))
+    .orderBy(asc(tasks.order));
+}
+
+/**
+ * Get tasks by multiple project IDs (optimized to avoid N+1 queries)
+ * @param projectIds Array of project IDs
+ * @returns Array of tasks
+ */
+export async function getTasksByProjectIds(projectIds: number[]) {
+  const db = await getDb();
+  if (!db) return [];
+
+  if (projectIds.length === 0) return [];
+
+  return await db
+    .select()
+    .from(tasks)
+    .where(inArray(tasks.projectId, projectIds))
     .orderBy(asc(tasks.order));
 }
 
@@ -2010,7 +2027,6 @@ export async function getDefectActivityLog(defectId: number) {
   return await db
     .select()
     .from(activityLog)
-  // @ts-ignore
     .where(eq(activityLog.defectId, defectId))
     .orderBy(desc(activityLog.createdAt));
 }
@@ -2065,10 +2081,7 @@ export async function submitInspection(data: {
     const passedCount = data.itemResults.filter((r) => r.result === "pass").length;
     const overallStatus = failedCount > 0 ? "failed" : "completed";
 
-  // @ts-ignore
     // 3. Update task checklist
-    // @ts-ignore
-    // @ts-ignore
     await db.update(taskChecklists).set({
       status: overallStatus,
       inspectedBy: data.inspectedBy,
@@ -2083,9 +2096,7 @@ export async function submitInspection(data: {
     if (failedItems.length > 0) {
       // Get the corresponding result IDs
       const defectPromises = failedItems.map(async (item, index: any) => {
-  // @ts-ignore
         // Find the result ID for this item
-    // @ts-ignore
         const resultId = insertedResults[data.itemResults.indexOf(item)][0]?.insertId;
         
         return db.insert(defects).values({
@@ -2346,7 +2357,6 @@ export async function createChecklistResult(data: {
   checklistId: number;
   itemId: number;
   result: "pass" | "fail" | "na";
-  // @ts-ignore
   comment?: string;
   photoUrls?: string;
   inspectedBy: number;
@@ -2355,7 +2365,6 @@ export async function createChecklistResult(data: {
   if (!db) throw new Error("Database not available");
 
   return await db.insert(checklistItemResults).values({
-    // @ts-ignore
     checklistId: data.checklistId,
     itemId: data.itemId,
     result: data.result,
@@ -2366,9 +2375,6 @@ export async function createChecklistResult(data: {
 }
 
 /**
-  // @ts-ignore
-  // @ts-ignore
-  // @ts-ignore
  * Get checklist results by checklist ID
  */
 export async function getChecklistResults(checklistId: number) {
@@ -2377,8 +2383,6 @@ export async function getChecklistResults(checklistId: number) {
 
   return await db
     .select()
-    // @ts-ignore
-    // @ts-ignore
     .from(checklistItemResults)
     .where(eq(checklistItemResults.taskChecklistId, checklistId))
     .orderBy(checklistItemResults.templateItemId);
@@ -2500,11 +2504,9 @@ export async function getDefectStatsByPriority() {
     }
     
     const result = await db
-  // @ts-ignore
       .select({
         priority: defects.severity,
         count: sql<number>`COUNT(*)`.as('count')
-  // @ts-ignore
       })
       .from(defects)
       .groupBy(defects.severity);
@@ -2586,7 +2588,6 @@ export async function getRecentDefects(limit: number = 10) {
   const db = await getDb();
   if (!db) return [];
   
-  // @ts-ignore
   return await db
     .select()
     .from(defects)

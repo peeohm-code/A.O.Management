@@ -1,8 +1,12 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "../db/client";
+import { bigIntToNumber } from "../utils/bigint";
+import { withTransaction } from "../utils/transaction";
+import { logger } from "../logger";
 import {
   defects,
   defectAttachments,
+  activityLog,
   type Defect,
   type InsertDefect,
   type DefectAttachment,
@@ -19,14 +23,25 @@ import {
 // ============================================================================
 
 export async function createDefect(data: InsertDefect): Promise<Defect> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const [defect] = await db.insert(defects).values(data).$returningId();
-  const [created] = await db.select().from(defects).where(eq(defects.id, defect.id));
-
-  if (!created) throw new Error("Failed to create defect");
-  return created;
+  return await withTransaction(async (tx) => {
+    const [result] = await tx.insert(defects).values(data);
+    const defectId = bigIntToNumber(result.insertId);
+    
+    // Create activity log entry
+    await tx.insert(activityLog).values({
+      userId: data.reportedBy,
+      taskId: data.taskId,
+      defectId: defectId,
+      action: 'defect_created',
+      details: `Defect created: ${data.title}`,
+    });
+    
+    const [created] = await tx.select().from(defects).where(eq(defects.id, defectId));
+    if (!created) throw new Error("Failed to create defect");
+    
+    logger.info(`[Defect Service] Created defect ${defectId}`);
+    return created;
+  });
 }
 
 export async function getDefectById(defectId: number): Promise<Defect | undefined> {
@@ -89,28 +104,48 @@ export async function getDefectsByAssignee(assigneeId: number): Promise<Defect[]
 
 export async function updateDefect(
   defectId: number,
-  data: Partial<InsertDefect>
+  data: Partial<InsertDefect>,
+  updatedBy?: number
 ): Promise<Defect> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.update(defects).set(data).where(eq(defects.id, defectId));
-
-  const [updated] = await db.select().from(defects).where(eq(defects.id, defectId));
-  if (!updated) throw new Error("Defect not found after update");
-
-  return updated;
+  return await withTransaction(async (tx) => {
+    const safeDefectId = bigIntToNumber(defectId);
+    
+    await tx.update(defects).set(data).where(eq(defects.id, safeDefectId));
+    
+    // Create activity log entry if status changed
+    if (data.status && updatedBy) {
+      await tx.insert(activityLog).values({
+        userId: updatedBy,
+        defectId: safeDefectId,
+        action: 'defect_status_changed',
+        details: `Defect status changed to: ${data.status}`,
+      });
+    }
+    
+    const [updated] = await tx.select().from(defects).where(eq(defects.id, safeDefectId));
+    if (!updated) throw new Error("Defect not found after update");
+    
+    logger.info(`[Defect Service] Updated defect ${safeDefectId}`);
+    return updated;
+  });
 }
 
 export async function deleteDefect(defectId: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  const safeDefectId = bigIntToNumber(defectId);
+  logger.info(`[Defect Service] Starting deletion of defect ${safeDefectId}`);
+  
+  await withTransaction(async (tx) => {
+    // Delete attachments first
+    await tx.delete(defectAttachments).where(eq(defectAttachments.defectId, safeDefectId));
+    
+    // Delete activity logs
+    await tx.delete(activityLog).where(eq(activityLog.defectId, safeDefectId));
 
-  // Delete attachments first
-  await db.delete(defectAttachments).where(eq(defectAttachments.defectId, defectId));
-
-  // Delete defect
-  await db.delete(defects).where(eq(defects.id, defectId));
+    // Delete defect
+    await tx.delete(defects).where(eq(defects.id, safeDefectId));
+    
+    logger.info(`[Defect Service] Successfully deleted defect ${safeDefectId}`);
+  });
 }
 
 // ============================================================================

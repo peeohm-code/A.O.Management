@@ -626,3 +626,55 @@
 - [ ] ตรวจสอบ memory leaks ใน frontend
 - [ ] ตรวจสอบ query optimization ใน backend
 - [ ] พิจารณา lazy loading และ pagination
+
+
+---
+
+## 🏗️ ENTERPRISE REFACTORING PROJECT (Phase 3)
+
+### Phase 1: Code Analysis & Planning
+- [ ] Analyze current monolithic backend structure in server/routers.ts
+- [ ] Identify all database operations requiring transactions
+- [ ] Identify N+1 query problems in dashboard and analytics
+- [ ] Document all @ts-ignore usages and type safety issues
+- [ ] Map out magic numbers and strings for constants.ts
+
+### Phase 2: Modular Architecture Foundation
+- [x] Create server/constants.ts for all magic values
+- [x] Create server/utils/ directory for shared utilities
+- [x] Create BigInt to number conversion utility
+- [x] Set up proper error handling utilities
+- [x] Create transaction wrapper utilities
+
+### Phase 3: Service Layer with Transaction Safety
+- [ ] Refactor ProjectService to use db.transaction
+- [ ] Refactor InspectionService to use db.transaction for submitInspection
+- [ ] Refactor DefectService to use db.transaction for multi-table writes
+- [ ] Ensure all services handle rollback scenarios
+- [ ] Update routers to use refactored services
+
+### Phase 4: Query Optimization (Eliminate N+1)
+- [ ] Replace JavaScript loops with SQL joins in getDashboardData
+- [ ] Optimize project listing with COUNT/SUM aggregations
+- [ ] Optimize inspection queries with proper joins
+- [ ] Add database indexes for frequently queried columns
+- [ ] Use GROUP BY for analytics queries
+
+### Phase 5: Type Safety Improvements
+- [ ] Remove all @ts-ignore statements
+- [ ] Add proper type definitions for BigInt conversions
+- [ ] Validate type safety across all services
+- [ ] Fix remaining TypeScript errors (290 errors)
+
+### Phase 6: Testing & Validation
+- [ ] Write vitest tests for transaction rollback scenarios
+- [ ] Test query performance improvements
+- [ ] Verify all API endpoints work correctly
+- [ ] Load test critical endpoints
+- [ ] Create checkpoint after refactoring
+
+### Phase 7: Documentation
+- [ ] Document new service architecture
+- [ ] Document transaction usage patterns
+- [ ] Update README with refactoring details
+- [ ] Create migration guide for future developers

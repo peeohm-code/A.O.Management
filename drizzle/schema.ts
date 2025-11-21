@@ -6,6 +6,7 @@ export const activityLog = mysqlTable("activityLog", {
 	userId: int().notNull(),
 	projectId: int(),
 	taskId: int(),
+	defectId: int(),
 	action: varchar({ length: 100 }).notNull(),
 	details: text(),
 	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -14,6 +15,7 @@ export const activityLog = mysqlTable("activityLog", {
 	index("userIdx").on(table.userId),
 	index("projectIdx").on(table.projectId),
 	index("taskIdx").on(table.taskId),
+	index("defectIdx").on(table.defectId),
 	index("actionIdx").on(table.action),
 	index("createdAtIdx").on(table.createdAt),
 ]);

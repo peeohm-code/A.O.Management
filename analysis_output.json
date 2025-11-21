@@ -1,0 +1,158 @@
+{
+  "summary": {
+    "total_functions_needing_transactions": 49,
+    "total_ts_ignores": 18,
+    "total_n_plus_one_patterns": 14
+  },
+  "functions_needing_transactions": [
+    {
+      "name": "createProject",
+      "line": 281,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createTask",
+      "line": 837,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createChecklistTemplate",
+      "line": 1035,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createTaskChecklist",
+      "line": 1209,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createDefect",
+      "line": 1501,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createNotification",
+      "line": 1890,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createChecklistResult",
+      "line": 2345,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createDefectAttachment",
+      "line": 2390,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createArchiveRule",
+      "line": 2609,
+      "file": "server/db.ts"
+    },
+    {
+      "name": "createDefectInspection",
+      "line": 2700,
+      "file": "server/db.ts"
+    }
+  ],
+  "ts_ignores": [
+    {
+      "line": 317,
+      "file": "server/db.ts",
+      "context": ") values.endDate = data.endDate;\n\n  const [result] = await db.insert(projects).values(values);\n  \n  // @ts-ignore - Handle BigInt conversion properly\n  const projectId = parseInt(String(result.insertI"
+    },
+    {
+      "line": 869,
+      "file": "server/db.ts",
+      "context": "a uses varchar(10)\n    startDate: startDateStr || null,\n    endDate: endDateStr || null,\n  });\n  \n  // @ts-ignore - Handle BigInt conversion properly\n  const taskId = parseInt(String(result.insertId))"
+    },
+    {
+      "line": 2013,
+      "file": "server/db.ts",
+      "context": "db = await getDb();\n  if (!db) return [];\n\n  return await db\n    .select()\n    .from(activityLog)\n  // @ts-ignore\n    .where(eq(activityLog.defectId, defectId))\n    .orderBy(desc(activityLog.createdAt"
+    },
+    {
+      "line": 2068,
+      "file": "server/db.ts",
+      "context": "r.result === \"pass\").length;\n    const overallStatus = failedCount > 0 ? \"failed\" : \"completed\";\n\n  // @ts-ignore\n    // 3. Update task checklist\n    // @ts-ignore\n    // @ts-ignore\n    await db.updat"
+    },
+    {
+      "line": 2070,
+      "file": "server/db.ts",
+      "context": "us = failedCount > 0 ? \"failed\" : \"completed\";\n\n  // @ts-ignore\n    // 3. Update task checklist\n    // @ts-ignore\n    // @ts-ignore\n    await db.update(taskChecklists).set({\n      status: overallStatu"
+    }
+  ],
+  "n_plus_one_patterns": [
+    {
+      "line": 419,
+      "file": "server/routers.ts",
+      "snippet": "for (const id of input.ids) {\n        try {\n          await db.deleteProject(id);\n          await db"
+    },
+    {
+      "line": 582,
+      "file": "server/routers.ts",
+      "snippet": "for (const projectId of myProjectIds) {\n      const projectTasks = await db."
+    },
+    {
+      "line": 869,
+      "file": "server/routers.ts",
+      "snippet": "for (const taskId of taskIds) {\n        try {\n          const task = await db.getTaskById(taskId);\n "
+    },
+    {
+      "line": 902,
+      "file": "server/routers.ts",
+      "snippet": "for (const taskId of taskIds) {\n        try {\n          const task = await db.getTaskById(taskId);\n "
+    },
+    {
+      "line": 1008,
+      "file": "server/routers.ts",
+      "snippet": "for (const projectId of projectIds) {\n          const projectTasks = await db."
+    },
+    {
+      "line": 1228,
+      "file": "server/routers.ts",
+      "snippet": "for (const item of input.items) {\n            await db."
+    },
+    {
+      "line": 1286,
+      "file": "server/routers.ts",
+      "snippet": "for (const item of items) {\n          await db."
+    },
+    {
+      "line": 1367,
+      "file": "server/routers.ts",
+      "snippet": "for (const checklist of checklists) {\n        const task = await db."
+    },
+    {
+      "line": 1505,
+      "file": "server/routers.ts",
+      "snippet": "for (const itemResult of input.itemResults) {\n          await db."
+    },
+    {
+      "line": 2472,
+      "file": "server/routers.ts",
+      "snippet": "for (const defectId of defectIds) {\n        try {\n          const defect = await db.getDefectById(de"
+    },
+    {
+      "line": 2504,
+      "file": "server/routers.ts",
+      "snippet": "for (const defectId of defectIds) {\n        try {\n          const defect = await db.getDefectById(de"
+    },
+    {
+      "line": 2552,
+      "file": "server/routers.ts",
+      "snippet": "for (const defectId of defectIds) {\n        try {\n          await db."
+    },
+    {
+      "line": 2916,
+      "file": "server/routers.ts",
+      "snippet": "for (const projectId of userProjectIds) {\n      const projectTasks = await db."
+    },
+    {
+      "line": 3656,
+      "file": "server/routers.ts",
+      "snippet": "for (const item of input.items) {\n          await db."
+    }
+  ]
+}

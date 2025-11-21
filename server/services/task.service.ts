@@ -1,5 +1,8 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql, asc } from "drizzle-orm";
 import { getDb } from "../db/client";
+import { bigIntToNumber } from "../utils/bigint";
+import { withTransaction } from "../utils/transaction";
+import { logger } from "../logger";
 import {
   tasks,
   taskDependencies,
@@ -22,14 +25,15 @@ import {
 // ============================================================================
 
 export async function createTask(data: InsertTask): Promise<Task> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const [result] = await db.insert(tasks).values(data);
-  const [created] = await db.select().from(tasks).where(eq(tasks.id, result.insertId));
-  
-  if (!created) throw new Error("Failed to create task");
-  return created;
+  return await withTransaction(async (tx) => {
+    const [result] = await tx.insert(tasks).values(data);
+    const taskId = bigIntToNumber(result.insertId);
+    const [created] = await tx.select().from(tasks).where(eq(tasks.id, taskId));
+    
+    if (!created) throw new Error("Failed to create task");
+    logger.info(`[Task Service] Created task ${taskId}`);
+    return created;
+  });
 }
 
 export async function getTaskById(taskId: number): Promise<Task | undefined> {
@@ -74,19 +78,23 @@ export async function updateTask(
 }
 
 export async function deleteTask(taskId: number): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  const safeTaskId = bigIntToNumber(taskId);
+  logger.info(`[Task Service] Starting deletion of task ${safeTaskId}`);
+  
+  await withTransaction(async (tx) => {
+    // Delete dependencies first
+    await tx.delete(taskDependencies).where(
+      sql`${taskDependencies.taskId} = ${safeTaskId} OR ${taskDependencies.dependsOnTaskId} = ${safeTaskId}`
+    );
 
-  // Delete dependencies first
-  await db.delete(taskDependencies).where(
-    sql`${taskDependencies.taskId} = ${taskId} OR ${taskDependencies.dependsOnTaskId} = ${taskId}`
-  );
+    // Delete comments
+    await tx.delete(taskComments).where(eq(taskComments.taskId, safeTaskId));
 
-  // Delete comments
-  await db.delete(taskComments).where(eq(taskComments.taskId, taskId));
-
-  // Delete task
-  await db.delete(tasks).where(eq(tasks.id, taskId));
+    // Delete task
+    await tx.delete(tasks).where(eq(tasks.id, safeTaskId));
+    
+    logger.info(`[Task Service] Successfully deleted task ${safeTaskId}`);
+  });
 }
 
 // ============================================================================
