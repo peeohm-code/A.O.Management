@@ -1494,6 +1494,7 @@ export async function updateChecklistItemResult(
     .set({
       result: data.result,
       photoUrls: data.photoUrls,
+      comments: data.comments,
       updatedAt: new Date(),
     })
     .where(eq(checklistItemResults.id, id));
@@ -1990,6 +1991,7 @@ export async function logActivity(data: {
   userId: number;
   projectId?: number;
   taskId?: number;
+  defectId?: number;
   action: string;
   details?: string;
 }) {
@@ -2004,6 +2006,7 @@ export async function logActivity(data: {
   
   if (data.projectId !== undefined) values.projectId = data.projectId;
   if (data.taskId !== undefined) values.taskId = data.taskId;
+  if (data.defectId !== undefined) values.defectId = data.defectId;
   if (data.details !== undefined) values.details = data.details;
 
   return await db.insert(activityLog).values(values);

@@ -107,6 +107,7 @@ export const checklistItemResults = mysqlTable("checklistItemResults", {
 	templateItemId: int().notNull(),
 	result: mysqlEnum(['pass','fail','na']).notNull(),
 	photoUrls: text(),
+	comments: text(),
 	createdAt: timestamp().default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp().defaultNow().onUpdateNow().notNull(),
 },

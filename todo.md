@@ -785,3 +785,10 @@
 - [ ] สร้าง checkpoint
 - [ ] อัปเดต todo.md
 - [ ] นำเสนอผลงาน
+- [x] แก้ไข updateChecklistItemResult ใน server/db.ts - เพิ่ม comments field ในการบันทึก
+- [x] เพิ่ม comments column ใน checklistItemResults schema
+- [x] Migrate database ด้วย ALTER TABLE
+- [x] เขียน unit tests สำหรับ updateChecklistItemResult และ getChecklistItemResultById (10 tests ผ่านทั้งหมด)
+- [x] ทดสอบ Inspection Detail page - ยืนยันว่าปุ่มแก้ไขรายการที่ 1, 2, 3 ทำงานได้ทั้งหมด
+- [x] แก้ไข logActivity function เพื่อรองรับ defectId parameter
+- [x] ทดสอบการบันทึก comments ใน browser - สถานะ "ผ่าน" บันทึกสำเร็จ
