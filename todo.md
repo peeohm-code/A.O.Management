@@ -427,3 +427,76 @@
 
 - ❌ TypeScript errors จาก vite.config.ts (ไม่กระทบการใช้งาน)
 - ❌ Drizzle ORM .$returningId() ไม่ return ID (ต้องใช้ raw SQL หรือ webdev_execute_sql)
+
+---
+
+## 🎨 UX Improvements Phase 2
+
+### Testing
+- [ ] ทดสอบปุ่มแก้ไขใน Inspection Detail (รายการที่ 2 และ 3)
+
+### Empty States
+- [ ] เพิ่ม empty state สำหรับหน้า Projects
+- [ ] เพิ่ม empty state สำหรับหน้า Tasks
+- [ ] เพิ่ม empty state สำหรับหน้า Inspections
+- [ ] เพิ่ม empty state สำหรับหน้า Defects
+- [ ] เพิ่ม empty state สำหรับหน้า Inspection Detail (checklist items)
+- [ ] เพิ่ม empty state สำหรับหน้า Templates
+
+### Confirmation Dialogs
+- [ ] เพิ่ม confirmation dialog สำหรับการลบโครงการ
+- [ ] เพิ่ม confirmation dialog สำหรับการลบงาน
+- [ ] เพิ่ม confirmation dialog สำหรับการลบ defect
+- [ ] เพิ่ม confirmation dialog สำหรับการลบ inspection
+- [ ] เพิ่ม confirmation dialog สำหรับการลบ template
+
+
+---
+
+## 🏗️ Code Refactoring - Enterprise Architecture
+
+### Phase 1: Infrastructure Setup
+- [x] Analyze server/db.ts and extract patterns
+- [x] Create server/utils/constants.ts (extract magic numbers/strings)
+- [x] Create server/utils/db-helpers.ts (toNumber() utility)
+- [x] Create server/types/index.ts (shared DTOs/interfaces)
+- [x] Create server/db/client.ts (Drizzle connection pool)
+
+### Phase 2: Database Layer Optimization
+- [ ] Eliminate N+1 queries in dashboard functions
+- [ ] Replace JavaScript loops with SQL JOINs
+- [ ] Add SQL aggregations (COUNT, SUM, GROUP BY)
+- [ ] Optimize getProjectStats with single query
+- [ ] Optimize getTaskStats with single query
+
+### Phase 3: Service Layer with Transactions
+- [ ] Create services/project.service.ts
+- [ ] Create services/task.service.ts
+- [ ] Create services/inspection.service.ts
+- [ ] Create services/defect.service.ts
+- [ ] Add db.transaction to multi-table operations
+
+### Phase 4: Router Integration
+- [ ] Update routers.ts to use new services
+- [ ] Remove direct db calls from routers
+- [ ] Test all endpoints
+- [ ] Update imports and dependencies## 🔧 Phase 2: Core Services & Data Integrity Refactoring
+
+### Service Layer Refactoring
+- [ ] Refactor `src/services/project.service.ts` - Ensure createProject and deleteProject handle related data (members, tasks) correctly
+- [ ] Refactor `src/services/inspection.service.ts` - Wrap submitInspection in transaction for atomic operations (save results, update status, create defects, update task status)
+- [ ] Use toNumber() helper for all ID conversions
+- [ ] Import constants from src/utils/constants.ts
+- [ ] Test transaction rollback scenarios
+- [ ] Verify data integrity
+
+## 🚀 Phase 3: Analytics & Optimization
+
+### Analytics Service Refactoring
+- [x] Create server/services/analytics.service.ts with SQL aggregations
+- [x] Refactor getCEOProjectStatusBreakdown to use GROUP BY
+- [x] Refactor getDashboardStats to use SQL aggregations
+- [x] Refactor getProjectStats to use SQL aggregations
+- [x] Replace JavaScript loops with Drizzle count(), sum(), groupBy()
+- [x] Test optimized queries performance
+- [x] Update routers to use new analytics servicering

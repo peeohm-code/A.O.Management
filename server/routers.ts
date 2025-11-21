@@ -17,6 +17,7 @@ import {
   roleBasedProcedure,
 } from "./_core/trpc";
 import * as db from "./db";
+import * as analyticsService from "./services/analytics.service";
 import {
   generateProjectExport,
   generateProjectReport,
@@ -439,7 +440,7 @@ const projectRouter = router({
   stats: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      return await db.getProjectStats(input.id);
+      return await analyticsService.getProjectStats(input.id);
     }),
 
   downloadData: protectedProcedure
@@ -2861,7 +2862,7 @@ const dashboardRouter = router({
     // Get all projects (admin can see all projects)
     const allProjects = await db.getAllProjects();
     const projectIds = allProjects.map((p: any) => p.id);
-    const statsMap = await db.getBatchProjectStats(projectIds);
+    const statsMap = await analyticsService.getBatchProjectStats(projectIds);
     
     const projectsWithStats = allProjects.map((project: any) => {
       const stats = statsMap.get(project.id);
@@ -2991,7 +2992,7 @@ const dashboardRouter = router({
     const [projectOverview, projectStatus, tasksOverview, inspectionStats, defectStats, alerts] =
       await Promise.all([
         db.getCEOProjectOverview(),
-        db.getCEOProjectStatusBreakdown(),
+        analyticsService.getCEOProjectStatusBreakdown(),
         db.getCEOTasksOverview(),
         db.getCEOInspectionStats(),
         db.getCEODefectStats(),
