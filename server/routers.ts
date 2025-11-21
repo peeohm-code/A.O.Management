@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { canEditDefect, canDeleteDefect } from "@shared/permissions";
 import { TRPCError } from "@trpc/server";
+import { boolToInt } from "./utils/typeHelpers.js";
 import { COOKIE_NAME } from "@shared/const";
 import {
   validateTaskCreateInput,
@@ -3461,8 +3462,6 @@ export const appRouter = router({
         await db.logActivity({
           userId: ctx.user!.id,
           action: "create_user",
-          entityType: "user",
-          entityId: newUser.id,
           details: `Created user: ${input.name} (${input.role})`,
         });
 
@@ -3855,7 +3854,9 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         return await db.createAlertThreshold({
           userId: ctx.user!.id,
-          ...input,
+          metricType: input.metricType,
+          threshold: input.threshold,
+          isEnabled: boolToInt(input.isEnabled),
         });
       }),
 

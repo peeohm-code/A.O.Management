@@ -39,10 +39,12 @@ export default function Analytics() {
     { projectId: selectedProjectId || undefined },
     { enabled: !!selectedProjectId }
   );
-  const { data: defects } = trpc.defect.list.useQuery(
+  const { data: defectsData } = trpc.defect.list.useQuery(
     { taskId: tasks?.items?.[0]?.id || 0 },
     { enabled: !!tasks?.items && tasks.items.length > 0 }
   );
+
+  const defects = Array.isArray(defectsData) ? defectsData : (defectsData?.items ?? []);
 
   // Progress vs Plan Comparison Data
   const progressVsPlanData = useMemo(() => {
@@ -97,7 +99,7 @@ export default function Analytics() {
 
   // Defect Trend Data
   const defectTrendData = useMemo(() => {
-    if (!defects || defects?.items?.length === 0) return [];
+    if (!defects || defects.length === 0) return [];
 
     const data: { date: string; created: number; resolved: number }[] = [];
     const startDate = dateRange.from;
@@ -107,12 +109,12 @@ export default function Analytics() {
 
     for (let i = 0; i <= days; i += interval) {
       const currentDate = subDays(endDate, days - i);
-      const createdCount = defects?.items?.filter((defect: any) => {
+      const createdCount = defects.filter((defect: any) => {
         const createdAt = new Date(defect.createdAt);
         return createdAt <= currentDate;
       }).length;
 
-      const resolvedCount = defects?.items?.filter((defect: any) => {
+      const resolvedCount = defects.filter((defect: any) => {
         const resolvedAt = defect.resolvedAt ? new Date(defect.resolvedAt) : null;
         return resolvedAt && resolvedAt <= currentDate;
       }).length;
@@ -383,7 +385,7 @@ export default function Analytics() {
           </Card>
 
           {/* Defect Trend */}
-          {defects && defects?.items?.length > 0 && (
+          {defects && defects.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>แนวโน้มข้อบกพร่อง (Defects)</CardTitle>

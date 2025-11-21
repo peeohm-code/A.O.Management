@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { users, projects, tasks, taskChecklists, defects, activityLog } from "../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
+import { boolToInt } from "./utils/typeHelpers.js";
 import { generateDailySummaryEmail } from "./emailTemplates";
 import { notifyOwner } from "./_core/notification";
 
@@ -20,7 +21,7 @@ export async function sendDailySummaryEmails() {
     const usersWithDailySummary = await db
       .select()
       .from(users)
-      .where(eq(users.enableDailySummaryEmail, true));
+      .where(eq(users.enableDailySummaryEmail, boolToInt(true)));
 
 
     for (const user of usersWithDailySummary) {

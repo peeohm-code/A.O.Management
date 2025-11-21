@@ -1,5 +1,6 @@
-import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, like, gte, lte, lt, ne } from "drizzle-orm";
+import { eq, and, or, isNull, isNotNull, sql, desc, asc, count, inArray, notInArray, like, gte, lte, lt, ne } from "drizzle-orm";
 import { bigIntToNumber } from "./utils/bigint";
+import { boolToInt } from "./utils/typeHelpers.js";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql, { type Pool } from "mysql2/promise";
 import {
@@ -5482,10 +5483,9 @@ export async function setUserPermission(data: {
     await db
       .update(userPermissions)
       .set({
-        granted: data.granted,
+        granted: boolToInt(data.granted),
         grantedBy: data.grantedBy,
         grantedAt: new Date(),
-        updatedAt: new Date(),
       })
       .where(eq(userPermissions.id, existing[0].id));
   } else {
@@ -5493,7 +5493,7 @@ export async function setUserPermission(data: {
     await db.insert(userPermissions).values({
       userId: data.userId,
       permissionId: data.permissionId,
-      granted: data.granted,
+      granted: boolToInt(data.granted),
       grantedBy: data.grantedBy,
       grantedAt: new Date(),
     });
@@ -5519,7 +5519,7 @@ export async function bulkSetUserPermissions(data: {
       data.permissions.map(p => ({
         userId: data.userId,
         permissionId: p.permissionId,
-        granted: p.granted,
+        granted: boolToInt(p.granted),
         grantedBy: data.grantedBy,
         grantedAt: new Date(),
       }))
@@ -6341,7 +6341,6 @@ export async function getTeamPerformanceMetrics() {
         totalTasks: totalAssigned,
         completedTasks: completed,
         inProgressTasks: taskStats?.inProgressTasks || 0,
-        overdueTasks: taskStats?.overdueTasks || 0,
         completionRate: Math.round(completionRate),
         onTimeRate: Math.round(onTimeRate),
         completedLast30Days,
@@ -6458,9 +6457,10 @@ export async function getQCStatusSummary() {
       .groupBy(defects.severity);
 
     const criticalDefects = defectsBySeverity.find(d => d.severity === 'critical')?.count || 0;
-    const majorDefects = defectsBySeverity.find(d => d.severity === 'major')?.count || 0;
-    const minorDefects = defectsBySeverity.find(d => d.severity === 'minor')?.count || 0;
-    const totalOpenDefects = criticalDefects + majorDefects + minorDefects;
+    const highDefects = defectsBySeverity.find(d => d.severity === 'high')?.count || 0;
+    const mediumDefects = defectsBySeverity.find(d => d.severity === 'medium')?.count || 0;
+    const lowDefects = defectsBySeverity.find(d => d.severity === 'low')?.count || 0;
+    const totalOpenDefects = criticalDefects + highDefects + mediumDefects + lowDefects;
 
     // Get defects resolved in last 30 days
     const thirtyDaysAgo = new Date();
@@ -6520,8 +6520,9 @@ export async function getQCStatusSummary() {
       defects: {
         total: totalOpenDefects,
         critical: criticalDefects,
-        major: majorDefects,
-        minor: minorDefects,
+        high: highDefects,
+        medium: mediumDefects,
+        low: lowDefects,
         resolvedLast30Days,
         avgResolutionTime,
       },
@@ -6618,7 +6619,7 @@ export async function getInspectionPassFailRate(params: {
     .where(
       and(
         eq(taskChecklists.status, "completed"),
-        notNull(taskChecklists.inspectedAt),
+        isNotNull(taskChecklists.inspectedAt),
         ...(conditions.length > 0 ? conditions : [])
       )
     );
@@ -6807,8 +6808,8 @@ export async function getInspectorPerformance(params: {
     .where(
       and(
         eq(taskChecklists.status, "completed"),
-        notNull(taskChecklists.inspectedBy),
-        notNull(taskChecklists.inspectedAt),
+        isNotNull(taskChecklists.inspectedBy),
+        isNotNull(taskChecklists.inspectedAt),
         ...(conditions.length > 0 ? conditions : [])
       )
     );
