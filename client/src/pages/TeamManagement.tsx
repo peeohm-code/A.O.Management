@@ -328,7 +328,7 @@ export default function TeamManagement() {
                 ภาพรวมภาระงานของทีมและการกระจายงาน
               </p>
             </div>
-            {projects && projects.length > 0 && (
+            {projects && projects?.items?.length > 0 && (
               <Select
                 value={selectedProjectId?.toString() || "all"}
                 onValueChange={(v) => setSelectedProjectId(v === "all" ? undefined : Number(v))}
@@ -338,7 +338,7 @@ export default function TeamManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ทุกโครงการ</SelectItem>
-                  {projects.map((project: any) => (
+                  {projects?.items?.map((project: any) => (
                     <SelectItem key={project.id} value={project.id.toString()}>
                       {project.name}
                     </SelectItem>

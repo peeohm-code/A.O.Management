@@ -146,12 +146,18 @@ export default function InspectionDetail() {
 
   // Filter items by stage and status
   const filteredItems = useMemo(() => {
-    if (!inspection?.items) return [];
-    return inspection.items.filter((item: any) => {
+    if (!inspection?.items) {
+      console.log('[InspectionDetail] No inspection.items found');
+      return [];
+    }
+    console.log(`[InspectionDetail] Total items: ${inspection.items.length}, Stage: ${inspection.stage}, Filters: stage=${stageFilter}, status=${statusFilter}`);
+    const filtered = inspection.items.filter((item: any) => {
       const stageMatch = stageFilter === "all" || inspection.stage === stageFilter;
       const statusMatch = statusFilter === "all" || item.result === statusFilter;
       return stageMatch && statusMatch;
     });
+    console.log(`[InspectionDetail] Filtered items: ${filtered.length}`);
+    return filtered;
   }, [inspection?.items, inspection?.stage, stageFilter, statusFilter]);
 
   // Handle update item state

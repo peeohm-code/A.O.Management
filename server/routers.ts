@@ -644,7 +644,7 @@ const taskRouter = router({
 
         return { success: true, id: taskId };
       } catch (error) {
-        logger.error("[ERROR] Task create failed:", error);
+        logger.error("[ERROR] Task create failed", undefined, error);
         throw error;
       }
     }),
@@ -881,7 +881,7 @@ const taskRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to update task ${taskId}:`, error);
+          logger.error(`Failed to update task ${taskId}`, undefined, error);
         }
       }
 
@@ -924,7 +924,7 @@ const taskRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to assign task ${taskId}:`, error);
+          logger.error(`Failed to assign task ${taskId}`, undefined, error);
         }
       }
 
@@ -1237,7 +1237,7 @@ const checklistRouter = router({
 
         return { success: true };
       } catch (error) {
-        logger.error("[createTemplate] Error:", error);
+        logger.error("[createTemplate] Error", undefined, error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
@@ -1329,7 +1329,7 @@ const checklistRouter = router({
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        logger.error("[deleteTemplate] Error:", error);
+        logger.error("[deleteTemplate] Error", undefined, error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
@@ -1941,7 +1941,7 @@ const defectRouter = router({
           },
         };
       } catch (error) {
-        logger.error("[defectRouter.allDefects] Error:", error);
+        logger.error("[defectRouter.allDefects] Error", undefined, error);
         return {
           items: [],
           pagination: {
@@ -2190,7 +2190,7 @@ const defectRouter = router({
 
         return result;
       } catch (error) {
-        logger.error("[defect.update] Error:", error);
+        logger.error("[defect.update] Error", undefined, error);
         throw error;
       }
     }),
@@ -2275,7 +2275,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByStatus();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      logger.error("[defectRouter.getStatsByStatus] Error:", error);
+      logger.error("[defectRouter.getStatsByStatus] Error", undefined, error);
       return [];
     }
   }),
@@ -2285,7 +2285,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByType();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      logger.error("[defectRouter.getStatsByType] Error:", error);
+      logger.error("[defectRouter.getStatsByType] Error", undefined, error);
       return [];
     }
   }),
@@ -2295,7 +2295,7 @@ const defectRouter = router({
       const stats = await db.getDefectStatsByPriority();
       return Array.isArray(stats) ? stats : [];
     } catch (error) {
-      logger.error("[defectRouter.getStatsByPriority] Error:", error);
+      logger.error("[defectRouter.getStatsByPriority] Error", undefined, error);
       return [];
     }
   }),
@@ -2314,7 +2314,7 @@ const defectRouter = router({
         }
       );
     } catch (error) {
-      logger.error("[defectRouter.getMetrics] Error:", error);
+      logger.error("[defectRouter.getMetrics] Error", undefined, error);
       return {
         total: 0,
         open: 0,
@@ -2375,7 +2375,7 @@ const defectRouter = router({
 
         return { success: true };
       } catch (error) {
-        logger.error("[requestReinspection] Error:", error);
+        logger.error("[requestReinspection] Error", undefined, error);
         throw error;
       }
     }),
@@ -2483,7 +2483,7 @@ const defectRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to update defect ${defectId}:`, error);
+          logger.error(`Failed to update defect ${defectId}`, undefined, error);
         }
       }
 
@@ -2524,7 +2524,7 @@ const defectRouter = router({
           });
           successCount++;
         } catch (error) {
-          logger.error(`Failed to assign defect ${defectId}:`, error);
+          logger.error(`Failed to assign defect ${defectId}`, undefined, error);
         }
       }
 
@@ -2554,7 +2554,7 @@ const defectRouter = router({
           await db.deleteDefect(defectId);
           successCount++;
         } catch (error) {
-          logger.error(`Failed to delete defect ${defectId}:`, error);
+          logger.error(`Failed to delete defect ${defectId}`, undefined, error);
         }
       }
 
@@ -2734,7 +2734,7 @@ const notificationRouter = router({
       // Ensure we always return an array
       return Array.isArray(notifications) ? notifications : [];
     } catch (error) {
-      logger.error("[notificationRouter.list] Error:", error);
+      logger.error("[notificationRouter.list] Error", undefined, error);
       // Return empty array instead of throwing to prevent frontend crashes
       return [];
     }
@@ -2746,7 +2746,7 @@ const notificationRouter = router({
       try {
         return await db.markNotificationAsRead(input.id);
       } catch (error) {
-        logger.error("[notificationRouter.markAsRead] Error:", error);
+        logger.error("[notificationRouter.markAsRead] Error", undefined, error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to mark notification as read",
@@ -2758,7 +2758,7 @@ const notificationRouter = router({
     try {
       return await db.markAllNotificationsAsRead(ctx.user!.id);
     } catch (error) {
-      logger.error("[notificationRouter.markAllAsRead] Error:", error);
+      logger.error("[notificationRouter.markAllAsRead] Error", undefined, error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to mark all notifications as read",
@@ -2820,7 +2820,7 @@ const notificationRouter = router({
 
         return { success: true, notificationId: notification?.id };
       } catch (error) {
-        logger.error("[notificationRouter.createSystemAlert] Error:", error);
+        logger.error("[notificationRouter.createSystemAlert] Error", undefined, error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create system alert",
@@ -3014,7 +3014,7 @@ const dashboardRouter = router({
       const data = await db.getProjectTimelineOverview();
       return data || { summary: { total: 0, onTrack: 0, atRisk: 0, behindSchedule: 0 }, projects: [] };
     } catch (error) {
-      logger.error('[dashboardRouter.getProjectTimelineOverview] Error:', error);
+      logger.error('[dashboardRouter.getProjectTimelineOverview] Error', undefined, error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to fetch project timeline overview',
@@ -3027,7 +3027,7 @@ const dashboardRouter = router({
       const data = await db.getTeamPerformanceMetrics();
       return data || { summary: { teamSize: 0, avgCompletionRate: 0, avgOnTimeRate: 0, totalTasksAssigned: 0, totalCompleted: 0 }, members: [] };
     } catch (error) {
-      logger.error('[dashboardRouter.getTeamPerformanceMetrics] Error:', error);
+      logger.error('[dashboardRouter.getTeamPerformanceMetrics] Error', undefined, error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to fetch team performance metrics',
@@ -3043,7 +3043,7 @@ const dashboardRouter = router({
         defects: { total: 0, critical: 0, major: 0, minor: 0, resolvedLast30Days: 0, avgResolutionTime: 0 },
       };
     } catch (error) {
-      logger.error('[dashboardRouter.getQCStatusSummary] Error:', error);
+      logger.error('[dashboardRouter.getQCStatusSummary] Error', undefined, error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to fetch QC status summary',
@@ -3059,7 +3059,7 @@ const dashboardRouter = router({
         const activities = await db.getRecentActivitiesEnhanced(limit);
         return activities;
       } catch (error) {
-        logger.error('[dashboardRouter.getRecentActivities] Error:', error);
+        logger.error('[dashboardRouter.getRecentActivities] Error', undefined, error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to fetch recent activities',

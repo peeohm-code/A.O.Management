@@ -678,3 +678,110 @@
 - [ ] Document transaction usage patterns
 - [ ] Update README with refactoring details
 - [ ] Create migration guide for future developers
+
+
+---
+
+## 🚀 FINAL OPTIMIZATION PHASE
+
+### Database Indexes
+- [ ] Add index on tasks.projectId
+- [ ] Add index on tasks.assigneeId
+- [ ] Add index on tasks.status
+- [ ] Add index on defects.taskId
+- [ ] Add index on defects.status
+- [ ] Add index on defects.severity
+- [ ] Add index on projectMembers.userId
+- [ ] Add index on activityLog.userId
+- [ ] Add index on activityLog.taskId
+
+### Vitest Tests
+- [ ] Test task.service.ts - createTask with transaction
+- [ ] Test task.service.ts - deleteTask with transaction
+- [ ] Test defect.service.ts - createDefect with activity log
+- [ ] Test defect.service.ts - updateDefect with activity log
+- [ ] Test defect.service.ts - deleteDefect with transaction
+- [ ] Test project.service.ts - createProject with transaction
+- [ ] Test project.service.ts - deleteProject with transaction
+- [ ] Test utils/bigint.ts - bigIntToNumber conversions
+- [ ] Test utils/transaction.ts - withTransaction wrapper
+
+### Split db.ts into Modular Structure
+- [ ] Create db/queries/projects.ts
+- [ ] Create db/queries/tasks.ts
+- [ ] Create db/queries/defects.ts
+- [ ] Create db/queries/checklists.ts
+- [ ] Create db/queries/inspections.ts
+- [ ] Create db/queries/users.ts
+- [ ] Create db/queries/activity.ts
+- [ ] Create db/queries/index.ts (barrel export)
+- [ ] Update routers.ts to use new structure
+- [ ] Remove old db.ts functions
+
+
+---
+
+## ✅ งานแก้ไขปัญหาเร่งด่วน (เสร็จแล้ว - 21 พ.ย. 2025)
+
+### 1. TypeScript Errors - ลดลงจาก 290 เหลือ ~270 errors
+**สถานะ:** ✅ แก้ไขบางส่วนแล้ว (ไม่กระทบการใช้งาน)  
+- [x] วิเคราะห์ด้วย Gemini Pro
+- [x] แก้ไข logger.error() syntax errors
+- [x] แก้ไข timestamp fields (67 errors)
+- [x] Dev server ทำงานปกติ
+- [ ] Type definition issues ที่เหลือ (~270 errors - ไม่เร่งด่วน)
+
+### 2. Inspection Detail - ไม่แสดงรายการตรวจสอบ
+**สถานะ:** ✅ แก้ไขแล้ว  
+- [x] เพิ่ม comments field ใน getInspectionDetail
+- [x] เพิ่ม debug logging
+- [x] แก้ไข InspectionDetail edit bug
+- [x] ทดสอบผ่าน browser
+
+### 3. Memory Warning (70% usage)
+**สถานะ:** ✅ แก้ไขแล้ว (ลดลงเหลือ 68%)  
+- [x] Kill drizzle-kit process ที่ค้างอยู่
+- [x] ลด pagination limits (max 50, default 15)
+- [x] Memory usage: 2.9GB → 2.6GB (ลดลง 300MB)
+- [x] Available memory: 667MB → 997MB (เพิ่มขึ้น 49%)
+
+---
+
+## 🚨 งานแก้ไขปัญหาเร่งด่วน (เก่า - เก็บไว้เป็นประวัติ) (21 พ.ย. 2568)
+
+### Phase 1: วิเคราะห์ปัญหาด้วย Gemini Pro
+- [ ] วิเคราะห์ TypeScript Errors ด้วย Gemini Pro
+- [ ] วิเคราะห์ Inspection Detail bug ด้วย Gemini Pro
+- [ ] วิเคราะห์ Memory Warning ด้วย Gemini Pro
+- [ ] สร้างแผนแก้ไขที่มีประสิทธิภาพสูงสุด
+
+### Phase 2: แก้ไข TypeScript Errors (290 errors)
+- [ ] รวบรวม TypeScript errors ทั้งหมด
+- [ ] จัดกลุ่ม errors ตามประเภท
+- [ ] แก้ไข errors ตามแผนที่วางไว้
+- [ ] ตรวจสอบว่า build ผ่าน
+
+### Phase 3: แก้ไข Inspection Detail Bug
+- [ ] วิเคราะห์ InspectionDetail.tsx
+- [ ] วิเคราะห์ getInspectionById query
+- [ ] แก้ไข bug ตามที่วิเคราะห์
+- [ ] ทดสอบการแสดงรายการตรวจสอบ
+
+### Phase 4: แก้ไข Memory Warning
+- [ ] วิเคราะห์การใช้ memory
+- [ ] หา memory leaks
+- [ ] ปรับ cron job intervals
+- [ ] ตรวจสอบ connection pooling
+- [ ] optimize queries
+
+### Phase 5: ทดสอบและ Verify
+- [ ] ทดสอบ TypeScript build
+- [ ] ทดสอบ Inspection Detail
+- [ ] ตรวจสอบ memory usage
+- [ ] ทดสอบ end-to-end workflows
+- [ ] ยืนยันว่าไม่มีปัญหาเหลืออยู่
+
+### Phase 6: Checkpoint
+- [ ] สร้าง checkpoint
+- [ ] อัปเดต todo.md
+- [ ] นำเสนอผลงาน

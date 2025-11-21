@@ -3941,10 +3941,14 @@ export async function getInspectionDetail(inspectionId: number) {
       itemName: row.checklistTemplateItems?.itemText || null,
       itemOrder: row.checklistTemplateItems?.order || 0,
       result: row.checklistItemResults.result,
+      comments: row.checklistItemResults.comments || null,
       photoUrls: row.checklistItemResults.photoUrls,
       createdAt: row.checklistItemResults.createdAt,
     }))
     .sort((a, b) => a.itemOrder - b.itemOrder);
+
+  // Debug logging
+  console.log(`[getInspectionDetail] Inspection ${inspectionId}: Found ${itemResultRows.length} item results, mapped to ${itemResults.length} items`);
 
   // Get defects created from this inspection
   const relatedDefects = await db

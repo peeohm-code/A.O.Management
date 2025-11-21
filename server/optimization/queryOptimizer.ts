@@ -33,7 +33,7 @@ export interface PaginatedResult<T> {
  */
 export function getPaginationParams(options: PaginationOptions = {}) {
   const page = Math.max(1, options.page || 1);
-  const pageSize = Math.min(100, Math.max(1, options.pageSize || 20)); // Max 100 items per page
+  const pageSize = Math.min(50, Math.max(1, options.pageSize || 15)); // Max 50 items per page, default 15
   const offset = (page - 1) * pageSize;
 
   return {

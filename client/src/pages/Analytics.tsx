@@ -97,7 +97,7 @@ export default function Analytics() {
 
   // Defect Trend Data
   const defectTrendData = useMemo(() => {
-    if (!defects || defects.length === 0) return [];
+    if (!defects || defects?.items?.length === 0) return [];
 
     const data: { date: string; created: number; resolved: number }[] = [];
     const startDate = dateRange.from;
@@ -107,12 +107,12 @@ export default function Analytics() {
 
     for (let i = 0; i <= days; i += interval) {
       const currentDate = subDays(endDate, days - i);
-      const createdCount = defects.filter((defect: any) => {
+      const createdCount = defects?.items?.filter((defect: any) => {
         const createdAt = new Date(defect.createdAt);
         return createdAt <= currentDate;
       }).length;
 
-      const resolvedCount = defects.filter((defect: any) => {
+      const resolvedCount = defects?.items?.filter((defect: any) => {
         const resolvedAt = defect.resolvedAt ? new Date(defect.resolvedAt) : null;
         return resolvedAt && resolvedAt <= currentDate;
       }).length;
@@ -383,7 +383,7 @@ export default function Analytics() {
           </Card>
 
           {/* Defect Trend */}
-          {defects && defects.length > 0 && (
+          {defects && defects?.items?.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>แนวโน้มข้อบกพร่อง (Defects)</CardTitle>

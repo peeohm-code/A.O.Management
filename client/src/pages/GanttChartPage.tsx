@@ -44,7 +44,7 @@ export default function GanttChartPage() {
   const filteredTasks = useMemo(() => {
     if (!tasks) return [];
     if (!selectedProjectId) return tasks;
-    return tasks.filter((task: any) => task.projectId === selectedProjectId);
+    return tasks?.items?.filter((task: any) => task.projectId === selectedProjectId);
   }, [tasks, selectedProjectId]);
 
   // Transform tasks for Gantt Chart

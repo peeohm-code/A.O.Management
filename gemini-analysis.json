@@ -1,0 +1,128 @@
+{
+  "root_causes": [
+    {
+      "category": "Type System Weakness/Incomplete Typing",
+      "description": "มีการใช้ `any` หรือ `never` มากเกินไป ทำให้ TypeScript ไม่สามารถตรวจสอบ type ได้อย่างถูกต้อง หรือ type definitions ไม่สมบูรณ์ ทำให้ TypeScript ไม่สามารถอนุมาน type ได้อย่างถูกต้อง",
+      "affected_errors": [
+        "TS2339",
+        "TS7006",
+        "TS7053"
+      ],
+      "impact": "high"
+    },
+    {
+      "category": "Incorrect Type Definitions/Mismatched Types",
+      "description": "Type definitions ไม่ถูกต้อง หรือมีการส่งค่าที่ไม่ตรงกับ type ที่ฟังก์ชันหรือ component ต้องการ",
+      "affected_errors": [
+        "TS2345",
+        "TS2322"
+      ],
+      "impact": "high"
+    },
+    {
+      "category": "Logic Errors/Unhandled Cases",
+      "description": "โค้ดมี logic errors ที่ทำให้เกิด unexpected types (เช่น `never` จากการ handle error ที่ไม่สมบูรณ์)",
+      "affected_errors": [
+        "TS2339"
+      ],
+      "impact": "medium"
+    },
+    {
+      "category": "Outdated Dependencies/Incorrect Library Usage",
+      "description": "Dependencies ล้าสมัย หรือมีการใช้งาน library ผิดวิธี ทำให้ type definitions ไม่ถูกต้อง",
+      "affected_errors": [
+        "TS2345",
+        "TS2322"
+      ],
+      "impact": "low"
+    },
+    {
+      "category": "Lack of Unit/Integration Tests",
+      "description": "การขาด Unit/Integration Tests ทำให้ตรวจจับ Type errors ได้ช้า",
+      "affected_errors": [
+        "TS2339",
+        "TS2345",
+        "TS2322",
+        "TS7006",
+        "TS7053"
+      ],
+      "impact": "medium"
+    }
+  ],
+  "solutions": [
+    {
+      "priority": 1,
+      "title": "Strengthen Type Definitions and Eliminate `any`",
+      "description": "กำหนด type ให้ชัดเจนในทุกส่วนของโค้ด, หลีกเลี่ยงการใช้ `any` โดยพยายามใช้ `unknown` แทน และใช้ type guards/assertions เพื่อ narrow down type ให้ถูกต้อง, เพิ่ม type definitions สำหรับ third-party libraries ที่ไม่มี type definitions",
+      "steps": [
+        "Review code for instances of `any` and replace with more specific types or `unknown`.",
+        "Add explicit type annotations to function parameters, return types, and variable declarations.",
+        "Use type guards (e.g., `typeof`, `instanceof`, custom type predicates) to narrow down types.",
+        "Create or contribute to DefinitelyTyped for missing type definitions."
+      ],
+      "files_to_fix": [
+        "server/routers.ts",
+        "server/db.ts",
+        "client/src/lib/errorHandler.ts",
+        "client/src/pages/ErrorTracking.tsx",
+        "client/src/pages/PermissionsManagement.tsx",
+        "client/src/pages/QCInspection.tsx"
+      ],
+      "estimated_errors_fixed": 150
+    },
+    {
+      "priority": 2,
+      "title": "Review and Correct Type Mismatches",
+      "description": "ตรวจสอบ type mismatches อย่างละเอียด, ตรวจสอบว่า type ที่ส่งเข้าไปในฟังก์ชันหรือ component ตรงกับ type ที่ต้องการ, แก้ไข type definitions ที่ไม่ถูกต้อง",
+      "steps": [
+        "Carefully examine each TS2345 and TS2322 error message to understand the type mismatch.",
+        "Update type definitions to accurately reflect the expected types.",
+        "Modify code to ensure that the correct types are passed to functions and components.",
+        "Use interfaces and type aliases to define reusable type definitions."
+      ],
+      "files_to_fix": [
+        "client/src/components/RoleTemplateDialog.tsx",
+        "client/src/pages/NotificationSettings.tsx",
+        "server/routers.ts",
+        "server/db.ts"
+      ],
+      "estimated_errors_fixed": 70
+    },
+    {
+      "priority": 3,
+      "title": "Improve Error Handling and Type Narrowing",
+      "description": "ปรับปรุงการจัดการ error เพื่อให้ type ของ error ถูกต้อง, ใช้ type guards/assertions เพื่อ narrow down type ของ error",
+      "steps": [
+        "Ensure that error handling logic correctly identifies and handles different types of errors.",
+        "Use type guards or assertions to narrow down the type of the error object before accessing its properties.",
+        "Consider using discriminated unions to represent different types of errors with specific properties."
+      ],
+      "files_to_fix": [
+        "client/src/lib/errorHandler.ts"
+      ],
+      "estimated_errors_fixed": 20
+    }
+  ],
+  "prevention": [
+    {
+      "recommendation": "Enforce strict TypeScript compiler options",
+      "implementation": "Set `strict: true` in `tsconfig.json` to enable all strict type checking options.  Consider enabling individual strict options like `noImplicitAny`, `strictNullChecks`, `strictFunctionTypes`, and `strictPropertyInitialization` if you cannot enable `strict: true` immediately."
+    },
+    {
+      "recommendation": "Use a linter with TypeScript support",
+      "implementation": "Integrate ESLint with the `@typescript-eslint/eslint-plugin` plugin to enforce coding style and prevent common TypeScript errors. Configure rules such as `no-explicit-any`, `explicit-function-return-type`, and `explicit-module-boundary-types`."
+    },
+    {
+      "recommendation": "Implement code reviews",
+      "implementation": "Require code reviews for all changes to ensure that type safety is maintained and that best practices are followed."
+    },
+    {
+      "recommendation": "Write Unit and Integration Tests",
+      "implementation": "เขียน Unit และ Integration Tests เพื่อตรวจสอบว่าโค้ดทำงานถูกต้อง และ type ถูกต้อง"
+    },
+    {
+      "recommendation": "Keep Dependencies Up-to-Date",
+      "implementation": "อัปเดต dependencies เป็นเวอร์ชันล่าสุดเสมอ เพื่อให้ได้ type definitions ที่ถูกต้อง"
+    }
+  ]
+}

@@ -1,0 +1,752 @@
+{
+  "summary": {
+    "total_errors": 247,
+    "files_with_errors": 41,
+    "error_types": {
+      "TS2353": 4,
+      "TS2345": 64,
+      "TS2358": 2,
+      "TS2339": 99,
+      "TS7006": 7,
+      "TS7053": 5,
+      "TS2554": 7,
+      "TS2741": 1,
+      "TS2551": 3,
+      "TS7022": 1,
+      "TS2448": 1,
+      "TS2740": 1,
+      "TS7016": 2,
+      "TS2724": 2,
+      "TS2769": 23,
+      "TS2322": 10,
+      "TS2552": 5,
+      "TS2367": 2,
+      "TS2305": 2,
+      "TS18047": 2,
+      "TS7031": 3,
+      "TS2802": 1
+    },
+    "top_files": [
+      [
+        "server/routers.ts",
+        43
+      ],
+      [
+        "server/db.ts",
+        28
+      ],
+      [
+        "server/activityLogExport.ts",
+        16
+      ],
+      [
+        "server/services/notification.service.ts",
+        12
+      ],
+      [
+        "server/routers/roleTemplatesRouter.ts",
+        11
+      ],
+      [
+        "server/routers/escalationRouter.ts",
+        10
+      ],
+      [
+        "client/src/lib/errorHandler.ts",
+        9
+      ],
+      [
+        "server/activityLogPdfExport.ts",
+        8
+      ],
+      [
+        "server/services/analytics.service.ts",
+        7
+      ],
+      [
+        "server/services/defect.service.ts",
+        7
+      ]
+    ],
+    "top_error_types": [
+      [
+        "TS2339",
+        99
+      ],
+      [
+        "TS2345",
+        64
+      ],
+      [
+        "TS2769",
+        23
+      ],
+      [
+        "TS2322",
+        10
+      ],
+      [
+        "TS7006",
+        7
+      ],
+      [
+        "TS2554",
+        7
+      ],
+      [
+        "TS7053",
+        5
+      ],
+      [
+        "TS2552",
+        5
+      ],
+      [
+        "TS2353",
+        4
+      ],
+      [
+        "TS2551",
+        3
+      ]
+    ]
+  },
+  "error_groups": {
+    "property_not_exist": [
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 74,
+        "col": 43,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 85,
+        "col": 15,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 93,
+        "col": 15,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 93,
+        "col": 48,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 101,
+        "col": 15,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      }
+    ],
+    "type_mismatch": [
+      {
+        "file": "client/src/components/RoleTemplateDialog.tsx",
+        "line": 120,
+        "col": 29,
+        "code": "TS2345",
+        "message": "Argument of type '{ name: string; description: string | null; permissions: Record<string, boolean>; }' is not assignable to parameter of type '{ name: string; roleType: \"project_manager\" | \"qc_inspector\" | \"worker\"; permissionIds: number[]; description?: string | undefined; isDefault?: boolean | undefined; }'."
+      },
+      {
+        "file": "client/src/pages/NotificationSettings.tsx",
+        "line": 31,
+        "col": 35,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'SetStateAction<boolean>'."
+      },
+      {
+        "file": "client/src/pages/NotificationSettings.tsx",
+        "line": 32,
+        "col": 35,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'SetStateAction<boolean>'."
+      },
+      {
+        "file": "client/src/pages/NotificationSettings.tsx",
+        "line": 33,
+        "col": 34,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'SetStateAction<boolean>'."
+      },
+      {
+        "file": "client/src/pages/NotificationSettings.tsx",
+        "line": 256,
+        "col": 45,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'SetStateAction<boolean>'."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 68,
+        "col": 7,
+        "code": "TS2322",
+        "message": "Type 'MySql2Database<Record<string, unknown>> & { $client: Pool; }' is not assignable to type '(MySql2Database<Record<string, unknown>> & { $client: Pool; }) | null'."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 5445,
+        "col": 9,
+        "code": "TS2322",
+        "message": "Type 'boolean' is not assignable to type 'number | SQL<unknown> | undefined'."
+      },
+      {
+        "file": "server/db/client.ts",
+        "line": 42,
+        "col": 7,
+        "code": "TS2322",
+        "message": "Type 'MySql2Database<Record<string, unknown>> & { $client: Pool; }' is not assignable to type '(MySql2Database<Record<string, unknown>> & { $client: Pool; }) | null'."
+      },
+      {
+        "file": "server/notificationService.ts",
+        "line": 102,
+        "col": 9,
+        "code": "TS2322",
+        "message": "Type 'number' is not assignable to type 'boolean'."
+      },
+      {
+        "file": "server/routers.ts",
+        "line": 2817,
+        "col": 13,
+        "code": "TS2322",
+        "message": "Type 'number' is not assignable to type 'boolean'."
+      }
+    ],
+    "missing_type": [
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 220,
+        "col": 31,
+        "code": "TS7006",
+        "message": "Parameter 'error' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/PermissionsManagement.tsx",
+        "line": 164,
+        "col": 38,
+        "code": "TS7006",
+        "message": "Parameter 'template' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/QCInspection.tsx",
+        "line": 192,
+        "col": 15,
+        "code": "TS7006",
+        "message": "Parameter 'error' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/RoleTemplates.tsx",
+        "line": 37,
+        "col": 15,
+        "code": "TS7006",
+        "message": "Parameter 'error' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/RoleTemplates.tsx",
+        "line": 120,
+        "col": 27,
+        "code": "TS7006",
+        "message": "Parameter 'template' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 221,
+        "col": 40,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ critical: { icon: ForwardRefExoticComponent<Omit<LucideProps, \"ref\"> & RefAttributes<SVGSVGElement>>; color: string; bg: string; label: string; }; error: { ...; }; warning: { ...; }; info: { ...; }; }'."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 223,
+        "col": 38,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ new: { color: string; label: string; }; investigating: { color: string; label: string; }; resolved: { color: string; label: string; }; ignored: { color: string; label: string; }; }'."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 306,
+        "col": 29,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ critical: { icon: ForwardRefExoticComponent<Omit<LucideProps, \"ref\"> & RefAttributes<SVGSVGElement>>; color: string; bg: string; label: string; }; error: { ...; }; warning: { ...; }; info: { ...; }; }'."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 324,
+        "col": 39,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ new: { color: string; label: string; }; investigating: { color: string; label: string; }; resolved: { color: string; label: string; }; ignored: { color: string; label: string; }; }'."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 325,
+        "col": 24,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ new: { color: string; label: string; }; investigating: { color: string; label: string; }; resolved: { color: string; label: string; }; ignored: { color: string; label: string; }; }'."
+      },
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 134,
+        "col": 57,
+        "code": "TS7031",
+        "message": "Binding element 'ctx' implicitly has an 'any' type."
+      },
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 134,
+        "col": 62,
+        "code": "TS7031",
+        "message": "Binding element 'next' implicitly has an 'any' type."
+      },
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 134,
+        "col": 68,
+        "code": "TS7031",
+        "message": "Binding element 'rawInput' implicitly has an 'any' type."
+      }
+    ],
+    "plugin_compatibility": [
+      {
+        "file": "server/activityLogExport.ts",
+        "line": 2,
+        "col": 10,
+        "code": "TS2724",
+        "message": "'\"../drizzle/schema\"' has no exported member named 'UserActivityLog'. Did you mean 'userActivityLogs'?"
+      },
+      {
+        "file": "server/services/defect.service.ts",
+        "line": 12,
+        "col": 8,
+        "code": "TS2724",
+        "message": "'\"../../drizzle/schema\"' has no exported member named 'DefectAttachment'. Did you mean 'defectAttachments'?"
+      },
+      {
+        "file": "server/dailySummaryJob.ts",
+        "line": 23,
+        "col": 14,
+        "code": "TS2769",
+        "message": "No overload matches this call."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 1065,
+        "col": 5,
+        "code": "TS2769",
+        "message": "No overload matches this call."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 1919,
+        "col": 49,
+        "code": "TS2769",
+        "message": "No overload matches this call."
+      }
+    ],
+    "schema_issues": []
+  },
+  "sample_errors": {
+    "TS2353": [
+      {
+        "file": "client/src/components/RoleTemplateDialog.tsx",
+        "line": 116,
+        "col": 9,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'templateId' does not exist in type '{ id: number; name?: string | undefined; description?: string | undefined; isDefault?: boolean | undefined; isActive?: boolean | undefined; permissionIds?: number[] | undefined; }'."
+      },
+      {
+        "file": "server/routers.ts",
+        "line": 3464,
+        "col": 11,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'entityType' does not exist in type '{ userId: number; projectId?: number | undefined; taskId?: number | undefined; action: string; details?: string | undefined; }'."
+      },
+      {
+        "file": "server/services/notification.service.ts",
+        "line": 160,
+        "col": 5,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'message' does not exist in type '{ userId: number; title: string; type: \"task_assigned\" | \"task_status_changed\" | \"task_deadline_approaching\" | \"task_overdue\" | \"task_progress_updated\" | \"task_comment_mention\" | ... 24 more ... | \"system_health_info\"; ... 7 more ...; isRead?: number | undefined; }'."
+      }
+    ],
+    "TS2345": [
+      {
+        "file": "client/src/components/RoleTemplateDialog.tsx",
+        "line": 120,
+        "col": 29,
+        "code": "TS2345",
+        "message": "Argument of type '{ name: string; description: string | null; permissions: Record<string, boolean>; }' is not assignable to parameter of type '{ name: string; roleType: \"project_manager\" | \"qc_inspector\" | \"worker\"; permissionIds: number[]; description?: string | undefined; isDefault?: boolean | undefined; }'."
+      },
+      {
+        "file": "client/src/pages/NotificationSettings.tsx",
+        "line": 31,
+        "col": 35,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'SetStateAction<boolean>'."
+      },
+      {
+        "file": "client/src/pages/NotificationSettings.tsx",
+        "line": 32,
+        "col": 35,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'SetStateAction<boolean>'."
+      }
+    ],
+    "TS2358": [
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 74,
+        "col": 7,
+        "code": "TS2358",
+        "message": "The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 83,
+        "col": 7,
+        "code": "TS2358",
+        "message": "The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter."
+      }
+    ],
+    "TS2339": [
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 74,
+        "col": 43,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 85,
+        "col": 15,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      },
+      {
+        "file": "client/src/lib/errorHandler.ts",
+        "line": 93,
+        "col": 15,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'never'."
+      }
+    ],
+    "TS7006": [
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 220,
+        "col": 31,
+        "code": "TS7006",
+        "message": "Parameter 'error' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/PermissionsManagement.tsx",
+        "line": 164,
+        "col": 38,
+        "code": "TS7006",
+        "message": "Parameter 'template' implicitly has an 'any' type."
+      },
+      {
+        "file": "client/src/pages/QCInspection.tsx",
+        "line": 192,
+        "col": 15,
+        "code": "TS7006",
+        "message": "Parameter 'error' implicitly has an 'any' type."
+      }
+    ],
+    "TS7053": [
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 221,
+        "col": 40,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ critical: { icon: ForwardRefExoticComponent<Omit<LucideProps, \"ref\"> & RefAttributes<SVGSVGElement>>; color: string; bg: string; label: string; }; error: { ...; }; warning: { ...; }; info: { ...; }; }'."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 223,
+        "col": 38,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ new: { color: string; label: string; }; investigating: { color: string; label: string; }; resolved: { color: string; label: string; }; ignored: { color: string; label: string; }; }'."
+      },
+      {
+        "file": "client/src/pages/ErrorTracking.tsx",
+        "line": 306,
+        "col": 29,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ critical: { icon: ForwardRefExoticComponent<Omit<LucideProps, \"ref\"> & RefAttributes<SVGSVGElement>>; color: string; bg: string; label: string; }; error: { ...; }; warning: { ...; }; info: { ...; }; }'."
+      }
+    ],
+    "TS2554": [
+      {
+        "file": "client/src/pages/GanttChartPage.tsx",
+        "line": 27,
+        "col": 67,
+        "code": "TS2554",
+        "message": "Expected 1-2 arguments, but got 0."
+      },
+      {
+        "file": "client/src/pages/QCInspection.tsx",
+        "line": 86,
+        "col": 45,
+        "code": "TS2554",
+        "message": "Expected 1-2 arguments, but got 0."
+      },
+      {
+        "file": "server/routers.ts",
+        "line": 289,
+        "col": 41,
+        "code": "TS2554",
+        "message": "Expected 0 arguments, but got 1."
+      }
+    ],
+    "TS2741": [
+      {
+        "file": "client/src/pages/InspectionDetail.tsx",
+        "line": 524,
+        "col": 10,
+        "code": "TS2741",
+        "message": "Property 'open' is missing in type '{ images: { url: string; fileName?: string | undefined; }[]; initialIndex: number; onClose: () => void; }' but required in type 'ImageGalleryViewerProps'."
+      }
+    ],
+    "TS2551": [
+      {
+        "file": "client/src/pages/NewDashboard.tsx",
+        "line": 45,
+        "col": 20,
+        "code": "TS2551",
+        "message": "Property 'recentActivities' does not exist on type 'DecorateRouterRecord<{ ctx: TrpcContext; meta: object; errorShape: DefaultErrorShape; transformer: true; }, DecorateCreateRouterOptions<{ getStats: QueryProcedure<{ input: void; output: { projectStats: { total: number; ... 7 more ...; onTrack: number; }; ... 6 more ...; trends: { ...; }; }; meta: object; }>; ... 4 m...'. Did you mean 'getRecentActivities'?"
+      },
+      {
+        "file": "server/routers.ts",
+        "line": 3234,
+        "col": 23,
+        "code": "TS2551",
+        "message": "Property 'getErrorStatistics' does not exist on type 'typeof import(\"/home/ubuntu/construction_management_app/server/db\")'. Did you mean 'getMemoryStatistics'?"
+      },
+      {
+        "file": "server/routers.ts",
+        "line": 3359,
+        "col": 25,
+        "code": "TS2551",
+        "message": "Property 'getDefectTrendsData' does not exist on type 'typeof import(\"/home/ubuntu/construction_management_app/server/db\")'. Did you mean 'getDefectTrends'?"
+      }
+    ],
+    "TS7022": [
+      {
+        "file": "client/src/pages/NewTask.tsx",
+        "line": 28,
+        "col": 9,
+        "code": "TS7022",
+        "message": "'projects' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer."
+      }
+    ],
+    "TS2448": [
+      {
+        "file": "client/src/pages/NewTask.tsx",
+        "line": 28,
+        "col": 20,
+        "code": "TS2448",
+        "message": "Block-scoped variable 'projects' used before its declaration."
+      }
+    ],
+    "TS2740": [
+      {
+        "file": "client/src/pages/Reports.tsx",
+        "line": 57,
+        "col": 11,
+        "code": "TS2740",
+        "message": "Type '{ items: any[]; pagination: { currentPage: number; pageSize: number; totalItems: number; totalPages: number; hasMore: boolean; hasPrevious: boolean; }; }' is missing the following properties from type 'any[]': length, pop, push, concat, and 35 more."
+      }
+    ],
+    "TS7016": [
+      {
+        "file": "server/_core/index.ts",
+        "line": 7,
+        "col": 26,
+        "code": "TS7016",
+        "message": "Could not find a declaration file for module 'cookie-parser'. '/home/ubuntu/construction_management_app/node_modules/.pnpm/cookie-parser@1.4.7/node_modules/cookie-parser/index.js' implicitly has an 'any' type."
+      },
+      {
+        "file": "server/_core/virusScanner.ts",
+        "line": 1,
+        "col": 22,
+        "code": "TS7016",
+        "message": "Could not find a declaration file for module 'clamscan'. '/home/ubuntu/construction_management_app/node_modules/.pnpm/clamscan@2.4.0/node_modules/clamscan/index.js' implicitly has an 'any' type."
+      }
+    ],
+    "TS2724": [
+      {
+        "file": "server/activityLogExport.ts",
+        "line": 2,
+        "col": 10,
+        "code": "TS2724",
+        "message": "'\"../drizzle/schema\"' has no exported member named 'UserActivityLog'. Did you mean 'userActivityLogs'?"
+      },
+      {
+        "file": "server/services/defect.service.ts",
+        "line": 12,
+        "col": 8,
+        "code": "TS2724",
+        "message": "'\"../../drizzle/schema\"' has no exported member named 'DefectAttachment'. Did you mean 'defectAttachments'?"
+      }
+    ],
+    "TS2769": [
+      {
+        "file": "server/dailySummaryJob.ts",
+        "line": 23,
+        "col": 14,
+        "code": "TS2769",
+        "message": "No overload matches this call."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 1065,
+        "col": 5,
+        "code": "TS2769",
+        "message": "No overload matches this call."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 1919,
+        "col": 49,
+        "code": "TS2769",
+        "message": "No overload matches this call."
+      }
+    ],
+    "TS2322": [
+      {
+        "file": "server/db.ts",
+        "line": 68,
+        "col": 7,
+        "code": "TS2322",
+        "message": "Type 'MySql2Database<Record<string, unknown>> & { $client: Pool; }' is not assignable to type '(MySql2Database<Record<string, unknown>> & { $client: Pool; }) | null'."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 5445,
+        "col": 9,
+        "code": "TS2322",
+        "message": "Type 'boolean' is not assignable to type 'number | SQL<unknown> | undefined'."
+      },
+      {
+        "file": "server/db/client.ts",
+        "line": 42,
+        "col": 7,
+        "code": "TS2322",
+        "message": "Type 'MySql2Database<Record<string, unknown>> & { $client: Pool; }' is not assignable to type '(MySql2Database<Record<string, unknown>> & { $client: Pool; }) | null'."
+      }
+    ],
+    "TS2552": [
+      {
+        "file": "server/db.ts",
+        "line": 4181,
+        "col": 9,
+        "code": "TS2552",
+        "message": "Cannot find name 'notInArray'. Did you mean 'inArray'?"
+      },
+      {
+        "file": "server/db.ts",
+        "line": 4212,
+        "col": 9,
+        "code": "TS2552",
+        "message": "Cannot find name 'notInArray'. Did you mean 'inArray'?"
+      },
+      {
+        "file": "server/db.ts",
+        "line": 6581,
+        "col": 9,
+        "code": "TS2552",
+        "message": "Cannot find name 'notNull'. Did you mean 'isNotNull'?"
+      }
+    ],
+    "TS2367": [
+      {
+        "file": "server/db.ts",
+        "line": 6421,
+        "col": 54,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types '\"low\" | \"medium\" | \"high\" | \"critical\"' and '\"major\"' have no overlap."
+      },
+      {
+        "file": "server/db.ts",
+        "line": 6422,
+        "col": 54,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types '\"low\" | \"medium\" | \"high\" | \"critical\"' and '\"minor\"' have no overlap."
+      }
+    ],
+    "TS2305": [
+      {
+        "file": "server/jobs/escalationCheck.ts",
+        "line": 1,
+        "col": 10,
+        "code": "TS2305",
+        "message": "Module '\"../db\"' has no exported member 'checkAndTriggerEscalations'."
+      },
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 7,
+        "col": 10,
+        "code": "TS2305",
+        "message": "Module '\"./_core/trpc\"' has no exported member 'middleware'."
+      }
+    ],
+    "TS18047": [
+      {
+        "file": "server/routers.ts",
+        "line": 3249,
+        "col": 21,
+        "code": "TS18047",
+        "message": "'ctx.user' is possibly 'null'."
+      },
+      {
+        "file": "server/services/project.service.ts",
+        "line": 54,
+        "col": 33,
+        "code": "TS18047",
+        "message": "'lastCode' is possibly 'null'."
+      }
+    ],
+    "TS7031": [
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 134,
+        "col": 57,
+        "code": "TS7031",
+        "message": "Binding element 'ctx' implicitly has an 'any' type."
+      },
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 134,
+        "col": 62,
+        "code": "TS7031",
+        "message": "Binding element 'next' implicitly has an 'any' type."
+      },
+      {
+        "file": "server/securityMiddleware.ts",
+        "line": 134,
+        "col": 68,
+        "code": "TS7031",
+        "message": "Binding element 'rawInput' implicitly has an 'any' type."
+      }
+    ],
+    "TS2802": [
+      {
+        "file": "server/validationService.ts",
+        "line": 328,
+        "col": 31,
+        "code": "TS2802",
+        "message": "Type 'MapIterator<[string, { count: number; resetTime: number; }]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher."
+      }
+    ]
+  }
+}
