@@ -48,7 +48,7 @@ export interface DefectWithRelations extends Defect {
   assignedToName?: string | null;
   detectedByName?: string | null;
   detectedAt?: Date | null;
-  projectId?: number;
+  projectId: number;
   taskName?: string;
   projectName?: string;
 }

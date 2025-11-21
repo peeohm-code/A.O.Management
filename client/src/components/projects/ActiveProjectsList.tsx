@@ -623,11 +623,18 @@ export function ActiveProjectsList() {
       {filteredProjects.length === 0 && (
         <EmptyState
           icon={Building2}
-          title="ไม่พบโครงการ"
-          description="ลองค้นหาด้วยคำอื่นหรือสร้างโครงการใหม่"
+          title={searchTerm || Object.keys(filters).length > 0 ? "ไม่พบโครงการที่ตรงกับเงื่อนไข" : "ยังไม่มีโครงการ"}
+          description={searchTerm || Object.keys(filters).length > 0 ? "ลองปรับเงื่อนไขการค้นหาหรือตัวกรอง หรือล้างค่าการค้นหา" : "เริ่มต้นด้วยการสร้างโครงการแรกของคุณ"}
           action={canCreate ? {
             label: "สร้างโครงการใหม่",
             onClick: () => setIsOpen(true)
+          } : undefined}
+          secondaryAction={searchTerm || Object.keys(filters).length > 0 ? {
+            label: "ล้างค่าการค้นหา",
+            onClick: () => {
+              setSearchTerm("");
+              setFilters({});
+            }
           } : undefined}
         />
       )}

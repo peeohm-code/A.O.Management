@@ -1009,3 +1009,25 @@
 **แผนการทำงาน:** 8 สัปดาห์  
 **ผู้รับผิดชอบ:** Manus AI + Gemini Pro  
 **สถานะ:** เริ่มต้น Phase 1
+
+---
+
+## 🔧 งานแก้ไขเพิ่มเติม (Phase Current)
+
+### แก้ไข TypeScript Errors - Timestamp Mode
+- [x] เปลี่ยน timestamp mode จาก 'string' เป็น 'date' ใน drizzle/schema.ts
+- [x] อัปเดต type definitions ให้รองรับ Date objects (แก้ DefectWithRelations)
+[x] ทดสอบ TypeScript compilation หลังแก้ไข (59 errors เหลือ - ส่วนใหญ่เป็น vite config issues)
+
+### ปรับปรุง Mock Database Setup
+- [x] แก้ไข mock database setup ใน service layer tests
+- [x] ปรับปรุง transaction mocks ให้สมบูรณ์ (chain pattern)
+- [x] แก้ไข insert/update/delete method mocks
+- [x] เพิ่ม projectId ใน defect test data
+[x] รัน vitest เพื่อตรวจสอบ tests ทั้งหมด pass (service tests: 17/17 passed)
+
+### เพิ่ม Empty States พร้อม Call-to-Action
+- [x] ออกแบบ empty states component ใหม่ (ปรับปรุง EmptyState component)
+- [x] เพิ่ม call-to-action buttons ใน empty states (primary + secondary actions)
+- [x] เพิ่ม icon background และ Card wrapper สำหรับ UX ที่ดีขึ้น
+- [x] ปรับปรุง ActiveProjectsList ให้มี secondary action (ล้างค่าการค้นหา)

@@ -27,22 +27,38 @@ describe('Defect Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockTransaction = {
-      insert: vi.fn().mockReturnThis(),
+    // Mock transaction with proper chaining
+    const mockInsertChain = {
       values: vi.fn().mockResolvedValue([{ insertId: BigInt(456) }]),
-      select: vi.fn().mockReturnThis(),
+    };
+    
+    const mockSelectChain = {
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockResolvedValue([{
         id: 456,
         taskId: 123,
+        projectId: 1,
         title: 'Test Defect',
         status: 'reported',
         severity: 'high',
         reportedBy: 1,
       }]),
-      update: vi.fn().mockReturnThis(),
+    };
+    
+    const mockUpdateChain = {
       set: vi.fn().mockReturnThis(),
-      delete: vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([{ affectedRows: 1 }]),
+    };
+    
+    const mockDeleteChain = {
+      where: vi.fn().mockResolvedValue([{ affectedRows: 1 }]),
+    };
+    
+    mockTransaction = {
+      insert: vi.fn(() => mockInsertChain),
+      select: vi.fn(() => mockSelectChain),
+      update: vi.fn(() => mockUpdateChain),
+      delete: vi.fn(() => mockDeleteChain),
     };
 
     mockDb = {
@@ -55,6 +71,7 @@ describe('Defect Service', () => {
   describe('createDefect', () => {
     it('should create defect with activity log in transaction', async () => {
       const defectData = {
+        projectId: 1,
         taskId: 123,
         title: 'Test Defect',
         description: 'Test Description',
@@ -68,6 +85,7 @@ describe('Defect Service', () => {
       expect(result).toEqual({
         id: 456,
         taskId: 123,
+        projectId: 1,
         title: 'Test Defect',
         status: 'reported',
         severity: 'high',
@@ -83,18 +101,28 @@ describe('Defect Service', () => {
 
     it('should convert BigInt insertId to number', async () => {
       const defectData = {
+        projectId: 1,
         taskId: 123,
         title: 'Test Defect',
         severity: 'critical' as const,
         reportedBy: 1,
       };
 
-      mockTransaction.values.mockResolvedValue([{ insertId: BigInt(999) }]);
-      mockTransaction.where.mockResolvedValue([{
-        id: 999,
-        taskId: 123,
-        title: 'Test Defect',
-      }]);
+      // Update mock chains for this test
+      const mockInsertChain = {
+        values: vi.fn().mockResolvedValue([{ insertId: BigInt(999) }]),
+      };
+      const mockSelectChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue([{
+          id: 999,
+          taskId: 123,
+          projectId: 1,
+          title: 'Test Defect',
+        }]),
+      };
+      mockTransaction.insert.mockReturnValue(mockInsertChain);
+      mockTransaction.select.mockReturnValue(mockSelectChain);
 
       const result = await createDefect(defectData);
 
@@ -104,6 +132,7 @@ describe('Defect Service', () => {
 
     it('should create activity log with correct defectId', async () => {
       const defectData = {
+        projectId: 1,
         taskId: 123,
         title: 'Test Defect',
         severity: 'medium' as const,
@@ -173,9 +202,13 @@ describe('Defect Service', () => {
 
   describe('Transaction Rollback', () => {
     it('should rollback if defect creation fails', async () => {
-      mockTransaction.insert.mockRejectedValue(new Error('Database error'));
+      const mockInsertChain = {
+        values: vi.fn().mockRejectedValue(new Error('Database error')),
+      };
+      mockTransaction.insert.mockReturnValue(mockInsertChain);
 
       await expect(createDefect({
+        projectId: 1,
         taskId: 123,
         title: 'Test Defect',
         severity: 'high' as const,
@@ -186,11 +219,23 @@ describe('Defect Service', () => {
     });
 
     it('should rollback if activity log creation fails', async () => {
-      mockTransaction.insert
-        .mockResolvedValueOnce([{ insertId: BigInt(456) }])
-        .mockRejectedValueOnce(new Error('Activity log error'));
+      // First insert (defect) succeeds, second insert (activity log) fails
+      let callCount = 0;
+      mockTransaction.insert.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return {
+            values: vi.fn().mockResolvedValue([{ insertId: BigInt(456) }]),
+          };
+        } else {
+          return {
+            values: vi.fn().mockRejectedValue(new Error('Activity log error')),
+          };
+        }
+      });
 
       await expect(createDefect({
+        projectId: 1,
         taskId: 123,
         title: 'Test Defect',
         severity: 'high' as const,

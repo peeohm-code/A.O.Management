@@ -65,6 +65,8 @@ describe('Task Service', () => {
     // Mock database with transaction support
     mockDb = {
       transaction: vi.fn((callback) => callback(mockTransaction)),
+      update: vi.fn(() => mockUpdateChain),
+      select: vi.fn(() => mockSelectChain),
     };
 
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
@@ -104,12 +106,20 @@ describe('Task Service', () => {
         assigneeId: 1,
       };
 
-      mockTransaction.values.mockResolvedValue([{ insertId: BigInt(999) }]);
-      mockTransaction.where.mockResolvedValue([{
-        id: 999,
-        name: 'Test Task',
-        projectId: 1,
-      }]);
+      // Update mock chains for this test
+      const mockInsertChain = {
+        values: vi.fn().mockResolvedValue([{ insertId: BigInt(999) }]),
+      };
+      const mockSelectChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue([{
+          id: 999,
+          name: 'Test Task',
+          projectId: 1,
+        }]),
+      };
+      mockTransaction.insert.mockReturnValue(mockInsertChain);
+      mockTransaction.select.mockReturnValue(mockSelectChain);
 
       const result = await createTask(taskData);
 
@@ -159,15 +169,17 @@ describe('Task Service', () => {
         status: 'in_progress' as const,
       });
 
-      expect(mockDb.transaction).toHaveBeenCalled();
-      expect(mockTransaction.update).toHaveBeenCalled();
-      expect(mockTransaction.set).toHaveBeenCalled();
+      // updateTask ไม่ใช้ transaction - ใช้ db.update โดยตรง
+      expect(mockDb.update).toHaveBeenCalled();
     });
   });
 
   describe('Transaction Rollback', () => {
     it('should rollback on error', async () => {
-      mockTransaction.insert.mockRejectedValue(new Error('Database error'));
+      const mockInsertChain = {
+        values: vi.fn().mockRejectedValue(new Error('Database error')),
+      };
+      mockTransaction.insert.mockReturnValue(mockInsertChain);
 
       await expect(createTask({
         projectId: 1,
