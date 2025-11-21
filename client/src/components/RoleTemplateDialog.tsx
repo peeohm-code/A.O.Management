@@ -59,7 +59,7 @@ export default function RoleTemplateDialog({
   const [description, setDescription] = useState("");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
 
-  const createMutation = trpc.permissions.createRoleTemplate.useMutation({
+  const createMutation = trpc.roleTemplates.create.useMutation({
     onSuccess: () => {
       toast.success("สร้าง role template สำเร็จ");
       onSuccess();
@@ -70,7 +70,7 @@ export default function RoleTemplateDialog({
     },
   });
 
-  const updateMutation = trpc.permissions.updateRoleTemplate.useMutation({
+  const updateMutation = trpc.roleTemplates.update.useMutation({
     onSuccess: () => {
       toast.success("อัพเดต role template สำเร็จ");
       onSuccess();

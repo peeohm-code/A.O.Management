@@ -40,16 +40,16 @@ export default function Analytics() {
     { enabled: !!selectedProjectId }
   );
   const { data: defects } = trpc.defect.list.useQuery(
-    { taskId: tasks?.[0]?.id || 0 },
-    { enabled: !!tasks && tasks.length > 0 }
+    { taskId: tasks?.items?.[0]?.id || 0 },
+    { enabled: !!tasks?.items && tasks.items.length > 0 }
   );
 
   // Progress vs Plan Comparison Data
   const progressVsPlanData = useMemo(() => {
-    if (!tasks || tasks.length === 0) return [];
+    if (!tasks?.items || tasks.items.length === 0) return [];
 
     const now = new Date();
-    return tasks.map((task: any) => {
+    return tasks.items.map((task: any) => {
       const startDate = new Date(task.startDate);
       const endDate = new Date(task.endDate);
       const totalDays = differenceInDays(endDate, startDate) || 1;
@@ -70,7 +70,7 @@ export default function Analytics() {
 
   // Velocity Trend Data (tasks completed over time)
   const velocityTrendData = useMemo(() => {
-    if (!tasks || tasks.length === 0) return [];
+    if (!tasks?.items || tasks.items.length === 0) return [];
 
     const data: { date: string; completed: number; total: number }[] = [];
     const startDate = dateRange.from;
@@ -80,7 +80,7 @@ export default function Analytics() {
 
     for (let i = 0; i <= days; i += interval) {
       const currentDate = subDays(endDate, days - i);
-      const completedTasks = tasks.filter((task: any) => {
+      const completedTasks = tasks.items.filter((task: any) => {
         const updatedAt = new Date(task.updatedAt);
         return task.progress === 100 && updatedAt <= currentDate;
       }).length;
@@ -88,7 +88,7 @@ export default function Analytics() {
       data.push({
         date: format(currentDate, "dd MMM", { locale: th }),
         completed: completedTasks,
-        total: tasks.length,
+        total: tasks.items.length,
       });
     }
 
@@ -129,11 +129,11 @@ export default function Analytics() {
 
   // Summary Statistics
   const summaryStats = useMemo(() => {
-    if (!tasks || tasks.length === 0) return null;
+    if (!tasks?.items || tasks.items.length === 0) return null;
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t: any) => t.progress === 100).length;
-    const avgProgress = tasks.reduce((sum: number, t: any) => sum + (t.progress || 0), 0) / totalTasks;
+    const totalTasks = tasks.items.length;
+    const completedTasks = tasks.items.filter((t: any) => t.progress === 100).length;
+    const avgProgress = tasks.items.reduce((sum: number, t: any) => sum + (t.progress || 0), 0) / totalTasks;
     const onTrackTasks = progressVsPlanData.filter((d: any) => d.status === "ahead").length;
     const behindTasks = progressVsPlanData.filter((d: any) => d.status === "behind").length;
 

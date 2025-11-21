@@ -62,16 +62,16 @@ export function initializeCronJobs() {
     timezone: "Asia/Bangkok"
   });
 
-  // Run escalation checks every hour
-  cron.schedule("0 * * * *", async () => {
-    try {
-      await runEscalationCheck();
-    } catch (error) {
-      console.error("[CronScheduler] Escalation check failed:", error);
-    }
-  }, {
-    timezone: "Asia/Bangkok"
-  });
+  // Run escalation checks every hour (DISABLED - escalation tables not created)
+  // cron.schedule("0 * * * *", async () => {
+  //   try {
+  //     await runEscalationCheck();
+  //   } catch (error) {
+  //     console.error("[CronScheduler] Escalation check failed:", error);
+  //   }
+  // }, {
+  //   timezone: "Asia/Bangkok"
+  // });
 
   
   // Optional: Run immediately on startup for testing

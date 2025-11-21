@@ -20,7 +20,7 @@ import {
 import { useLocation, useRoute } from "wouter";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ImageGalleryViewer } from "@/components/MobileDocumentViewer";
 import { useIsMobile } from "@/hooks/useMobile";
 import { toast } from "sonner";
@@ -131,7 +131,7 @@ export default function InspectionDetail() {
   });
 
   // Initialize item states from inspection data
-  useMemo(() => {
+  useEffect(() => {
     if (inspection?.items) {
       const initialStates: Record<number, { result: "pass" | "fail" | "na"; comments: string }> = {};
       inspection.items.forEach((item: any) => {

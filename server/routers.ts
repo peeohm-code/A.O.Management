@@ -3894,9 +3894,6 @@ export const appRouter = router({
         return await db.checkAlertThresholds(ctx.user!.id, input);
       }),
   }),
-
-  // Use the dashboardRouter defined above which includes all new procedures
-  dashboard: dashboardRouter,
 });
 
 export type AppRouter = typeof appRouter;
