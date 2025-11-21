@@ -15,12 +15,12 @@ const plugins = [
   jsxLocPlugin(),
   vitePluginManusRuntime(),
   // Bundle analyzer - run with ANALYZE=true pnpm build
-  process.env.ANALYZE === 'true' && visualizer({
+  ...(process.env.ANALYZE === 'true' ? [visualizer({
     filename: './dist/stats.html',
     open: false,
     gzipSize: true,
     brotliSize: true,
-  }),
+  })] : []),
   VitePWA({
     registerType: "autoUpdate",
     includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],

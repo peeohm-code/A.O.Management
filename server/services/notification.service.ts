@@ -137,12 +137,12 @@ export async function createBulkNotifications(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const notifications = userIds.map((userId) => ({
+  const notificationsData = userIds.map((userId) => ({
     ...data,
     userId,
   }));
 
-  await db.insert(notifications).values(notifications);
+  await db.insert(notifications).values(notificationsData);
 }
 
 // ============================================================================

@@ -1920,7 +1920,7 @@ export async function createNotification(data: {
   if (!db) throw new Error("Database not available");
 
   const result = await db.insert(notifications).values({
-    recipientId: data.userId,
+    userId: data.userId,
     type: data.type,
     title: data.title,
     content: data.content,
@@ -7078,7 +7078,16 @@ export async function getProjectQualityScore(projectId: number): Promise<{
 // Escalation Functions (Stub implementations)
 // ============================================================================
 
-export async function getAllEscalationRules() {
+// Type for transformed escalation rule (with parsed JSON fields)
+type TransformedEscalationRule = typeof escalationRules.$inferSelect & {
+  triggerType: string;
+  hoursUntilEscalation: number;
+  escalateToRoles: string[];
+  escalateToUserIds: number[];
+  enabled: boolean;
+};
+
+export async function getAllEscalationRules(): Promise<TransformedEscalationRule[]> {
   const db = await getDb();
   if (!db) return [];
   const rules = await db.select().from(escalationRules);
@@ -7092,7 +7101,7 @@ export async function getAllEscalationRules() {
   }));
 }
 
-export async function getEscalationRuleById(id: number) {
+export async function getEscalationRuleById(id: number): Promise<TransformedEscalationRule | null> {
   const db = await getDb();
   if (!db) return null;
   const [rule] = await db.select().from(escalationRules).where(eq(escalationRules.id, id)).limit(1);
@@ -7353,13 +7362,13 @@ export async function checkAndTriggerEscalations() {
         const overdueTasks = await db.select({
           id: tasks.id,
           projectId: tasks.projectId,
-          dueDate: tasks.dueDate,
+          dueDate: tasks.endDate,
         })
           .from(tasks)
           .where(
             and(
               ne(tasks.status, 'completed'),
-              lt(tasks.dueDate, thresholdDate)
+              lt(tasks.endDate, thresholdDate)
             )
           );
 
