@@ -24,7 +24,9 @@ export default function GanttChartPage() {
 
   // Queries
   const { data: projects, isLoading: projectsLoading } = trpc.project.list.useQuery({});
-  const { data: tasks, isLoading: tasksLoading } = trpc.task.list.useQuery();
+  const { data: tasks, isLoading: tasksLoading } = trpc.task.list.useQuery({ 
+    projectId: selectedProjectId || undefined 
+  });
   const { data: criticalPath } = trpc.task.getCriticalPath.useQuery(
     { projectId: selectedProjectId! },
     { enabled: !!selectedProjectId }
@@ -42,9 +44,9 @@ export default function GanttChartPage() {
 
   // Filter tasks by selected project
   const filteredTasks = useMemo(() => {
-    if (!tasks) return [];
-    if (!selectedProjectId) return tasks;
-    return tasks?.items?.filter((task: any) => task.projectId === selectedProjectId);
+    if (!tasks?.items) return [];
+    if (!selectedProjectId) return tasks.items;
+    return tasks.items.filter((task: any) => task.projectId === selectedProjectId);
   }, [tasks, selectedProjectId]);
 
   // Transform tasks for Gantt Chart
@@ -91,7 +93,7 @@ export default function GanttChartPage() {
     };
   }, [filteredTasks, criticalPath]);
 
-  const selectedProject = projects?.find((p: any) => p.id === selectedProjectId);
+  const selectedProject = projects?.items?.find((p: any) => p.id === selectedProjectId);
 
   if (projectsLoading || tasksLoading) {
     return (
@@ -130,7 +132,7 @@ export default function GanttChartPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">ทุกโครงการ</SelectItem>
-                {projects?.map((project: any) => (
+                {projects?.items?.map((project: any) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.name}
                   </SelectItem>

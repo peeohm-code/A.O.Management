@@ -113,11 +113,18 @@ export default function RoleTemplateDialog({
 
     if (template?.id) {
       updateMutation.mutate({
-        templateId: template.id,
-        ...data,
+        id: template.id,
+        name: data.name,
+        description: data.description || undefined,
+        permissionIds: Object.keys(data.permissions).filter(k => data.permissions[k]).map(k => parseInt(k.split('_').pop() || '0')),
       });
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate({
+        name: data.name,
+        roleType: 'worker' as const,
+        description: data.description || undefined,
+        permissionIds: Object.keys(data.permissions).filter(k => data.permissions[k]).map(k => parseInt(k.split('_').pop() || '0')),
+      });
     }
   };
 

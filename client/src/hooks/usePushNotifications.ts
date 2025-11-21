@@ -104,7 +104,7 @@ export function usePushNotifications() {
       const subscriptionJSON = subscription.toJSON();
       await subscribeMutation.mutateAsync({
         endpoint: subscription.endpoint,
-        p256dh: subscriptionJSON.keys!.p256dh!,
+        p256Dh: subscriptionJSON.keys!.p256dh!,
         auth: subscriptionJSON.keys!.auth!,
         userAgent: navigator.userAgent,
       });

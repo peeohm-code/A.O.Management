@@ -31,8 +31,8 @@ export default function AlertSettings() {
   // Load existing thresholds
   useEffect(() => {
     if (thresholds) {
-      const cpu = thresholds?.items?.find((t: AlertThreshold) => t.metricType === "cpu");
-      const memory = thresholds?.items?.find((t: AlertThreshold) => t.metricType === "memory");
+      const cpu = thresholds?.find((t: AlertThreshold) => t.metricType === "cpu");
+      const memory = thresholds?.find((t: AlertThreshold) => t.metricType === "memory");
       
       if (cpu) {
         setCpuThreshold(cpu.threshold);

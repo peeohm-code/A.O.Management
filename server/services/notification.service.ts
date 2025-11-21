@@ -63,7 +63,7 @@ export async function getUnreadNotifications(userId: number): Promise<Notificati
   return db
     .select()
     .from(notifications)
-    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
+    .where(and(eq(notifications.recipientId, userId), eq(notifications.isRead, 0)))
     .orderBy(desc(notifications.createdAt));
 }
 
@@ -73,7 +73,7 @@ export async function markNotificationAsRead(notificationId: number): Promise<No
 
   await db
     .update(notifications)
-    .set({ isRead: true })
+    .set({ isRead: 1 })
     .where(eq(notifications.id, notificationId));
 
   const [updated] = await db
@@ -91,8 +91,8 @@ export async function markAllNotificationsAsRead(userId: number): Promise<void> 
 
   await db
     .update(notifications)
-    .set({ isRead: true })
-    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+    .set({ isRead: 1 })
+    .where(and(eq(notifications.recipientId, userId), eq(notifications.isRead, 0)));
 }
 
 export async function deleteNotification(notificationId: number): Promise<void> {
@@ -120,7 +120,7 @@ export async function getUnreadCount(userId: number): Promise<number> {
   const unread = await db
     .select()
     .from(notifications)
-    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+    .where(and(eq(notifications.recipientId, userId), eq(notifications.isRead, 0)));;
 
   return unread.length;
 }
@@ -212,7 +212,7 @@ export async function notifyProjectUpdate(
   updateMessage: string
 ): Promise<void> {
   await createBulkNotifications(userIds, {
-    type: "project_update",
+    type: "project_status_changed",
     title: "อัปเดตโครงการ",
     message: updateMessage,
     relatedId: projectId,

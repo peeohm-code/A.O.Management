@@ -394,9 +394,9 @@ export default function Dashboard() {
                             <div className="font-bold text-green-600">{member.completedTasks}</div>
                             <div className="text-green-700">เสร็จสิ้น</div>
                           </div>
-                          <div className="text-center p-2 bg-amber-50 rounded">
-                            <div className="font-bold text-amber-600">{member.overdueTasks}</div>
-                            <div className="text-amber-700">เกินกำหนด</div>
+                          <div className="text-center p-2 bg-blue-50 rounded">
+                            <div className="font-bold text-blue-600">{member.inProgressTasks}</div>
+                            <div className="text-blue-700">กำลังดำเนินการ</div>
                           </div>
                         </div>
                       </div>
@@ -470,12 +470,16 @@ export default function Dashboard() {
                         <div className="text-xs text-red-700 mt-1">วิกฤต</div>
                       </div>
                       <div className="text-center p-2 bg-amber-50 rounded">
-                        <div className="text-xl font-bold text-amber-600">{qcData.defects.major}</div>
-                        <div className="text-xs text-amber-700 mt-1">สำคัญ</div>
+                        <div className="text-xl font-bold text-amber-600">{qcData.defects.high}</div>
+                        <div className="text-xs text-amber-700 mt-1">สูง</div>
+                      </div>
+                      <div className="text-center p-2 bg-yellow-50 rounded">
+                        <div className="text-xl font-bold text-yellow-600">{qcData.defects.medium}</div>
+                        <div className="text-xs text-yellow-700 mt-1">ปานกลาง</div>
                       </div>
                       <div className="text-center p-2 bg-blue-50 rounded">
-                        <div className="text-xl font-bold text-blue-600">{qcData.defects.minor}</div>
-                        <div className="text-xs text-blue-700 mt-1">เล็กน้อย</div>
+                        <div className="text-xl font-bold text-blue-600">{qcData.defects.low}</div>
+                        <div className="text-xs text-blue-700 mt-1">ต่ำ</div>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm">

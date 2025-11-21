@@ -25,7 +25,7 @@ export default function NewTask() {
   const [, setLocation] = useLocation();
 
   const projectsQuery = trpc.project.list.useQuery();
-  const projects = projects;
+  const projects = projectsQuery.data;
 
   const {
     register,
@@ -127,7 +127,7 @@ export default function NewTask() {
                       <SelectValue placeholder="เลือกโครงการ" />
                     </SelectTrigger>
                     <SelectContent>
-                      {projects.map((project: any) => (
+                      {projects?.items?.map((project: any) => (
                         <SelectItem key={project.id} value={project.id.toString()}>
                           {project.name}
                         </SelectItem>

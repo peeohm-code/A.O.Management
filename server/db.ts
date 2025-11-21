@@ -1919,14 +1919,14 @@ export async function createNotification(data: {
   if (!db) throw new Error("Database not available");
 
   const result = await db.insert(notifications).values({
-    userId: data.userId,
+    recipientId: data.userId,
     type: data.type,
     title: data.title,
     content: data.content,
     priority: data.priority || 'normal',
     relatedTaskId: data.relatedTaskId,
     relatedProjectId: data.relatedProjectId,
-    isRead: false,
+    isRead: 0,
   });
 
   // Return the created notification with ID
@@ -2369,10 +2369,10 @@ export async function createChecklistResult(data: {
   if (!db) throw new Error("Database not available");
 
   return await db.insert(checklistItemResults).values({
-    checklistId: data.checklistId,
-    itemId: data.itemId,
+    taskChecklistId: data.checklistId,
+    templateItemId: data.itemId,
     result: data.result,
-    comment: data.comment,
+    comments: data.comment,
     photoUrls: data.photoUrls,
     inspectedBy: data.inspectedBy,
   });
@@ -3428,7 +3428,15 @@ export async function createMemoryLog(data: {
     const [result] = await db
       .insert(memoryLogs)
       .values({
-        ...data,
+        totalMemoryMb: data.totalMemoryMB,
+        usedMemoryMb: data.usedMemoryMB,
+        freeMemoryMb: data.freeMemoryMB,
+        usagePercentage: data.usagePercentage,
+        buffersCacheMb: data.buffersCacheMB,
+        availableMemoryMb: data.availableMemoryMB,
+        swapTotalMb: data.swapTotalMB,
+        swapUsedMb: data.swapUsedMB,
+        swapFreePercentage: data.swapFreePercentage,
         timestamp: new Date(),
         createdAt: new Date(),
       });

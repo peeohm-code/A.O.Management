@@ -71,7 +71,7 @@ export function parseError(error: unknown): AppError {
   }
 
   // Handle network errors
-  if (error instanceof TypeError && error.message.includes("fetch")) {
+  if ((error as any) instanceof TypeError && typeof (error as any).message === 'string' && (error as any).message.includes("fetch")) {
     return {
       code: "NETWORK_ERROR",
       message: ERROR_MESSAGES.NETWORK_ERROR,
@@ -80,9 +80,10 @@ export function parseError(error: unknown): AppError {
   }
 
   // Handle generic Error
-  if (error instanceof Error) {
+  if ((error as any) instanceof Error) {
     // Check for specific error messages
-    if (error.message.includes("timeout")) {
+    const errorMessage = (error as any).message || '';
+    if (typeof errorMessage === 'string' && errorMessage.includes("timeout")) {
       return {
         code: "TIMEOUT_ERROR",
         message: ERROR_MESSAGES.TIMEOUT_ERROR,
@@ -90,7 +91,7 @@ export function parseError(error: unknown): AppError {
       };
     }
 
-    if (error.message.includes("401") || error.message.includes("Unauthorized")) {
+    if (typeof errorMessage === 'string' && (errorMessage.includes("401") || errorMessage.includes("Unauthorized"))) {
       return {
         code: "UNAUTHORIZED",
         message: ERROR_MESSAGES.UNAUTHORIZED,
@@ -98,7 +99,7 @@ export function parseError(error: unknown): AppError {
       };
     }
 
-    if (error.message.includes("403") || error.message.includes("Forbidden")) {
+    if (typeof errorMessage === 'string' && (errorMessage.includes("403") || errorMessage.includes("Forbidden"))) {
       return {
         code: "FORBIDDEN",
         message: ERROR_MESSAGES.FORBIDDEN,
@@ -108,7 +109,7 @@ export function parseError(error: unknown): AppError {
 
     return {
       code: "UNKNOWN_ERROR",
-      message: error.message || ERROR_MESSAGES.UNKNOWN_ERROR,
+      message: typeof errorMessage === 'string' ? errorMessage : ERROR_MESSAGES.UNKNOWN_ERROR,
       originalError: error,
     };
   }

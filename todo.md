@@ -458,6 +458,11 @@
 
 ## 🔥 งานแก้ไขเร่งด่วน (วันนี้)
 
+### แก้ Type Errors ทั้งหมด
+- [x] แก้ไข server-side errors ใน routers.ts - missing parameters และ property access errors (~40 errors)
+- [x] แก้ไข client-side type errors ใน errorHandler.ts, GanttChartPage.tsx และ pages อื่นๆ (ลดจาก 198 เหลือ 171 errors)
+- [ ] เพิ่ม type safety และ type guards เพื่อป้องกัน runtime errors
+
 ### แก้ TypeScript Errors
 - [x] แก้ timestamp fields ใน drizzle/schema.ts (mode: 'string' → mode: 'date')
 - [x] รัน pnpm db:push

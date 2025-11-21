@@ -298,20 +298,7 @@ export default function InspectionDetail() {
               <span className="font-medium">สถานะ:</span>
               {getStatusBadge(inspection.status)}
             </div>
-            {inspection.status === "failed" && inspection.notificationSent && (
-              <div className="flex items-center gap-2 col-span-2">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
-                <span className="font-medium">การแจ้งเตือน:</span>
-                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                  ส่งการแจ้งเตือนแล้ว
-                </Badge>
-                {inspection.notifiedAt && (
-                  <span className="text-sm text-muted-foreground">
-                    ({format(new Date(inspection.notifiedAt), "dd MMM yyyy HH:mm", { locale: th })})
-                  </span>
-                )}
-              </div>
-            )}
+
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">ผู้ตรวจ:</span>
@@ -526,13 +513,12 @@ export default function InspectionDetail() {
 
 
       {/* Image Gallery */}
-      {galleryOpen && (
-        <ImageGalleryViewer
-          images={galleryImages}
-          initialIndex={galleryInitialIndex}
-          onClose={() => setGalleryOpen(false)}
-        />
-      )}
+      <ImageGalleryViewer
+        open={galleryOpen}
+        images={galleryImages}
+        initialIndex={galleryInitialIndex}
+        onClose={() => setGalleryOpen(false)}
+      />
     </div>
   );
 }

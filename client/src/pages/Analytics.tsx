@@ -44,7 +44,7 @@ export default function Analytics() {
     { enabled: !!tasks?.items && tasks.items.length > 0 }
   );
 
-  const defects = Array.isArray(defectsData) ? defectsData : (defectsData?.items ?? []);
+  const defects = defectsData ?? [];
 
   // Progress vs Plan Comparison Data
   const progressVsPlanData = useMemo(() => {

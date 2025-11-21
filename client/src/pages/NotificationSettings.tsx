@@ -28,9 +28,9 @@ export default function NotificationSettings() {
   useEffect(() => {
     if (settings) {
       setNotificationDaysAdvance(settings.notificationDaysAdvance || 3);
-      setEnableInAppNotifications(settings.enableInAppNotifications === 1 || settings.enableInAppNotifications === true);
-      setEnableEmailNotifications(settings.enableEmailNotifications === 1 || settings.enableEmailNotifications === true);
-      setEnableDailySummaryEmail(settings.enableDailySummaryEmail === 1 || settings.enableDailySummaryEmail === true);
+      setEnableInAppNotifications(Boolean(settings.enableInAppNotifications));
+      setEnableEmailNotifications(Boolean(settings.enableEmailNotifications));
+      setEnableDailySummaryEmail(Boolean(settings.enableDailySummaryEmail));
       setDailySummaryTime(settings.dailySummaryTime || "08:00");
     }
   }, [settings]);
@@ -253,9 +253,9 @@ export default function NotificationSettings() {
             onClick={() => {
               if (settings) {
                 setNotificationDaysAdvance(settings.notificationDaysAdvance || 3);
-                setEnableInAppNotifications(settings.enableInAppNotifications === 1 || settings.enableInAppNotifications === true);
-                setEnableEmailNotifications(settings.enableEmailNotifications === 1 || settings.enableEmailNotifications === true);
-                setEnableDailySummaryEmail(settings.enableDailySummaryEmail === 1 || settings.enableDailySummaryEmail === true);
+                setEnableInAppNotifications(Boolean(settings.enableInAppNotifications));
+                setEnableEmailNotifications(Boolean(settings.enableEmailNotifications));
+                setEnableDailySummaryEmail(Boolean(settings.enableDailySummaryEmail));
                 setDailySummaryTime(settings.dailySummaryTime || "08:00");
               }
               toast.info("ยกเลิกการเปลี่ยนแปลง");
