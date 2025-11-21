@@ -68,13 +68,19 @@ const projectRouter = router({
     .input(z.object({
       page: z.number().int().min(1).default(1),
       pageSize: z.number().int().min(1).max(100).default(25),
+      status: z.enum(['draft', 'planning', 'active', 'on_hold', 'completed', 'cancelled']).optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
       const page = input?.page || 1;
       const pageSize = input?.pageSize || 25;
       const offset = (page - 1) * pageSize;
 
-      const projects = await db.getAllProjects();
+      let projects = await db.getAllProjects();
+      
+      // Apply status filter if provided
+      if (input?.status) {
+        projects = projects.filter((p: any) => p.status === input.status);
+      }
       const totalItems = projects.length;
       
       // Apply pagination

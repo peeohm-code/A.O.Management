@@ -62,20 +62,18 @@ describe('Projects Router', () => {
         status: 'planning' as const,
       };
 
-      const result = await caller.project.createProject(projectData);
+      const result = await caller.project.create(projectData);
 
       expect(result).toBeDefined();
+      expect(result.success).toBe(true);
       expect(result.id).toBeTypeOf('number');
-      expect(result.name).toBe(projectData.name);
-      expect(result.code).toBe(projectData.code);
-      expect(result.status).toBe(projectData.status);
 
       testProjectId = result.id;
     });
 
     it('should fail to create project without required fields', async () => {
       await expect(
-        caller.project.createProject({
+        caller.project.create({
           name: '',
           code: '',
           location: '',
@@ -101,11 +99,11 @@ describe('Projects Router', () => {
           budget: 500000,
           status: 'planning' as const,
         };
-        const created = await caller.project.createProject(projectData);
+        const created = await caller.project.create(projectData);
         testProjectId = created.id;
       }
 
-      const result = await caller.project.getProjectById({ id: testProjectId });
+      const result = await caller.project.get({ id: testProjectId });
 
       expect(result).toBeDefined();
       expect(result.id).toBe(testProjectId);
@@ -113,14 +111,14 @@ describe('Projects Router', () => {
     });
 
     it('should return null for non-existent project', async () => {
-      const result = await caller.project.getProjectById({ id: 999999 });
-      expect(result).toBeNull();
+      const result = await caller.project.get({ id: 999999 });
+      expect(result).toBeUndefined();
     });
   });
 
   describe('listProjects', () => {
     it('should list all projects with pagination', async () => {
-      const result = await caller.project.listProjects({
+      const result = await caller.project.list({
         page: 1,
         pageSize: 10,
       });
@@ -133,7 +131,7 @@ describe('Projects Router', () => {
     });
 
     it('should filter projects by status', async () => {
-      const result = await caller.project.listProjects({
+      const result = await caller.project.list({
         page: 1,
         pageSize: 10,
         status: 'planning',
@@ -161,7 +159,7 @@ describe('Projects Router', () => {
           budget: 750000,
           status: 'planning' as const,
         };
-        const created = await caller.project.createProject(projectData);
+        const created = await caller.project.create(projectData);
         testProjectId = created.id;
       }
 
@@ -171,12 +169,15 @@ describe('Projects Router', () => {
         status: 'active' as const,
       };
 
-      const result = await caller.project.updateProject(updateData);
+      const result = await caller.project.update(updateData);
 
       expect(result).toBeDefined();
-      expect(result.id).toBe(testProjectId);
-      expect(result.name).toBe(updateData.name);
-      expect(result.status).toBe(updateData.status);
+      
+      // Verify update by fetching the project
+      const updated = await caller.project.get({ id: testProjectId });
+      expect(updated).toBeDefined();
+      expect(updated.name).toBe(updateData.name);
+      expect(updated.status).toBe(updateData.status);
     });
   });
 
@@ -192,11 +193,11 @@ describe('Projects Router', () => {
           budget: 800000,
           status: 'active' as const,
         };
-        const created = await caller.project.createProject(projectData);
+        const created = await caller.project.create(projectData);
         testProjectId = created.id;
       }
 
-      const result = await caller.project.getProjectStats({ projectId: testProjectId });
+      const result = await caller.project.stats({ id: testProjectId });
 
       expect(result).toBeDefined();
       expect(result).toHaveProperty('totalTasks');

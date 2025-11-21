@@ -175,7 +175,7 @@ export default function QCInspection() {
       setInspectorSignature(null);
       refetchChecklists();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Inspection submission error:', error);
     },
   });
@@ -189,7 +189,7 @@ export default function QCInspection() {
       setNewInspectionForm({ projectId: 0, taskId: 0, templateId: 0 });
       refetchChecklists();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("เกิดข้อผิดพลาด: " + error.message);
     },
   });

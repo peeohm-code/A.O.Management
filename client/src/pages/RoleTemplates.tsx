@@ -36,12 +36,12 @@ export default function RoleTemplates() {
   const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
-  const { data: templates, isLoading } = trpc.permissions.listRoleTemplates.useQuery();
+  const { data: templates, isLoading } = trpc.roleTemplates.list.useQuery();
 
-  const deleteTemplateMutation = trpc.permissions.deleteRoleTemplate.useMutation({
+  const deleteTemplateMutation = trpc.roleTemplates.delete.useMutation({
     onSuccess: () => {
       toast.success("ลบ role template สำเร็จ");
-      utils.permissions.listRoleTemplates.invalidate();
+      utils.roleTemplates.list.invalidate();
       setDeleteDialogOpen(false);
       setTemplateToDelete(null);
     },
@@ -196,7 +196,7 @@ export default function RoleTemplates() {
         onSuccess={() => {
           setDialogOpen(false);
           setEditingTemplate(null);
-          utils.permissions.listRoleTemplates.invalidate();
+          utils.roleTemplates.list.invalidate();
         }}
       />
 

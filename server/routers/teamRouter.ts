@@ -18,6 +18,14 @@ export const teamRouter = router({
     }),
 
   /**
+   * Alias for listAllUsers (for backward compatibility)
+   */
+  getAllUsers: roleBasedProcedure('users', 'viewAll')
+    .query(async () => {
+      return await db.getAllUsers();
+    }),
+
+  /**
    * Get team members for a specific project
    */
   getProjectMembers: protectedProcedure
