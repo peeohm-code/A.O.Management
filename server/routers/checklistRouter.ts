@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
 import { canEditInspection, logAuthorizationFailure } from "../rbac";
+import { logInspectionAudit, getClientIp, getUserAgent } from "../auditTrail";
 import * as db from "../db";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { createNotification } from "../notificationService";
@@ -312,6 +313,19 @@ export const checklistRouter = router({
           message: "You don't have permission to submit this inspection",
         });
       }
+      
+      // Log audit trail
+      await logInspectionAudit(
+        ctx.user!.id,
+        'submit',
+        input.id,
+        checklist.taskId,
+        undefined,
+        checklist,
+        input,
+        getClientIp(ctx.req),
+        getUserAgent(ctx.req)
+      );
 
       // Validate inspection submission if itemResults provided
       if (input.itemResults && input.itemResults.length > 0) {

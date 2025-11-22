@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { canEditTask, canDeleteTask, logAuthorizationFailure } from "../rbac";
+import { logTaskAudit, getClientIp, getUserAgent } from "../auditTrail";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "../taskStatusHelper";
 import { emitNotification } from "../_core/socket";
@@ -189,6 +190,18 @@ export const taskRouter = router({
       }
 
       const result = await db.updateTask(id, dbUpdateData);
+      
+      // Log audit trail
+      await logTaskAudit(
+        ctx.user!.id,
+        'update',
+        id,
+        task.projectId,
+        task,
+        dbUpdateData,
+        getClientIp(ctx.req),
+        getUserAgent(ctx.req)
+      );
 
       await db.logActivity({
         userId: ctx.user!.id,
@@ -346,6 +359,18 @@ export const taskRouter = router({
         });
       }
 
+      // Log audit trail before deletion
+      await logTaskAudit(
+        ctx.user!.id,
+        'delete',
+        input.id,
+        task.projectId,
+        task,
+        null,
+        getClientIp(ctx.req),
+        getUserAgent(ctx.req)
+      );
+      
       await db.deleteTask(input.id);
 
       await db.logActivity({

@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { canEditProject, canDeleteProject, logAuthorizationFailure } from "../rbac";
+import { logProjectAudit, getClientIp, getUserAgent } from "../auditTrail";
 import { emitNotification } from "../_core/socket";
 import * as analyticsService from "../services/analytics.service";
 import { generateArchiveExcel } from "../excelExport";
@@ -123,6 +124,17 @@ export const projectRouter = router({
       
       const project = await db.getProjectById(id);
       const result = await db.updateProject(id, updateData);
+      
+      // Log audit trail
+      await logProjectAudit(
+        ctx.user!.id,
+        'update',
+        id,
+        project,
+        updateData,
+        getClientIp(ctx.req),
+        getUserAgent(ctx.req)
+      );
 
       await db.logActivity({
         userId: ctx.user!.id,
@@ -220,6 +232,17 @@ export const projectRouter = router({
         });
       }
 
+      // Log audit trail before deletion
+      await logProjectAudit(
+        ctx.user!.id,
+        'delete',
+        input.id,
+        project,
+        null,
+        getClientIp(ctx.req),
+        getUserAgent(ctx.req)
+      );
+      
       // Delete project (cascade will handle related records)
       await db.deleteProject(input.id);
 

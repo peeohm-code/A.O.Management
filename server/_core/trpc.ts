@@ -3,6 +3,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
 import { hasPermission, ROLES } from "@shared/permissions";
+import { rateLimitMiddlewares } from "./trpcRateLimiter";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
@@ -27,7 +28,30 @@ const requireUser = t.middleware(async opts => {
   });
 });
 
-export const protectedProcedure = t.procedure.use(requireUser);
+// Protected procedure with general rate limiting
+export const protectedProcedure = t.procedure
+  .use(requireUser)
+  .use(rateLimitMiddlewares.general);
+
+// Protected procedure for read operations (higher limit)
+export const protectedReadProcedure = t.procedure
+  .use(requireUser)
+  .use(rateLimitMiddlewares.read);
+
+// Protected procedure for write operations (lower limit)
+export const protectedWriteProcedure = t.procedure
+  .use(requireUser)
+  .use(rateLimitMiddlewares.write);
+
+// Protected procedure for sensitive operations (strict limit)
+export const protectedSensitiveProcedure = t.procedure
+  .use(requireUser)
+  .use(rateLimitMiddlewares.sensitive);
+
+// Protected procedure for critical operations (very strict limit)
+export const protectedCriticalProcedure = t.procedure
+  .use(requireUser)
+  .use(rateLimitMiddlewares.critical);
 
 export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {

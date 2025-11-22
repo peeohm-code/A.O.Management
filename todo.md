@@ -560,3 +560,39 @@
 - [ ] ติดตั้ง monitoring tools (เช่น logging, metrics)
 - [ ] ตั้งค่า performance alerts
 - [ ] สร้างแผนการปรับปรุง performance ตามผล benchmark
+
+---
+
+## งานเพิ่มเติมจากผู้ใช้ - Audit Trail, Data Cleanup และ Rate Limiting
+
+### 1. เพิ่ม Audit Trail System
+- [x] ตรวจสอบ schema ของ activityLog table ที่มีอยู่
+- [x] เพิ่มฟิลด์ audit trail ใน activityLog (resourceType, resourceId, oldValue, newValue, ipAddress, userAgent)
+- [x] สร้าง auditTrail service และ helper functions
+- [x] เพิ่มการบันทึก audit log ใน projectRouter (update, delete)
+- [x] เพิ่มการบันทึก audit log ใน taskRouter (update, delete)
+- [x] เพิ่มการบันทึก audit log ใน defectRouter (update, delete)
+- [x] เพิ่มการบันทึก audit log ใน checklistRouter (submitInspection)
+- [ ] สร้าง audit log viewer UI สำหรับ admin
+- [ ] ทดสอบ audit trail system
+
+### 2. ทำความสะอาดข้อมูลเก่า
+- [x] ตรวจสอบข้อมูล orphaned ใน projectMembers.userId (ลบ 14 records)
+- [x] ตรวจสอบข้อมูล orphaned ใน taskChecklists.templateId (ลบ 6 records)
+- [x] ตรวจสอบข้อมูล orphaned ใน checklistItemResults.templateItemId (ไม่พบ)
+- [x] ตรวจสอบข้อมูล orphaned ใน notifications.relatedTaskId (ไม่พบ)
+- [x] ตรวจสอบข้อมูล orphaned ใน notifications.relatedProjectId (ไม่พบ)
+- [x] ตรวจสอบข้อมูล orphaned ใน activityLog.projectId (ไม่พบ)
+- [x] ลบหรืออัปเดตข้อมูลที่ไม่มี references
+- [x] รัน add-foreign-keys.sql อีกครั้งเพื่อเพิ่ม constraints ที่ล้มเหลว
+- [x] ตรวจสอบว่า foreign keys ทั้งหมดถูกเพิ่มสำเร็จ (46 constraints มีอยู่แล้ว)
+
+### 3. เพิ่ม Rate Limiting
+- [x] ตรวจสอบ rate limiter ที่มีอยู่ใน server/_core/rateLimiter.ts
+- [x] สร้าง tRPC rate limiting middleware (server/_core/trpcRateLimiter.ts)
+- [x] เพิ่ม rate limiting ใน protectedProcedure (general, read, write, sensitive, critical)
+- [x] กำหนด rate limits สำหรับ endpoints ต่างๆ (100/15min general, 200/15min read, 50/15min write, 10/hr sensitive, 3/hr critical)
+- [x] เพิ่ม rate limit headers (X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset)
+- [x] ใช้ in-memory store สำหรับ rate limit state
+- [ ] ทดสอบ rate limiting
+- [x] เพิ่ม error messages ที่เหมาะสมเมื่อถึง rate limit

@@ -4,6 +4,7 @@ import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from 
 import * as db from "../db";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { canEditDefect, canDeleteDefect, logAuthorizationFailure } from "../rbac";
+import { logDefectAudit, getClientIp, getUserAgent } from "../auditTrail";
 import { notifyOwner } from "../_core/notification";
 import { createNotification } from "../notificationService";
 import { logger } from "../logger";
@@ -202,6 +203,19 @@ export const defectRouter = router({
           });
         }
 
+        // Log audit trail
+        await logDefectAudit(
+          ctx.user!.id,
+          'update',
+          id,
+          defect.projectId,
+          defect.taskId,
+          defect,
+          updateData,
+          getClientIp(ctx.req),
+          getUserAgent(ctx.req)
+        );
+        
         const dataToUpdate: any = {
           ...updateData,
           resolvedBy:
@@ -382,6 +396,23 @@ export const defectRouter = router({
         });
       }
 
+      const defect = await db.getDefectById(input.id);
+      
+      // Log audit trail before deletion
+      if (defect) {
+        await logDefectAudit(
+          ctx.user!.id,
+          'delete',
+          input.id,
+          defect.projectId,
+          defect.taskId,
+          defect,
+          null,
+          getClientIp(ctx.req),
+          getUserAgent(ctx.req)
+        );
+      }
+      
       await db.deleteDefect(input.id);
       return { success: true };
     }),
