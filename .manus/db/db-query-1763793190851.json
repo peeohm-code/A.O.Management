@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, openId, name, email, role FROM users WHERE email = 'suntaku@gmail.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, openId, name, email, role FROM users WHERE email = 'suntaku@gmail.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "75UnUgpLF9gVPG8gzP5PAU",
+      "name": "ฐิตินันท์ สุนย์ตะคุ",
+      "email": "suntaku@gmail.com",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\n1\t75UnUgpLF9gVPG8gzP5PAU\tฐิตินันท์ สุนย์ตะคุ\tsuntaku@gmail.com\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 1661
+}

@@ -350,3 +350,11 @@
 - [x] เพิ่ม tRPC procedure สำหรับลบโครงการ (project.delete)
 - [x] เพิ่มปุ่มลบโครงการในหน้า ProjectDetail พร้อม confirmation dialog
 - [x] ทดสอบการลบโครงการและ redirect กลับไปหน้า Projects
+
+## งานแก้ไข Bug - Delete Project Error
+
+- [x] ตรวจสอบและแก้ไข error ที่เกิดขึ้นเมื่อลบโครงการ
+  - [x] พบปัญหา: escalationLogs ไม่มี projectId field ต้องลบผ่าน entityId (taskId) แทน
+  - [x] แก้ไข: เพิ่มการลบ escalationLogs ใน deleteProject function (server/db.ts)
+  - [x] ทดสอบ: รัน vitest และผ่านทั้งหมด (3/3 tests passed)
+- [x] ทดสอบการลบโครงการอีกครั้งหลังแก้ไข (ลบสำเร็จโดยไม่มี error)
