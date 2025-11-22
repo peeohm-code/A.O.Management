@@ -624,3 +624,38 @@
   - [x] เขียน tests สำหรับ createTaskChecklist (validation, task creation, checklist items)
   - [x] เขียน tests สำหรับ permission middleware (47 tests passed)
   - [x] รัน tests และแก้ไข issues
+
+
+## Phase 2.5: Permission Middleware และ Performance Optimization
+
+### 2.5.1 Refactor Permission Middleware
+- [x] แทนที่ inline permission checks ใน routers ทั้งหมดด้วย middleware functions
+  - [x] แทนที่ checks ใน projectRouter.ts
+  - [x] แทนที่ checks ใน taskRouter.ts
+  - [x] แทนที่ checks ใน defectRouter.ts
+  - [ ] แทนที่ checks ใน inspectionRouter.ts
+  - [ ] แทนที่ checks ใน checklistRouter.ts
+  - [ ] แทนที่ checks ใน dashboardRouter.ts
+  - [ ] แทนที่ checks ใน commentRouter.ts
+  - [ ] แทนที่ checks ใน attachmentRouter.ts
+  - [ ] แทนที่ checks ใน notificationRouter.ts
+  - [ ] แทนที่ checks ใน activityRouter.ts
+  - [ ] แทนที่ checks ใน categoryColorRouter.ts
+  - [ ] แทนที่ checks ใน inspectionStatsRouter.ts
+  - [ ] แทนที่ checks ใน errorTrackingRouter.ts
+- [ ] ทดสอบ permission middleware ทั้งหมด
+
+### 2.5.2 Query Performance Monitoring
+- [x] ติดตั้ง query logging และ performance monitoring
+- [x] เพิ่ม query execution time tracking
+- [x] สร้าง performance metrics dashboard (via performanceRouter)
+- [ ] วัดผลการปรับปรุงจาก indexes ที่เพิ่มเข้าไป
+- [ ] ระบุและแก้ไข slow queries
+
+### 2.5.3 ขยาย Test Coverage
+- [x] เพิ่ม integration tests สำหรับ complex workflows
+  - [x] Inspection approval flow tests
+  - [x] Defect escalation process tests
+  - [x] Multi-step checklist completion tests
+- [ ] เพิ่ม test coverage สำหรับ permission middleware
+- [ ] เพิ่ม performance regression tests

@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { canEditTask, canDeleteTask, logAuthorizationFailure } from "../rbac";
+import { requireEditTaskMiddleware, requireDeleteTaskMiddleware, requireCreateTaskMiddleware } from "../middleware/permissionMiddleware";
 import { logTaskAudit, getClientIp, getUserAgent } from "../auditTrail";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { getTaskDisplayStatus, getTaskDisplayStatusLabel, getTaskDisplayStatusColor } from "../taskStatusHelper";
@@ -163,22 +164,13 @@ export const taskRouter = router({
       }
     }),
 
-  update: roleBasedProcedure("tasks", "edit")
+  update: protectedProcedure
     .input(updateTaskSchema)
+    .use(requireEditTaskMiddleware)
     .mutation(async ({ input, ctx }) => {
       const { id, ...updateData } = input;
       const task = await db.getTaskById(id);
       if (!task) throw new Error("Task not found");
-      
-      // Check authorization
-      const hasPermission = await canEditTask(ctx.user!.id, id);
-      if (!hasPermission) {
-        logAuthorizationFailure(ctx.user!.id, 'update', 'task', id);
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You don't have permission to edit this task",
-        });
-      }
 
       // Convert date strings to Date objects if present
       const dbUpdateData: any = { ...updateData };
@@ -345,19 +337,10 @@ export const taskRouter = router({
 
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
+    .use(requireDeleteTaskMiddleware)
     .mutation(async ({ input, ctx }) => {
       const task = await db.getTaskById(input.id);
       if (!task) throw new Error("Task not found");
-      
-      // Check authorization
-      const hasPermission = await canDeleteTask(ctx.user!.id, input.id);
-      if (!hasPermission) {
-        logAuthorizationFailure(ctx.user!.id, 'delete', 'task', input.id);
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You don't have permission to delete this task",
-        });
-      }
 
       // Log audit trail before deletion
       await logTaskAudit(

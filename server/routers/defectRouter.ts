@@ -4,6 +4,7 @@ import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from 
 import * as db from "../db";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { canEditDefect, canDeleteDefect, logAuthorizationFailure } from "../rbac";
+import { requireEditDefectMiddleware, requireDeleteDefectMiddleware, requireCreateDefectMiddleware } from "../middleware/permissionMiddleware";
 import { logDefectAudit, getClientIp, getUserAgent } from "../auditTrail";
 import { notifyOwner } from "../_core/notification";
 import { createNotification } from "../notificationService";
@@ -239,21 +240,12 @@ export const defectRouter = router({
   // Update defect (workflow transitions)
   update: protectedProcedure
     .input(updateDefectSchema)
+    .use(requireEditDefectMiddleware)
     .mutation(async ({ input, ctx }) => {
       try {
         const { id, ...updateData } = input;
         const defect = await db.getDefectById(id);
         if (!defect) throw new Error("Defect not found");
-
-        // Check edit permission using RBAC
-        const hasPermission = await canEditDefect(ctx.user!.id, id);
-        if (!hasPermission) {
-          logAuthorizationFailure(ctx.user!.id, 'update', 'defect', id);
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You don't have permission to edit this defect",
-          });
-        }
 
         // Log audit trail
         await logDefectAudit(
@@ -437,16 +429,8 @@ export const defectRouter = router({
   // Delete defect (Owner, Admin, PM only)
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
+    .use(requireDeleteDefectMiddleware)
     .mutation(async ({ input, ctx }) => {
-      // Check delete permission using RBAC
-      const hasPermission = await canDeleteDefect(ctx.user!.id, input.id);
-      if (!hasPermission) {
-        logAuthorizationFailure(ctx.user!.id, 'delete', 'defect', input.id);
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You don't have permission to delete this defect",
-        });
-      }
 
       const defect = await db.getDefectById(input.id);
       

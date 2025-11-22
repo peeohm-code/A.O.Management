@@ -74,6 +74,7 @@ import { dashboardRouter } from "./routers/dashboardRouter";
 import { categoryColorRouter } from "./routers/categoryColorRouter";
 import { inspectionStatsRouter } from "./routers/inspectionStatsRouter";
 import { errorTrackingRouter } from "./routers/errorTrackingRouter";
+import { performanceRouter as queryPerformanceRouter } from "./routers/performanceRouter";
 
 /**
  * Main Application Router
@@ -100,6 +101,9 @@ export const appRouter = router({
 
   // Error Tracking Router
   errorTracking: errorTrackingRouter,
+
+  // Query Performance Monitoring Router
+  queryPerformance: queryPerformanceRouter,
 
   // Dashboard Statistics Router (merged into dashboardRouter below)
 
