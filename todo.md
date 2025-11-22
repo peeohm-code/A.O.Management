@@ -328,3 +328,9 @@
 - [ ] สร้าง checkpoint หลัง refactor database layer
 - [ ] อัปเดท todo.md ให้ครบถ้วน
 - [ ] รายงานผลการ refactor
+
+---
+
+## งานเพิ่มเติม: UI/UX Improvements
+
+- [x] เพิ่มหน้า QC Inspection เข้าไปใน sidebar menu

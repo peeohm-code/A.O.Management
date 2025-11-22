@@ -123,6 +123,11 @@ const menuItems: MenuItem[] = [
     path: "/inspections",
   },
   {
+    icon: ClipboardCheck,
+    label: "QC Inspection",
+    path: "/qc-inspection",
+  },
+  {
     icon: AlertTriangle,
     label: "Defects",
     path: "/defects",
