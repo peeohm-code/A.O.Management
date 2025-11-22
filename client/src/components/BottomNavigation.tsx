@@ -13,7 +13,7 @@ const navItems: NavItem[] = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/projects", icon: FolderKanban, label: "Projects" },
   { path: "/tasks", icon: ListTodo, label: "Tasks" },
-  { path: "/inspections", icon: ClipboardCheck, label: "QC" },
+  { path: "/qc-inspection", icon: ClipboardCheck, label: "QC" },
   { path: "/notifications", icon: Bell, label: "แจ้งเตือน" },
 ];
 
@@ -33,8 +33,8 @@ export default function BottomNavigation() {
         {navItems.map((item: any) => {
           const Icon = item.icon;
           const isActive = location === item.path || 
-            (item.path === "/inspections" && (
-              location.startsWith("/inspections") ||
+            (item.path === "/qc-inspection" && (
+              location.startsWith("/qc-inspection") ||
               location.startsWith("/defects") ||
               location.startsWith("/templates") ||
               location.startsWith("/reports") ||

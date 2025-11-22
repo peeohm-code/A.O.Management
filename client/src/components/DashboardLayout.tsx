@@ -33,6 +33,7 @@ import {
   FolderKanban,
   ListTodo,
   ClipboardCheck,
+  ClipboardList,
   AlertTriangle,
   FileText,
   BarChart3,
@@ -56,6 +57,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import { Button } from "./ui/button";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -98,6 +100,7 @@ type MenuItem = {
   label: string;
   path?: string;
   adminOnly?: boolean;
+  badge?: "pending" | "count";
   submenu?: MenuItem[];
 };
 
@@ -118,14 +121,10 @@ const menuItems: MenuItem[] = [
     path: "/tasks",
   },
   {
-    icon: ClipboardCheck,
-    label: "Inspections",
-    path: "/inspections",
-  },
-  {
-    icon: ClipboardCheck,
+    icon: ClipboardList,
     label: "QC Inspection",
     path: "/qc-inspection",
+    badge: "pending",
   },
   {
     icon: AlertTriangle,
@@ -267,6 +266,11 @@ function DashboardLayoutContent({
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
 
+  // Fetch pending checklist count for badge
+  const { data: pendingCount = 0 } = trpc.checklist.getPendingCount.useQuery(undefined, {
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
   // Enable keyboard shortcuts
   useKeyboardShortcuts();
 
@@ -361,6 +365,11 @@ function DashboardLayoutContent({
                       >
                         <item.icon className={`h-4 w-4`} />
                         <span>{item.label}</span>
+                        {item.badge === "pending" && pendingCount > 0 && (
+                          <Badge variant="destructive" className="ml-auto h-5 min-w-5 px-1.5 text-xs">
+                            {pendingCount}
+                          </Badge>
+                        )}
                         {hasSubmenu && (
                           <ChevronRight className="ml-auto h-4 w-4" />
                         )}

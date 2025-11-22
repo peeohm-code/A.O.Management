@@ -679,4 +679,16 @@ export const checklistRouter = router({
       };
     });
   }),
+
+  getPendingCount: protectedProcedure.query(async () => {
+    // Count checklists that are pending inspection
+    const allChecklists = await db.getAllTaskChecklists();
+    
+    // Filter for pending/in-progress checklists
+    const pendingCount = allChecklists.filter((checklist: any) => 
+      checklist.status === "pending_inspection" || checklist.status === "in_progress"
+    ).length;
+    
+    return pendingCount;
+  }),
 });

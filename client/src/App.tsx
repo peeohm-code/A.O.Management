@@ -54,7 +54,7 @@ const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
 const InspectionStatistics = lazy(() => import("./pages/InspectionStatistics"));
 const ErrorTracking = lazy(() => import("./pages/ErrorTracking"));
-const Inspections = lazy(() => import("./pages/Inspections"));
+
 const NewTemplate = lazy(() => import("./pages/NewTemplate"));
 
 
@@ -169,18 +169,7 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
-      <Route path={"/inspections"}>
-        {() => (
-          <DashboardLayout>
-            <PageErrorBoundary
-              pageName="Inspections"
-              fallbackPath="/dashboard"
-            >
-              <Inspections />
-            </PageErrorBoundary>
-          </DashboardLayout>
-        )}
-      </Route>
+
       <Route path={"/checklist-templates"}>
         {() => (
           <DashboardLayout>

@@ -334,3 +334,9 @@
 ## งานเพิ่มเติม: UI/UX Improvements
 
 - [x] เพิ่มหน้า QC Inspection เข้าไปใน sidebar menu
+
+## งานเพิ่มเติม: UI/UX Improvements (ต่อ)
+
+- [x] เปลี่ยน icon ของเมนู QC Inspection จาก ClipboardCheck เป็น ClipboardList
+- [x] เพิ่ม badge แสดงจำนวน checklist ที่รอดำเนินการข้างเมนู QC Inspection
+- [x] ลบเมนู Inspections ออกจากแอปทั้งหมด (routes, pages, components)
