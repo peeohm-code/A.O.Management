@@ -340,3 +340,7 @@
 - [x] เปลี่ยน icon ของเมนู QC Inspection จาก ClipboardCheck เป็น ClipboardList
 - [x] เพิ่ม badge แสดงจำนวน checklist ที่รอดำเนินการข้างเมนู QC Inspection
 - [x] ลบเมนู Inspections ออกจากแอปทั้งหมด (routes, pages, components)
+
+## งานเพิ่มเติม: UI/UX Improvements (ต่อ) - Phase 2
+
+- [x] ลบ badge สีแดงที่แสดงจำนวน checklist ที่รอดำเนินการ และ auto-refresh logic ออกจาก DashboardLayout

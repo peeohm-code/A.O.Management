@@ -100,7 +100,7 @@ type MenuItem = {
   label: string;
   path?: string;
   adminOnly?: boolean;
-  badge?: "pending" | "count";
+
   submenu?: MenuItem[];
 };
 
@@ -124,7 +124,6 @@ const menuItems: MenuItem[] = [
     icon: ClipboardList,
     label: "QC Inspection",
     path: "/qc-inspection",
-    badge: "pending",
   },
   {
     icon: AlertTriangle,
@@ -266,10 +265,7 @@ function DashboardLayoutContent({
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
 
-  // Fetch pending checklist count for badge
-  const { data: pendingCount = 0 } = trpc.checklist.getPendingCount.useQuery(undefined, {
-    refetchInterval: 30000, // Refetch every 30 seconds
-  });
+
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts();
@@ -365,11 +361,6 @@ function DashboardLayoutContent({
                       >
                         <item.icon className={`h-4 w-4`} />
                         <span>{item.label}</span>
-                        {item.badge === "pending" && pendingCount > 0 && (
-                          <Badge variant="destructive" className="ml-auto h-5 min-w-5 px-1.5 text-xs">
-                            {pendingCount}
-                          </Badge>
-                        )}
                         {hasSubmenu && (
                           <ChevronRight className="ml-auto h-4 w-4" />
                         )}
