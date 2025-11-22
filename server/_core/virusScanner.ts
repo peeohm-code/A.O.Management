@@ -1,3 +1,4 @@
+// @ts-ignore - clamscan package doesn't have type definitions
 import NodeClam from "clamscan";
 
 /**
