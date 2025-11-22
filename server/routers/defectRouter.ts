@@ -83,29 +83,24 @@ export const defectRouter = router({
     return await db.getOpenDefects();
   }),
 
-  // Get all defects
+  // Get all defects with database-level pagination
   allDefects: protectedProcedure
     .input(paginationSchema.optional())
     .query(async ({ input }) => {
       try {
         const page = input?.page || 1;
-        const pageSize = input?.pageSize || 25;
-        const offset = (page - 1) * pageSize;
+        const pageSize = input?.limit || 25;
 
-        const defects = await db.getAllDefects();
-        const allDefects = Array.isArray(defects) ? defects : [];
-        const totalItems = allDefects.length;
+        // Use database-level pagination to avoid N+1 query problem
+        const { items, total } = await db.getDefectsPaginated(page, pageSize);
 
-        // Apply pagination
-        const paginatedDefects = allDefects.slice(offset, offset + pageSize);
-
-        const totalPages = Math.ceil(totalItems / pageSize);
+        const totalPages = Math.ceil(total / pageSize);
         return {
-          items: paginatedDefects,
+          items,
           pagination: {
             currentPage: page,
             pageSize,
-            totalItems,
+            totalItems: total,
             totalPages,
             hasMore: page < totalPages,
             hasPrevious: page > 1,
@@ -138,50 +133,107 @@ export const defectRouter = router({
   create: roleBasedProcedure("defects", "create")
     .input(createDefectSchema)
     .mutation(async ({ input, ctx }) => {
-      // Validate defect creation input
-      const validation = validateDefectCreateInput({
-        title: input.title,
-        taskId: input.taskId,
-        taskChecklistId: input.checklistId,
-        severity: input.severity,
-        description: input.description,
-        detectedById: ctx.user!.id,
-        assignedToId: input.assignedTo,
-        dueDate: input.dueDate,
-      });
+      try {
+        // Validate defect creation input
+        const validation = validateDefectCreateInput({
+          title: input.title,
+          taskId: input.taskId,
+          taskChecklistId: input.checklistId,
+          severity: input.severity,
+          description: input.description,
+          detectedById: ctx.user!.id,
+          assignedToId: input.assignedTo,
+          dueDate: input.dueDate,
+        });
 
-      if (!validation.valid) {
+        if (!validation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: validation.errors?.join(", ") || "Invalid defect data",
+          });
+        }
+
+        // Verify task exists and user has access
+        const task = await db.getTaskById(input.taskId);
+        if (!task) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Task not found",
+          });
+        }
+
+        // Verify project exists
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Project not found",
+          });
+        }
+
+        // Create defect with transaction support
+        const result = await db.createDefect({
+          ...input,
+          reportedBy: ctx.user!.id,
+        });
+
+        const defectId = (result as any).insertId;
+        if (!defectId) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create defect",
+          });
+        }
+
+        // Send notification to assignee using notification service
+        if (input.assignedTo) {
+          try {
+            await createNotification({
+              userId: input.assignedTo,
+              type: "defect_created",
+              title: `มี ${input.type} ใหม่มอบหมาย`,
+              content: `คุณได้รับมอบหมาย ${input.type}: "${input.title}" ระดับความรุนแรง: ${input.severity}`,
+              priority:
+                input.severity === "critical"
+                  ? "urgent"
+                  : input.severity === "high"
+                    ? "high"
+                    : "normal",
+              relatedDefectId: defectId,
+              relatedTaskId: input.taskId,
+              sendEmail: true, // Always send email for defect assignments
+            });
+          } catch (notificationError) {
+            // Log notification error but don't fail the defect creation
+            logger.error("Failed to send defect notification", {
+              error: notificationError,
+              defectId,
+              assignedTo: input.assignedTo,
+            });
+          }
+        }
+
+        return result;
+      } catch (error) {
+        // Log the error for debugging
+        logger.error("Failed to create defect", {
+          error,
+          input,
+          userId: ctx.user!.id,
+        });
+
+        // Re-throw TRPCError as-is
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+
+        // Wrap other errors
         throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: validation.errors?.join(", ") || "Invalid defect data",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create defect. Please try again.",
+          cause: error,
         });
       }
-
-      const result = await db.createDefect({
-        ...input,
-        reportedBy: ctx.user!.id,
-      });
-
-      // Send notification to assignee using notification service
-      if (input.assignedTo) {
-        await createNotification({
-          userId: input.assignedTo,
-          type: "defect_created",
-          title: `มี ${input.type} ใหม่มอบหมาย`,
-          content: `คุณได้รับมอบหมาย ${input.type}: "${input.title}" ระดับความรุนแรง: ${input.severity}`,
-          priority:
-            input.severity === "critical"
-              ? "urgent"
-              : input.severity === "high"
-                ? "high"
-                : "normal",
-          relatedDefectId: (result as any).insertId,
-          relatedTaskId: input.taskId,
-          sendEmail: true, // Always send email for defect assignments
-        });
-      }
-
-      return result;
     }),
 
   // Update defect (workflow transitions)
@@ -695,7 +747,7 @@ export const defectRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       // Check delete permission
-      if (!canDeleteDefect(ctx.user!.role)) {
+      if (ctx.user!.role !== 'admin') {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้",

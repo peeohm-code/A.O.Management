@@ -121,7 +121,6 @@ export async function canEditTask(userId: number, taskId: number): Promise<boole
       .select({
         projectId: tasks.projectId,
         assigneeId: tasks.assigneeId,
-        createdBy: tasks.createdBy,
       })
       .from(tasks)
       .where(eq(tasks.id, taskId))
@@ -131,8 +130,8 @@ export async function canEditTask(userId: number, taskId: number): Promise<boole
 
     const task = taskResult[0];
 
-    // Check if user is task assignee or creator
-    if (task.assigneeId === userId || task.createdBy === userId) {
+    // Check if user is task assignee
+    if (task.assigneeId === userId) {
       return true;
     }
 
@@ -156,7 +155,6 @@ export async function canDeleteTask(userId: number, taskId: number): Promise<boo
     const taskResult = await db
       .select({
         projectId: tasks.projectId,
-        createdBy: tasks.createdBy,
       })
       .from(tasks)
       .where(eq(tasks.id, taskId))
@@ -166,12 +164,7 @@ export async function canDeleteTask(userId: number, taskId: number): Promise<boo
 
     const task = taskResult[0];
 
-    // Check if user is task creator
-    if (task.createdBy === userId) {
-      return true;
-    }
-
-    // Check if user is project manager
+    // Check if user is project manager (only PM can delete tasks)
     return await isProjectManager(userId, task.projectId);
   } catch (error) {
     logger.error('[RBAC] canDeleteTask failed', { userId, taskId }, error);
@@ -418,7 +411,6 @@ export async function canEditInspection(userId: number, checklistId: number): Pr
     const checklistResult = await db
       .select({
         taskId: taskChecklists.taskId,
-        createdBy: taskChecklists.createdBy,
       })
       .from(taskChecklists)
       .where(eq(taskChecklists.id, checklistId))
@@ -427,11 +419,6 @@ export async function canEditInspection(userId: number, checklistId: number): Pr
     if (checklistResult.length === 0) return false;
 
     const checklist = checklistResult[0];
-
-    // Check if user is checklist creator
-    if (checklist.createdBy === userId) {
-      return true;
-    }
 
     // Get project ID from task
     const taskResult = await db
@@ -530,12 +517,16 @@ export function logAuthorizationFailure(
   resourceId: number,
   reason?: string
 ): void {
-  logger.warn('[RBAC] Authorization failed', {
-    userId,
-    action,
-    resourceType,
-    resourceId,
-    reason: reason || 'Permission denied',
-    timestamp: new Date().toISOString(),
-  });
+  logger.warn(
+    'Authorization failed',
+    '[RBAC]',
+    {
+      userId,
+      action,
+      resourceType,
+      resourceId,
+      reason: reason || 'Permission denied',
+      timestamp: new Date().toISOString(),
+    }
+  );
 }

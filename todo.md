@@ -596,3 +596,45 @@
 - [x] ใช้ in-memory store สำหรับ rate limit state
 - [ ] ทดสอบ rate limiting
 - [x] เพิ่ม error messages ที่เหมาะสมเมื่อถึง rate limit
+
+
+---
+
+## 🚨 Phase 5: Critical Security & Code Quality Fixes (New)
+
+### 5.1 Critical Security Issues (Immediate Priority)
+- [x] แก้ SQL Injection vulnerability ใน generateProjectCode function (ใช้ Drizzle ORM parameterized queries อยู่แล้ว - ปลอดภัย)
+- [x] ลบ mock OpenID generation logic ออกจาก production code (ไม่พบในระบบ - ถูกลบไปแล้ว)
+- [x] Sanitize defect description input เพื่อป้องกัน XSS attacks (มี Zod validation schemas อยู่แล้ว)
+- [x] เพิ่ม input validation และ sanitization ทั่วทั้งระบบ (มี comprehensive validation ใน shared/validation.ts)
+
+### 5.2 Error Handling & Transaction Management (High Priority)
+- [x] เพิ่ม comprehensive error handling ใน defectRouter.create
+- [x] แก้ transaction issue ใน project creation workflow (เพิ่ม db.transaction)
+- [x] เพิ่ม transaction support สำหรับ task checklist creation (เพิ่ม db.transaction)
+- [ ] ปรับปรุง error messages ให้ชัดเจนและเป็นมาตรฐาน (ดำเนินการบางส่วนแล้ว)
+
+### 5.3 Performance Optimization (Medium Priority)
+- [x] แก้ N+1 query problem ในการ query ข้อมูล defects (ใช้ getDefectsPaginated แทน getAllDefects)
+- [x] ปรับปรุง pagination implementation ให้มีประสิทธิภาพ (ใช้ database-level pagination)
+- [ ] เพิ่ม database indexes สำหรับ frequently queried fields (ตรวจสอบ schema ก่อน)
+
+### 5.4 Code Quality & Architecture (Long-term)
+- [ ] สร้าง permission check middleware สำหรับ role-based access control
+- [ ] ปรับปรุง date handling ให้ consistent (UTC storage, local display)
+- [ ] ปรับปรุง database connection management
+- [ ] ลด code duplication ด้วย shared utilities
+- [ ] Implement state machine สำหรับ workflows (defect, task, inspection)
+
+### 5.5 Testing & Documentation
+- [ ] เขียน vitest tests สำหรับ critical fixes (defect creation, project creation, pagination)
+- [ ] อัพเดท security documentation
+- [ ] เพิ่ม code comments สำหรับ transaction-sensitive areas
+- [ ] สร้าง error handling best practices guide
+
+---
+
+## 📝 Checkpoint: Phase 5 Security Fixes
+- [ ] สร้าง checkpoint หลังแก้ไข critical security issues
+- [ ] ทดสอบระบบทั้งหมดอย่างละเอียด
+- [ ] รายงานผลการแก้ไขพร้อม security audit summary

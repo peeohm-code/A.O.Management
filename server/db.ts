@@ -67,7 +67,7 @@ export async function getDb() {
       });
       console.log("[Database] Connection pool created with limit: 10");
       // Create drizzle instance
-      _db = drizzle(_pool);
+      _db = drizzle(_pool) as any;
     } catch (error: unknown) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -295,39 +295,43 @@ export async function createProject(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Convert date strings to Date objects
-  const values: typeof projects.$inferInsert = {
-    name: data.name,
-    createdBy: data.createdBy,
-  };
-  
-  // Auto-generate code if not provided
-  if (data.code) {
-    values.code = data.code;
-  } else {
-    values.code = await generateProjectCode();
-  }
-  
-  if (data.location) values.location = data.location;
-  if (data.latitude) values.latitude = data.latitude;
-  if (data.longitude) values.longitude = data.longitude;
-  if (data.ownerName) values.ownerName = data.ownerName;
-  if (data.startDate) values.startDate = data.startDate;
-  if (data.endDate) values.endDate = data.endDate;
+  // Use transaction to ensure atomicity
+  return await db.transaction(async (tx) => {
+    // Auto-generate code if not provided
+    const projectCode = data.code || await generateProjectCode();
 
-  const [result] = await db.insert(projects).values(values);
-  
-  const projectId = bigIntToNumber(result.insertId);
-  
-  if (projectId && !isNaN(projectId)) {
-    await db.insert(projectMembers).values({
+    // Convert date strings to Date objects
+    const values: typeof projects.$inferInsert = {
+      name: data.name,
+      code: projectCode,
+      createdBy: data.createdBy,
+    };
+    
+    if (data.location) values.location = data.location;
+    if (data.latitude) values.latitude = data.latitude;
+    if (data.longitude) values.longitude = data.longitude;
+    if (data.ownerName) values.ownerName = data.ownerName;
+    if (data.startDate) values.startDate = data.startDate;
+    if (data.endDate) values.endDate = data.endDate;
+
+    // Insert project
+    const [result] = await tx.insert(projects).values(values);
+    
+    const projectId = bigIntToNumber(result.insertId);
+    
+    if (!projectId || isNaN(projectId)) {
+      throw new Error("Failed to create project: invalid project ID");
+    }
+
+    // Insert project member (creator as project manager)
+    await tx.insert(projectMembers).values({
       projectId,
       userId: data.createdBy,
       role: 'project_manager',
     });
-  }
-  
-  return { insertId: projectId, id: projectId };
+    
+    return { insertId: projectId, id: projectId };
+  });
 }
 
 export async function getProjectById(id: number) {
@@ -1073,8 +1077,8 @@ export async function createChecklistTemplate(data: {
     category: data.category,
     stage: data.stage,
     description: data.description,
-    allowGeneralComments: data.allowGeneralComments,
-    allowPhotos: data.allowPhotos,
+    allowGeneralComments: data.allowGeneralComments ? 1 : 0,
+    allowPhotos: data.allowPhotos ? 1 : 0,
     createdBy: data.createdBy,
   });
 
@@ -1238,36 +1242,43 @@ export async function createTaskChecklist(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Create the task checklist
-  const result = await db.insert(taskChecklists).values({
-    taskId: data.taskId,
-    templateId: data.templateId,
-    stage: data.stage,
-    status: "not_started",
+  // Use transaction to ensure atomicity
+  return await db.transaction(async (tx) => {
+    // Create the task checklist
+    const result = await tx.insert(taskChecklists).values({
+      taskId: data.taskId,
+      templateId: data.templateId,
+      stage: data.stage,
+      status: "not_started",
+    });
+
+    const checklistId = result[0].insertId;
+
+    if (!checklistId) {
+      throw new Error("Failed to create task checklist: invalid checklist ID");
+    }
+
+    // Get all template items
+    const templateItems = await tx
+      .select()
+      .from(checklistTemplateItems)
+      .where(eq(checklistTemplateItems.templateId, data.templateId))
+      .orderBy(checklistTemplateItems.order);
+
+    // Create checklist item results for each template item
+    if (templateItems.length > 0) {
+      const itemResults = templateItems.map((item) => ({
+        taskChecklistId: checklistId,
+        templateItemId: item.id,
+        result: "na" as const, // Default to N/A, inspector will update
+        photoUrls: null,
+      }));
+
+      await tx.insert(checklistItemResults).values(itemResults);
+    }
+
+    return { insertId: checklistId };
   });
-
-  const checklistId = result[0].insertId;
-
-  // Get all template items
-  const templateItems = await db
-    .select()
-    .from(checklistTemplateItems)
-    .where(eq(checklistTemplateItems.templateId, data.templateId))
-    .orderBy(checklistTemplateItems.order);
-
-  // Create checklist item results for each template item
-  if (templateItems.length > 0) {
-    const itemResults = templateItems.map((item) => ({
-      taskChecklistId: checklistId,
-      templateItemId: item.id,
-      result: "na" as const, // Default to N/A, inspector will update
-      photoUrls: null,
-    }));
-
-    await db.insert(checklistItemResults).values(itemResults);
-  }
-
-  return { insertId: checklistId };
 }
 
 export async function getTaskChecklistsByTask(taskId: number) {
@@ -1524,6 +1535,7 @@ export async function getChecklistItemResultById(id: number) {
  * Defect Management
  */
 export async function createDefect(data: {
+  projectId: number;
   taskId: number;
   checklistItemResultId?: number;
   title: string;
@@ -1545,6 +1557,7 @@ export async function createDefect(data: {
   if (!db) throw new Error("Database not available");
 
   return await db.insert(defects).values({
+    projectId: data.projectId,
     taskId: data.taskId,
     checklistItemResultId: data.checklistItemResultId,
     title: data.title,
@@ -2060,6 +2073,7 @@ export async function deleteTask(id: number) {
 export async function submitInspection(data: {
   taskChecklistId: number;
   taskId: number;
+  projectId?: number;
   inspectedBy: number;
   itemResults: Array<{
     templateItemId: number;
@@ -2075,6 +2089,13 @@ export async function submitInspection(data: {
   if (!db) throw new Error("Database not available");
 
   try {
+    // Get projectId from task if not provided
+    let projectId = data.projectId;
+    if (!projectId) {
+      const task = await db.select({ projectId: tasks.projectId }).from(tasks).where(eq(tasks.id, data.taskId)).limit(1);
+      projectId = task[0]?.projectId || 0;
+    }
+    
     // 1. Save all checklist item results with photos
     const itemResultPromises = data.itemResults.map((item: any) =>
       db.insert(checklistItemResults).values({
@@ -2110,6 +2131,7 @@ export async function submitInspection(data: {
         const resultId = insertedResults[data.itemResults.indexOf(item)][0]?.insertId;
         
         return db.insert(defects).values({
+          projectId: projectId!,
           taskId: data.taskId,
           checklistId: data.taskChecklistId, // Fix: Add checklistId for traceability
           checklistItemResultId: resultId,
@@ -2380,7 +2402,6 @@ export async function createChecklistResult(data: {
     result: data.result,
     comments: data.comment,
     photoUrls: data.photoUrls,
-    inspectedBy: data.inspectedBy,
   });
 }
 
@@ -3555,7 +3576,7 @@ export async function createOomEvent(data: {
       .values({
         ...data,
         timestamp: new Date(),
-        resolved: false,
+        resolved: 0,
         createdAt: new Date(),
       });
 
@@ -3583,7 +3604,7 @@ export async function getOomEvents(params: {
     let query = db.select().from(oomEvents);
 
     if (params.resolved !== undefined) {
-      query = query.where(eq(oomEvents.resolved, params.resolved)) as any;
+      query = query.where(eq(oomEvents.resolved, params.resolved ? 1 : 0)) as any;
     }
     if (params.severity) {
       query = query.where(eq(oomEvents.severity, params.severity as any)) as any;
@@ -7109,7 +7130,7 @@ export async function createEscalationRule(data: any) {
     createdBy: data.createdBy,
   });
   
-  return { id: Number(result.insertId), ...data };
+  return { id: Number((result as any).insertId), ...data };
 }
 
 export async function updateEscalationRule(id: number, data: any) {
@@ -7213,7 +7234,7 @@ export async function checkAndTriggerEscalations() {
 
   try {
     // ดึงกฎ escalation ที่เปิดใช้งานทั้งหมด
-    const rules = await db.select().from(escalationRules).where(eq(escalationRules.isActive, true));
+    const rules = await db.select().from(escalationRules).where(eq(escalationRules.isActive, 1));
     
     if (rules.length === 0) {
       logger.info('[Escalation] No active escalation rules found');
@@ -7225,8 +7246,9 @@ export async function checkAndTriggerEscalations() {
 
     for (const rule of rules) {
       const thresholdHours = rule.thresholdValue || 24;
-      const thresholdDate = new Date(now.getTime() - thresholdHours * 60 * 60 * 1000);
-
+        const thresholdMinutes = rule.thresholdUnit === 'hours' ? thresholdHours * 60 : thresholdHours * 24 * 60;
+        const thresholdDate = new Date(Date.now() - thresholdMinutes * 60 * 1000);
+        const thresholdDateStr = thresholdDate.toISOString().split('T')[0];
       // ตรวจสอบตาม event type
       if (rule.eventType === 'failed_inspection') {
         // ค้นหา inspections ที่ fail และยังไม่ได้แก้ไข
@@ -7238,7 +7260,7 @@ export async function checkAndTriggerEscalations() {
           .from(taskChecklists)
           .where(
             and(
-              eq(taskChecklists.status, 'fail'),
+              eq(taskChecklists.status, 'failed'),
               lt(taskChecklists.inspectedAt, thresholdDate)
             )
           );
@@ -7340,7 +7362,7 @@ export async function checkAndTriggerEscalations() {
           .where(
             and(
               ne(tasks.status, 'completed'),
-              lt(tasks.endDate, thresholdDate)
+              lt(tasks.endDate, thresholdDateStr)
             )
           );
 

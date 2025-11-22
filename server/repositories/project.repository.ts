@@ -508,7 +508,11 @@ export class ProjectRepository extends BaseRepository {
     this.ensureDatabaseAvailable();
     if (!this.db) throw new Error("Database not available");
 
-    await this.db.insert(projectMembers).values(data);
+    await this.db.insert(projectMembers).values({
+      projectId: data.projectId,
+      userId: data.userId,
+      role: data.role as 'project_manager' | 'qc_inspector' | 'worker',
+    });
     return { success: true };
   }
 
@@ -556,7 +560,7 @@ export class ProjectRepository extends BaseRepository {
 
     await this.db
       .update(projectMembers)
-      .set({ role })
+      .set({ role: role as 'project_manager' | 'qc_inspector' | 'worker' })
       .where(
         and(
           eq(projectMembers.projectId, projectId),

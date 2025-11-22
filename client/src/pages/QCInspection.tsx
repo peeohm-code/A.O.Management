@@ -240,6 +240,7 @@ export default function QCInspection() {
     try {
       // Create defect with photo URLs
       await createDefectMutation.mutateAsync({
+        projectId: checklist.projectId || 0,
         taskId: checklist.taskId,
         checklistId: checklist.id,
         type: defectForm.type,
@@ -249,7 +250,6 @@ export default function QCInspection() {
         ncrLevel: defectForm.ncrLevel,
         assignedTo: defectForm.assignedTo,
         photoUrls: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
-        beforePhotos: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
       });
       
       toast.success("สร้าง " + defectForm.type + " สำเร็จ");

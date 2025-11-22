@@ -332,7 +332,11 @@ export class TaskRepository extends BaseRepository {
     this.ensureDatabaseAvailable();
     if (!this.db) throw new Error("Database not available");
 
-    const [result] = await this.db.insert(taskComments).values(data);
+    const [result] = await this.db.insert(taskComments).values({
+      taskId: data.taskId,
+      userId: data.userId,
+      content: data.comment,
+    });
     return { insertId: bigIntToNumber(result.insertId) };
   }
 
@@ -356,13 +360,21 @@ export class TaskRepository extends BaseRepository {
     taskId: number;
     fileName: string;
     fileUrl: string;
+    fileKey: string;
     fileType?: string;
     uploadedBy: number;
   }) {
     this.ensureDatabaseAvailable();
     if (!this.db) throw new Error("Database not available");
 
-    const [result] = await this.db.insert(taskAttachments).values(data);
+    const [result] = await this.db.insert(taskAttachments).values({
+      taskId: data.taskId,
+      fileName: data.fileName,
+      fileUrl: data.fileUrl,
+      fileKey: data.fileKey,
+      mimeType: data.fileType,
+      uploadedBy: data.uploadedBy,
+    });
     return { insertId: bigIntToNumber(result.insertId) };
   }
 
