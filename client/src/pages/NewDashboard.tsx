@@ -37,11 +37,12 @@ type Activity = {
   id: number;
   userId: number;
   userName: string | null;
+  userRole: "owner" | "admin" | "project_manager" | "qc_inspector" | "worker" | null;
   action: string;
-  module: string;
+  details: string | null;
+  module: string | null;
   entityType: string | null;
   entityId: number | null;
-  details: any;
   createdAt: Date;
 };
 
@@ -58,15 +59,29 @@ export default function NewDashboard() {
   const { user } = useAuth();
 
   // Fetch dashboard data
-  const { data: stats, isLoading: statsLoading } = trpc.dashboard.stats.useQuery();
+  const { data: stats, isLoading: statsLoading } = trpc.dashboard.getStats.useQuery();
   const { data: recentActivities = [], isLoading: activitiesLoading } =
-    trpc.dashboard.recentActivities.useQuery({ limit: 8 });
-  const { data: taskDistribution = [] } =
-    trpc.dashboard.taskStatusDistribution.useQuery();
-  const { data: defectDistribution = [] } =
-    trpc.dashboard.defectSeverityDistribution.useQuery();
-  const { data: projectProgress = [] } =
-    trpc.dashboard.projectProgress.useQuery();
+    trpc.dashboard.getRecentActivities.useQuery({ limit: 8 });
+  // Task and defect distributions are available in stats
+  const taskDistribution = useMemo(() => {
+    if (!stats?.taskStats) return [];
+    return [
+      { status: 'not_started', count: stats.taskStats.not_started },
+      { status: 'in_progress', count: stats.taskStats.in_progress },
+      { status: 'delayed', count: stats.taskStats.delayed },
+      { status: 'completed', count: stats.taskStats.completed },
+    ];
+  }, [stats]);
+
+  const defectDistribution = useMemo(() => {
+    if (!stats?.defectStats) return [];
+    return [
+      { severity: 'open', count: stats.defectStats.open || 0 },
+      { severity: 'closed', count: stats.defectStats.closed || 0 },
+      { severity: 'pending', count: stats.defectStats.pendingVerification || 0 },
+      { severity: 'overdue', count: stats.defectStats.overdue || 0 },
+    ];
+  }, [stats]);
 
   // Format activity action to Thai
   const formatActivityAction = (action: string) => {
@@ -147,7 +162,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-[#00366D] mb-1">
-                {stats?.totalActiveProjects || 0}
+                {stats?.projectStats?.total || 0}
               </div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <TrendingUp className="h-3 w-3" />
@@ -168,11 +183,11 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-blue-600 mb-1">
-                {stats?.totalTasks || 0}
+                {stats?.taskStats?.total || 0}
               </div>
               <p className="text-xs text-muted-foreground">
-                {stats?.inProgressTasks || 0} กำลังดำเนินการ ·{" "}
-                {stats?.completedTasks || 0} เสร็จสิ้น
+                {stats?.taskStats?.in_progress || 0} กำลังดำเนินการ ·{" "}
+                {stats?.taskStats?.completed || 0} เสร็จสิ้น
               </p>
             </CardContent>
           </Card>
@@ -189,12 +204,12 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-[#00CE81] mb-1">
-                {stats?.completionRate?.toFixed(1) || 0}%
+                {stats?.averageProgress || 0}%
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
                 <div
                   className="bg-gradient-to-r from-[#00CE81] to-[#00b371] h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${stats?.completionRate || 0}%` }}
+                  style={{ width: `${stats?.averageProgress || 0}%` }}
                 />
               </div>
             </CardContent>
@@ -212,7 +227,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-amber-600 mb-1">
-                {stats?.overdueTasks || 0}
+                {stats?.taskStats?.delayed || 0}
               </div>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -236,7 +251,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-purple-600">
-                {stats?.pendingInspections || 0}
+                {stats?.checklistStats?.pending_inspection || 0}
               </div>
             </CardContent>
           </Card>
@@ -253,7 +268,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-red-600">
-                {stats?.openDefects || 0}
+                {stats?.defectStats?.total || 0}
               </div>
             </CardContent>
           </Card>
@@ -270,7 +285,7 @@ export default function NewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-rose-600">
-                {stats?.criticalDefects || 0}
+                {stats?.defectStats?.overdue || 0}
               </div>
             </CardContent>
           </Card>
@@ -324,7 +339,7 @@ export default function NewDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                  {recentActivities.map((activity: Activity) => (
+                  {recentActivities.map((activity) => (
                     <div
                       key={activity.id}
                       className="flex items-start gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
@@ -378,47 +393,16 @@ export default function NewDashboard() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              {projectProgress.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Briefcase className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm font-medium mb-1">ยังไม่มีโครงการที่กำลังดำเนินการ</p>
-                  <p className="text-xs mb-4">สร้างโครงการใหม่เพื่อเริ่มต้นบริหารงานก่อสร้าง</p>
-                  <Link href="/projects/new">
-                    <Button size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      สร้างโครงการแรก
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {projectProgress.map((project: ProjectProgress) => (
-                    <div key={project.id} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Link href={`/projects/${project.id}`}>
-                          <p className="text-sm font-medium hover:text-[#00366D] transition-colors cursor-pointer">
-                            {project.name}
-                          </p>
-                        </Link>
-                        <Badge
-                          variant="outline"
-                          className="text-xs font-semibold"
-                        >
-                          {project.completionPercentage || 0}%
-                        </Badge>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2.5">
-                        <div
-                          className="bg-gradient-to-r from-[#00366D] to-[#00CE81] h-2.5 rounded-full transition-all duration-500"
-                          style={{
-                            width: `${project.completionPercentage || 0}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-center py-8 text-muted-foreground">
+                <Briefcase className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm font-medium mb-1">ดูความคืบหน้าโครงการได้ที่หน้า Dashboard</p>
+                <Link href="/projects">
+                  <Button size="sm" className="mt-2">
+                    <ArrowRight className="h-4 w-4 mr-1" />
+                    ไปยังหน้าโครงการ
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

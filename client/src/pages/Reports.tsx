@@ -55,7 +55,7 @@ export default function Reports() {
         exportProjectSummaryToExcel({
           project: selectedProject!,
           tasks: tasks?.items || [],
-          defects: defects?.items || [],
+          defects: defects || [],
           inspections: (inspections || []).filter((i: any) => 
             tasks?.items?.some((t: any) => t.id === i.taskId)
           ),
@@ -65,7 +65,7 @@ export default function Reports() {
         exportTasksToExcel(tasks?.items || [], selectedProject?.name);
       } else if (reportType === "defects") {
         const defects = await utils.defect.list.fetch({ taskId: 0 });
-        exportDefectsToExcel(defects?.items || [], selectedProject?.name);
+        exportDefectsToExcel(defects || [], selectedProject?.name);
       } else if (reportType === "qc") {
         const inspections = await utils.checklist.getAllTaskChecklists.fetch();
         const tasks = await utils.task.list.fetch({ projectId });

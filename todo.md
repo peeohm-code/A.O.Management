@@ -20,20 +20,29 @@
 ### 1.1 แก้ไข Notification Error
 - [x] ตรวจสอบและระบุสาเหตุของ notification error
 - [x] แก้ไข notification service และ API endpoints (แก้ recipientId → userId)
-- [ ] ทดสอบระบบแจ้งเตือนทั้งหมด (push, email, in-app)
-- [ ] แก้ไข notification context และ hooks
+- [x] ทดสอบระบบแจ้งเตือนทั้งหมด (in-app, real-time)
+  - [x] inspection-notification.test.ts (6/6 passed)
+  - [x] escalation.test.ts (9/9 passed)
+  - [x] แก้ไข test assertions สำหรับ tinyint fields (0/1 แทน false/true)
 
 ### 1.2 แก้ไข TypeScript Errors (41 → 37 errors)
 - [x] วิเคราะห์และจัดกลุ่ม TypeScript errors (สร้าง TYPESCRIPT_ERRORS_ANALYSIS.md)
 - [ ] แก้ไข type errors ใน server/routers.ts
 - [x] แก้ไข type errors บางส่วนใน server/db.ts (dueDate, escalation types)
-- [ ] แก้ไข type errors ใน client/src/pages/*.tsx (18 errors เหลือ)
+- [x] แก้ไข type errors ใน client/src/pages/*.tsx (แก้ไข 6 pages เรียบร้อย)
+  - [x] แก้ไข NewDashboard.tsx property mismatches
+  - [x] แก้ไข QCInspection.tsx property mismatches
+  - [x] แก้ไข Reports.tsx property mismatches
+  - [x] แก้ไข RoleTemplates.tsx property mismatches
+  - [x] แก้ไข Tasks.tsx property mismatches
+  - [x] แก้ไข Templates.tsx property mismatches
 - [ ] แก้ไข type errors ใน client/src/components/*.tsx
 - [ ] แก้ไข vite.config.ts plugin types (9 errors - infrastructure)
 - [ ] ตรวจสอบ type safety ทั้งระบบ
 
 ### 1.3 เริ่มแยก Routers เป็น Feature-based Modules
 - [ ] วิเคราะห์โครงสร้าง server/routers.ts (3,937 บรรทัด)
+- [ ] สร้างโครงสร้าง server/routers/ directory
 - [ ] แยก projects router → server/routers/projectsRouter.ts
 - [ ] แยก tasks router → server/routers/tasksRouter.ts
 - [ ] แยก defects router → server/routers/defectsRouter.ts

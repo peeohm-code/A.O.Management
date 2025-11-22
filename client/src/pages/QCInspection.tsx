@@ -83,7 +83,7 @@ export default function QCInspection() {
   const { data: users } = trpc.user.list.useQuery();
   const { data: projects } = trpc.project.list.useQuery();
   const { data: templates } = trpc.checklist.templates.useQuery();
-  const { data: allTasks } = trpc.task.list.useQuery();
+  const { data: allTasks } = trpc.task.list.useQuery({});
   
   const handleRefresh = async () => {
     await Promise.all([
@@ -182,7 +182,7 @@ export default function QCInspection() {
 
   const createDefectMutation = trpc.defect.create.useMutation();
 
-  const createInspectionMutation = trpc.checklist.assignChecklistToTask.useMutation({
+  const createInspectionMutation = trpc.checklist.assignToTask.useMutation({
     onSuccess: () => {
       toast.success("สร้าง Inspection สำเร็จ");
       setIsCreatingInspection(false);
@@ -1032,7 +1032,7 @@ export default function QCInspection() {
                   <SelectValue placeholder="เลือกงาน" />
                 </SelectTrigger>
                 <SelectContent>
-                  {allTasks
+                  {allTasks?.items
                     ?.filter((task: any) => task.projectId === newInspectionForm.projectId)
                     .map((task: any) => (
                       <SelectItem key={task.id} value={task.id.toString()}>

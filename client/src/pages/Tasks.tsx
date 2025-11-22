@@ -29,7 +29,7 @@ import { TaskCardSkeleton } from "@/components/skeletons";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "@/components/LazyChart";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar, FilterOptions } from "@/components/FilterBar";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Pagination,
   PaginationContent,
@@ -45,11 +45,11 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { Plus, Edit, Trash2, CheckCircle, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { parseDate } from "@/lib/dateUtils";
-import { useLocation } from "wouter";
 import { exportTasksToExcel } from "@/lib/excelExport";
 import { ExportButton } from "@/components/ExportButton";
 
 export default function Tasks() {
+  const [, setLocation] = useLocation();
   const { canCreate, canEdit } = usePermissions('tasks');
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({});

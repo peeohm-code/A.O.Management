@@ -76,7 +76,7 @@ export default function RoleTemplates() {
 
   const confirmDelete = () => {
     if (templateToDelete) {
-      deleteTemplateMutation.mutate({ templateId: templateToDelete });
+      deleteTemplateMutation.mutate({ id: templateToDelete });
     }
   };
 

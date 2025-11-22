@@ -82,7 +82,7 @@ describe("Inspection Notification System", () => {
     expect(checklist).toBeDefined();
     expect(checklist).toHaveProperty("notificationSent");
     expect(checklist).toHaveProperty("notifiedAt");
-    expect(checklist!.notificationSent).toBe(false);
+    expect(checklist!.notificationSent).toBe(0);
     expect(checklist!.notifiedAt).toBeNull();
   });
 
@@ -97,7 +97,7 @@ describe("Inspection Notification System", () => {
     const updatedChecklist = await db.getTaskChecklistById(testChecklistId);
     
     expect(updatedChecklist!.status).toBe("failed");
-    expect(updatedChecklist!.notificationSent).toBe(true);
+    expect(updatedChecklist!.notificationSent).toBe(1);
     expect(updatedChecklist!.notifiedAt).toBeDefined();
     expect(updatedChecklist!.notifiedAt).toBeInstanceOf(Date);
   });
@@ -174,7 +174,7 @@ describe("Inspection Notification System", () => {
     // Get checklist that already has notification sent
     const checklist = await db.getTaskChecklistById(testChecklistId);
     
-    expect(checklist!.notificationSent).toBe(true);
+    expect(checklist!.notificationSent).toBe(1);
     expect(checklist!.notifiedAt).toBeDefined();
 
     // In real implementation, we should check notificationSent flag before sending
