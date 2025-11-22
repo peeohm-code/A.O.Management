@@ -236,12 +236,21 @@
 
 ### 2.2 แยก Router Modules (server/routers.ts - 3,937 บรรทัด)
 - [x] วิเคราะห์โครงสร้าง routers (13 routers)
-- [ ] แยก routers ในครั้งถัดไป (ใช้ automated tool เพื่อความปลอดภัย)
-  - [ ] แยก projectRouter → server/routers/projectRouter.ts
-  - [ ] แยก taskRouter → server/routers/taskRouter.ts
-  - [ ] แยก defectRouter → server/routers/defectRouter.ts
-  - [ ] แยก inspectionRouter → server/routers/inspectionRouter.ts
-  - [ ] แยก checklistRouter → server/routers/checklistRouter.ts
-  - [ ] แยก dashboardRouter → server/routers/dashboardRouter.ts
-  - [ ] อัปเดท server/routers.ts ให้เป็น main router ที่รวม sub-routers
-  - [ ] ทดสอบ API endpoints ทั้งหมดหลังแยก routers
+- [x] สร้าง automated script สำหรับแยก routers อย่างปลอดภัย (Python script)
+- [x] แยก routers ด้วย automated tool
+  - [x] แยก projectRouter → server/routers/projectRouter.ts (465 lines)
+  - [x] แยก taskRouter → server/routers/taskRouter.ts (561 lines)
+  - [x] แยก defectRouter → server/routers/defectRouter.ts (734 lines)
+  - [x] แยก inspectionRouter → server/routers/inspectionRouter.ts (126 lines)
+  - [x] แยก checklistRouter → server/routers/checklistRouter.ts (683 lines)
+  - [x] แยก dashboardRouter → server/routers/dashboardRouter.ts (223 lines)
+  - [x] แยก commentRouter → server/routers/commentRouter.ts (59 lines)
+  - [x] แยก attachmentRouter → server/routers/attachmentRouter.ts (117 lines)
+  - [x] แยก notificationRouter → server/routers/notificationRouter.ts (114 lines)
+  - [x] แยก activityRouter → server/routers/activityRouter.ts (28 lines)
+  - [x] แยก categoryColorRouter → server/routers/categoryColorRouter.ts (51 lines)
+  - [x] แยก inspectionStatsRouter → server/routers/inspectionStatsRouter.ts (67 lines)
+  - [x] แยก errorTrackingRouter → server/routers/errorTrackingRouter.ts (93 lines)
+  - [x] อัปเดท server/routers.ts ให้เป็น main router ที่รวม sub-routers (ลดจาก 3,937 → 741 lines, -81.2%)
+  - [x] แก้ไข import paths ใน router files
+  - [x] ทดสอบ API endpoints ทั้งหมดหลังแยก routers (dev server ทำงานปกติ)
