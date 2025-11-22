@@ -54,6 +54,7 @@ const UserActivityLog = lazy(() => import("./pages/UserActivityLog"));
 const RoleTemplates = lazy(() => import("./pages/RoleTemplates"));
 const InspectionStatistics = lazy(() => import("./pages/InspectionStatistics"));
 const ErrorTracking = lazy(() => import("./pages/ErrorTracking"));
+const PerformanceMetrics = lazy(() => import("./pages/PerformanceMetrics"));
 
 const NewTemplate = lazy(() => import("./pages/NewTemplate"));
 
@@ -291,6 +292,13 @@ function Router() {
         {() => (
           <DashboardLayout>
             <EscalationLogs />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/performance-metrics">
+        {() => (
+          <DashboardLayout>
+            <PerformanceMetrics />
           </DashboardLayout>
         )}
       </Route>

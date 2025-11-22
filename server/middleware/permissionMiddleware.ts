@@ -12,6 +12,8 @@ import {
   canDeleteDefect,
   canPerformInspection,
   canManageProjectMembers,
+  canEditInspection,
+  canApproveInspection,
   isAdmin,
 } from "./permissions";
 import type { User } from "../../drizzle/schema";
@@ -363,6 +365,74 @@ export const requirePerformInspectionMiddleware = middleware(async ({ ctx, input
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "คุณไม่มีสิทธิ์ทำ QC Inspection ในโปรเจกต์นี้",
+    });
+  }
+
+  return next({ ctx });
+});
+
+/**
+ * Middleware: ตรวจสอบสิทธิ์ในการแก้ไข Inspection/Checklist
+ * 
+ * @example
+ * protectedProcedure
+ *   .input(z.object({ id: z.number() })) // checklist id
+ *   .use(requireEditInspectionMiddleware)
+ *   .mutation(async ({ input, ctx }) => {
+ *     // ctx.user มีสิทธิ์แก้ไข inspection นี้แล้ว
+ *   });
+ */
+export const requireEditInspectionMiddleware = middleware(async ({ ctx, input, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "กรุณาเข้าสู่ระบบก่อน",
+    });
+  }
+
+  const checklistId = (input as any)?.id || (input as any)?.checklistId;
+  if (!checklistId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "ไม่พบ checklist id ใน input",
+    });
+  }
+
+  const hasPermission = await canEditInspection(ctx.user, checklistId);
+  if (!hasPermission) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "คุณไม่มีสิทธิ์แก้ไข inspection นี้",
+    });
+  }
+
+  return next({ ctx });
+});
+
+/**
+ * Middleware: ตรวจสอบสิทธิ์ในการอนุมัติ Inspection
+ */
+export const requireApproveInspectionMiddleware = middleware(async ({ ctx, input, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "กรุณาเข้าสู่ระบบก่อน",
+    });
+  }
+
+  const checklistId = (input as any)?.id || (input as any)?.checklistId;
+  if (!checklistId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "ไม่พบ checklist id ใน input",
+    });
+  }
+
+  const hasPermission = await canApproveInspection(ctx.user, checklistId);
+  if (!hasPermission) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "คุณไม่มีสิทธิ์อนุมัติ inspection นี้",
     });
   }
 

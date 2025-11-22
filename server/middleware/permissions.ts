@@ -291,6 +291,93 @@ export async function canPerformInspection(user: User, projectId: number): Promi
 }
 
 /**
+ * ตรวจสอบสิทธิ์ในการแก้ไข Inspection/Checklist
+ * - Admin: แก้ไขได้ทุก Inspection
+ * - QC Inspector: แก้ไขได้ในโปรเจกต์ที่เป็น QC
+ * - Project Manager: แก้ไขได้ในโปรเจกต์ที่เป็น PM
+ * - Checklist Creator: แก้ไขได้เฉพาะ checklist ที่สร้างเอง
+ */
+export async function canEditInspection(user: User, checklistId: number): Promise<boolean> {
+  if (isAdmin(user)) return true;
+  
+  const db = await getDb();
+  if (!db) return false;
+
+  // Import taskChecklists schema
+  const { taskChecklists } = await import('../../drizzle/schema');
+  
+  // Get checklist details
+  const checklist = await db
+    .select({
+      taskId: taskChecklists.taskId,
+      createdBy: taskChecklists.createdBy,
+    })
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, checklistId))
+    .limit(1);
+
+  if (checklist.length === 0) return false;
+
+  // Check if user is checklist creator
+  if (checklist[0].createdBy === user.id) return true;
+
+  // Get task to find project
+  const task = await db
+    .select({ projectId: tasks.projectId })
+    .from(tasks)
+    .where(eq(tasks.id, checklist[0].taskId))
+    .limit(1);
+
+  if (task.length === 0) return false;
+
+  // Check if user is QC inspector or project manager
+  const isQC = await isQCInspector(user.id, task[0].projectId);
+  const isPM = await isProjectManager(user.id, task[0].projectId);
+
+  return isQC || isPM;
+}
+
+/**
+ * ตรวจสอบสิทธิ์ในการอนุมัติ Inspection
+ * - Admin: อนุมัติได้ทุก Inspection
+ * - QC Inspector: อนุมัติได้ในโปรเจกต์ที่เป็น QC
+ * - Project Manager: อนุมัติได้ในโปรเจกต์ที่เป็น PM
+ */
+export async function canApproveInspection(user: User, checklistId: number): Promise<boolean> {
+  if (isAdmin(user)) return true;
+  
+  const db = await getDb();
+  if (!db) return false;
+
+  // Import taskChecklists schema
+  const { taskChecklists } = await import('../../drizzle/schema');
+  
+  // Get checklist details
+  const checklist = await db
+    .select({ taskId: taskChecklists.taskId })
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, checklistId))
+    .limit(1);
+
+  if (checklist.length === 0) return false;
+
+  // Get task to find project
+  const task = await db
+    .select({ projectId: tasks.projectId })
+    .from(tasks)
+    .where(eq(tasks.id, checklist[0].taskId))
+    .limit(1);
+
+  if (task.length === 0) return false;
+
+  // Check if user is QC inspector or project manager
+  const isQC = await isQCInspector(user.id, task[0].projectId);
+  const isPM = await isProjectManager(user.id, task[0].projectId);
+
+  return isQC || isPM;
+}
+
+/**
  * ตรวจสอบสิทธิ์ในการจัดการสมาชิกโปรเจกต์
  * - Admin: จัดการได้ทุกโปรเจกต์
  * - Project Manager: จัดการได้ในโปรเจกต์ที่เป็น PM

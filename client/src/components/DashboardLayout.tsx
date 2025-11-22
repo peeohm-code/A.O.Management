@@ -46,6 +46,7 @@ import {
   Bell,
   History,
   ChevronRight,
+  Activity,
 } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
@@ -150,6 +151,12 @@ const menuItems: MenuItem[] = [
     icon: History,
     label: "Escalation Logs",
     path: "/escalation-logs",
+    adminOnly: true,
+  },
+  {
+    icon: Activity,
+    label: "Performance Metrics",
+    path: "/performance-metrics",
     adminOnly: true,
   },
 ];
