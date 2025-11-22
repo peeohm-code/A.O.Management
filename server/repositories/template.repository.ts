@@ -34,8 +34,8 @@ export class TemplateRepository extends BaseRepository {
       category: data.category,
       stage: data.stage,
       description: data.description,
-      allowGeneralComments: data.allowGeneralComments ? 1 : 0,
-      allowPhotos: data.allowPhotos ? 1 : 0,
+      allowGeneralComments: data.allowGeneralComments,
+      allowPhotos: data.allowPhotos,
       createdBy: data.createdBy,
     });
 

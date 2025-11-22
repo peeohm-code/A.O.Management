@@ -108,7 +108,7 @@ const plugins = [
 ];
 
 export default defineConfig({
-  plugins: plugins as any,
+  plugins,
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

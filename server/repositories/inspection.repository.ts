@@ -471,7 +471,7 @@ export class InspectionRepository extends BaseRepository {
     return {
       ...inspection[0],
       items,
-      signature: sig,
+      signatures: sigs,
     };
   }
 

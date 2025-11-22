@@ -215,7 +215,7 @@ export class NotificationRepository extends BaseRepository {
 
     const result = await this.db.insert(scheduledNotifications).values({
       userId: data.userId,
-      type: data.type as 'task_deadline_reminder' | 'defect_overdue_reminder' | 'inspection_reminder' | 'daily_summary',
+      type: data.type,
       title: data.title,
       content: data.content,
       scheduledFor: data.scheduledFor,

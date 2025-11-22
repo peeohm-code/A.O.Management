@@ -33,7 +33,7 @@ export const projectRouter = router({
     }).optional())
     .query(async ({ ctx, input }) => {
       const page = input?.page || 1;
-      const pageSize = input?.limit || 25;
+      const pageSize = input?.pageSize || 25;
       const offset = (page - 1) * pageSize;
 
       let projects = await db.getAllProjects();

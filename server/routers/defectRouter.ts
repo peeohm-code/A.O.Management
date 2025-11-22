@@ -171,7 +171,7 @@ export const defectRouter = router({
           });
         }
 
-        // Create defect with transaction support
+        // Create defect
         const result = await db.createDefect({
           ...input,
           reportedBy: ctx.user!.id,
@@ -201,7 +201,7 @@ export const defectRouter = router({
                     : "normal",
               relatedDefectId: defectId,
               relatedTaskId: input.taskId,
-              sendEmail: true, // Always send email for defect assignments
+              sendEmail: true,
             });
           } catch (notificationError) {
             // Log notification error but don't fail the defect creation
@@ -747,7 +747,7 @@ export const defectRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       // Check delete permission
-      if (ctx.user!.role !== 'admin') {
+      if (!canDeleteDefect(ctx.user!.role)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้",

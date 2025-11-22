@@ -39,7 +39,7 @@ export async function getDb(): Promise<DbInstance | null> {
       logger.info(`[Database] Connection pool created with limit: ${DB_CONFIG.CONNECTION_LIMIT}`);
 
       // Create Drizzle instance
-      _db = drizzle(_pool) as any;
+      _db = drizzle(_pool);
 
       // Test connection
       await testConnection();

@@ -305,13 +305,10 @@ export class MiscRepository extends BaseRepository {
     const result = await this.db.insert(escalationRules).values({
       name: data.name,
       description: data.description,
-      eventType: data.eventType || data.triggerType,
+      triggerType: data.triggerType,
       thresholdValue: data.thresholdValue,
-      thresholdUnit: data.thresholdUnit || 'hours',
-      notifyRoles: data.notifyRoles || '[]',
-      notifyUsers: data.notifyUsers || data.notifyUserIds,
-      isActive: data.isActive !== undefined ? (data.isActive ? 1 : 0) : (data.enabled !== undefined ? (data.enabled ? 1 : 0) : 1),
-      createdBy: data.createdBy || 0,
+      notifyUserIds: data.notifyUserIds,
+      enabled: data.enabled !== undefined ? (data.enabled ? 1 : 0) : 1,
     });
 
     return { insertId: bigIntToNumber((result as any).insertId) };
