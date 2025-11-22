@@ -204,6 +204,30 @@ export const projectRouter = router({
       return { success: true };
     }),
 
+  delete: roleBasedProcedure("projects", "delete")
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.id);
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Delete project (cascade will handle related records)
+      await db.deleteProject(input.id);
+
+      await db.logActivity({
+        userId: ctx.user!.id,
+        projectId: input.id,
+        action: "project_deleted",
+        details: JSON.stringify({ name: project.name }),
+      });
+
+      return { success: true };
+    }),
+
   listArchived: protectedProcedure.query(async ({ ctx }) => {
     const archivedProjects = await db.getArchivedProjects(ctx.user!.id);
     const projectIds = archivedProjects.map((p: any) => p.id);
@@ -350,21 +374,6 @@ export const projectRouter = router({
       });
 
       return { data: base64, filename };
-    }),
-
-  delete: roleBasedProcedure("projects", "delete")
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      await db.deleteProject(input.id);
-
-      await db.logActivity({
-        userId: ctx.user!.id,
-        projectId: input.id,
-        action: "project_deleted",
-        details: JSON.stringify({ projectId: input.id }),
-      });
-
-      return { success: true };
     }),
 
   bulkDelete: protectedProcedure

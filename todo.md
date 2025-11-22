@@ -344,3 +344,9 @@
 ## งานเพิ่มเติม: UI/UX Improvements (ต่อ) - Phase 2
 
 - [x] ลบ badge สีแดงที่แสดงจำนวน checklist ที่รอดำเนินการ และ auto-refresh logic ออกจาก DashboardLayout
+
+## งานเพิ่มเติม: Delete Project Feature
+
+- [x] เพิ่ม tRPC procedure สำหรับลบโครงการ (project.delete)
+- [x] เพิ่มปุ่มลบโครงการในหน้า ProjectDetail พร้อม confirmation dialog
+- [x] ทดสอบการลบโครงการและ redirect กลับไปหน้า Projects
