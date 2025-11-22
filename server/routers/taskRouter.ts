@@ -8,6 +8,14 @@ import { emitNotification } from "../_core/socket";
 import { createNotification } from "../notificationService";
 import { logger } from "../logger";
 import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
+import {
+  createTaskSchema,
+  updateTaskSchema,
+  getTaskSchema,
+  deleteTaskSchema,
+  getTasksByProjectSchema,
+  paginationSchema
+} from "@shared/validation";
 
 /**
  * Task Router
@@ -15,10 +23,8 @@ import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shar
  */
 export const taskRouter = router({
   list: protectedProcedure
-    .input(z.object({ 
-      projectId: z.number().optional(),
-      page: z.number().int().min(1).default(1),
-      pageSize: z.number().int().min(1).max(100).default(25),
+    .input(paginationSchema.extend({
+      projectId: z.number().int().positive().optional(),
     }))
     .query(async ({ input, ctx }) => {
       const { projectId, page = 1, pageSize = 25 } = input;
@@ -63,7 +69,7 @@ export const taskRouter = router({
     }),
 
   get: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getTaskSchema)
     .query(async ({ input }) => {
       const task = await db.getTaskById(input.id);
       if (!task) return null;
@@ -103,7 +109,7 @@ export const taskRouter = router({
   }),
 
   create: roleBasedProcedure("tasks", "create")
-    .input(taskSchema)
+    .input(createTaskSchema)
     .mutation(async ({ input, ctx }) => {
       try {
         // Validate input using type guards
@@ -156,28 +162,7 @@ export const taskRouter = router({
     }),
 
   update: roleBasedProcedure("tasks", "edit")
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string().optional(),
-        description: z.string().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        status: z
-          .enum([
-            "todo",
-            "pending_pre_inspection",
-            "ready_to_start",
-            "in_progress",
-            "pending_final_inspection",
-            "rectification_needed",
-            "completed",
-          ])
-          .optional(),
-        progress: z.number().min(0).max(100).optional(),
-        assigneeId: z.number().optional(),
-      })
-    )
+    .input(updateTaskSchema)
     .mutation(async ({ input, ctx }) => {
       const { id, ...updateData } = input;
       const task = await db.getTaskById(id);

@@ -495,3 +495,42 @@
 - [ ] สร้าง checkpoint หลัง implementation
 - [x] อัพเดท todo.md
 - [ ] รายงานผลการ implementation
+
+
+---
+
+## 🚀 Phase 6: Complete Security & Performance Optimization
+
+### 6.1 Performance Benchmarking
+- [x] สร้าง benchmark script สำหรับ getDashboardStats (benchmark-dashboard.mjs)
+- [ ] รัน benchmark ใน production/staging environment
+- [ ] วิเคราะห์ผลและสร้าง performance report
+
+### 6.2 Apply Validation Schemas (Remaining Routers)
+- [x] นำ validation schemas ไปใช้ใน taskRouter
+  - [x] list, get, create, update operations
+  - [x] แทนที่ inline validation ด้วย schemas
+- [ ] นำ validation schemas ไปใช้ใน inspectionRouter (ทำตามแบบ taskRouter)
+- [ ] นำ validation schemas ไปใช้ใน checklistRouter (ทำตามแบบ taskRouter)
+
+### 6.3 RBAC Authorization Helpers
+- [x] สร้าง authorization helper functions (server/rbac.ts)
+  - [x] hasProjectAccess, isProjectManager, isQCInspector
+  - [x] canEditTask, canDeleteTask
+  - [x] canApproveInspection, canAssignDefect, canCloseDefect
+  - [x] isAdmin, getUserProjectRole, hasAnyProjectRole
+  - [x] logAuthorizationFailure (audit logging)
+- [ ] นำ RBAC helpers ไปใช้ใน routers (ทำใน Phase 7)
+  - [ ] ตัวอย่าง: เพิ่ม canEditTask check ใน taskRouter.update
+  - [ ] ตัวอย่าง: เพิ่ม canApproveInspection check ใน inspectionRouter
+
+### 6.4 Testing & Verification
+- [ ] ทดสอบ benchmark script
+- [ ] ทดสอบ validation schemas ใน routers ที่เหลือ
+- [ ] ทดสอบ RBAC helpers
+- [ ] ตรวจสอบว่าไม่มี breaking changes
+
+### 6.5 Save Checkpoint
+- [ ] สร้าง checkpoint หลัง implementation
+- [ ] อัพเดท todo.md
+- [ ] รายงานผลการ implementation
