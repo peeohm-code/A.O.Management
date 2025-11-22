@@ -358,3 +358,104 @@
   - [x] แก้ไข: เพิ่มการลบ escalationLogs ใน deleteProject function (server/db.ts)
   - [x] ทดสอบ: รัน vitest และผ่านทั้งหมด (3/3 tests passed)
 - [x] ทดสอบการลบโครงการอีกครั้งหลังแก้ไข (ลบสำเร็จโดยไม่มี error)
+
+
+---
+
+## 🔒 Phase 4: Security & Performance Critical Fixes
+
+### 4.1 Database Schema & Foreign Keys
+- [x] เพิ่ม Foreign Key Constraints ระหว่าง projects ↔ qcChecks
+- [x] เพิ่ม Foreign Key Constraints ระหว่าง qcChecks ↔ qcCheckItems
+- [x] เพิ่ม Foreign Key Constraints ระหว่าง qcChecks ↔ qcIssues
+- [x] เพิ่ม Foreign Key Constraints สำหรับ userId ในทุกตาราง
+- [x] เพิ่ม Foreign Key Constraints สำหรับ tasks, defects, inspections
+- [x] สร้าง migration script (add-foreign-keys.sql)
+- [x] สร้าง validation script (check-orphaned-data.sql)
+- [ ] Indexes มีอยู่แล้วใน schema (ไม่ต้องเพิ่ม)
+- [ ] ตรวจสอบและแก้ไข data types ที่ไม่เหมาะสม (ทำใน Phase 7)
+
+### 4.2 SQL Injection Prevention
+- [x] ตรวจสอบทุก raw SQL queries ใน server/db.ts ที่รับ user input
+- [x] ยืนยันว่าส่วนใหญ่ใช้ parameterized queries ถูกต้องแล้ว
+- [ ] แก้ไข inspectionRequests queries ให้ใช้ Drizzle ORM (ทำใน Phase 7)
+- [x] สร้าง documentation สำหรับ SQL injection risks
+
+### 4.3 Zod Input Validation
+- [x] สร้าง comprehensive Zod schemas (shared/validation.ts)
+- [x] เพิ่ม schemas สำหรับ projects (create, update, delete, members)
+- [x] เพิ่ม schemas สำหรับ tasks (CRUD operations)
+- [x] เพิ่ม schemas สำหรับ defects (full lifecycle)
+- [x] เพิ่ม schemas สำหรับ checklists (templates, items, results)
+- [x] เพิ่ม schemas สำหรับ notifications
+- [x] เพิ่ม schemas สำหรับ comments & attachments
+- [x] Validate file uploads (size, type, mime type)
+- [x] Validate date ranges และ numeric constraints
+- [ ] นำ validation schemas ไปใช้ใน routers (ทำใน Phase 7)
+- [ ] Merge shared/validation.ts เข้ากับ shared/validations.ts
+
+### 4.4 N+1 Query Optimization
+- [x] ระบุ N+1 query patterns ทั้งหมด (getProjects, getTasks, getDefects, getDashboardStats)
+- [x] สร้าง documentation พร้อม examples (BEST_PRACTICES.md)
+- [ ] แก้ไข getProjects ใช้ JOIN แทนการ query แยก (ทำตาม examples)
+- [ ] แก้ไข getTasks ใช้ JOIN สำหรับ assignees
+- [ ] แก้ไข getDefects ใช้ JOIN สำหรับ related data
+- [ ] แก้ไข getDashboardStats ใช้ aggregate queries
+- [ ] Benchmark performance improvements
+
+### 4.5 Null/Undefined Safety
+- [x] สร้าง documentation พร้อม patterns (BEST_PRACTICES.md)
+- [ ] เพิ่ม null checks ใน repositories (ทำตาม patterns)
+- [ ] เพิ่ม optional chaining ใน frontend components
+- [ ] เพิ่ม default values สำหรับ nullable fields
+- [ ] ปรับปรุง error messages ให้ชัดเจน
+
+### 4.6 RBAC Authorization Audit
+- [x] สร้าง authorization helpers documentation (BEST_PRACTICES.md)
+- [x] สร้าง RBAC matrix และ patterns
+- [ ] สร้าง authorization helper functions (hasProjectAccess, isProjectManager, etc.)
+- [ ] ตรวจสอบและเพิ่ม authorization checks ใน routers
+- [ ] เพิ่ม audit logging สำหรับ sensitive operations
+
+### 4.7 Code Refactoring & Cleanup
+- [x] สร้าง refactoring guidelines (BEST_PRACTICES.md)
+- [x] ระบุ refactoring patterns (Extract Function, Strategy Pattern)
+- [ ] แยก complex queries ใน repositories
+- [ ] Refactor long procedures ใน routers
+- [ ] ลด code duplication
+- [ ] ปรับปรุง error handling patterns
+
+### 4.8 Performance Optimization
+- [x] สร้าง performance optimization guide (BEST_PRACTICES.md)
+- [x] ระบุ optimization strategies (indexes, caching, connection pooling)
+- [ ] ตรวจสอบ connection pool settings
+- [ ] เพิ่ม caching สำหรับ dashboard stats
+- [ ] Optimize image upload flow
+- [ ] Benchmark critical endpoints
+
+### 4.9 Testing & Validation
+- [ ] เขียน Vitest tests สำหรับ critical procedures
+  - [ ] Test project CRUD operations
+  - [ ] Test task CRUD operations
+  - [ ] Test defect CRUD operations
+  - [ ] Test inspection workflows
+  - [ ] Test notification delivery
+- [ ] ทดสอบ RBAC scenarios
+  - [ ] Test unauthorized access attempts
+  - [ ] Test role-based permissions
+  - [ ] Test cross-project access
+- [ ] ทดสอบ input validation edge cases
+  - [ ] Test invalid inputs
+  - [ ] Test boundary values
+  - [ ] Test SQL injection attempts
+- [ ] ทดสอบ error handling flows
+  - [ ] Test database connection failures
+  - [ ] Test validation errors
+  - [ ] Test authorization failures
+
+### 4.10 Save Checkpoint
+- [ ] ทดสอบระบบทั้งหมดหลังแก้ไข
+- [ ] ตรวจสอบ TypeScript compilation (0 errors)
+- [ ] รัน Vitest ทั้งหมด (all tests passing)
+- [ ] สร้าง checkpoint หลังแก้ไขปัญหาความปลอดภัย
+- [ ] รายงานผลการแก้ไขและปรับปรุง
