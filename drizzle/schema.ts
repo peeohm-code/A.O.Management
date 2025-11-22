@@ -259,6 +259,9 @@ export const defects = mysqlTable("defects", {
 	index("assignedToIdx").on(table.assignedTo),
 	index("typeIdx").on(table.type),
 	index("checklistIdx").on(table.checklistId),
+	index("projectStatusIdx").on(table.projectId, table.status),
+	index("assignedStatusIdx").on(table.assignedTo, table.status),
+	index("projectTypeIdx").on(table.projectId, table.type),
 ]);
 
 export const memoryLogs = mysqlTable("memoryLogs", {
@@ -379,6 +382,8 @@ export const projects = mysqlTable("projects", {
 (table) => [
 	index("createdByIdx").on(table.createdBy),
 	index("archivedAtIdx").on(table.archivedAt),
+	index("statusIdx").on(table.status),
+	index("statusArchivedIdx").on(table.status, table.archivedAt),
 ]);
 
 export const pushSubscriptions = mysqlTable("pushSubscriptions", {
@@ -413,7 +418,12 @@ export const qcChecklists = mysqlTable("qc_checklists", {
 	createdBy: int().notNull(),
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
-});
+},
+(table) => [
+	index("projectIdIdx").on(table.projectId),
+	index("isTemplateIdx").on(table.isTemplate),
+	index("categoryIdx").on(table.category),
+]);
 
 export const qcInspectionResults = mysqlTable("qc_inspection_results", {
 	id: int().autoincrement().notNull(),
@@ -438,7 +448,14 @@ export const qcInspections = mysqlTable("qc_inspections", {
 	notes: text(),
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
-});
+},
+(table) => [
+	index("projectIdIdx").on(table.projectId),
+	index("statusIdx").on(table.status),
+	index("inspectorIdIdx").on(table.inspectorId),
+	index("projectStatusIdx").on(table.projectId, table.status),
+	index("inspectionDateIdx").on(table.inspectionDate),
+]);
 
 export const queryLogs = mysqlTable("queryLogs", {
 	id: int().autoincrement().notNull(),
@@ -576,7 +593,14 @@ export const tasks = mysqlTable("tasks", {
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
 	escalation: text(),
-});
+},
+(table) => [
+	index("projectIdIdx").on(table.projectId),
+	index("statusIdx").on(table.status),
+	index("assigneeIdIdx").on(table.assigneeId),
+	index("projectStatusIdx").on(table.projectId, table.status),
+	index("assigneeStatusIdx").on(table.assigneeId, table.status),
+]);
 
 export const errorLogs = mysqlTable("errorLogs", {
 	id: int().autoincrement().notNull(),

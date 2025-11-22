@@ -596,3 +596,31 @@
 - [x] ใช้ in-memory store สำหรับ rate limit state
 - [ ] ทดสอบ rate limiting
 - [x] เพิ่ม error messages ที่เหมาะสมเมื่อถึง rate limit
+
+
+## Performance & Quality Improvements (งานปัจจุบัน)
+
+### Database Optimization
+- [x] เพิ่ม indexes สำหรับ frequently queried fields
+  - [x] เพิ่ม index สำหรับ projects.status
+  - [x] เพิ่ม index สำหรับ tasks.status, tasks.projectId, tasks.assignedTo
+  - [x] เพิ่ม index สำหรับ defects.status, defects.projectId, defects.assignedTo
+  - [x] เพิ่ม index สำหรับ inspections.status, inspections.projectId
+  - [x] เพิ่ม index สำหรับ checklists.projectId
+  - [x] เพิ่ม composite indexes สำหรับ common query patterns
+
+### Permission & Security
+- [x] สร้าง centralized permission middleware
+  - [x] สร้าง server/middleware/permissions.ts
+  - [x] สร้าง permission check functions (canEditProject, canDeleteTask, etc.)
+  - [x] สร้าง role-based middleware (requireAdmin, requireProjectMember, etc.)
+  - [ ] แทนที่ inline permission checks ใน routers ด้วย middleware (ต้องทำใน phase ถัดไป)
+  - [x] เพิ่ม permission tests (47 tests passed)
+
+### Testing & Quality Assurance
+- [x] เขียน Vitest tests สำหรับ transaction-critical functions
+  - [x] เขียน tests สำหรับ createProject (validation, permissions, database integrity)
+  - [x] เขียน tests สำหรับ createDefect (validation, notifications, status transitions)
+  - [x] เขียน tests สำหรับ createTaskChecklist (validation, task creation, checklist items)
+  - [x] เขียน tests สำหรับ permission middleware (47 tests passed)
+  - [x] รัน tests และแก้ไข issues
