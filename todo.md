@@ -459,3 +459,39 @@
 - [ ] รัน Vitest ทั้งหมด (all tests passing)
 - [ ] สร้าง checkpoint หลังแก้ไขปัญหาความปลอดภัย
 - [ ] รายงานผลการแก้ไขและปรับปรุง
+
+
+---
+
+## 🚀 Phase 5: Implementation - Security & Performance Improvements
+
+### 5.1 Foreign Key Migration
+- [x] สร้าง migration scripts (add-foreign-keys.sql, check-orphaned-data.sql)
+- [ ] รัน migration ใน production (ต้องทำใน maintenance window)
+
+### 5.2 Apply Validation Schemas
+- [x] นำ validation schemas ไปใช้ใน projectRouter
+  - [x] list, get, update, delete, addMember operations
+  - [x] แทนที่ inline validation ด้วย schemas จาก shared/validation.ts
+- [x] นำ validation schemas ไปใช้ใน defectRouter
+  - [x] getById, list, listByType, allDefects, create, update operations
+  - [x] แทนที่ inline validation ด้วย schemas จาก shared/validation.ts
+
+### 5.3 Fix N+1 Queries
+- [x] ตรวจสอบ getProjects - พบว่าใช้ getBatchProjectStats ที่ optimize แล้ว
+- [x] แก้ไข getDashboardStats ใช้ aggregate queries
+  - [x] ลดจาก 9 sequential queries เป็น 5 parallel queries
+  - [x] ใช้ CASE statements สำหรับ task stats และ defect stats
+  - [x] ใช้ Promise.all สำหรับ parallel execution
+  - [ ] Benchmark performance improvement (คาดว่าเร็วขึ้น 50-70%)
+
+### 5.4 Testing & Verification
+- [ ] ทดสอบ validation schemas ใน projectRouter
+- [ ] ทดสอบ validation schemas ใน defectRouter
+- [ ] ทดสอบ getDashboardStats performance
+- [ ] ตรวจสอบว่าไม่มี breaking changes
+
+### 5.5 Save Checkpoint
+- [ ] สร้าง checkpoint หลัง implementation
+- [x] อัพเดท todo.md
+- [ ] รายงานผลการ implementation

@@ -5204,114 +5204,82 @@ export async function getComparativeAnalysis(projectIds: number[]) {
 
 /**
  * Dashboard Statistics Functions
+ * OPTIMIZED: Uses aggregate queries to prevent N+1 query problems
  */
 export async function getDashboardStats(userId?: number) {
   const db = await getDb();
   if (!db) return null;
 
   try {
-    // Get total projects (not archived)
-    const activeProjectsResult = await db
-      .select({ count: count() })
-      .from(projects)
-      .where(isNull(projects.archivedAt));
-    
-    const totalActiveProjects = activeProjectsResult[0]?.count || 0;
-
-    // Get all tasks statistics
-    const allTasksResult = await db
-      .select({ count: count() })
-      .from(tasks)
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(isNull(projects.archivedAt));
-    
-    const totalTasks = allTasksResult[0]?.count || 0;
-
-    const completedTasksResult = await db
-      .select({ count: count() })
-      .from(tasks)
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(and(eq(tasks.status, "completed"), isNull(projects.archivedAt)));
-    
-    const completedTasks = completedTasksResult[0]?.count || 0;
-
-    const inProgressTasksResult = await db
-      .select({ count: count() })
-      .from(tasks)
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(and(eq(tasks.status, "in_progress"), isNull(projects.archivedAt)));
-    
-    const inProgressTasks = inProgressTasksResult[0]?.count || 0;
-
-    // Get overdue tasks (tasks with endDate < today and not completed)
     const today = new Date().toISOString().split('T')[0];
-    const overdueTasksResult = await db
-      .select({ count: count() })
-      .from(tasks)
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(
-        and(
-          ne(tasks.status, "completed"),
-          lt(tasks.endDate, today),
-          isNull(projects.archivedAt)
-        )
-      );
-    
-    const overdueTasks = overdueTasksResult[0]?.count || 0;
 
-    // Get pending inspections
-    const pendingInspectionsResult = await db
-      .select({ count: count() })
-      .from(taskChecklists)
-      .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(
-        and(
-          eq(taskChecklists.status, "pending_inspection"),
-          isNull(projects.archivedAt)
-        )
-      );
-    
-    const pendingInspections = pendingInspectionsResult[0]?.count || 0;
+    // OPTIMIZATION: Get all stats in parallel with Promise.all
+    const [
+      projectStats,
+      taskStats,
+      inspectionStats,
+      defectStats,
+      teamStats
+    ] = await Promise.all([
+      // 1. Project stats
+      db
+        .select({ count: count() })
+        .from(projects)
+        .where(isNull(projects.archivedAt)),
+      
+      // 2. Task stats - Single query with CASE statements for aggregation
+      db
+        .select({
+          total: count(),
+          completed: sql<number>`SUM(CASE WHEN ${tasks.status} = 'completed' THEN 1 ELSE 0 END)`,
+          inProgress: sql<number>`SUM(CASE WHEN ${tasks.status} = 'in_progress' THEN 1 ELSE 0 END)`,
+          overdue: sql<number>`SUM(CASE WHEN ${tasks.status} != 'completed' AND ${tasks.endDate} < ${today} THEN 1 ELSE 0 END)`,
+        })
+        .from(tasks)
+        .innerJoin(projects, eq(tasks.projectId, projects.id))
+        .where(isNull(projects.archivedAt)),
+      
+      // 3. Inspection stats
+      db
+        .select({ count: count() })
+        .from(taskChecklists)
+        .innerJoin(tasks, eq(taskChecklists.taskId, tasks.id))
+        .innerJoin(projects, eq(tasks.projectId, projects.id))
+        .where(
+          and(
+            eq(taskChecklists.status, "pending_inspection"),
+            isNull(projects.archivedAt)
+          )
+        ),
+      
+      // 4. Defect stats - Single query with CASE statements
+      db
+        .select({
+          open: sql<number>`SUM(CASE WHEN ${defects.status} != 'resolved' THEN 1 ELSE 0 END)`,
+          critical: sql<number>`SUM(CASE WHEN ${defects.severity} = 'critical' AND ${defects.status} != 'resolved' THEN 1 ELSE 0 END)`,
+        })
+        .from(defects)
+        .innerJoin(tasks, eq(defects.taskId, tasks.id))
+        .innerJoin(projects, eq(tasks.projectId, projects.id))
+        .where(isNull(projects.archivedAt)),
+      
+      // 5. Team stats
+      db
+        .select({ count: count() })
+        .from(users)
+        .where(ne(users.role, "owner"))
+    ]);
 
-    // Get open defects
-    const openDefectsResult = await db
-      .select({ count: count() })
-      .from(defects)
-      .innerJoin(tasks, eq(defects.taskId, tasks.id))
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(
-        and(
-          ne(defects.status, "resolved"),
-          isNull(projects.archivedAt)
-        )
-      );
-    
-    const openDefects = openDefectsResult[0]?.count || 0;
-
-    // Get critical defects
-    const criticalDefectsResult = await db
-      .select({ count: count() })
-      .from(defects)
-      .innerJoin(tasks, eq(defects.taskId, tasks.id))
-      .innerJoin(projects, eq(tasks.projectId, projects.id))
-      .where(
-        and(
-          eq(defects.severity, "critical"),
-          ne(defects.status, "resolved"),
-          isNull(projects.archivedAt)
-        )
-      );
-    
-    const criticalDefects = criticalDefectsResult[0]?.count || 0;
-
-    // Get team members count
-    const teamMembersResult = await db
-      .select({ count: count() })
-      .from(users)
-      .where(ne(users.role, "owner"));
-    
-    const teamMembers = teamMembersResult[0]?.count || 0;
+    // Extract values from results
+    const totalActiveProjects = projectStats[0]?.count || 0;
+    const totalTasks = Number(taskStats[0]?.total || 0);
+    const completedTasks = Number(taskStats[0]?.completed || 0);
+    const inProgressTasks = Number(taskStats[0]?.inProgress || 0);
+    const overdueTasks = Number(taskStats[0]?.overdue || 0);
+    const pendingInspections = inspectionStats[0]?.count || 0;
+    const openDefects = Number(defectStats[0]?.open || 0);
+    const criticalDefects = Number(defectStats[0]?.critical || 0);
+    const teamMembers = teamStats[0]?.count || 0;
 
     // Calculate completion rate
     const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;

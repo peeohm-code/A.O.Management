@@ -6,6 +6,15 @@ import { emitNotification } from "../_core/socket";
 import * as analyticsService from "../services/analytics.service";
 import { generateArchiveExcel } from "../excelExport";
 import { projectSchema, taskSchema, defectSchema, inspectionSchema } from "@shared/validations";
+import { 
+  updateProjectSchema, 
+  getProjectSchema, 
+  deleteProjectSchema,
+  addProjectMemberSchema,
+  removeProjectMemberSchema,
+  paginationSchema,
+  projectStatusSchema
+} from "@shared/validation";
 
 /**
  * Project Router
@@ -17,10 +26,8 @@ export const projectRouter = router({
   }),
 
   list: protectedProcedure
-    .input(z.object({
-      page: z.number().int().min(1).default(1),
-      pageSize: z.number().int().min(1).max(100).default(25),
-      status: z.enum(['draft', 'planning', 'active', 'on_hold', 'completed', 'cancelled']).optional(),
+    .input(paginationSchema.extend({
+      status: projectStatusSchema.optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
       const page = input?.page || 1;
@@ -66,7 +73,7 @@ export const projectRouter = router({
     }),
 
   get: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getProjectSchema)
     .query(async ({ input }) => {
       return await db.getProjectById(input.id);
     }),
@@ -99,31 +106,7 @@ export const projectRouter = router({
     }),
 
   update: roleBasedProcedure("projects", "edit")
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string().optional(),
-        code: z.string().optional(),
-        location: z.string().optional(),
-        latitude: z.string().optional(),
-        longitude: z.string().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        ownerName: z.string().optional(),
-        color: z.string().optional(),
-        status: z
-          .enum([
-            "draft",
-            "planning",
-            "active",
-            "on_hold",
-            "completed",
-            "cancelled",
-          ])
-          .optional(),
-        completionPercentage: z.number().optional(),
-      })
-    )
+    .input(updateProjectSchema)
     .mutation(async ({ input, ctx }) => {
       const { id, ...updateData } = input;
       const project = await db.getProjectById(id);
@@ -205,7 +188,7 @@ export const projectRouter = router({
     }),
 
   delete: roleBasedProcedure("projects", "delete")
-    .input(z.object({ id: z.number() }))
+    .input(deleteProjectSchema)
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.id);
       if (!project) {
@@ -278,25 +261,19 @@ export const projectRouter = router({
   }),
 
   getArchiveHistory: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getProjectSchema)
     .query(async ({ input }) => {
       return await db.getArchiveHistory(input.id);
     }),
 
   addMember: roleBasedProcedure("projects", "assignMembers")
-    .input(
-      z.object({
-        projectId: z.number(),
-        userId: z.number(),
-        role: z.enum(["project_manager", "qc_inspector", "worker"]),
-      })
-    )
+    .input(addProjectMemberSchema)
     .mutation(async ({ input, ctx }) => {
       return await db.addProjectMember(input);
     }),
 
   validateCompleteness: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getProjectSchema)
     .query(async ({ input }) => {
       return await db.validateProjectCompleteness(input.id);
     }),
@@ -322,7 +299,7 @@ export const projectRouter = router({
     }),
 
   exportExcel: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getProjectSchema)
     .mutation(async ({ input, ctx }) => {
       const { exportProjectToExcel, getExportFilename } = await import(
         "../exportExcel"

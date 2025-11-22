@@ -7,6 +7,17 @@ import { canEditDefect, canDeleteDefect } from "@shared/permissions";
 import { notifyOwner } from "../_core/notification";
 import { createNotification } from "../notificationService";
 import { logger } from "../logger";
+import {
+  createDefectSchema,
+  updateDefectSchema,
+  getDefectSchema,
+  deleteDefectSchema,
+  getDefectsByTaskSchema,
+  getDefectsByProjectSchema,
+  defectStatusSchema,
+  defectTypeSchema,
+  paginationSchema
+} from "@shared/validation";
 
 /**
  * Defect Router
@@ -15,21 +26,21 @@ import { logger } from "../logger";
 export const defectRouter = router({
   // Get defect by ID
   getById: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getDefectSchema)
     .query(async ({ input }) => {
       return await db.getDefectById(input.id);
     }),
 
   // Get defects by task
   list: protectedProcedure
-    .input(z.object({ taskId: z.number() }))
+    .input(getDefectsByTaskSchema)
     .query(async ({ input }) => {
       return await db.getDefectsByTask(input.taskId);
     }),
 
   // Get defects by type (CAR/PAR/NCR)
   listByType: protectedProcedure
-    .input(z.object({ type: z.enum(["CAR", "PAR", "NCR"]) }))
+    .input(z.object({ type: defectTypeSchema }))
     .query(async ({ input }) => {
       return await db.getDefectsByType(input.type);
     }),
@@ -61,7 +72,7 @@ export const defectRouter = router({
 
   // Get defects by checklist
   listByChecklist: protectedProcedure
-    .input(z.object({ checklistId: z.number() }))
+    .input(z.object({ checklistId: z.number().int().positive() }))
     .query(async ({ input }) => {
       return await db.getDefectsByChecklist(input.checklistId);
     }),
@@ -73,10 +84,7 @@ export const defectRouter = router({
 
   // Get all defects
   allDefects: protectedProcedure
-    .input(z.object({
-      page: z.number().int().min(1).default(1),
-      pageSize: z.number().int().min(1).max(100).default(25),
-    }).optional())
+    .input(paginationSchema.optional())
     .query(async ({ input }) => {
       try {
         const page = input?.page || 1;
@@ -120,33 +128,14 @@ export const defectRouter = router({
 
   // Get single defect by ID
   get: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(getDefectSchema)
     .query(async ({ input }) => {
       return await db.getDefectById(input.id);
     }),
 
   // Create new CAR/PAR/NCR
   create: roleBasedProcedure("defects", "create")
-    .input(
-      z.object({
-        taskId: z.number(),
-        checklistItemResultId: z.number().optional(),
-        title: z.string().min(1),
-        description: z.string().optional(),
-        photoUrls: z.string().optional(),
-        beforePhotos: z.string().optional(),
-        severity: z.enum(["low", "medium", "high", "critical"]),
-        assignedTo: z.number().optional(),
-        // CAR/PAR/NCR specific fields
-        type: z.enum(["CAR", "PAR", "NCR"]).default("CAR"),
-        checklistId: z.number().optional(),
-        rootCause: z.string().optional(),
-        correctiveAction: z.string().optional(),
-        preventiveAction: z.string().optional(),
-        dueDate: z.date().optional(),
-        ncrLevel: z.enum(["major", "minor"]).optional(),
-      })
-    )
+    .input(createDefectSchema)
     .mutation(async ({ input, ctx }) => {
       // Validate defect creation input
       const validation = validateDefectCreateInput({
@@ -196,45 +185,7 @@ export const defectRouter = router({
 
   // Update defect (workflow transitions)
   update: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        // Basic fields
-        title: z.string().optional(),
-        description: z.string().optional(),
-        severity: z.enum(["low", "medium", "high", "critical"]).optional(),
-        status: z
-          .enum([
-            "reported",
-            "analysis",
-            "in_progress",
-            "resolved",
-            "pending_reinspection",
-            "closed",
-          ])
-          .optional(),
-        assignedTo: z.number().optional(),
-        resolutionComment: z.string().optional(),
-        resolutionPhotoUrls: z.string().optional(),
-        // CAR/PAR/NCR workflow fields
-        rootCause: z.string().optional(),
-        correctiveAction: z.string().optional(),
-        preventiveAction: z.string().optional(),
-        dueDate: z.date().optional(),
-        // Action Plan fields (in_progress status)
-        actionMethod: z.string().optional(),
-        actionResponsible: z.string().optional(),
-        actionDeadline: z.date().optional(),
-        actionNotes: z.string().optional(),
-        ncrLevel: z.enum(["major", "minor"]).optional(),
-        verificationComment: z.string().optional(),
-        resolutionNotes: z.string().optional(),
-        implementationMethod: z.string().optional(),
-        beforePhotos: z.string().optional(),
-        afterPhotos: z.string().optional(),
-        closureNotes: z.string().optional(),
-      })
-    )
+    .input(updateDefectSchema)
     .mutation(async ({ input, ctx }) => {
       try {
         const { id, ...updateData } = input;
