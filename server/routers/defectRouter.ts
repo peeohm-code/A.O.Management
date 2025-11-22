@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
-import { canEditDefect, canDeleteDefect } from "@shared/permissions";
+import { canEditDefect, canDeleteDefect, logAuthorizationFailure } from "../rbac";
 import { notifyOwner } from "../_core/notification";
 import { createNotification } from "../notificationService";
 import { logger } from "../logger";
@@ -192,11 +192,13 @@ export const defectRouter = router({
         const defect = await db.getDefectById(id);
         if (!defect) throw new Error("Defect not found");
 
-        // Check edit permission
-        if (!canEditDefect(ctx.user.role, ctx.user!.id, defect)) {
+        // Check edit permission using RBAC
+        const hasPermission = await canEditDefect(ctx.user!.id, id);
+        if (!hasPermission) {
+          logAuthorizationFailure(ctx.user!.id, 'update', 'defect', id);
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "คุณไม่มีสิทธิ์แก้ไข defect นี้",
+            message: "You don't have permission to edit this defect",
           });
         }
 
@@ -370,11 +372,13 @@ export const defectRouter = router({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      // Check delete permission
-      if (!canDeleteDefect(ctx.user!.role)) {
+      // Check delete permission using RBAC
+      const hasPermission = await canDeleteDefect(ctx.user!.id, input.id);
+      if (!hasPermission) {
+        logAuthorizationFailure(ctx.user!.id, 'delete', 'defect', input.id);
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้",
+          message: "You don't have permission to delete this defect",
         });
       }
 

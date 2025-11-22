@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
 import * as db from "../db";
+import { canEditProject, canDeleteProject, logAuthorizationFailure } from "../rbac";
 import { emitNotification } from "../_core/socket";
 import * as analyticsService from "../services/analytics.service";
 import { generateArchiveExcel } from "../excelExport";
@@ -109,6 +110,17 @@ export const projectRouter = router({
     .input(updateProjectSchema)
     .mutation(async ({ input, ctx }) => {
       const { id, ...updateData } = input;
+      
+      // Check authorization
+      const hasPermission = await canEditProject(ctx.user!.id, id);
+      if (!hasPermission) {
+        logAuthorizationFailure(ctx.user!.id, 'update', 'project', id);
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have permission to edit this project",
+        });
+      }
+      
       const project = await db.getProjectById(id);
       const result = await db.updateProject(id, updateData);
 
@@ -195,6 +207,16 @@ export const projectRouter = router({
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Project not found",
+        });
+      }
+      
+      // Check authorization
+      const hasPermission = await canDeleteProject(ctx.user!.id, input.id);
+      if (!hasPermission) {
+        logAuthorizationFailure(ctx.user!.id, 'delete', 'project', input.id);
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have permission to delete this project",
         });
       }
 

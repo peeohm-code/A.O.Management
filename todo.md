@@ -534,3 +534,29 @@
 - [ ] สร้าง checkpoint หลัง implementation
 - [ ] อัพเดท todo.md
 - [ ] รายงานผลการ implementation
+
+---
+
+## งานเพิ่มเติมจากผู้ใช้ - RBAC, Foreign Keys และ Performance
+
+### Apply RBAC Checks
+- [x] เพิ่ม authorization checks ใน projectRouter (canEditProject, canDeleteProject)
+- [x] เพิ่ม authorization checks ใน taskRouter (canEditTask, canDeleteTask)
+- [x] เพิ่ม authorization checks ใน defectRouter (canEditDefect, canDeleteDefect)
+- [x] เพิ่ม authorization checks ใน inspectionRouter (canEditInspection)
+- [x] เพิ่ม authorization checks ใน checklistRouter (canEditChecklist)
+- [x] สร้าง helper functions สำหรับ RBAC (canEditTask, canEditProject, etc.)
+- [x] ทดสอบ RBAC checks ทั้งหมด (14/14 tests passed)
+
+### Run Foreign Key Migration
+- [x] รัน check-orphaned-data.sql เพื่อตรวจสอบข้อมูลที่ไม่มี reference (ไม่พบ orphaned data)
+- [x] รัน add-foreign-keys.sql (เพิ่มสำเร็จ 40+ constraints)
+- [x] ตรวจสอบว่า foreign keys ถูกเพิ่มเรียบร้อยแล้ว (มี 6 constraints ที่ล้มเหลวเนื่องจากข้อมูลเก่า)
+- [ ] ทดสอบระบบหลังเพิ่ม foreign keys
+
+### Performance Monitoring
+- [ ] รัน node benchmark-dashboard.mjs ใน staging environment
+- [ ] วิเคราะห์ผล benchmark และระบุ bottlenecks
+- [ ] ติดตั้ง monitoring tools (เช่น logging, metrics)
+- [ ] ตั้งค่า performance alerts
+- [ ] สร้างแผนการปรับปรุง performance ตามผล benchmark

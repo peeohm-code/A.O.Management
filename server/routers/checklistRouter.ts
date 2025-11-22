@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router, roleBasedProcedure } from "../_core/trpc";
+import { canEditInspection, logAuthorizationFailure } from "../rbac";
 import * as db from "../db";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { createNotification } from "../notificationService";
@@ -301,6 +302,16 @@ export const checklistRouter = router({
     .mutation(async ({ input, ctx }) => {
       const checklist = await db.getTaskChecklistById(input.id);
       if (!checklist) throw new Error("Checklist not found");
+      
+      // Check authorization for editing inspection
+      const hasPermission = await canEditInspection(ctx.user!.id, input.id);
+      if (!hasPermission) {
+        logAuthorizationFailure(ctx.user!.id, 'submit', 'inspection', input.id);
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have permission to submit this inspection",
+        });
+      }
 
       // Validate inspection submission if itemResults provided
       if (input.itemResults && input.itemResults.length > 0) {

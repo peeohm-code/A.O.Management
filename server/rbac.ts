@@ -275,6 +275,187 @@ export async function canCloseDefect(userId: number, defectId: number): Promise<
 }
 
 /**
+ * Check if user can edit a project
+ * Rules: Project manager only
+ */
+export async function canEditProject(userId: number, projectId: number): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+
+    // Check if user is project manager
+    return await isProjectManager(userId, projectId);
+  } catch (error) {
+    logger.error('[RBAC] canEditProject failed', { userId, projectId }, error);
+    return false;
+  }
+}
+
+/**
+ * Check if user can delete a project
+ * Rules: Project manager only
+ */
+export async function canDeleteProject(userId: number, projectId: number): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+
+    // Check if user is project manager
+    return await isProjectManager(userId, projectId);
+  } catch (error) {
+    logger.error('[RBAC] canDeleteProject failed', { userId, projectId }, error);
+    return false;
+  }
+}
+
+/**
+ * Check if user can edit a defect
+ * Rules: Project manager, QC inspector, or defect creator
+ */
+export async function canEditDefect(userId: number, defectId: number): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+
+    // Get defect details
+    const defectResult = await db
+      .select({
+        taskId: defects.taskId,
+        reportedBy: defects.reportedBy,
+      })
+      .from(defects)
+      .where(eq(defects.id, defectId))
+      .limit(1);
+
+    if (defectResult.length === 0) return false;
+
+    const defect = defectResult[0];
+
+    // Check if user is defect creator
+    if (defect.reportedBy === userId) {
+      return true;
+    }
+
+    // Get project ID from task
+    const taskResult = await db
+      .select({ projectId: tasks.projectId })
+      .from(tasks)
+      .where(eq(tasks.id, defect.taskId))
+      .limit(1);
+
+    if (taskResult.length === 0) return false;
+
+    const projectId = taskResult[0].projectId;
+
+    // Check if user is QC inspector or project manager
+    const isQC = await isQCInspector(userId, projectId);
+    const isPM = await isProjectManager(userId, projectId);
+
+    return isQC || isPM;
+  } catch (error) {
+    logger.error('[RBAC] canEditDefect failed', { userId, defectId }, error);
+    return false;
+  }
+}
+
+/**
+ * Check if user can delete a defect
+ * Rules: Project manager or defect creator only
+ */
+export async function canDeleteDefect(userId: number, defectId: number): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+
+    // Get defect details
+    const defectResult = await db
+      .select({
+        taskId: defects.taskId,
+        reportedBy: defects.reportedBy,
+      })
+      .from(defects)
+      .where(eq(defects.id, defectId))
+      .limit(1);
+
+    if (defectResult.length === 0) return false;
+
+    const defect = defectResult[0];
+
+    // Check if user is defect creator
+    if (defect.reportedBy === userId) {
+      return true;
+    }
+
+    // Get project ID from task
+    const taskResult = await db
+      .select({ projectId: tasks.projectId })
+      .from(tasks)
+      .where(eq(tasks.id, defect.taskId))
+      .limit(1);
+
+    if (taskResult.length === 0) return false;
+
+    const projectId = taskResult[0].projectId;
+
+    // Check if user is project manager
+    return await isProjectManager(userId, projectId);
+  } catch (error) {
+    logger.error('[RBAC] canDeleteDefect failed', { userId, defectId }, error);
+    return false;
+  }
+}
+
+/**
+ * Check if user can edit an inspection/checklist
+ * Rules: QC inspector, project manager, or checklist creator
+ */
+export async function canEditInspection(userId: number, checklistId: number): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+
+    // Get checklist details
+    const checklistResult = await db
+      .select({
+        taskId: taskChecklists.taskId,
+        createdBy: taskChecklists.createdBy,
+      })
+      .from(taskChecklists)
+      .where(eq(taskChecklists.id, checklistId))
+      .limit(1);
+
+    if (checklistResult.length === 0) return false;
+
+    const checklist = checklistResult[0];
+
+    // Check if user is checklist creator
+    if (checklist.createdBy === userId) {
+      return true;
+    }
+
+    // Get project ID from task
+    const taskResult = await db
+      .select({ projectId: tasks.projectId })
+      .from(tasks)
+      .where(eq(tasks.id, checklist.taskId))
+      .limit(1);
+
+    if (taskResult.length === 0) return false;
+
+    const projectId = taskResult[0].projectId;
+
+    // Check if user is QC inspector or project manager
+    const isQC = await isQCInspector(userId, projectId);
+    const isPM = await isProjectManager(userId, projectId);
+
+    return isQC || isPM;
+  } catch (error) {
+    logger.error('[RBAC] canEditInspection failed', { userId, checklistId }, error);
+    return false;
+  }
+}
+
+/**
  * Check if user is admin
  */
 export async function isAdmin(userId: number): Promise<boolean> {
