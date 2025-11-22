@@ -60,7 +60,7 @@ export async function withTransactionRetry<T>(
       return await withTransaction(callback);
     } catch (error) {
       lastError = error as Error;
-      logger.warn(`[Transaction] Attempt ${attempt}/${maxRetries} failed:`, error);
+      logger.warn(`[Transaction] Attempt ${attempt}/${maxRetries} failed:`, String(error));
 
       // Don't retry on certain errors
       if (isNonRetryableError(error)) {

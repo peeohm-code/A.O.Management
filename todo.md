@@ -220,3 +220,28 @@
 - Phase 2: 3-4 สัปดาห์
 - Phase 3: 1-2 สัปดาห์
 - **รวม: 6-9 สัปดาห์**
+
+
+## Phase 2: แก้ไข TypeScript Errors และแยก Router Modules
+
+### 2.1 แก้ไข TypeScript Errors ที่เหลือ (21 errors)
+- [x] วิเคราะห์และจัดกลุ่ม errors ที่เหลือ
+- [x] แก้ไข server TypeScript errors (ลดจาก 21 → 14 errors)
+  - [x] แก้ไข activityLogExport.ts (2 errors)
+  - [x] แก้ไข transaction.ts (1 error)
+  - [x] แก้ไข server/db.ts reinspectedAt (1 error)
+  - [x] แก้ไข server/db.ts escalateToUserIds → notifyUsers (3 errors)
+  - [ ] Drizzle ORM overload errors (9 errors - ไม่กระทบการทำงาน)
+- [ ] พิจารณาแก้ไข vite.config.ts plugin errors (1 error - infrastructure)
+
+### 2.2 แยก Router Modules (server/routers.ts - 3,937 บรรทัด)
+- [x] วิเคราะห์โครงสร้าง routers (13 routers)
+- [ ] แยก routers ในครั้งถัดไป (ใช้ automated tool เพื่อความปลอดภัย)
+  - [ ] แยก projectRouter → server/routers/projectRouter.ts
+  - [ ] แยก taskRouter → server/routers/taskRouter.ts
+  - [ ] แยก defectRouter → server/routers/defectRouter.ts
+  - [ ] แยก inspectionRouter → server/routers/inspectionRouter.ts
+  - [ ] แยก checklistRouter → server/routers/checklistRouter.ts
+  - [ ] แยก dashboardRouter → server/routers/dashboardRouter.ts
+  - [ ] อัปเดท server/routers.ts ให้เป็น main router ที่รวม sub-routers
+  - [ ] ทดสอบ API endpoints ทั้งหมดหลังแยก routers

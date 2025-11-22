@@ -7266,8 +7266,7 @@ export async function checkAndTriggerEscalations() {
           .where(
             and(
               eq(taskChecklists.status, 'fail'),
-              lt(taskChecklists.inspectedAt, thresholdDate),
-              isNull(taskChecklists.reinspectedAt)
+              lt(taskChecklists.inspectedAt, thresholdDate)
             )
           );
 
@@ -7288,7 +7287,7 @@ export async function checkAndTriggerEscalations() {
 
           if (existingLog.length === 0) {
             // สร้าง escalation log ใหม่
-            const notifiedUsers = rule.escalateToUserIds || '[]';
+            const notifiedUsers = rule.notifyUsers || '[]';
             await db.insert(escalationLogs).values({
               ruleId: rule.id,
               eventType: 'failed_inspection',
@@ -7338,7 +7337,7 @@ export async function checkAndTriggerEscalations() {
             .limit(1);
 
           if (existingLog.length === 0) {
-            const notifiedUsers = rule.escalateToUserIds || '[]';
+            const notifiedUsers = rule.notifyUsers || '[]';
             await db.insert(escalationLogs).values({
               ruleId: rule.id,
               eventType: 'unresolved_defect',
@@ -7386,7 +7385,7 @@ export async function checkAndTriggerEscalations() {
             .limit(1);
 
           if (existingLog.length === 0) {
-            const notifiedUsers = rule.escalateToUserIds || '[]';
+            const notifiedUsers = rule.notifyUsers || '[]';
             await db.insert(escalationLogs).values({
               ruleId: rule.id,
               eventType: 'overdue_task',
@@ -7423,7 +7422,7 @@ async function sendEscalationNotifications(
   projectId?: number
 ) {
   try {
-    const userIds = rule.escalateToUserIds ? JSON.parse(rule.escalateToUserIds) : [];
+    const userIds = rule.notifyUsers ? JSON.parse(rule.notifyUsers) : [];
     
     // ส่ง notification ให้แต่ละ user
     for (const userId of userIds) {

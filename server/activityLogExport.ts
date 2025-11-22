@@ -6,6 +6,8 @@ export interface ActivityLogWithUser {
   userId: number;
   action: string;
   module: string | null;
+  entityType?: string | null;
+  entityId?: number | null;
   details: string | null;
   ipAddress: string | null;
   userAgent: string | null;
