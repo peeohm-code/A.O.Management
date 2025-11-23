@@ -178,8 +178,8 @@ export const defectRouter = router({
           reportedBy: ctx.user!.id,
         });
 
-        const defectId = Number((result as any).insertId);
-        if (isNaN(defectId) || defectId < 0) {
+        const defectId = result.insertId;
+        if (!defectId || isNaN(defectId) || defectId < 0) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create defect",
@@ -214,7 +214,8 @@ export const defectRouter = router({
           }
         }
 
-        return result;
+        // Return the created defect
+        return result.defect;
       } catch (error) {
         // Log the error for debugging
         logger.error("Failed to create defect", {

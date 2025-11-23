@@ -771,3 +771,66 @@
 - **Tests:** 253/300 passed (25 failing, 22 skipped)
 - **Progress:** 38 → 25 failing tests (ลดลง 13 tests!)
 - **Status:** กำลังแก้ไข failing tests ที่เหลือ
+
+
+---
+
+## Phase 6.6: Test Coverage & Security Enhancement (งานปัจจุบัน)
+
+### 6.6.1 แก้ไข Failing Tests ที่เหลือ (24 → 17 tests) ✅
+- [x] แก้ไข defect creation tests (insertId = 0 issue)
+  - [x] แก้ไข createDefect() ใน server/db.ts ให้ return { insertId, defect }
+  - [x] แก้ไข defectRouter.ts ให้ใช้ result.insertId และ return result.defect
+- [x] แก้ไข project tests (response format)
+  - [x] แก้ไข projectRouter.ts create/update ให้ return project object
+  - [x] แก้ไข test expectations ใน projects.test.ts และ projects-simple.test.ts
+- [x] แก้ไข pagination tests (pageSize = 25 default)
+- [x] แก้ไข null/undefined test expectations
+- [ ] แก้ไข tests ที่เหลือ (~17 tests)
+  - [ ] critical-transactions.test.ts: Database integrity tests
+  - [ ] routers.test.ts: Task update test
+  - [ ] security.test.ts: File upload validation
+
+### 6.6.2 Implement Integration Test Features (22 skipped tests)
+- [ ] Implement checklist instance creation และ management
+  - [ ] สร้าง createChecklistInstance function
+  - [ ] สร้าง updateChecklistItem function
+  - [ ] สร้าง completeChecklistInstance function
+  - [ ] Enable checklist-completion-flow.test.ts (4 tests)
+- [ ] Implement defect escalation functions
+  - [ ] สร้าง escalateDefect function
+  - [ ] สร้าง resolveEscalation function
+  - [ ] สร้าง notifyEscalation function
+  - [ ] Enable defect-escalation-flow.test.ts (4 tests)
+- [ ] Enable integration tests ที่ skip ไว้ (22 tests)
+
+### 6.6.3 ขยาย Permission Middleware ให้ครบทุก Router (9 routers)
+- [ ] วิเคราะห์ routers ที่ยังไม่มี permission middleware
+  - [ ] projectRouter.ts
+  - [ ] taskRouter.ts
+  - [ ] defectRouter.ts
+  - [ ] inspectionRouter.ts
+  - [ ] checklistRouter.ts
+  - [ ] dashboardRouter.ts
+  - [ ] commentRouter.ts
+  - [ ] attachmentRouter.ts
+  - [ ] notificationRouter.ts
+- [ ] เพิ่ม permission middleware ให้ครบทุก router
+- [ ] สร้าง permission tests สำหรับแต่ละ router
+- [ ] ทดสอบ authorization ทุก endpoint
+
+### 6.6.4 รัน Tests และแก้ไขปัญหาที่เหลือ
+- [ ] รัน vitest ทั้งหมด
+- [ ] แก้ไขปัญหาที่พบ
+- [ ] ตรวจสอบ test coverage
+- [ ] ตรวจสอบให้ tests ทั้งหมดผ่าน (300/300)
+
+### 6.6.5 สร้าง Checkpoint
+- [ ] สร้าง checkpoint หลังแก้ไข tests และเพิ่ม security
+- [ ] อัพเดท todo.md
+- [ ] รายงานผลให้ผู้ใช้
+
+**เป้าหมาย:**
+- Tests: 300/300 passed (0 failing, 0 skipped)
+- Security: Permission middleware ครบทุก router
+- Coverage: Test coverage เพิ่มขึ้นเป็น 80%+

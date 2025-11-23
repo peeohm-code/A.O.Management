@@ -174,7 +174,9 @@ export const projectRouter = router({
         }
       }
 
-      return result;
+      // Return updated project
+      const updatedProject = await db.getProjectById(id);
+      return updatedProject;
     }),
 
   archive: protectedProcedure

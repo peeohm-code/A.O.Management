@@ -1564,7 +1564,7 @@ export async function createDefect(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.insert(defects).values({
+  const [result] = await db.insert(defects).values({
     projectId: data.projectId,
     taskId: data.taskId,
     checklistItemResultId: data.checklistItemResultId,
@@ -1584,6 +1584,19 @@ export async function createDefect(data: {
     dueDate: data.dueDate,
     ncrLevel: data.ncrLevel,
   });
+
+  const defectId = Number(result.insertId);
+  if (!defectId || isNaN(defectId)) {
+    throw new Error("Failed to create defect: invalid insertId");
+  }
+
+  // Fetch and return the created defect
+  const createdDefect = await getDefectById(defectId);
+  if (!createdDefect) {
+    throw new Error("Failed to retrieve created defect");
+  }
+
+  return { insertId: defectId, defect: createdDefect };
 }
 
 export async function getDefectById(id: number) {

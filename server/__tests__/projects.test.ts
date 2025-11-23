@@ -65,8 +65,8 @@ describe('Projects Router', () => {
       const result = await caller.project.create(projectData);
 
       expect(result).toBeDefined();
-      expect(result.success).toBe(true);
       expect(result.id).toBeTypeOf('number');
+      expect(result.name).toBe(projectData.name);
 
       testProjectId = result.id;
     });
@@ -127,7 +127,7 @@ describe('Projects Router', () => {
       expect(result.items).toBeInstanceOf(Array);
       expect(result.pagination).toBeDefined();
       expect(result.pagination.currentPage).toBe(1);
-      expect(result.pagination.pageSize).toBe(10);
+      expect(result.pagination.pageSize).toBe(10); // Explicitly requested pageSize
     });
 
     it('should filter projects by status', async () => {
