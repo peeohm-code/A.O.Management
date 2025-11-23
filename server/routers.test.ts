@@ -246,18 +246,18 @@ describe('Inspection Procedures Integration Tests', () => {
     testTemplateId = (template as any).insertId;
 
     // Add template items
-    await db.createChecklistTemplateItem({
+    await db.addChecklistTemplateItem({
       templateId: testTemplateId,
-      itemNumber: 1,
-      description: 'Test Item 1',
-      isRequired: true,
+      itemText: 'Test Item 1',
+      order: 1,
+      isRequired: 1,
     });
 
-    await db.createChecklistTemplateItem({
+    await db.addChecklistTemplateItem({
       templateId: testTemplateId,
-      itemNumber: 2,
-      description: 'Test Item 2',
-      isRequired: true,
+      itemText: 'Test Item 2',
+      order: 2,
+      isRequired: 1,
     });
 
     const checklist = await db.createTaskChecklist({
@@ -394,7 +394,7 @@ describe('Defect Procedures Integration Tests', () => {
       });
 
       expect(result).toBeDefined();
-      expect((result as any).insertId).toBeGreaterThan(0);
+      expect((result as any).id).toBeGreaterThan(0);
     });
 
     it('should reject defect creation with empty title', async () => {

@@ -197,6 +197,7 @@ export async function logAuthAudit(
  * Extract IP address from request
  */
 export function getClientIp(req: any): string | undefined {
+  if (!req || !req.headers) return undefined;
   return (
     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
     req.headers['x-real-ip'] ||
@@ -209,5 +210,6 @@ export function getClientIp(req: any): string | undefined {
  * Extract user agent from request
  */
 export function getUserAgent(req: any): string | undefined {
+  if (!req || !req.headers) return undefined;
   return req.headers['user-agent'];
 }

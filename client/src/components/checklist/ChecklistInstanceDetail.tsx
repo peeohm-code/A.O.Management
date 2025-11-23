@@ -157,9 +157,9 @@ export function ChecklistInstanceDetail({ instanceId }: ChecklistInstanceDetailP
                 <Card
                   key={item.id}
                   className={`border-l-4 ${
-                    item.result === "pass" || item.result === "passed"
+                    item.result === "pass"
                       ? "border-l-green-500"
-                      : item.result === "fail" || item.result === "failed"
+                      : item.result === "fail"
                       ? "border-l-red-500"
                       : "border-l-gray-300"
                   }`}
@@ -189,9 +189,9 @@ export function ChecklistInstanceDetail({ instanceId }: ChecklistInstanceDetailP
                         onClick={() => {
                           setSelectedItem(item.id);
                           setResult(
-                            item.result === "pass" || item.result === "passed"
+                            item.result === "pass"
                               ? "passed"
-                              : item.result === "fail" || item.result === "failed"
+                              : item.result === "fail"
                               ? "failed"
                               : "passed"
                           );

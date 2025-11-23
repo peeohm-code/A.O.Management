@@ -44,7 +44,7 @@ describe('Projects Router - Simple Tests', () => {
       expect(result).toHaveProperty('pagination');
       expect(Array.isArray(result.items)).toBe(true);
       expect(result.pagination.currentPage).toBe(1);
-      expect(result.pagination.pageSize).toBe(25); // Default pageSize is 25
+      expect(result.pagination.pageSize).toBe(20); // Default pageSize is 20
     });
 
     it('should handle pagination correctly', async () => {
@@ -52,7 +52,7 @@ describe('Projects Router - Simple Tests', () => {
       
       const result = await caller.project.list({
         page: 1,
-        pageSize: 5,
+        limit: 5,
       });
 
       expect(result.pagination).toBeDefined();

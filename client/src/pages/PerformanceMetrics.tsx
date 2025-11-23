@@ -50,7 +50,7 @@ export default function PerformanceMetrics() {
     }
   );
 
-  const clearMetricsMutation = trpc.performance.clearMetrics.useMutation({
+  const clearMetricsMutation = trpc.performance.clearQueryMetrics.useMutation({
     onSuccess: () => {
       refetch();
     },
@@ -106,7 +106,7 @@ export default function PerformanceMetrics() {
   // Prepare chart data
   const slowQueriesChartData = Object.entries(slowQueriesByPattern)
     .slice(0, 10)
-    .map(([pattern, stats]) => ({
+    .map(([pattern, stats]: [string, any]) => ({
       name: pattern.substring(0, 40) + "...",
       count: stats.count,
       avgDuration: Math.round(stats.avgDuration),
@@ -271,7 +271,7 @@ export default function PerformanceMetrics() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {recommendations.map((rec, index) => (
+                  {recommendations.map((rec: any, index: number) => (
                 <li key={index} className="flex items-start gap-2">
                   <Badge variant="outline" className="mt-0.5">
                     {index + 1}
@@ -336,7 +336,7 @@ export default function PerformanceMetrics() {
                   </tr>
                 </thead>
                 <tbody>
-                  {summary.slowQueries.slice(0, 20).map((query, index) => (
+                  {summary.slowQueries.slice(0, 20).map((query: any, index: number) => (
                     <tr key={index} className="border-b hover:bg-muted/50">
                       <td className="p-2">{index + 1}</td>
                       <td className="p-2">

@@ -203,7 +203,7 @@ export class NotificationRepository extends BaseRepository {
    */
   async createScheduledNotification(data: {
     userId: number;
-    type: string;
+    type: 'task_deadline_reminder' | 'defect_overdue_reminder' | 'inspection_reminder' | 'daily_summary';
     title: string;
     content?: string;
     scheduledFor: Date;
@@ -214,14 +214,13 @@ export class NotificationRepository extends BaseRepository {
     if (!this.db) throw new Error("Database not available");
 
     const result = await this.db.insert(scheduledNotifications).values({
-      userId: data.userId,
       type: data.type,
+      userId: data.userId,
       title: data.title,
       content: data.content,
       scheduledFor: data.scheduledFor,
       relatedTaskId: data.relatedTaskId,
       relatedProjectId: data.relatedProjectId,
-      status: 'pending',
     });
 
     return { insertId: (result as any).insertId };

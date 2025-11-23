@@ -310,16 +310,12 @@ export async function canEditInspection(user: User, checklistId: number): Promis
   const checklist = await db
     .select({
       taskId: taskChecklists.taskId,
-      createdBy: taskChecklists.createdBy,
     })
     .from(taskChecklists)
     .where(eq(taskChecklists.id, checklistId))
     .limit(1);
 
   if (checklist.length === 0) return false;
-
-  // Check if user is checklist creator
-  if (checklist[0].createdBy === user.id) return true;
 
   // Get task to find project
   const task = await db

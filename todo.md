@@ -35,11 +35,11 @@
 - [x] แก้ไข Vite plugin type issues
 - [x] แก้ไข tRPC router type errors (pagination, RBAC)
 - [x] แก้ไข repository schema mapping (template, task, project)
-- [ ] แก้ไข notification.repository.ts
-- [ ] แก้ไข misc.repository.ts
-- [ ] แก้ไข db.ts (10 errors)
-- [ ] แก้ไข rbac.ts (4 errors)
-- [ ] แก้ไข component prop type errors (15 errors)
+- [x] แก้ไข notification.repository.ts
+- [x] แก้ไข misc.repository.ts
+- [x] แก้ไข db.ts (10 errors)
+- [x] แก้ไข rbac.ts (4 errors)
+- [x] แก้ไข component prop type errors (15 errors)
 - [ ] รัน `pnpm type-check` เพื่อยืนยัน
 
 **Progress:** 47 → 38 errors (-9 errors, 81% complete)  

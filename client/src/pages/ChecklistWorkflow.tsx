@@ -36,7 +36,7 @@ export default function ChecklistWorkflow() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   const { data: templates } = trpc.checklist.templates.useQuery();
-  const { data: task } = trpc.task.getById.useQuery(
+  const { data: task } = trpc.task.get.useQuery(
     { id: taskId! },
     { enabled: !!taskId }
   );

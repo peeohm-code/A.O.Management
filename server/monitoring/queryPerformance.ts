@@ -53,7 +53,7 @@ export function logQueryMetrics(
 
   // Log slow queries
   if (duration > SLOW_QUERY_THRESHOLD_MS) {
-    logger.warn(`[SLOW QUERY] ${duration}ms: ${metrics.query}`, {
+    logger.warn(`[SLOW QUERY] ${duration}ms: ${metrics.query}`, 'QueryPerformance', {
       duration,
       params,
       threshold: SLOW_QUERY_THRESHOLD_MS,

@@ -67,7 +67,7 @@ export async function getDb() {
       });
       console.log("[Database] Connection pool created with limit: 10");
       // Create drizzle instance
-      _db = drizzle(_pool);
+      _db = drizzle(_pool) as ReturnType<typeof drizzle>;
     } catch (error: unknown) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -1091,8 +1091,8 @@ export async function createChecklistTemplate(data: {
     category: data.category,
     stage: data.stage,
     description: data.description,
-    allowGeneralComments: data.allowGeneralComments,
-    allowPhotos: data.allowPhotos,
+    allowGeneralComments: data.allowGeneralComments !== undefined ? boolToInt(data.allowGeneralComments) : 1,
+    allowPhotos: data.allowPhotos !== undefined ? boolToInt(data.allowPhotos) : 1,
     createdBy: data.createdBy,
   });
 
@@ -2175,12 +2175,21 @@ export async function submitInspection(data: {
     // 4. Create defects for failed items
     const failedItems = data.itemResults.filter((r) => r.result === "fail");
     if (failedItems.length > 0) {
+      // Get projectId from task
+      const taskData = await db.select({ projectId: tasks.projectId }).from(tasks).where(eq(tasks.id, data.taskId)).limit(1);
+      const projectId = taskData[0]?.projectId;
+      
+      if (!projectId) {
+        throw new Error(`Task ${data.taskId} not found or has no projectId`);
+      }
+      
       // Get the corresponding result IDs
       const defectPromises = failedItems.map(async (item, index: any) => {
         // Find the result ID for this item
         const resultId = insertedResults[data.itemResults.indexOf(item)][0]?.insertId;
         
         return db.insert(defects).values({
+          projectId,
           taskId: data.taskId,
           checklistId: data.taskChecklistId, // Fix: Add checklistId for traceability
           checklistItemResultId: resultId,
@@ -2451,7 +2460,6 @@ export async function createChecklistResult(data: {
     result: data.result,
     comments: data.comment,
     photoUrls: data.photoUrls,
-    inspectedBy: data.inspectedBy,
   });
 }
 
@@ -3626,10 +3634,14 @@ export async function createOomEvent(data: {
     const [result] = await db
       .insert(oomEvents)
       .values({
-        ...data,
-        timestamp: new Date(),
-        resolved: false,
-        createdAt: new Date(),
+        processName: data.processName,
+        processId: data.processId,
+        killedProcessName: data.killedProcessName,
+        killedProcessId: data.killedProcessId,
+        memoryUsedMb: data.memoryUsedMB,
+        severity: data.severity || 'medium',
+        logMessage: data.logMessage,
+        resolved: 0,
       });
 
     return { success: true, id: result.insertId };
@@ -3656,7 +3668,7 @@ export async function getOomEvents(params: {
     let query = db.select().from(oomEvents);
 
     if (params.resolved !== undefined) {
-      query = query.where(eq(oomEvents.resolved, params.resolved)) as any;
+      query = query.where(eq(oomEvents.resolved, boolToInt(params.resolved))) as any;
     }
     if (params.severity) {
       query = query.where(eq(oomEvents.severity, params.severity as any)) as any;
@@ -7171,7 +7183,7 @@ export async function createEscalationRule(data: any) {
   const thresholdUnit = hours < 24 ? 'hours' : 'days';
   const thresholdValue = hours < 24 ? hours : Math.ceil(hours / 24);
   
-  const result = await db.insert(escalationRules).values({
+  const [result] = await db.insert(escalationRules).values({
     name: data.name,
     description: data.description || null,
     eventType: data.triggerType,
@@ -7183,7 +7195,7 @@ export async function createEscalationRule(data: any) {
     createdBy: data.createdBy,
   });
   
-  return { id: Number(result.insertId), ...data };
+  return { id: bigIntToNumber(result.insertId), ...data };
 }
 
 export async function updateEscalationRule(id: number, data: any) {
@@ -7289,7 +7301,7 @@ export async function checkAndTriggerEscalations() {
 
   try {
     // ดึงกฎ escalation ที่เปิดใช้งานทั้งหมด
-    const rules = await db.select().from(escalationRules).where(eq(escalationRules.isActive, true));
+    const rules = await db.select().from(escalationRules).where(eq(escalationRules.isActive, 1));
     
     if (rules.length === 0) {
       logger.info('[Escalation] No active escalation rules found');
@@ -7314,7 +7326,7 @@ export async function checkAndTriggerEscalations() {
           .from(taskChecklists)
           .where(
             and(
-              eq(taskChecklists.status, 'fail'),
+              eq(taskChecklists.status, 'failed'),
               lt(taskChecklists.inspectedAt, thresholdDate)
             )
           );
@@ -7416,7 +7428,7 @@ export async function checkAndTriggerEscalations() {
           .where(
             and(
               ne(tasks.status, 'completed'),
-              lt(tasks.endDate, thresholdDate)
+              sql`${tasks.endDate} < ${thresholdDate.toISOString().split('T')[0]}`
             )
           );
 

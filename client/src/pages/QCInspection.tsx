@@ -236,10 +236,18 @@ export default function QCInspection() {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
+    
+    // Get task to find projectId
+    const task = allTasks?.find((t: any) => t.id === checklist.taskId);
+    if (!task) {
+      toast.error("ไม่พบข้อมูล task");
+      return;
+    }
 
     try {
       // Create defect with photo URLs
       await createDefectMutation.mutateAsync({
+        projectId: task.projectId,
         taskId: checklist.taskId,
         checklistId: checklist.id,
         type: defectForm.type,
@@ -249,7 +257,6 @@ export default function QCInspection() {
         ncrLevel: defectForm.ncrLevel,
         assignedTo: defectForm.assignedTo,
         photoUrls: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
-        beforePhotos: defectPhotos.length > 0 ? JSON.stringify(defectPhotos) : undefined,
       });
       
       toast.success("สร้าง " + defectForm.type + " สำเร็จ");

@@ -72,7 +72,7 @@ export function ActiveProjectsList() {
   });
 
   const utils = trpc.useUtils();
-  const projectsQuery = trpc.project.list.useQuery({ page: currentPage, pageSize });
+  const projectsQuery = trpc.project.list.useQuery({ page: currentPage, limit: pageSize });
   const createProjectMutation = trpc.project.create.useMutation();
   const updateProjectMutation = trpc.project.update.useMutation();
 

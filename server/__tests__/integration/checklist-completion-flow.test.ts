@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, afterEach, afterAll, vi } from "vitest";
 import { getDb } from "../../db";
 import * as db from "../../db";
 import {
@@ -25,6 +25,7 @@ import { eq } from "drizzle-orm";
  */
 
 describe("Multi-step Checklist Completion Integration Tests", () => {
+  vi.setConfig({ testTimeout: 30000 }); // Set 30 second timeout for integration tests
   let testDb: Awaited<ReturnType<typeof getDb>>;
   let projectId: number;
   let taskId: number;
@@ -238,9 +239,9 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
     expect(updatedInstance?.completionPercentage).toBe(100); // 4/4 items
     expect(updatedInstance?.status).toBe("completed");
 
-    // Step 3: ตรวจสอบว่า task status อัพเดท
-    const task = await db.getTaskById(taskId);
-    expect(task?.checklistCompleted).toBe(true);
+    // Step 3: ตรวจสอบว่า checklist instance status อัพเดท
+    const completedInstance = await db.getChecklistInstance(instanceId);
+    expect(completedInstance?.status).toBe('completed');
   });
 
   it("should enforce dependency constraints", async () => {

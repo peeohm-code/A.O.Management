@@ -120,7 +120,7 @@ describe('Projects Router', () => {
     it('should list all projects with pagination', async () => {
       const result = await caller.project.list({
         page: 1,
-        pageSize: 10,
+        limit: 10,
       });
 
       expect(result).toBeDefined();
@@ -133,7 +133,7 @@ describe('Projects Router', () => {
     it('should filter projects by status', async () => {
       const result = await caller.project.list({
         page: 1,
-        pageSize: 10,
+        limit: 10,
         status: 'planning',
       });
 

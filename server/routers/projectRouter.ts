@@ -34,7 +34,7 @@ export const projectRouter = router({
     }).optional())
     .query(async ({ ctx, input }) => {
       const page = input?.page || 1;
-      const pageSize = input?.limit || 25;
+      const pageSize = input?.limit || 20;
       const offset = (page - 1) * pageSize;
 
       let projects = await db.getAllProjects();
@@ -237,12 +237,11 @@ export const projectRouter = router({
         getUserAgent(ctx.req)
       );
       
-      // Log activity BEFORE deletion (to avoid FK constraint violation)
+      // Log activity without projectId to avoid FK constraint violation after deletion
       await db.logActivity({
         userId: ctx.user!.id,
-        projectId: input.id,
         action: "project_deleted",
-        details: JSON.stringify({ name: project.name }),
+        details: JSON.stringify({ projectId: input.id, name: project.name }),
       });
       
       // Delete project (cascade will handle related records)
@@ -403,13 +402,13 @@ export const projectRouter = router({
 
       for (const id of input.ids) {
         try {
-          await db.deleteProject(id);
+          // Log activity without projectId to avoid FK constraint
           await db.logActivity({
             userId: ctx.user!.id,
-            projectId: id,
             action: "project_deleted",
             details: JSON.stringify({ projectId: id, bulkOperation: true }),
           });
+          await db.deleteProject(id);
           results.success.push(id);
         } catch (error) {
           results.failed.push({

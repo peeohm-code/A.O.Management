@@ -124,7 +124,7 @@ export default function Defects() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
-  const allDefectsQuery = trpc.defect.allDefects.useQuery({ page: currentPage, pageSize });
+  const allDefectsQuery = trpc.defect.allDefects.useQuery({ page: currentPage, limit: pageSize });
   const updateDefectMutation = trpc.defect.update.useMutation();
   const usersQuery = trpc.user.list.useQuery();
 

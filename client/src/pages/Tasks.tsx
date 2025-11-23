@@ -75,7 +75,7 @@ export default function Tasks() {
   });
   
   const myTasksQuery = trpc.task.myTasks.useQuery();
-  const allTasksQuery = trpc.task.list.useQuery({ page: currentPage, pageSize });
+  const allTasksQuery = trpc.task.list.useQuery({ page: currentPage, limit: pageSize });
   const projectsQuery = trpc.project.list.useQuery({});
   const utils = trpc.useUtils();
   
