@@ -201,6 +201,7 @@ export async function updateUserProfile(userId: number, data: { name: string; em
     updateData.email = data.email || null;
   }
 
+  if (Object.keys(updateData).length === 0) return;
   await db.update(users).set(updateData).where(eq(users.id, userId));
 }
 
@@ -236,6 +237,7 @@ export async function updateUserNotificationSettings(
     updateData.dailySummaryTime = data.dailySummaryTime;
   }
 
+  if (Object.keys(updateData).length === 0) return;
   await db.update(users).set(updateData).where(eq(users.id, userId));
 }
 
@@ -1033,9 +1035,7 @@ export async function updateTask(
     updateData.endDate = data.endDate instanceof Date 
       ? data.endDate.toISOString().split('T')[0] 
       : data.endDate;
-  if (Object.keys(updateData).length === 0) return;
   }
-
 
   if (Object.keys(updateData).length === 0) return;
   return await db.update(tasks).set(updateData).where(eq(tasks.id, id));
@@ -2709,10 +2709,11 @@ export async function updateArchiveRule(
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  if (Object.keys(updateData).length === 0) return;
   
   const { archiveRules } = await import("../drizzle/schema");
   const updateData: any = { ...data };
+  if (Object.keys(updateData).length === 0) return;
+  
   if (data.enabled !== undefined) {
     updateData.enabled = data.enabled ? 1 : 0;
   }
@@ -7194,6 +7195,7 @@ export async function updateEscalationRule(id: number, data: any) {
   if (data.escalateToUserIds !== undefined) updateData.notifyUsers = JSON.stringify(data.escalateToUserIds);
   if (data.enabled !== undefined) updateData.isActive = data.enabled ? 1 : 0;
   
+  if (Object.keys(updateData).length === 0) return;
   await db.update(escalationRules).set(updateData).where(eq(escalationRules.id, id));
   return { id, ...data };
   if (Object.keys(updateData).length === 0) return;
@@ -7624,6 +7626,7 @@ export async function updateRoleTemplate(
   if (data.isDefault !== undefined) updateData.isDefault = data.isDefault ? 1 : 0;
   if (data.permissionIds) updateData.permissions = JSON.stringify(data.permissionIds);
   
+  if (Object.keys(updateData).length === 0) return;
   await db.update(roleTemplates).set(updateData).where(eq(roleTemplates.id, id));
 }
 
