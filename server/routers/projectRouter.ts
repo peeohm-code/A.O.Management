@@ -237,15 +237,16 @@ export const projectRouter = router({
         getUserAgent(ctx.req)
       );
       
-      // Delete project (cascade will handle related records)
-      await db.deleteProject(input.id);
-
+      // Log activity BEFORE deletion (to avoid FK constraint violation)
       await db.logActivity({
         userId: ctx.user!.id,
         projectId: input.id,
         action: "project_deleted",
         details: JSON.stringify({ name: project.name }),
       });
+      
+      // Delete project (cascade will handle related records)
+      await db.deleteProject(input.id);
 
       return { success: true };
     }),

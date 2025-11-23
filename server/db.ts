@@ -7867,7 +7867,7 @@ export async function completeChecklistItem(
               userId: pmMember.userId,
               type: "checklist_failed",
               title: "Checklist Item Failed",
-              message: `Checklist item failed for task: ${task.name}`,
+              content: `Checklist item failed for task: ${task.name}`,
               relatedTaskId: task.id,
             });
           }
@@ -7992,7 +7992,7 @@ export async function escalateDefect(
         userId,
         type: "defect_escalated",
         title: "Defect Escalated",
-        message: `Defect "${defect.title}" has been escalated to ${data.newSeverity} severity. Reason: ${data.reason}`,
+        content: `Defect "${defect.title}" has been escalated to ${data.newSeverity} severity. Reason: ${data.reason}`,
         relatedDefectId: defectId,
       });
     }
@@ -8068,7 +8068,7 @@ export async function checkAndEscalateOverdueDefects() {
         userId: pmMember.userId,
         type: "defect_escalated",
         title: "Defect Auto-Escalated",
-        message: `Defect "${defect.title}" has been auto-escalated to ${newSeverity} severity due to being overdue`,
+        content: `Defect "${defect.title}" has been auto-escalated to ${newSeverity} severity due to being overdue`,
         relatedDefectId: defect.id,
       });
     }
