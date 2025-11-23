@@ -44,7 +44,7 @@ import { healthRouter } from "./monitoring/healthRouter";
 import { optimizationRouter } from "./optimization/optimizationRouter";
 import { cacheRouter } from "./cache/cacheRouter";
 import { databaseRouter } from "./database/databaseRouter";
-import { performanceRouter } from "./performance/performanceRouter";
+// Removed duplicate import - using performanceRouter from ./routers/performanceRouter instead
 import { getHealthStatus, formatBytes } from "./health";
 import { exportRouter } from "./exportRouter";
 import { monitoringRouter } from "./routers/monitoring";
@@ -515,7 +515,7 @@ export const appRouter = router({
   optimization: optimizationRouter,
   cache: cacheRouter,
   database: databaseRouter,
-  performance: performanceRouter,
+  performance: queryPerformanceRouter,
 
   // System Monitor for Admin
   systemMonitor: router({

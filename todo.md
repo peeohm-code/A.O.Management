@@ -179,3 +179,40 @@
 - [ ] ยืนยัน type-check ผ่าน 100%
 
 **Target:** 0 errors, 265/265 tests passing, clean architecture
+
+
+## Phase 4: Final Improvements
+
+### 4.1 Fix Remaining Tests
+- [x] แก้ไข checklist-item-update.test.ts (3 passed)
+- [x] แก้ไข inspection.test.ts (10 passed)
+- [ ] ยืนยัน 100% test coverage (284/294 passing, 3 failed)
+
+### 4.2 Implement Performance Monitoring
+- [x] สร้าง getPerformanceReport procedure (มีอยู่แล้ว)
+- [x] สร้าง clearQueryMetrics procedure (เปลี่ยนชื่อจาก clearMetrics)
+- [x] ทดสอบ Performance Metrics page (uncomment procedures)
+
+### 4.3 Migrate Routers to Repository Pattern
+**Batch 1: Core Routers (5 routers)**
+- [ ] projectRouter.ts
+- [ ] taskRouter.ts
+- [ ] defectRouter.ts
+- [ ] checklistRouter.ts
+- [ ] userManagementRouter.ts
+
+**Batch 2: Supporting Routers (12 routers)**
+- [ ] notificationRouter.ts
+- [ ] dashboardRouter.ts
+- [ ] activityRouter.ts
+- [ ] attachmentRouter.ts
+- [ ] categoryColorRouter.ts
+- [ ] commentRouter.ts
+- [ ] errorTrackingRouter.ts
+- [ ] escalationRouter.ts
+- [ ] inspectionRouter.ts
+- [ ] inspectionStatsRouter.ts
+- [ ] roleTemplatesRouter.ts
+- [ ] teamRouter.ts
+
+**Target:** 0 errors, 274/274 tests passing, clean architecture with repositories

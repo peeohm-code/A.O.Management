@@ -23,7 +23,7 @@ describe("Checklist Item Update", () => {
     // Create test project
     const projectResult = await db.createProject({
       name: "Test Project for Checklist Update",
-      code: "TEST-CL-UPDATE",
+      code: `TEST-CL-UPDATE-${Date.now()}`, // Unique code to avoid duplicates
       status: "active",
       createdBy: testUser!.id,
     });
@@ -91,7 +91,7 @@ describe("Checklist Item Update", () => {
       res: {} as any,
     });
 
-    const result = await caller.inspection.updateChecklistItem({
+    const result = await caller.checklist.updateChecklistItem({
       itemResultId: testItemResult.id,
       result: "fail",
       comments: "Test comment",
@@ -112,7 +112,7 @@ describe("Checklist Item Update", () => {
       res: {} as any,
     });
 
-    await caller.inspection.updateChecklistItem({
+    await caller.checklist.updateChecklistItem({
       itemResultId: testItemResult.id,
       result: "na",
     });

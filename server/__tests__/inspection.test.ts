@@ -30,7 +30,7 @@ describe("Inspection Router", () => {
     // Create test project
     const projectResult = await db.createProject({
       name: "Test Inspection Project",
-      code: "TIP-001",
+      code: `TIP-${Date.now()}`, // Unique code to avoid duplicates
       status: "active",
       createdBy: testUserId,
     });

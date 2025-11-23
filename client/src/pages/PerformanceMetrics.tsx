@@ -43,22 +43,18 @@ export default function PerformanceMetrics() {
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Fetch performance data
-  // TODO: Implement getPerformanceReport procedure in performanceRouter
-  const { data: report, isLoading, refetch }: { data: any, isLoading: boolean, refetch: () => void } = { data: undefined, isLoading: false, refetch: () => {} };
-  // const { data: report, isLoading, refetch } = trpc.performance.getPerformanceReport.useQuery(
-  //   undefined,
-  //   {
-  //     refetchInterval: autoRefresh ? 5000 : false,
-  //   }
-  // );
+  const { data: report, isLoading, refetch } = trpc.performance.getPerformanceReport.useQuery(
+    undefined,
+    {
+      refetchInterval: autoRefresh ? 5000 : false, // Auto-refresh every 5 seconds if enabled
+    }
+  );
 
-  // TODO: Implement clearQueryMetrics procedure in performanceRouter
-  const clearMetricsMutation = { mutate: () => {}, isPending: false };
-  // const clearMetricsMutation = trpc.performance.clearQueryMetrics.useMutation({
-  //   onSuccess: () => {
-  //     refetch();
-  //   },
-  // });
+  const clearMetricsMutation = trpc.performance.clearQueryMetrics.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
 
   // Toggle auto-refresh
   const toggleAutoRefresh = () => {

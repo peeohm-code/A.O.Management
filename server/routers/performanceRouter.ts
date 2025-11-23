@@ -45,7 +45,7 @@ export const performanceRouter = router({
   /**
    * Clear query metrics (reset statistics)
    */
-  clearMetrics: protectedProcedure
+  clearQueryMetrics: protectedProcedure
     .use(requireAdminMiddleware)
     .mutation(async () => {
       clearQueryMetrics();
