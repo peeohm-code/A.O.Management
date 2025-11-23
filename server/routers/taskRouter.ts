@@ -30,7 +30,8 @@ export const taskRouter = router({
       projectId: z.number().int().positive().optional(),
     }))
     .query(async ({ input, ctx }) => {
-      const { projectId, page = 1, pageSize = 25 } = input;
+      const { projectId, page = 1, limit = 25 } = input;
+      const pageSize = limit;
       const offset = (page - 1) * pageSize;
 
       let tasks;

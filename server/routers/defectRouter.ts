@@ -732,7 +732,10 @@ export const defectRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       // Check delete permission
-      if (!canDeleteDefect(ctx.user!.role)) {
+      // Note: canDeleteDefect requires userId and defectId, but we're doing batch delete
+      // For now, check role-based permission only
+      const userRole = ctx.user!.role;
+      if (!['admin', 'project_manager'].includes(userRole)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "เฉพาะ Owner, Admin และ PM เท่านั้นที่สามารถลบ defect ได้",

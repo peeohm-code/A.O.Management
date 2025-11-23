@@ -31,11 +31,11 @@ export class TemplateRepository extends BaseRepository {
 
     const [result] = await this.db.insert(checklistTemplates).values({
       name: data.name,
-      category: data.category,
+      category: data.category || null,
       stage: data.stage,
-      description: data.description,
-      allowGeneralComments: data.allowGeneralComments,
-      allowPhotos: data.allowPhotos,
+      description: data.description || null,
+      allowGeneralComments: data.allowGeneralComments ? 1 : 0,
+      allowPhotos: data.allowPhotos ? 1 : 0,
       createdBy: data.createdBy,
     });
 

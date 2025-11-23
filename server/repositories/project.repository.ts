@@ -503,12 +503,16 @@ export class ProjectRepository extends BaseRepository {
   async addProjectMember(data: {
     projectId: number;
     userId: number;
-    role: string;
+    role: "project_manager" | "qc_inspector" | "worker";
   }) {
     this.ensureDatabaseAvailable();
     if (!this.db) throw new Error("Database not available");
 
-    await this.db.insert(projectMembers).values(data);
+    await this.db.insert(projectMembers).values({
+      projectId: data.projectId,
+      userId: data.userId,
+      role: data.role,
+    });
     return { success: true };
   }
 
@@ -549,7 +553,7 @@ export class ProjectRepository extends BaseRepository {
   async updateProjectMemberRole(
     projectId: number,
     userId: number,
-    role: string
+    role: "project_manager" | "qc_inspector" | "worker"
   ) {
     this.ensureDatabaseAvailable();
     if (!this.db) throw new Error("Database not available");
