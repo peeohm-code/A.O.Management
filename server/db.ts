@@ -2064,6 +2064,10 @@ export async function logActivity(data: {
   defectId?: number;
   action: string;
   details?: string;
+  resourceType?: string;
+  resourceId?: number;
+  oldValue?: string;
+  newValue?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -2078,6 +2082,10 @@ export async function logActivity(data: {
   if (data.taskId !== undefined) values.taskId = data.taskId;
   if (data.defectId !== undefined) values.defectId = data.defectId;
   if (data.details !== undefined) values.details = data.details;
+  if (data.resourceType !== undefined) values.resourceType = data.resourceType;
+  if (data.resourceId !== undefined) values.resourceId = data.resourceId;
+  if (data.oldValue !== undefined) values.oldValue = data.oldValue;
+  if (data.newValue !== undefined) values.newValue = data.newValue;
 
   return await db.insert(activityLog).values(values);
 }

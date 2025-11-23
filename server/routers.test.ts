@@ -385,6 +385,7 @@ describe('Defect Procedures Integration Tests', () => {
       const caller = createCaller(createTestContext(testUserId, 'admin'));
 
       const result = await caller.defect.create({
+        projectId: testProjectId,
         title: 'Test Defect',
         description: 'Test defect description',
         taskId: testTaskId,
@@ -442,6 +443,7 @@ describe('Defect Procedures Integration Tests', () => {
     beforeAll(async () => {
       // Create test defect
       const result = await db.createDefect({
+        projectId: testProjectId,
         title: 'Defect for Update Tests',
         taskId: testTaskId,
         reportedBy: testUserId,
