@@ -45,7 +45,7 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
       openId: `qc-${Date.now()}`,
       name: "QC Inspector",
       email: "qc@test.com",
-      role: "user",
+      role: "qc_inspector",
     });
     qcInspectorId = Number(qcInspector.insertId);
 
@@ -53,7 +53,7 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
       openId: `pm-${Date.now()}`,
       name: "Project Manager",
       email: "pm@test.com",
-      role: "user",
+      role: "project_manager",
     });
     projectManagerId = Number(pm.insertId);
 

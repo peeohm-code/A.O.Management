@@ -35,7 +35,7 @@ describe("Defect Escalation Process Integration Tests", () => {
       openId: `worker-${Date.now()}`,
       name: "Worker Test",
       email: "worker@test.com",
-      role: "user",
+      role: "worker",
     });
     workerId = Number(worker.insertId);
 
@@ -43,7 +43,7 @@ describe("Defect Escalation Process Integration Tests", () => {
       openId: `pm-${Date.now()}`,
       name: "PM Test",
       email: "pm@test.com",
-      role: "user",
+      role: "project_manager",
     });
     projectManagerId = Number(pm.insertId);
 
