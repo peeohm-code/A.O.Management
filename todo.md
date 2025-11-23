@@ -154,3 +154,28 @@
 - Keep repositories small and focused
 - Document complex business logic
 - Use TypeScript strictly
+
+
+## Phase 3: Final Fixes and Repository Pattern
+
+### 3.1 Fix Remaining Tests
+- [x] วิเคราะห์ 3 failing Inspection Procedures Integration Tests
+- [x] แก้ไข test setup และ assertions (แก้ได้ 1/3 tests)
+- [ ] ยืนยันว่า tests ผ่านทั้งหมด (current: 272/294 passing, 2 failed)
+
+### 3.2 Implement Repository Pattern
+- [ ] ออกแบบ repository structure ตาม domain
+- [ ] สร้าง base repository interface
+- [ ] Migrate project functions → project.repository.ts
+- [ ] Migrate task functions → task.repository.ts
+- [ ] Migrate defect functions → defect.repository.ts
+- [ ] Migrate checklist functions → checklist.repository.ts
+- [ ] Migrate user functions → user.repository.ts
+- [ ] Update routers to use repositories
+- [ ] ลด db.ts จาก 8,160 บรรทัด
+
+### 3.3 Fix Type Errors
+- [ ] แก้ไข 5 drizzle type mismatch errors
+- [ ] ยืนยัน type-check ผ่าน 100%
+
+**Target:** 0 errors, 265/265 tests passing, clean architecture

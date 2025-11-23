@@ -238,7 +238,7 @@ export default function QCInspection() {
     }
     
     // Get task to find projectId
-    const task = allTasks?.find((t: any) => t.id === checklist.taskId);
+    const task = allTasks?.items?.find((t: any) => t.id === checklist.taskId);
     if (!task) {
       toast.error("ไม่พบข้อมูล task");
       return;

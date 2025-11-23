@@ -67,7 +67,7 @@ export async function getDb() {
       });
       console.log("[Database] Connection pool created with limit: 10");
       // Create drizzle instance
-      _db = drizzle(_pool) as ReturnType<typeof drizzle>;
+      _db = drizzle(_pool) as unknown as ReturnType<typeof drizzle>;
     } catch (error: unknown) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;

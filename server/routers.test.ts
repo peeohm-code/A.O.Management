@@ -38,7 +38,7 @@ describe('Task Procedures Integration Tests', () => {
     const project = await db.createProject({
       name: 'Test Project for Integration Tests',
       createdBy: testUserId,
-      code: 'TEST-INT',
+      code: `TEST-INT-${Date.now()}`, // Unique code to avoid duplicates
       location: 'Test Location',
     });
     testProjectId = (project as any).insertId;
@@ -224,6 +224,7 @@ describe('Inspection Procedures Integration Tests', () => {
     // Setup: Create test project, task, template, and checklist
     const project = await db.createProject({
       name: 'Test Project for Inspection Tests',
+      code: `TEST-INSPECT-${Date.now()}`, // Unique code to avoid duplicates
       createdBy: testUserId,
     });
     testProjectId = (project as any).insertId;
@@ -278,17 +279,18 @@ describe('Inspection Procedures Integration Tests', () => {
     }
   });
 
-  describe('task.updateChecklistStatus', () => {
+  describe('checklist.submitInspection', () => {
     it('should submit inspection with valid item results', async () => {
       const caller = createCaller(createTestContext(testUserId, 'qc'));
 
       const templateItems = await db.getChecklistTemplateItems(testTemplateId);
 
-      const result = await caller.task.updateChecklistStatus({
-        id: testChecklistId,
-        status: 'completed',
-        itemResults: templateItems.map(item => ({
+      const result = await caller.checklist.submitInspection({
+        taskChecklistId: testChecklistId,
+        taskId: testTaskId,
+        items: templateItems.map(item => ({
           templateItemId: item.id,
+          itemText: item.itemText,
           result: 'pass' as const,
         })),
         generalComments: 'All items passed',
