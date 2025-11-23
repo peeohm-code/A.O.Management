@@ -41,10 +41,12 @@ import {
   InsertAlertThreshold,
   escalationRules,
   escalationLogs,
+  errorLogs,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { createNotification as sendNotification } from "./notificationService";
 import { logger } from "./logger";
+import { notifyTaskUpdate, notifyDefectUpdate, notifyInspectionUpdate } from "./realtimeNotifications";
 
 // Use Pool type from mysql2/promise for proper typing
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -891,6 +893,17 @@ export async function createTask(data: {
   });
   
   const taskId = bigIntToNumber(result.insertId);
+  
+  // Send real-time notification to assignee
+  if (taskData.assigneeId) {
+    notifyTaskUpdate([taskData.assigneeId], {
+      action: 'created',
+      taskId,
+      taskName: taskData.name,
+      projectId: taskData.projectId,
+    });
+  }
+  
   return { insertId: taskId, id: taskId };
 }
 
@@ -1038,7 +1051,36 @@ export async function updateTask(
   }
 
   if (Object.keys(updateData).length === 0) return;
-  return await db.update(tasks).set(updateData).where(eq(tasks.id, id));
+  
+  // Get task before update to check for changes
+  const task = await getTaskById(id);
+  
+  await db.update(tasks).set(updateData).where(eq(tasks.id, id));
+  
+  // Send real-time notification on status or assignee change
+  if (task) {
+    const notifyUsers: number[] = [];
+    
+    // Notify old assignee if changed
+    if (data.assigneeId !== undefined && task.assigneeId && task.assigneeId !== data.assigneeId) {
+      notifyUsers.push(task.assigneeId);
+    }
+    
+    // Notify new assignee
+    if (data.assigneeId) {
+      notifyUsers.push(data.assigneeId);
+    }
+    
+    if (notifyUsers.length > 0) {
+      notifyTaskUpdate(notifyUsers, {
+        action: 'updated',
+        taskId: id,
+        taskName: task.name,
+        projectId: task.projectId,
+        changes: data,
+      });
+    }
+  }
 }
 
 export async function addTaskDependency(data: {
@@ -1522,8 +1564,11 @@ export async function updateChecklistItemResult(
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Get checklist item result to find related task
+  const itemResult = await getChecklistItemResultById(id);
 
-  return await db
+  await db
     .update(checklistItemResults)
     .set({
       result: data.result,
@@ -1532,6 +1577,45 @@ export async function updateChecklistItemResult(
       updatedAt: new Date(),
     })
     .where(eq(checklistItemResults.id, id));
+  
+  // Send real-time notification if inspection result changed to fail
+  if (data.result === 'fail' && itemResult) {
+    // Get task checklist to find task
+    const checklist = await db
+      .select()
+      .from(taskChecklists)
+      .where(eq(taskChecklists.id, itemResult.taskChecklistId))
+      .limit(1);
+    
+    if (checklist.length > 0) {
+      const task = await getTaskById(checklist[0].taskId);
+      if (task) {
+        const notifyUsers: number[] = [];
+        
+        // Notify task assignee
+        if (task.assigneeId) {
+          notifyUsers.push(task.assigneeId);
+        }
+        
+        // Notify project manager
+        const projectMembers = await getProjectMembers(task.projectId);
+        const pmMember = projectMembers.find((m) => m.role === "project_manager");
+        if (pmMember && !notifyUsers.includes(pmMember.userId)) {
+          notifyUsers.push(pmMember.userId);
+        }
+        
+        if (notifyUsers.length > 0) {
+          notifyInspectionUpdate(notifyUsers, {
+            action: 'failed',
+            taskId: task.id,
+            taskName: task.name,
+            projectId: task.projectId,
+            checklistItemId: id,
+          });
+        }
+      }
+    }
+  }
 }
 
 export async function getChecklistItemResultById(id: number) {
@@ -1602,6 +1686,31 @@ export async function createDefect(data: {
   const createdDefect = await getDefectById(defectId);
   if (!createdDefect) {
     throw new Error("Failed to retrieve created defect");
+  }
+  
+  // Send real-time notification to assigned user and project members
+  const notifyUsers: number[] = [];
+  
+  if (data.assignedTo) {
+    notifyUsers.push(data.assignedTo);
+  }
+  
+  // Get project manager to notify
+  const projectMembers = await getProjectMembers(data.projectId);
+  const pmMember = projectMembers.find((m) => m.role === "project_manager");
+  if (pmMember && !notifyUsers.includes(pmMember.userId)) {
+    notifyUsers.push(pmMember.userId);
+  }
+  
+  if (notifyUsers.length > 0) {
+    notifyDefectUpdate(notifyUsers, {
+      action: 'created',
+      defectId,
+      title: data.title,
+      severity: data.severity,
+      projectId: data.projectId,
+      taskId: data.taskId,
+    });
   }
 
   return { insertId: defectId, defect: createdDefect };
@@ -8169,4 +8278,223 @@ export async function getEscalationHistory(defectId: number) {
     reason: log.details || "",
     escalatedAt: log.createdAt,
   }));
+}
+
+// ============================================================================
+// Error Tracking Functions
+// ============================================================================
+
+/**
+ * Log an error to the database
+ */
+export async function logError(params: {
+  errorMessage: string;
+  stackTrace?: string;
+  errorCode?: string;
+  severity: 'critical' | 'error' | 'warning' | 'info';
+  category: 'frontend' | 'backend' | 'database' | 'external_api' | 'auth' | 'file_upload' | 'other';
+  url?: string;
+  method?: string;
+  userAgent?: string;
+  sessionId?: string;
+  userId?: number;
+  metadata?: string;
+}): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  // Map severity to schema enum
+  const severityMap: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
+    'info': 'low',
+    'warning': 'medium',
+    'error': 'high',
+    'critical': 'critical',
+  };
+
+  const result = await db.insert(errorLogs).values({
+    errorMessage: params.errorMessage,
+    errorStack: params.stackTrace,
+    userAgent: params.userAgent,
+    url: params.url,
+    userId: params.userId,
+    severity: severityMap[params.severity] || 'medium',
+    resolved: 0,
+  });
+
+  return bigIntToNumber(result[0].insertId);
+}
+
+/**
+ * Get error logs with filtering
+ */
+export async function getErrorLogs(params: {
+  severity?: 'critical' | 'error' | 'warning' | 'info';
+  category?: string;
+  status?: 'new' | 'investigating' | 'resolved' | 'ignored';
+  userId?: number;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Map severity to schema enum
+  const severityMap: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
+    'info': 'low',
+    'warning': 'medium',
+    'error': 'high',
+    'critical': 'critical',
+  };
+
+  let query = db.select().from(errorLogs);
+
+  // Apply filters
+  const conditions = [];
+  if (params.severity) {
+    conditions.push(eq(errorLogs.severity, severityMap[params.severity]));
+  }
+  if (params.status) {
+    if (params.status === 'resolved') {
+      conditions.push(eq(errorLogs.resolved, 1));
+    } else if (params.status === 'new') {
+      conditions.push(eq(errorLogs.resolved, 0));
+    }
+  }
+  if (params.userId) {
+    conditions.push(eq(errorLogs.userId, params.userId));
+  }
+  if (params.startDate) {
+    conditions.push(sql`${errorLogs.createdAt} >= ${params.startDate}`);
+  }
+  if (params.endDate) {
+    conditions.push(sql`${errorLogs.createdAt} <= ${params.endDate}`);
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  // Add ordering
+  query = query.orderBy(desc(errorLogs.createdAt)) as any;
+
+  // Add limit and offset
+  if (params.limit) {
+    query = query.limit(params.limit) as any;
+  }
+  if (params.offset) {
+    query = query.offset(params.offset) as any;
+  }
+
+  const results = await query;
+
+  // Map to expected format
+  return results.map((error) => ({
+    id: error.id,
+    errorMessage: error.errorMessage,
+    severity: error.severity === 'low' ? 'info' : error.severity === 'medium' ? 'warning' : error.severity === 'high' ? 'error' : 'critical',
+    status: error.resolved ? 'resolved' : 'new',
+    timestamp: error.createdAt,
+    userId: error.userId,
+    url: error.url,
+    userAgent: error.userAgent,
+  }));
+}
+
+/**
+ * Get error statistics
+ */
+export async function getErrorStatistics(params: {
+  startDate?: string;
+  endDate?: string;
+}) {
+  const db = await getDb();
+  if (!db) {
+    return {
+      totalErrors: 0,
+      criticalErrors: 0,
+      unresolvedErrors: 0,
+      resolvedErrors: 0,
+    };
+  }
+
+  // Build base query conditions
+  const conditions = [];
+  if (params.startDate) {
+    conditions.push(sql`${errorLogs.createdAt} >= ${params.startDate}`);
+  }
+  if (params.endDate) {
+    conditions.push(sql`${errorLogs.createdAt} <= ${params.endDate}`);
+  }
+
+  // Get total errors
+  let totalQuery = db.select({ count: sql<number>`COUNT(*)` }).from(errorLogs);
+  if (conditions.length > 0) {
+    totalQuery = totalQuery.where(and(...conditions)) as any;
+  }
+  const totalResult = await totalQuery;
+  const totalErrors = Number(totalResult[0]?.count || 0);
+
+  // Get critical errors
+  const criticalConditions = [eq(errorLogs.severity, 'critical'), ...conditions];
+  let criticalQuery = db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(errorLogs);
+  if (criticalConditions.length > 0) {
+    criticalQuery = criticalQuery.where(and(...criticalConditions)) as any;
+  }
+  const criticalResult = await criticalQuery;
+  const criticalErrors = Number(criticalResult[0]?.count || 0);
+
+  // Get unresolved errors
+  const unresolvedConditions = [eq(errorLogs.resolved, 0), ...conditions];
+  let unresolvedQuery = db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(errorLogs);
+  if (unresolvedConditions.length > 0) {
+    unresolvedQuery = unresolvedQuery.where(and(...unresolvedConditions)) as any;
+  }
+  const unresolvedResult = await unresolvedQuery;
+  const unresolvedErrors = Number(unresolvedResult[0]?.count || 0);
+
+  // Get resolved errors
+  const resolvedConditions = [eq(errorLogs.resolved, 1), ...conditions];
+  let resolvedQuery = db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(errorLogs);
+  if (resolvedConditions.length > 0) {
+    resolvedQuery = resolvedQuery.where(and(...resolvedConditions)) as any;
+  }
+  const resolvedResult = await resolvedQuery;
+  const resolvedErrors = Number(resolvedResult[0]?.count || 0);
+
+  return {
+    totalErrors,
+    criticalErrors,
+    unresolvedErrors,
+    resolvedErrors,
+  };
+}
+
+/**
+ * Update error status
+ */
+export async function updateErrorStatus(params: {
+  errorId: number;
+  status: 'new' | 'investigating' | 'resolved' | 'ignored';
+  resolutionNotes?: string;
+  resolvedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db
+    .update(errorLogs)
+    .set({
+      resolved: params.status === 'resolved' ? 1 : 0,
+      resolvedBy: params.status === 'resolved' ? params.resolvedBy : null,
+      resolvedAt: params.status === 'resolved' ? new Date() : null,
+    })
+    .where(eq(errorLogs.id, params.errorId));
 }

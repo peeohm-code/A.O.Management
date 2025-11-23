@@ -26,16 +26,20 @@ export const errorTrackingRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // TODO: Implement logError function in db.ts
-      // For now, just log to console
-      console.error('Error logged:', {
-        message: input.errorMessage,
-        stack: input.stackTrace,
-        severity: input.severity,
-        category: input.category,
+      const errorId = await db.logError({
+        errorMessage: input.errorMessage,
+        stackTrace: input.stackTrace,
+        errorCode: input.errorCode,
+        severity: input.severity || 'error',
+        category: input.category || 'other',
+        url: input.url,
+        method: input.method,
+        userAgent: input.userAgent,
+        sessionId: input.sessionId,
         userId: ctx.user?.id,
+        metadata: input.metadata ? JSON.stringify(input.metadata) : undefined,
       });
-      return { errorId: 0 };
+      return { errorId };
     }),
 
   getErrorLogs: roleBasedProcedure("system", "view")
@@ -54,10 +58,7 @@ export const errorTrackingRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const db_instance = await db.getDb();
-      if (!db_instance) throw new Error('Database not available');
-      // TODO: Implement getErrorLogs function in db.ts
-      return [];
+      return await db.getErrorLogs(input);
     }),
 
   getErrorStatistics: roleBasedProcedure("system", "view")
@@ -68,10 +69,7 @@ export const errorTrackingRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const db_instance = await db.getDb();
-      if (!db_instance) throw new Error('Database not available');
-      // TODO: Implement getErrorStatistics function in db.ts
-      return { total: 0, bySeverity: {}, byCategory: {} };
+      return await db.getErrorStatistics(input);
     }),
 
   updateErrorStatus: roleBasedProcedure("system", "edit")
@@ -83,10 +81,13 @@ export const errorTrackingRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db_instance = await db.getDb();
-      if (!db_instance) throw new Error('Database not available');
       if (!ctx.user) throw new Error('User not authenticated');
-      // TODO: Implement updateErrorStatus function in db.ts
+      await db.updateErrorStatus({
+        errorId: input.errorId,
+        status: input.status,
+        resolutionNotes: input.resolutionNotes,
+        resolvedBy: ctx.user.id,
+      });
       return { success: true };
     }),
 });

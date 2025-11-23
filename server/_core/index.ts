@@ -22,6 +22,7 @@ import { generalLimiter, uploadLimiter } from "./rateLimiter";
 import { scanBuffer } from "./virusScanner";
 
 import { handleSSE } from "../sse";
+import { realtimeRouter } from "../routers/realtimeRouter";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -146,8 +147,11 @@ async function startServer() {
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   
-  // SSE endpoint for real-time notifications
+  // SSE endpoint for real-time notifications (legacy)
   app.get("/api/notifications/stream", handleSSE);
+  
+  // Real-time notifications router (new SSE implementation)
+  app.use("/api/realtime", realtimeRouter);
   // tRPC API
   app.use(
     "/api/trpc",

@@ -119,6 +119,9 @@ export const checklistItemResults = mysqlTable("checklistItemResults", {
 },
 (table) => [
 	index("checklistIdx").on(table.taskChecklistId),
+	index("templateItemIdx").on(table.templateItemId),
+	index("resultIdx").on(table.result),
+	index("checklistResultIdx").on(table.taskChecklistId, table.result),
 ]);
 
 export const checklistResults = mysqlTable("checklistResults", {
@@ -357,6 +360,10 @@ export const projectMembers = mysqlTable("projectMembers", {
 },
 (table) => [
 	index("projectUserIdx").on(table.projectId, table.userId),
+	index("projectIdIdx").on(table.projectId),
+	index("userIdIdx").on(table.userId),
+	index("roleIdx").on(table.role),
+	index("projectRoleIdx").on(table.projectId, table.role),
 ]);
 
 export const projects = mysqlTable("projects", {
@@ -549,7 +556,15 @@ export const taskChecklists = mysqlTable("taskChecklists", {
 	notifiedAt: timestamp({ mode: 'date' }),
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
-});
+},
+(table) => [
+	index("taskIdIdx").on(table.taskId),
+	index("templateIdIdx").on(table.templateId),
+	index("statusIdx").on(table.status),
+	index("inspectedByIdx").on(table.inspectedBy),
+	index("inspectedAtIdx").on(table.inspectedAt),
+	index("taskStatusIdx").on(table.taskId, table.status),
+]);
 
 export const taskComments = mysqlTable("taskComments", {
 	id: int().autoincrement().notNull(),

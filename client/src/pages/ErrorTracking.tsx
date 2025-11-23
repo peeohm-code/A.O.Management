@@ -116,7 +116,7 @@ export default function ErrorTracking() {
               <CardTitle className="text-sm font-medium">ข้อผิดพลาดทั้งหมด</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{errorStats.total || 0}</div>
+              <div className="text-2xl font-bold">{errorStats.totalErrors || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -124,7 +124,7 @@ export default function ErrorTracking() {
               <CardTitle className="text-sm font-medium">วิกฤต</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{(errorStats.bySeverity as any)?.critical || 0}</div>
+              <div className="text-2xl font-bold text-red-600">{errorStats.criticalErrors || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -132,7 +132,7 @@ export default function ErrorTracking() {
               <CardTitle className="text-sm font-medium">ยังไม่แก้ไข</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{errorStats.total || 0}</div>
+              <div className="text-2xl font-bold text-yellow-600">{errorStats.unresolvedErrors || 0}</div>
             </CardContent>
           </Card>
           <Card>
