@@ -1979,6 +1979,24 @@ export async function createNotification(data: {
   return null;
 }
 
+export async function getNotificationsByUser(userId: number, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const result = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit);
+    return result;
+  } catch (error) {
+    logger.error("[getNotificationsByUser] Error", undefined, error);
+    return [];
+  }
+}
+
 export async function getUserNotifications(userId: number, limit = 50) {
   const db = await getDb();
   if (!db) return [];

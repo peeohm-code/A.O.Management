@@ -5,6 +5,8 @@ import { logAuthorizationFailure } from "../rbac";
 import { requireEditInspectionMiddleware } from "../middleware/permissionMiddleware";
 import { logInspectionAudit, getClientIp, getUserAgent } from "../auditTrail";
 import * as db from "../db";
+import { taskChecklists } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 import { validateTaskCreateInput, validateTaskUpdateInput, validateInspectionSubmission, validateDefectCreateInput, validateDefectUpdateInput } from "@shared/validationUtils";
 import { createNotification } from "../notificationService";
 import { logger } from "../logger";
@@ -659,6 +661,175 @@ export const checklistRouter = router({
       }
 
       return { success: true };
+    }),
+
+  // ===== Checklist Instance Management =====
+  
+  /**
+   * Create a new checklist instance from a template
+   */
+  createInstance: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        templateId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const result = await db.createChecklistInstance({
+          taskId: input.taskId,
+          templateId: input.templateId,
+          createdBy: ctx.user!.id,
+        });
+
+        // Log activity
+        await db.logActivity({
+          userId: ctx.user!.id,
+          taskId: input.taskId,
+          action: "checklist_instance_created",
+          details: JSON.stringify({
+            instanceId: result.id,
+            templateId: input.templateId,
+          }),
+        });
+
+        return { success: true, instanceId: result.id };
+      } catch (error) {
+        logger.error("[createInstance] Error", undefined, error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to create checklist instance",
+        });
+      }
+    }),
+
+  /**
+   * Get a checklist instance with all items and progress
+   */
+  getInstance: protectedProcedure
+    .input(z.object({ instanceId: z.number() }))
+    .query(async ({ input }) => {
+      const instance = await db.getChecklistInstance(input.instanceId);
+      if (!instance) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Checklist instance not found",
+        });
+      }
+      return instance;
+    }),
+
+  /**
+   * List all checklist instances for a task
+   */
+  listInstancesByTask: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) return [];
+
+      const instances = await dbInstance
+        .select()
+        .from(taskChecklists)
+        .where(eq(taskChecklists.taskId, input.taskId))
+        .orderBy(desc(taskChecklists.createdAt));
+
+      // Get progress for each instance
+      const instancesWithProgress = await Promise.all(
+        instances.map(async (instance: any) => {
+          const fullInstance = await db.getChecklistInstance(instance.id);
+          return {
+            id: instance.id,
+            templateId: instance.templateId,
+            stage: instance.stage,
+            status: fullInstance?.status || instance.status,
+            completionPercentage: fullInstance?.completionPercentage || 0,
+            inspectedBy: instance.inspectedBy,
+            inspectedAt: instance.inspectedAt,
+            createdAt: instance.createdAt,
+          };
+        })
+      );
+
+      return instancesWithProgress;
+    }),
+
+  /**
+   * Complete a checklist item
+   */
+  completeItem: protectedProcedure
+    .input(
+      z.object({
+        itemId: z.number(),
+        result: z.enum(["passed", "failed", "na"]),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        await db.completeChecklistItem(input.itemId, {
+          completedBy: ctx.user!.id,
+          notes: input.notes,
+          result: input.result,
+        });
+
+        return { success: true };
+      } catch (error) {
+        logger.error("[completeItem] Error", undefined, error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to complete checklist item",
+        });
+      }
+    }),
+
+  /**
+   * Update checklist instance progress (recalculate and update status)
+   */
+  updateProgress: protectedProcedure
+    .input(z.object({ instanceId: z.number() }))
+    .mutation(async ({ input }) => {
+      try {
+        // Get updated instance with recalculated progress
+        const instance = await db.getChecklistInstance(input.instanceId);
+        if (!instance) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Checklist instance not found",
+          });
+        }
+
+        // Update status in database
+        const dbInstance = await db.getDb();
+        if (dbInstance) {
+          await dbInstance
+            .update(taskChecklists)
+            .set({ status: instance.status })
+            .where(eq(taskChecklists.id, input.instanceId));
+        }
+
+        return {
+          success: true,
+          completionPercentage: instance.completionPercentage,
+          status: instance.status,
+        };
+      } catch (error) {
+        logger.error("[updateProgress] Error", undefined, error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to update progress",
+        });
+      }
     }),
 
   // Get all task checklists with template and task info

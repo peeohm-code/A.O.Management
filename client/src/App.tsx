@@ -57,6 +57,7 @@ const ErrorTracking = lazy(() => import("./pages/ErrorTracking"));
 const PerformanceMetrics = lazy(() => import("./pages/PerformanceMetrics"));
 
 const NewTemplate = lazy(() => import("./pages/NewTemplate"));
+const ChecklistWorkflow = lazy(() => import("./pages/ChecklistWorkflow"));
 
 
 // Loading component
@@ -167,6 +168,22 @@ function Router() {
             >
               <QCInspection />
             </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+
+      <Route path={"/checklist/:taskId/instance/:instanceId"}>
+        {(params) => (
+          <DashboardLayout>
+            <ChecklistWorkflow />
+          </DashboardLayout>
+        )}
+      </Route>
+
+      <Route path={"/checklist/:taskId"}>
+        {(params) => (
+          <DashboardLayout>
+            <ChecklistWorkflow />
           </DashboardLayout>
         )}
       </Route>

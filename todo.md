@@ -948,29 +948,31 @@
 
 ## งานปัจจุบัน: แก้ไข Integration Tests และพัฒนา Checklist Workflow
 
-### แก้ไข Integration Tests (23 → 20 failed tests)
+### แก้ไข Integration Tests (23 → 22 failed tests)
 - [x] วิเคราะห์ test failures จาก test run ล่าสุด
 - [x] แก้ไข checklist-instance.test.ts (insertId และ schema mismatches)
 - [x] เพิ่ม escalationLevel column ใน defects table
 - [x] แก้ไข projects.test.ts unique codes
-- [ ] แก้ไข tests ที่เหลือ (20 failed) - ทำทีหลัง
+- [x] เพิ่ม getNotificationsByUser function
+- [x] แก้ไข defect escalation tests (1 passed, 3 failed เหลือ)
+- [ ] แก้ไข notification creation issues - ทำทีหลัง
+- [ ] แก้ไข test timeouts - ทำทีหลัง
+- [ ] แก้ไข tests ที่เหลือ (~20 failed) - ทำทีหลัง
 - [ ] รัน tests ทั้งหมดให้ผ่าน - ทำทีหลัง
 
 ### เพิ่ม tRPC Procedures สำหรับ Checklist Workflow
-- [ ] เพิ่ม checklistInstance.create procedure
-- [ ] เพิ่ม checklistInstance.get procedure
-- [ ] เพิ่ม checklistInstance.list procedure
-- [ ] เพิ่ม checklistInstance.completeItem procedure
-- [ ] เพิ่ม checklistInstance.updateProgress procedure
-- [ ] ทดสอบ procedures ด้วย vitest
-
-### สร้าง UI สำหรับ Checklist Workflow
-- [ ] สร้าง ChecklistInstanceList component
-- [ ] สร้าง ChecklistInstanceDetail component
-- [ ] สร้าง ChecklistItemCompletion component
-- [ ] เพิ่ม progress tracking UI
-- [ ] เชื่อมต่อกับ tRPC procedures
-- [ ] ทดสอบ workflow ทั้งหมดใน browser
+- [x] เพิ่ม checklistInstance.create procedure
+- [x] เพิ่ม checklistInstance.get procedure
+- [x] เพิ่ม checklistInstance.list procedure (listInstancesByTask)
+- [x] เพิ่ม checklistInstance.completeItem procedure
+- [x] เพิ่ม checklistInstance.updateProgress procedure
+- [ ] ทดสอบ procedures ด้วย vitest - ทำทีหล### สร้าง UI Components สำหรับ Checklist Workflow
+- [x] สร้าง ChecklistInstanceList component
+- [x] สร้าง ChecklistInstanceDetail component (รวม item completion dialog)
+- [x] สร้าง ChecklistWorkflow page (รวม create instance dialog)
+- [x] เพิ่ม progress tracking UI (Progress bar + percentage)
+- [x] เพิ่ม routes ใน App.tsx (/checklist/:taskId และ /checklist/:taskId/instance/:instanceId)
+- [ ] ทดสอบ UI workflow - ทำทีหลังหมดใน browser
 
 
 ## สรุปความคืบหน้าการแก้ไข Tests (23 → 20 failed)
