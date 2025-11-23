@@ -1,1 +1,0 @@
-ALTER TABLE `defects` MODIFY COLUMN `status` enum('reported','analysis','in_progress','resolved','closed') NOT NULL DEFAULT 'reported';
