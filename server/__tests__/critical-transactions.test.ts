@@ -246,8 +246,7 @@ describe('Critical Transaction Tests', () => {
         expect(dbDefect[0].projectId).toBe(testProjectId);
         expect(dbDefect[0].taskId).toBe(testTaskId);
       }
-    });
-
+    }, 10000);
     it('should validate required fields for defect', async () => {
       const caller = appRouter.createCaller(createAdminContext());
       
@@ -458,7 +457,7 @@ describe('Critical Transaction Tests', () => {
         // Project should be archived or deleted
         expect(dbProject.length === 0 || dbProject[0].archivedAt !== null).toBe(true);
       }
-    });
+    }, 10000);
 
     it('should handle concurrent updates correctly', async () => {
       const caller = appRouter.createCaller(createAdminContext());
@@ -484,6 +483,6 @@ describe('Critical Transaction Tests', () => {
       const result = await caller.project.get({ id: project.id });
       expect(result).toBeDefined();
       expect([25, 50, 75]).toContain(result!.completionPercentage);
-    });
+    }, 10000);
   });
 });

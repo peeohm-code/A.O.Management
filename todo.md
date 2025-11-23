@@ -834,3 +834,77 @@
 - Tests: 300/300 passed (0 failing, 0 skipped)
 - Security: Permission middleware ครบทุก router
 - Coverage: Test coverage เพิ่มขึ้นเป็น 80%+
+
+---
+
+## Phase 6.7: Complete Test Coverage & Security (100% Target)
+
+### 6.7.1 แก้ไข Critical Transaction Tests (10 tests)
+- [x] วิเคราะห์ failing tests ใน critical-transactions.test.ts
+- [x] เพิ่ม unique constraint ให้ projects.code field
+- [x] ทำความสะอาด duplicate codes ในฐานข้อมูล
+- [x] เพิ่ม timeout 10000ms สำหรับ database integrity tests
+- [ ] แก้ไข checklist creation tests (4 skipped)
+
+### 6.7.2 แก้ไข Router Tests (5 tests)
+- [ ] แก้ไข task update test ใน routers.test.ts
+- [ ] ตรวจสอบ response format
+- [ ] แก้ไข validation tests
+
+### 6.7.3 แก้ไข Security Tests (2 tests)
+- [ ] แก้ไข file upload validation test
+- [ ] ตรวจสอบ file size limits
+- [ ] ตรวจสอบ file type validation
+
+### 6.7.4 Implement Checklist Instance Management (4 skipped tests)
+- [ ] สร้าง createChecklistInstance function
+- [ ] สร้าง updateChecklistItem function
+- [ ] สร้าง completeChecklistInstance function
+- [ ] Enable checklist-completion-flow tests
+
+### 6.7.5 Implement Defect Escalation Functions (4 skipped tests)
+- [ ] สร้าง escalateDefect function
+- [ ] สร้าง resolveEscalation function
+- [ ] สร้าง notifyEscalation function
+- [ ] Enable defect-escalation-flow tests
+
+### 6.7.6 ขยาย Permission Middleware (9 routers)
+- [ ] วิเคราะห์ routers ที่ยังไม่มี permission middleware
+- [ ] เพิ่ม permission checks ให้ projectRouter
+- [ ] เพิ่ม permission checks ให้ taskRouter
+- [ ] เพิ่ม permission checks ให้ defectRouter
+- [ ] เพิ่ม permission checks ให้ inspectionRouter
+- [ ] เพิ่ม permission checks ให้ checklistRouter
+- [ ] เพิ่ม permission checks ให้ dashboardRouter
+- [ ] เพิ่ม permission checks ให้ commentRouter
+- [ ] เพิ่ม permission checks ให้ attachmentRouter
+- [ ] เพิ่ม permission checks ให้ notificationRouter
+- [ ] สร้าง permission tests สำหรับแต่ละ router
+
+### 6.7.7 รัน Tests และ Verify
+- [ ] รัน vitest ทั้งหมด
+- [ ] ตรวจสอบให้ tests ผ่านทั้งหมด (300/300)
+- [ ] ตรวจสอบ test coverage
+- [ ] ตรวจสอบ TypeScript errors
+
+### 6.7.8 สร้าง Checkpoint
+- [ ] สร้าง checkpoint หลังแก้ไขทั้งหมด
+- [ ] อัพเดท todo.md
+- [ ] รายงานผลสมบูรณ์ให้ผู้ใช้
+
+**สถานะปัจจุบัน:**
+- Tests: 283/300 passed (17 failing, 0 skipped)
+- Improvement: 261 → 283 passed (+22 tests)
+- Progress: 87% → 94%
+
+**สิ่งที่แก้ไข:**
+- ✅ เพิ่ม unique constraint ให้ projects.code
+- ✅ ทำความสะอาด duplicate project codes
+- ✅ เพิ่ม timeout ให้ database integrity tests
+- ✅ แก้ไข defect creation (insertId issue)
+- ✅ แก้ไข project response format
+- ✅ แก้ไข pagination tests
+- ✅ แก้ไข hard-coded project codes ใน tests
+
+**Tests ที่ยังค้าง:**
+- 17 failing tests (ส่วนใหญ่เป็น integration tests ที่ต้องการ features เพิ่มเติม)

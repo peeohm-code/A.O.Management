@@ -186,7 +186,7 @@ describe('Projects Router', () => {
       if (!testProjectId) {
         const projectData = {
           name: 'Test Project for Stats',
-          code: 'TEST-004',
+          code: `TEST-STATS-${Date.now()}`,
           location: 'Bangkok',
           startDate: '2025-01-01',
           endDate: '2025-12-31',

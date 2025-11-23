@@ -361,7 +361,7 @@ export const projectMembers = mysqlTable("projectMembers", {
 export const projects = mysqlTable("projects", {
 	id: int().autoincrement().notNull(),
 	name: varchar({ length: 255 }).notNull(),
-	code: varchar({ length: 100 }),
+	code: varchar({ length: 100 }).unique(),
 	location: text(),
 	latitude: varchar({ length: 50 }),
 	longitude: varchar({ length: 50 }),
@@ -384,6 +384,7 @@ export const projects = mysqlTable("projects", {
 	index("archivedAtIdx").on(table.archivedAt),
 	index("statusIdx").on(table.status),
 	index("statusArchivedIdx").on(table.status, table.archivedAt),
+	index("codeIdx").on(table.code),
 ]);
 
 export const pushSubscriptions = mysqlTable("pushSubscriptions", {
