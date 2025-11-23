@@ -705,7 +705,6 @@ export async function updateProject(
   if (data.status !== undefined) updateData.status = data.status;
   if (data.progress !== undefined) updateData.progress = data.progress;
 
-  if (Object.keys(updateData).length === 0) return;
 
   if (Object.keys(updateData).length === 0) return;
   return await db.update(projects).set(updateData).where(eq(projects.id, id));
@@ -1033,7 +1032,6 @@ export async function updateTask(
     updateData.endDate = data.endDate instanceof Date 
       ? data.endDate.toISOString().split('T')[0] 
       : data.endDate;
-  if (Object.keys(updateData).length === 0) return;
   }
 
 
@@ -1124,7 +1122,6 @@ export async function updateChecklistTemplate(
   if (data.allowGeneralComments !== undefined) {
     updateData.allowGeneralComments = data.allowGeneralComments ? 1 : 0;
   }
-  if (Object.keys(updateData).length === 0) return;
   if (data.allowPhotos !== undefined) {
     updateData.allowPhotos = data.allowPhotos ? 1 : 0;
   }
@@ -1452,7 +1449,6 @@ export async function updateTaskChecklist(
   if (data.inspectedAt !== undefined) updateData.inspectedAt = data.inspectedAt;
   if (data.generalComments !== undefined) updateData.generalComments = data.generalComments;
   if (data.photoUrls !== undefined) updateData.photoUrls = data.photoUrls;
-  if (Object.keys(updateData).length === 0) return;
   if (data.signature !== undefined) updateData.signature = data.signature;
   if (data.notificationSent !== undefined) updateData.notificationSent = data.notificationSent;
   if (data.notifiedAt !== undefined) updateData.notifiedAt = data.notifiedAt;
@@ -1836,7 +1832,6 @@ export async function updateDefect(
   if (data.verificationComment !== undefined) updateData.verificationComment = data.verificationComment;
   if (data.resolutionNotes !== undefined) updateData.resolutionNotes = data.resolutionNotes;
   if (data.implementationMethod !== undefined) updateData.implementationMethod = data.implementationMethod;
-  if (Object.keys(updateData).length === 0) return;
   if (data.beforePhotos !== undefined) updateData.beforePhotos = data.beforePhotos;
   if (data.afterPhotos !== undefined) updateData.afterPhotos = data.afterPhotos;
   if (data.closureNotes !== undefined) updateData.closureNotes = data.closureNotes;
@@ -2709,7 +2704,6 @@ export async function updateArchiveRule(
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  if (Object.keys(updateData).length === 0) return;
   
   const { archiveRules } = await import("../drizzle/schema");
   const updateData: any = { ...data };
@@ -5708,7 +5702,6 @@ export async function updateBulkImportLog(
   if (data.errorDetails) updateData.errorDetails = JSON.stringify(data.errorDetails);
   if (data.status === "completed" || data.status === "failed") {
     updateData.completedAt = new Date();
-  if (Object.keys(updateData).length === 0) return;
   }
   
   await db.update(bulkImportLogs).set(updateData).where(eq(bulkImportLogs.id, id));
@@ -7196,7 +7189,6 @@ export async function updateEscalationRule(id: number, data: any) {
   
   await db.update(escalationRules).set(updateData).where(eq(escalationRules.id, id));
   return { id, ...data };
-  if (Object.keys(updateData).length === 0) return;
 }
 
 export async function deleteEscalationRule(id: number) {
@@ -7766,12 +7758,9 @@ export async function getChecklistInstance(instanceId: number) {
 
   // Determine status based on results
   let status = instance.status;
-  const hasFailures = items.some((item) => item.result === "fail");
-  
-  if (hasFailures) {
-    status = "failed";
-  } else if (completionPercentage === 100) {
-    status = "completed";
+  if (completionPercentage === 100) {
+    const hasFailures = items.some((item) => item.result === "fail");
+    status = hasFailures ? "failed" : "completed";
   } else if (completedCount > 0) {
     status = "in_progress";
   }
@@ -7818,17 +7807,8 @@ export async function completeChecklistItem(
     throw new Error("Checklist item not found");
   }
 
-  // Check dependencies - ensure previous items are completed (only for first-time completion)
-  // Allow re-completion of failed items without checking dependencies
-  const [currentItem] = await db
-    .select({ result: checklistItemResults.result })
-    .from(checklistItemResults)
-    .where(eq(checklistItemResults.id, itemId))
-    .limit(1);
-
-  // Only enforce dependency for first-time completion (when current result is 'na')
-  // Allow re-completion of failed items (when current result is 'fail')
-  if (currentItem && currentItem.result === "na" && item.order > 1) {
+  // Check dependencies - ensure previous items are completed
+  if (item.order > 1) {
     const previousItems = await db
       .select({
         result: checklistItemResults.result,
@@ -7901,8 +7881,8 @@ export async function completeChecklistItem(
       }
     }
 
-    // Auto-update task progress based on checklist completion
-    if (instance.status === "completed" || instance.status === "failed") {
+    // If completed, update task
+    if (instance.status === "completed") {
       const [checklist] = await db
         .select({
           taskId: taskChecklists.taskId,
@@ -7912,8 +7892,12 @@ export async function completeChecklistItem(
         .limit(1);
 
       if (checklist) {
-        const { calculateAndUpdateTaskProgress } = await import("./taskProgressHelper");
-        await calculateAndUpdateTaskProgress(checklist.taskId);
+        await db
+          .update(tasks)
+          .set({
+            checklistCompleted: boolToInt(true),
+          })
+          .where(eq(tasks.id, checklist.taskId));
       }
     }
   }
@@ -7926,7 +7910,7 @@ export async function resetChecklistInstance(instanceId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Reset only failed items to 'na', keep passed items as is
+  // Reset all item results to 'na'
   await db
     .update(checklistItemResults)
     .set({
@@ -7934,18 +7918,15 @@ export async function resetChecklistInstance(instanceId: number) {
       comments: null,
       photoUrls: null,
     })
-    .where(
-      and(
-        eq(checklistItemResults.taskChecklistId, instanceId),
-        eq(checklistItemResults.result, "fail")
-      )
-    );
+    .where(eq(checklistItemResults.taskChecklistId, instanceId));
 
-  // Update checklist status to in_progress (not not_started)
+  // Reset checklist status
   await db
     .update(taskChecklists)
     .set({
-      status: "in_progress",
+      status: "not_started",
+      inspectedBy: null,
+      inspectedAt: null,
     })
     .where(eq(taskChecklists.id, instanceId));
 }
@@ -8141,8 +8122,8 @@ export async function getEscalationHistory(defectId: number) {
   return activityLogs.map((log) => ({
     id: log.id,
     escalatedBy: log.userId,
-    fromSeverity: log.oldValue || null,
-    toSeverity: log.newValue || null,
+    fromSeverity: log.oldValue,
+    toSeverity: log.newValue,
     reason: log.details || "",
     escalatedAt: log.createdAt,
   }));

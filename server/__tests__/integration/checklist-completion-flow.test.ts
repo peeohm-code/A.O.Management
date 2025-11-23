@@ -323,7 +323,7 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
 
     const updatedInstance = await db.getChecklistInstance(instanceId);
     expect(updatedInstance?.status).toBe("failed");
-    expect(updatedInstance?.items[1].result).toBe("failed");
+    expect(updatedInstance?.items[1].result).toBe("fail");
 
     // ตรวจสอบว่ามี notification ส่งถึง PM
     const pmNotifications = await db.getNotificationsByUser(projectManagerId);
@@ -332,9 +332,9 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
     );
     expect(failedNotifications.length).toBeGreaterThan(0);
 
-    // ตรวจสอบว่า task status ไม่เปลี่ยน
+    // ตรวจสอบว่า task status ยังไม่เปลี่ยนเป็น completed
     const task = await db.getTaskById(taskId);
-    expect(task?.checklistCompleted).toBe(false);
+    expect(task?.status).not.toBe("completed");
   });
 
   it("should allow re-completion of failed items", async () => {
