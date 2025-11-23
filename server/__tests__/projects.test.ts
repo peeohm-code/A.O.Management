@@ -11,7 +11,7 @@ describe('Projects Router', () => {
   beforeAll(async () => {
     // Create mock context
     const mockContext: TrpcContext = {
-      req: {} as any,
+      req: { headers: {} } as any,
       res: {} as any,
       user: {
         id: testUserId,

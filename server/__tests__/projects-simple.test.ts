@@ -5,7 +5,7 @@ import type { TrpcContext } from '../_core/trpc';
 describe('Projects Router - Simple Tests', () => {
   // Create mock context for testing
   const createMockContext = (): TrpcContext => ({
-    req: {} as any,
+    req: { headers: {} } as any,
     res: {} as any,
     user: {
       id: 1,

@@ -105,7 +105,16 @@ export const projectRouter = router({
         details: JSON.stringify({ name: input.name }),
       });
 
-      return { success: true, id: projectId };
+      // Return the created project
+      const project = await db.getProjectById(projectId);
+      if (!project) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve created project",
+        });
+      }
+
+      return project;
     }),
 
   update: protectedProcedure

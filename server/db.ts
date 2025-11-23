@@ -290,6 +290,10 @@ export async function createProject(data: {
   ownerName?: string;
   startDate?: string;
   endDate?: string;
+  status?: "draft" | "planning" | "active" | "on_hold" | "completed" | "cancelled";
+  budget?: number;
+  completionPercentage?: number;
+  color?: string;
   createdBy: number;
 }) {
   const db = await getDb();
@@ -313,6 +317,10 @@ export async function createProject(data: {
     if (data.ownerName) values.ownerName = data.ownerName;
     if (data.startDate) values.startDate = data.startDate;
     if (data.endDate) values.endDate = data.endDate;
+    if (data.status) values.status = data.status;
+    if (data.budget !== undefined) values.budget = data.budget;
+    if (data.completionPercentage !== undefined) values.completionPercentage = data.completionPercentage;
+    if (data.color) values.color = data.color;
 
     // Insert project
     const [result] = await tx.insert(projects).values(values);
@@ -1535,6 +1543,7 @@ export async function getChecklistItemResultById(id: number) {
  * Defect Management
  */
 export async function createDefect(data: {
+  projectId: number;
   taskId: number;
   checklistItemResultId?: number;
   title: string;
@@ -1556,6 +1565,7 @@ export async function createDefect(data: {
   if (!db) throw new Error("Database not available");
 
   return await db.insert(defects).values({
+    projectId: data.projectId,
     taskId: data.taskId,
     checklistItemResultId: data.checklistItemResultId,
     title: data.title,
