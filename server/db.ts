@@ -7639,3 +7639,468 @@ export async function applyRoleTemplateToUser(data: {
   
   await db.insert(userPermissions).values(permissionValues);
 }
+
+/**
+ * ========================================
+ * Checklist Instance Management Functions
+ * ========================================
+ */
+
+/**
+ * Create a checklist instance from a template
+ */
+export async function createChecklistInstance(data: {
+  taskId: number;
+  templateId: number;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get template items
+  const templateItems = await getChecklistTemplateItems(data.templateId);
+  if (templateItems.length === 0) {
+    throw new Error("Template has no items");
+  }
+
+  // Create checklist instance (using taskChecklists table)
+  const result = await db.insert(taskChecklists).values({
+    taskId: data.taskId,
+    templateId: data.templateId,
+    stage: "in_progress",
+    status: "not_started",
+  });
+
+  const instanceId = Number(result.insertId);
+  
+  if (!instanceId || isNaN(instanceId)) {
+    throw new Error("Failed to create checklist instance: invalid insertId");
+  }
+
+  // Create checklist item results for each template item
+  const itemValues = templateItems.map((item) => ({
+    taskChecklistId: instanceId,
+    templateItemId: item.id,
+    result: "na" as const,
+  }));
+
+  if (itemValues.length > 0) {
+    await db.insert(checklistItemResults).values(itemValues);
+  }
+
+  return { id: instanceId };
+}
+
+/**
+ * Get checklist instance with items
+ */
+export async function getChecklistInstance(instanceId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  // Get checklist instance
+  const [instance] = await db
+    .select()
+    .from(taskChecklists)
+    .where(eq(taskChecklists.id, instanceId))
+    .limit(1);
+
+  if (!instance) return undefined;
+
+  // Get checklist item results with template item details
+  const items = await db
+    .select({
+      id: checklistItemResults.id,
+      itemText: checklistTemplateItems.itemText,
+      order: checklistTemplateItems.order,
+      result: checklistItemResults.result,
+      photoUrls: checklistItemResults.photoUrls,
+      comments: checklistItemResults.comments,
+      completed: sql<boolean>`${checklistItemResults.result} != 'na'`,
+      completedAt: checklistItemResults.updatedAt,
+    })
+    .from(checklistItemResults)
+    .innerJoin(
+      checklistTemplateItems,
+      eq(checklistItemResults.templateItemId, checklistTemplateItems.id)
+    )
+    .where(eq(checklistItemResults.taskChecklistId, instanceId))
+    .orderBy(checklistTemplateItems.order);
+
+  // Calculate completion percentage
+  const completedCount = items.filter((item) => item.result !== "na").length;
+  const totalCount = items.length;
+  const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  // Determine status based on results
+  let status = instance.status;
+  if (completionPercentage === 100) {
+    const hasFailures = items.some((item) => item.result === "fail");
+    status = hasFailures ? "failed" : "completed";
+  } else if (completedCount > 0) {
+    status = "in_progress";
+  }
+
+  return {
+    ...instance,
+    items,
+    completionPercentage,
+    status,
+  };
+}
+
+/**
+ * Complete a checklist item
+ */
+export async function completeChecklistItem(
+  itemId: number,
+  data: {
+    completedBy: number;
+    notes?: string;
+    result: "passed" | "failed" | "na";
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get the item
+  const [item] = await db
+    .select({
+      id: checklistItemResults.id,
+      taskChecklistId: checklistItemResults.taskChecklistId,
+      templateItemId: checklistItemResults.templateItemId,
+      order: checklistTemplateItems.order,
+    })
+    .from(checklistItemResults)
+    .innerJoin(
+      checklistTemplateItems,
+      eq(checklistItemResults.templateItemId, checklistTemplateItems.id)
+    )
+    .where(eq(checklistItemResults.id, itemId))
+    .limit(1);
+
+  if (!item) {
+    throw new Error("Checklist item not found");
+  }
+
+  // Check dependencies - ensure previous items are completed
+  if (item.order > 1) {
+    const previousItems = await db
+      .select({
+        result: checklistItemResults.result,
+        order: checklistTemplateItems.order,
+      })
+      .from(checklistItemResults)
+      .innerJoin(
+        checklistTemplateItems,
+        eq(checklistItemResults.templateItemId, checklistTemplateItems.id)
+      )
+      .where(eq(checklistItemResults.taskChecklistId, item.taskChecklistId));
+
+    const incompletePrevious = previousItems.find(
+      (prev) => prev.order < item.order && prev.result === "na"
+    );
+
+    if (incompletePrevious) {
+      throw new Error("Cannot complete this item: previous items must be completed first (dependency violation)");
+    }
+  }
+
+  // Update the item
+  const resultValue = data.result === "passed" ? "pass" : data.result === "failed" ? "fail" : "na";
+  await db
+    .update(checklistItemResults)
+    .set({
+      result: resultValue,
+      comments: data.notes,
+    })
+    .where(eq(checklistItemResults.id, itemId));
+
+  // Update checklist instance status
+  const instance = await getChecklistInstance(item.taskChecklistId);
+  if (instance) {
+    await db
+      .update(taskChecklists)
+      .set({
+        status: instance.status,
+        inspectedBy: data.completedBy,
+        inspectedAt: new Date(),
+      })
+      .where(eq(taskChecklists.id, item.taskChecklistId));
+
+    // If failed, send notification
+    if (data.result === "failed") {
+      const [checklist] = await db
+        .select({
+          taskId: taskChecklists.taskId,
+        })
+        .from(taskChecklists)
+        .where(eq(taskChecklists.id, item.taskChecklistId))
+        .limit(1);
+
+      if (checklist) {
+        const task = await getTaskById(checklist.taskId);
+        if (task) {
+          // Notify project manager
+          const projectMembers = await getProjectMembers(task.projectId);
+          const pmMember = projectMembers.find((m) => m.role === "project_manager");
+          if (pmMember) {
+            await sendNotification({
+              userId: pmMember.userId,
+              type: "checklist_failed",
+              title: "Checklist Item Failed",
+              message: `Checklist item failed for task: ${task.name}`,
+              relatedTaskId: task.id,
+            });
+          }
+        }
+      }
+    }
+
+    // If completed, update task
+    if (instance.status === "completed") {
+      const [checklist] = await db
+        .select({
+          taskId: taskChecklists.taskId,
+        })
+        .from(taskChecklists)
+        .where(eq(taskChecklists.id, item.taskChecklistId))
+        .limit(1);
+
+      if (checklist) {
+        await db
+          .update(tasks)
+          .set({
+            checklistCompleted: boolToInt(true),
+          })
+          .where(eq(tasks.id, checklist.taskId));
+      }
+    }
+  }
+}
+
+/**
+ * Reset checklist instance to allow re-completion
+ */
+export async function resetChecklistInstance(instanceId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Reset all item results to 'na'
+  await db
+    .update(checklistItemResults)
+    .set({
+      result: "na",
+      comments: null,
+      photoUrls: null,
+    })
+    .where(eq(checklistItemResults.taskChecklistId, instanceId));
+
+  // Reset checklist status
+  await db
+    .update(taskChecklists)
+    .set({
+      status: "not_started",
+      inspectedBy: null,
+      inspectedAt: null,
+    })
+    .where(eq(taskChecklists.id, instanceId));
+}
+
+/**
+ * ========================================
+ * Defect Escalation Functions
+ * ========================================
+ */
+
+/**
+ * Escalate a defect manually
+ */
+export async function escalateDefect(
+  defectId: number,
+  data: {
+    escalatedBy: number;
+    newSeverity: "low" | "medium" | "high" | "critical";
+    reason: string;
+    notifyUsers?: number[];
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current defect
+  const defect = await getDefectById(defectId);
+  if (!defect) {
+    throw new Error("Defect not found");
+  }
+
+  // Check if already at critical
+  if (defect.severity === "critical" && data.newSeverity === "critical") {
+    throw new Error("Defect is already at critical severity");
+  }
+
+  // Calculate escalation level
+  const severityLevels = { low: 0, medium: 1, high: 2, critical: 3 };
+  const currentLevel = severityLevels[defect.severity];
+  const newLevel = severityLevels[data.newSeverity];
+
+  if (newLevel <= currentLevel) {
+    throw new Error("New severity must be higher than current severity");
+  }
+
+  const escalationLevel = (defect.escalationLevel || 0) + 1;
+
+  // Update defect
+  await db
+    .update(defects)
+    .set({
+      severity: data.newSeverity,
+      escalationLevel,
+    })
+    .where(eq(defects.id, defectId));
+
+  // Create escalation log
+  await db.insert(escalationLogs).values({
+    ruleId: 0, // Manual escalation
+    eventType: "unresolved_defect",
+    entityId: defectId,
+    notifiedUsers: JSON.stringify(data.notifyUsers || []),
+  });
+
+  // Send notifications
+  if (data.notifyUsers && data.notifyUsers.length > 0) {
+    for (const userId of data.notifyUsers) {
+      await sendNotification({
+        userId,
+        type: "defect_escalated",
+        title: "Defect Escalated",
+        message: `Defect "${defect.title}" has been escalated to ${data.newSeverity} severity. Reason: ${data.reason}`,
+        relatedDefectId: defectId,
+      });
+    }
+  }
+
+  // Log activity
+  await logActivity({
+    userId: data.escalatedBy,
+    projectId: defect.projectId,
+    defectId,
+    action: "escalate_defect",
+    resourceType: "defect",
+    resourceId: defectId,
+    oldValue: defect.severity,
+    newValue: data.newSeverity,
+    details: data.reason,
+  });
+}
+
+/**
+ * Check and auto-escalate overdue defects
+ */
+export async function checkAndEscalateOverdueDefects() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all open defects with due dates
+  const overdueDefects = await db
+    .select()
+    .from(defects)
+    .where(
+      sql`${defects.status} IN ('reported', 'analysis', 'in_progress') 
+          AND ${defects.dueDate} IS NOT NULL 
+          AND ${defects.dueDate} < NOW()`
+    );
+
+  for (const defect of overdueDefects) {
+    // Skip if already critical
+    if (defect.severity === "critical") continue;
+
+    // Determine new severity
+    const severityMap = {
+      low: "medium",
+      medium: "high",
+      high: "critical",
+    } as const;
+
+    const newSeverity = severityMap[defect.severity];
+    const escalationLevel = (defect.escalationLevel || 0) + 1;
+
+    // Update defect
+    await db
+      .update(defects)
+      .set({
+        severity: newSeverity,
+        escalationLevel,
+      })
+      .where(eq(defects.id, defect.id));
+
+    // Create escalation log
+    await db.insert(escalationLogs).values({
+      ruleId: 0, // Auto escalation
+      eventType: "unresolved_defect",
+      entityId: defect.id,
+      notifiedUsers: JSON.stringify([]),
+    });
+
+    // Notify project manager
+    const projectMembers = await getProjectMembers(defect.projectId);
+    const pmMember = projectMembers.find((m) => m.role === "project_manager");
+    if (pmMember) {
+      await sendNotification({
+        userId: pmMember.userId,
+        type: "defect_escalated",
+        title: "Defect Auto-Escalated",
+        message: `Defect "${defect.title}" has been auto-escalated to ${newSeverity} severity due to being overdue`,
+        relatedDefectId: defect.id,
+      });
+    }
+
+    // Log activity
+    await logActivity({
+      userId: 0, // System user
+      projectId: defect.projectId,
+      defectId: defect.id,
+      action: "auto_escalate_defect",
+      resourceType: "defect",
+      resourceId: defect.id,
+      oldValue: defect.severity,
+      newValue: newSeverity,
+      details: "Auto-escalated due to overdue",
+    });
+  }
+}
+
+/**
+ * Get escalation history for a defect
+ */
+export async function getEscalationHistory(defectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get escalation logs
+  const logs = await db
+    .select()
+    .from(escalationLogs)
+    .where(eq(escalationLogs.entityId, defectId))
+    .orderBy(escalationLogs.escalatedAt);
+
+  // Get activity logs for escalations
+  const activityLogs = await db
+    .select()
+    .from(activityLog)
+    .where(
+      sql`${activityLog.defectId} = ${defectId} 
+          AND ${activityLog.action} IN ('escalate_defect', 'auto_escalate_defect')`
+    )
+    .orderBy(activityLog.createdAt);
+
+  // Combine and format
+  return activityLogs.map((log) => ({
+    id: log.id,
+    escalatedBy: log.userId,
+    fromSeverity: log.oldValue,
+    toSeverity: log.newValue,
+    reason: log.details || "",
+    escalatedAt: log.createdAt,
+  }));
+}

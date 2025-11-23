@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from "vitest";
 import { getDb } from "../../db";
 import * as db from "../../db";
-import { projects, defects, users, projectMembers, escalationHistory } from "../../../drizzle/schema";
+import { projects, defects, users, projectMembers, escalationHistory, tasks } from "../../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 /**
@@ -15,7 +15,7 @@ import { eq } from "drizzle-orm";
  * 5. ตรวจสอบ escalation history และ notifications
  */
 
-describe.skip("Defect Escalation Process Integration Tests", () => {
+describe("Defect Escalation Process Integration Tests", () => {
   let testDb: Awaited<ReturnType<typeof getDb>>;
   let projectId: number;
   let workerId: number;
@@ -120,9 +120,24 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
   it("should auto-escalate overdue defect", async () => {
     if (!testDb) throw new Error("Database not available");
 
-    // Step 1: สร้าง defect ที่มี severity ต่ำ
+    // Step 1: สร้าง test task
+    const taskName = `Test Task ${Date.now()}`;
+    await testDb.insert(tasks).values({
+      projectId,
+      name: taskName,
+      description: "Task for defect test",
+      status: "in_progress",
+      priority: "high",
+      createdBy: workerId,
+      assigneeId: workerId,
+    });
+    const [task] = await testDb.select().from(tasks).where(eq(tasks.name, taskName)).limit(1);
+    const taskId = task.id;
+
+    // Step 2: สร้าง defect ที่มี severity ต่ำ
     const defectResult = await db.createDefect({
       projectId,
+      taskId,
       title: "Minor defect for escalation test",
       description: "Test defect",
       severity: "low",
@@ -132,7 +147,7 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
       dueDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // overdue 7 days
     });
 
-    const defectId = defectResult.id;
+    const defectId = defectResult.insertId;
 
     // Step 2: Run auto-escalation check
     await db.checkAndEscalateOverdueDefects();
@@ -160,9 +175,24 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
   it("should handle manual escalation by PM", async () => {
     if (!testDb) throw new Error("Database not available");
 
+    // สร้าง test task
+    const taskName = `Test Task ${Date.now()}`;
+    await testDb.insert(tasks).values({
+      projectId,
+      name: taskName,
+      description: "Task for defect test",
+      status: "in_progress",
+      priority: "high",
+      createdBy: workerId,
+      assigneeId: workerId,
+    });
+    const [task] = await testDb.select().from(tasks).where(eq(tasks.name, taskName)).limit(1);
+    const taskId = task.id;
+
     // สร้าง defect
     const defectResult = await db.createDefect({
       projectId,
+      taskId,
       title: "Defect for manual escalation",
       description: "Critical issue found",
       severity: "medium",
@@ -171,7 +201,7 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
       assignedTo: workerId,
     });
 
-    const defectId = defectResult.id;
+    const defectId = defectResult.insertId;
 
     // PM manually escalate defect
     await db.escalateDefect(defectId, {
@@ -203,9 +233,24 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
   it("should escalate through multiple levels", async () => {
     if (!testDb) throw new Error("Database not available");
 
+    // สร้าง test task
+    const taskName = `Test Task ${Date.now()}`;
+    await testDb.insert(tasks).values({
+      projectId,
+      name: taskName,
+      description: "Task for defect test",
+      status: "in_progress",
+      priority: "high",
+      createdBy: workerId,
+      assigneeId: workerId,
+    });
+    const [task] = await testDb.select().from(tasks).where(eq(tasks.name, taskName)).limit(1);
+    const taskId = task.id;
+
     // สร้าง defect
     const defectResult = await db.createDefect({
       projectId,
+      taskId,
       title: "Multi-level escalation test",
       description: "Test defect",
       severity: "low",
@@ -215,7 +260,7 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
       dueDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // overdue 14 days
     });
 
-    const defectId = defectResult.id;
+    const defectId = defectResult.insertId;
 
     // First escalation: low -> medium
     await db.escalateDefect(defectId, {
@@ -262,9 +307,24 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
   it("should prevent escalation beyond critical", async () => {
     if (!testDb) throw new Error("Database not available");
 
+    // สร้าง test task first
+    const taskName = `Test Task ${Date.now()}`;
+    await testDb.insert(tasks).values({
+      projectId,
+      name: taskName,
+      description: "Task for defect test",
+      status: "in_progress",
+      priority: "high",
+      createdBy: workerId,
+      assigneeId: workerId,
+    });
+    const [task] = await testDb.select().from(tasks).where(eq(tasks.name, taskName)).limit(1);
+    const taskId = task.id;
+
     // สร้าง defect ที่มี severity เป็น critical แล้ว
     const defectResult = await db.createDefect({
       projectId,
+      taskId,
       title: "Already critical defect",
       description: "Test defect",
       severity: "critical",
@@ -273,7 +333,7 @@ describe.skip("Defect Escalation Process Integration Tests", () => {
       assignedTo: workerId,
     });
 
-    const defectId = defectResult.id;
+    const defectId = defectResult.insertId;
 
     // พยายาม escalate defect ที่เป็น critical แล้ว
     await expect(

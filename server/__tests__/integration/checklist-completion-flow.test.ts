@@ -24,7 +24,7 @@ import { eq } from "drizzle-orm";
  * 6. ทดสอบ validation rules และ conditional logic
  */
 
-describe.skip("Multi-step Checklist Completion Integration Tests", () => {
+describe("Multi-step Checklist Completion Integration Tests", () => {
   let testDb: Awaited<ReturnType<typeof getDb>>;
   let projectId: number;
   let taskId: number;

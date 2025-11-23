@@ -1,0 +1,1259 @@
+
+> construction_management_app@1.0.0 test /home/ubuntu/construction_management_app
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.9 [39m[90m/home/ubuntu/construction_management_app[39m
+
+[90mstdout[2m | server/__tests__/checklist-pending-count.test.ts[2m > [22m[2mChecklist Pending Count
+[22m[39m[Database] Connection pool created with limit: 10
+
+Sourcemap for "/home/ubuntu/construction_management_app/node_modules/.pnpm/node-cron@4.2.1/node_modules/node-cron/dist/esm/node-cron.js" points to missing source files
+[90mstdout[2m | server/routers.test.ts[2m > [22m[2mTask Procedures Integration Tests
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | tests/checklist-item-update.test.ts[2m > [22m[2mChecklist Item Update
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/projects.test.ts[2m > [22m[2mProjects Router[2m > [22m[2mcreateProject[2m > [22m[2mshould create a new project successfully
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateProject - Project Creation Transaction[2m > [22m[2mshould create project with valid data
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [31m❯[39m tests/checklist-item-update.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2196[2mms[22m[39m
+     [2m[90m↓[39m[22m should update checklist item result
+     [2m[90m↓[39m[22m should update only result without comments
+     [2m[90m↓[39m[22m should throw error for non-existent item
+[90mstdout[2m | server/db.test.ts[2m > [22m[2mTask Management[2m > [22m[2mcreateTask[2m > [22m[2mshould create a task with valid data
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [31m❯[39m server/db.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 2288[2mms[22m[39m
+       [33m[2m✓[22m[39m should create a task with valid data [33m 1378[2mms[22m[39m
+       [32m✓[39m should convert string dates to Date objects[32m 222[2mms[22m[39m
+       [32m✓[39m should handle missing optional fields[32m 223[2mms[22m[39m
+[31m       [31m×[31m should create a defect with valid data[39m[32m 239[2mms[22m[39m
+[31m       [31m×[31m should set default status to 'reported'[39m[32m 219[2mms[22m[39m
+[31m       [31m×[31m should submit inspection with all passed items[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create defects for failed items[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should set overall status to 'failed' when any item fails[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m should set overall status to 'completed' when all items pass[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should update task status[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should handle all valid status values[39m[32m 1[2mms[22m[39m
+[90mstdout[2m | server/inspection-stats.test.ts[2m > [22m[2mInspection Statistics API[2m > [22m[2mshould get pass/fail rate statistics
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [31m❯[39m server/__tests__/projects.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 6929[2mms[22m[39m
+[31m       [31m×[31m should create a new project successfully[39m[33m 1895[2mms[22m[39m
+       [32m✓[39m should fail to create project without required fields[32m 3[2mms[22m[39m
+[31m       [31m×[31m should retrieve project by ID[39m[33m 677[2mms[22m[39m
+       [32m✓[39m should return null for non-existent project[32m 231[2mms[22m[39m
+[31m       [31m×[31m should list all projects with pagination[39m[33m 703[2mms[22m[39m
+       [33m[2m✓[22m[39m should filter projects by status [33m 688[2mms[22m[39m
+[31m       [31m×[31m should update project successfully[39m[33m 677[2mms[22m[39m
+       [33m[2m✓[22m[39m should return project statistics [33m 1819[2mms[22m[39m
+[90mstderr[2m | server/inspection-stats.test.ts[2m > [22m[2mError Tracking API[2m > [22m[2mshould log an error
+[22m[39mError logged: {
+  message: [32m'Test error message'[39m,
+  stack: [32m'Error: Test error\\n    at test.ts:1:1'[39m,
+  severity: [32m'error'[39m,
+  category: [32m'backend'[39m,
+  userId: [33m1[39m
+}
+
+ [31m❯[39m server/inspection-stats.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2079[2mms[22m[39m
+     [33m[2m✓[22m[39m should get pass/fail rate statistics [33m 1379[2mms[22m[39m
+     [32m✓[39m should get defect trends[32m 248[2mms[22m[39m
+     [32m✓[39m should get inspector performance metrics[32m 223[2mms[22m[39m
+     [32m✓[39m should get checklist item statistics[32m 217[2mms[22m[39m
+     [32m✓[39m should log an error[32m 3[2mms[22m[39m
+     [32m✓[39m should get error logs with filtering[32m 1[2mms[22m[39m
+[31m     [31m×[31m should get error statistics[39m[32m 5[2mms[22m[39m
+     [32m✓[39m should update error status[32m 0[2mms[22m[39m
+[90mstdout[2m | server/__tests__/project-delete.test.ts[2m > [22m[2mProject Delete
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [32m✓[39m tests/integration/security.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 472[2mms[22m[39m
+       [33m[2m✓[22m[39m should enforce rate limits on API endpoints [33m 307[2mms[22m[39m
+ [31m❯[39m server/routers.test.ts [2m([22m[2m24 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m16 skipped[39m[2m)[22m[33m 9239[2mms[22m[39m
+       [2m[90m↓[39m[22m should create task with valid input
+       [2m[90m↓[39m[22m should reject task creation with invalid status
+       [2m[90m↓[39m[22m should reject task creation with invalid priority
+       [2m[90m↓[39m[22m should reject task creation with invalid progress
+       [2m[90m↓[39m[22m should reject task creation with empty name
+       [2m[90m↓[39m[22m should reject task creation with invalid project ID
+       [2m[90m↓[39m[22m should update task with valid data
+       [2m[90m↓[39m[22m should reject update with invalid status
+       [2m[90m↓[39m[22m should reject update with invalid progress
+       [2m[90m↓[39m[22m should submit inspection with valid item results
+       [2m[90m↓[39m[22m should reject inspection with invalid result value
+       [2m[90m↓[39m[22m should reject inspection with empty item results
+       [2m[90m↓[39m[22m should reject inspection with invalid template item ID
+[31m       [31m×[31m should create defect with valid input[39m[32m 5[2mms[22m[39m
+       [32m✓[39m should reject defect creation with empty title[32m 2[2mms[22m[39m
+       [32m✓[39m should reject defect creation with invalid severity[32m 0[2mms[22m[39m
+       [32m✓[39m should reject defect creation with invalid task ID[32m 1[2mms[22m[39m
+       [2m[90m↓[39m[22m should update defect with valid data
+       [2m[90m↓[39m[22m should reject update with invalid status
+       [2m[90m↓[39m[22m should reject update with invalid severity
+     [32m✓[39m should enforce type safety for task status[32m 1[2mms[22m[39m
+     [32m✓[39m should enforce type safety for task priority[32m 0[2mms[22m[39m
+     [32m✓[39m should enforce type safety for defect severity[32m 0[2mms[22m[39m
+     [32m✓[39m should enforce type safety for checklist result[32m 0[2mms[22m[39m
+[90mstdout[2m | server/__tests__/inspection-notification.test.ts[2m > [22m[2mInspection Notification System
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/escalation.test.ts[2m > [22m[2mEscalation System
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [31m❯[39m server/__tests__/project-delete.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2009[2mms[22m[39m
+     [2m[90m↓[39m[22m should allow admin to delete project
+     [2m[90m↓[39m[22m should prevent non-admin from deleting project
+     [2m[90m↓[39m[22m should return error when deleting non-existent project
+[90mstdout[2m | server/__tests__/inspection.test.ts[2m > [22m[2mInspection Router
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [32m✓[39m server/__tests__/checklist-pending-count.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 14201[2mms[22m[39m
+     [33m[2m✓[22m[39m should count pending and in_progress checklists correctly [33m 4084[2mms[22m[39m
+     [33m[2m✓[22m[39m should return 0 when no pending checklists exist [33m 1501[2mms[22m[39m
+[90mstdout[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mlist procedure[2m > [22m[2mshould return paginated projects list
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [32m✓[39m server/__tests__/inspection-notification.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 9444[2mms[22m[39m
+     [33m[2m✓[22m[39m should update notificationSent flag when inspection fails [33m 437[2mms[22m[39m
+     [33m[2m✓[22m[39m should send notification to task assignee when inspection fails [33m 652[2mms[22m[39m
+     [33m[2m✓[22m[39m should send notification to project manager when inspection fails [33m 432[2mms[22m[39m
+[90mstdout[2m | server/__tests__/checklistItemUpdate.test.ts[2m > [22m[2mChecklist Item Update Tests - Comments Field
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [32m✓[39m server/__tests__/inspection.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 8404[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle pagination correctly [33m 444[2mms[22m[39m
+       [33m[2m✓[22m[39m should return inspections for a specific project [33m 435[2mms[22m[39m
+[90mstdout[2m | server/__tests__/escalation.test.ts[2m > [22m[2mEscalation System[2m > [22m[2mManual Escalation Trigger[2m > [22m[2mshould manually trigger escalation check
+[22m[39m2025-11-23T11:28:34.406Z INFO  [Escalation] No active escalation rules found
+
+ [32m✓[39m server/__tests__/escalation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 10083[2mms[22m[39m
+       [33m[2m✓[22m[39m should create escalation rule [33m 1567[2mms[22m[39m
+       [33m[2m✓[22m[39m should list all escalation rules [33m 1785[2mms[22m[39m
+       [33m[2m✓[22m[39m should get escalation rule by ID [33m 1781[2mms[22m[39m
+       [33m[2m✓[22m[39m should update escalation rule [33m 2226[2mms[22m[39m
+       [33m[2m✓[22m[39m should manually trigger escalation check [33m 444[2mms[22m[39m
+[90mstdout[2m | server/services/analytics.service.test.ts[2m > [22m[2mAnalytics Service - SQL Aggregations
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanEditProject should return boolean for invalid inputs
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mupdate procedure[2m > [22m[2mshould update an existing project
+[22m[39m2025-11-23T11:28:35.375Z INFO  [AuditTrail] update on project:600227 by user:1
+
+[90mstderr[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mupdate procedure[2m > [22m[2mshould update an existing project
+[22m[39m[Socket.io] Failed to emit notification: Error: Socket.io not initialized. Call initializeSocket first.
+    at getIO [90m(/home/ubuntu/construction_management_app/[39mserver/_core/socket.ts:31:11[90m)[39m
+    at emitNotification [90m(/home/ubuntu/construction_management_app/[39mserver/_core/socket.ts:50:22[90m)[39m
+    at [90m/home/ubuntu/construction_management_app/[39mserver/routers/projectRouter.ts:172:13
+    at Array.forEach (<anonymous>)
+    at [90m/home/ubuntu/construction_management_app/[39mserver/routers/projectRouter.ts:171:19
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at resolveMiddleware [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:221:17[90m)[39m
+    at callRecursive [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:256:18[90m)[39m
+    at callRecursive [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:256:18[90m)[39m
+    at callRecursive [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:256:18[90m)[39m
+    at callRecursive [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:256:18[90m)[39m
+    at callRecursive [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:256:18[90m)[39m
+    at procedure [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/initTRPC-CB9uBez5.mjs:281:18[90m)[39m
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@trpc+server@11.6.0_typescript@5.9.3/node_modules/[4m@trpc[24m/server/dist/tracked-Blz8XOf1.mjs:298:13
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/projects-simple.test.ts:165:22
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:753:20
+
+ [32m✓[39m server/__tests__/projects-simple.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 8130[2mms[22m[39m
+       [33m[2m✓[22m[39m should return paginated projects list [33m 1859[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle pagination correctly [33m 676[2mms[22m[39m
+       [33m[2m✓[22m[39m should return project if exists [33m 896[2mms[22m[39m
+       [33m[2m✓[22m[39m should create a new project [33m 1337[2mms[22m[39m
+       [33m[2m✓[22m[39m should update an existing project [33m 2912[2mms[22m[39m
+[90mstderr[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateDefect - Defect Creation Transaction[2m > [22m[2mshould validate project and task existence
+[22m[39m2025-11-23T11:28:36.515Z ERROR [[object Object]] Failed to create defect
+
+ [32m✓[39m server/middleware/__tests__/permissions.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+[90mstderr[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateDefect - Defect Creation Transaction[2m > [22m[2mshould validate project and task existence
+[22m[39m2025-11-23T11:28:36.745Z ERROR [[object Object]] Failed to create defect
+
+[90mstderr[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanEditTask should return boolean for invalid inputs
+[22m[39m2025-11-23T11:28:36.782Z ERROR [[object Object]] [RBAC] canEditTask failed
+{}
+
+[90mstderr[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanDeleteTask should return boolean for invalid inputs
+[22m[39m2025-11-23T11:28:36.784Z ERROR [[object Object]] [RBAC] canDeleteTask failed
+{}
+
+ [32m✓[39m server/services/__tests__/defect.service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m server/__tests__/taskFiltering.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m server/__tests__/rbac.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2284[2mms[22m[39m
+       [33m[2m✓[22m[39m canEditProject should return boolean for invalid inputs [33m 1392[2mms[22m[39m
+ [32m✓[39m server/__tests__/checklistOperations.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m server/services/__tests__/task.service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m server/utils/__tests__/bigint.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m server/__tests__/logger.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m server/__tests__/taskStatusCalculation.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould establish database connection
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould close connection gracefully
+[22m[39m[Database] Connection pool closed
+
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould close connection gracefully
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection
+[22m[39m[Database] Connection pool closed
+
+ [32m✓[39m server/__tests__/db.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m server/__tests__/routers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+[90mstdout[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/test-template-create.test.ts[2m > [22m[2mTemplates Router[2m > [22m[2mshould have templates.create mutation
+[22m[39mtemplates.create mutation exists
+
+ [32m✓[39m server/test-template-create.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+[90mstdout[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/services/analytics.service.test.ts[2m > [22m[2mPerformance Comparison[2m > [22m[2mshould demonstrate SQL aggregations are faster than JavaScript loops
+[22m[39mOptimized (SQL aggregations): 449ms
+
+ [32m✓[39m server/services/analytics.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 5933[2mms[22m[39m
+       [33m[2m✓[22m[39m should return dashboard statistics using SQL aggregations [33m 2316[2mms[22m[39m
+       [33m[2m✓[22m[39m should return project statistics using SQL aggregations [33m 677[2mms[22m[39m
+       [33m[2m✓[22m[39m should return stats for multiple projects using SQL aggregations [33m 675[2mms[22m[39m
+       [33m[2m✓[22m[39m should filter by project ID when provided [33m 447[2mms[22m[39m
+     [33m[2m✓[22m[39m should demonstrate SQL aggregations are faster than JavaScript loops [33m 674[2mms[22m[39m
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould maintain referential integrity on project deletion
+[22m[39m2025-11-23T11:28:41.360Z INFO  [AuditTrail] delete on project:600230 by user:1
+
+[90mstdout[2m | server/__tests__/checklistItemUpdate.test.ts[2m > [22m[2mChecklist Item Update Tests - Comments Field
+[22m[39m[Database] Connection pool closed
+
+ [32m✓[39m server/__tests__/checklistItemUpdate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 8186[2mms[22m[39m
+       [33m[2m✓[22m[39m should update result and comments successfully [33m 457[2mms[22m[39m
+       [33m[2m✓[22m[39m should update comments with Thai text [33m 447[2mms[22m[39m
+       [33m[2m✓[22m[39m should update comments with long text [33m 448[2mms[22m[39m
+       [33m[2m✓[22m[39m should update comments to empty string [33m 672[2mms[22m[39m
+       [33m[2m✓[22m[39m should preserve comments when updating only result [33m 672[2mms[22m[39m
+       [33m[2m✓[22m[39m should update photoUrls and comments together [33m 456[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle special characters in comments [33m 447[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle newlines and tabs in comments [33m 447[2mms[22m[39m
+       [33m[2m✓[22m[39m should retrieve item with all fields including comments [33m 448[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould auto-escalate overdue defect
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould complete checklist items in correct order
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould handle manual escalation by PM
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould enforce dependency constraints
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
+[22m[39m2025-11-23T11:28:47.375Z INFO  [AuditTrail] update on project:600235 by user:1
+
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould escalate through multiple levels
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
+[22m[39m2025-11-23T11:28:48.427Z INFO  [AuditTrail] update on project:600235 by user:1
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
+[22m[39m2025-11-23T11:28:48.496Z INFO  [AuditTrail] update on project:600235 by user:1
+
+ [31m❯[39m server/__tests__/critical-transactions.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m4 skipped[39m[2m)[22m[33m 35842[2mms[22m[39m
+       [33m[2m✓[22m[39m should create project with valid data [33m 3522[2mms[22m[39m
+       [32m✓[39m should validate required fields[32m 3[2mms[22m[39m
+       [33m[2m✓[22m[39m should prevent duplicate project codes [33m 2780[2mms[22m[39m
+       [33m[2m✓[22m[39m should set default values correctly [33m 2101[2mms[22m[39m
+       [33m[2m✓[22m[39m should create defect with valid data [33m 4391[2mms[22m[39m
+       [33m[2m✓[22m[39m should validate required fields for defect [33m 3230[2mms[22m[39m
+       [33m[2m✓[22m[39m should set default status to reported [33m 4162[2mms[22m[39m
+       [33m[2m✓[22m[39m should validate project and task existence [33m 3927[2mms[22m[39m
+       [2m[90m↓[39m[22m should create task checklist with valid data
+       [2m[90m↓[39m[22m should validate task existence
+       [2m[90m↓[39m[22m should validate template existence
+       [2m[90m↓[39m[22m should prevent duplicate checklists for same task and stage
+[31m       [31m×[31m should maintain referential integrity on project deletion[39m[33m 7149[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle concurrent updates correctly [33m 4574[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould prevent escalation beyond critical
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+ [31m❯[39m server/__tests__/integration/defect-escalation-flow.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 10044[2mms[22m[39m
+[31m     [31m×[31m should auto-escalate overdue defect[39m[33m 3406[2mms[22m[39m
+[31m     [31m×[31m should handle manual escalation by PM[39m[33m 2214[2mms[22m[39m
+[31m     [31m×[31m should escalate through multiple levels[39m[33m 2208[2mms[22m[39m
+[31m     [31m×[31m should prevent escalation beyond critical[39m[33m 2211[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould handle failed checklist items
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould allow re-completion of failed items
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+ [31m❯[39m server/__tests__/integration/checklist-completion-flow.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 15471[2mms[22m[39m
+[31m     [31m×[31m should complete checklist items in correct order[39m[33m 4759[2mms[22m[39m
+[31m     [31m×[31m should enforce dependency constraints[39m[33m 3570[2mms[22m[39m
+[31m     [31m×[31m should handle failed checklist items[39m[33m 3570[2mms[22m[39m
+[31m     [31m×[31m should allow re-completion of failed items[39m[33m 3568[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mTask Procedures Integration Tests
+[31m[1mError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, default, default, default, default, default, default, ?, default, default, default, default, default)
+params: Test Project for Integration Tests,TEST-INT,Test Location,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers.test.ts:[2m38:21[22m[39m
+
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Integration Tests\', \'TEST-INT\', \'Test Location\', default, default, default, default, default, default, default, default, default, 1, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mInspection Procedures Integration Tests
+[31m[1mError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, default, default, default, default, default, default, default, default, default, default, ?, default, default, default, default, default)
+params: Test Project for Inspection Tests,AO-2025-010,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers.test.ts:[2m225:21[22m[39m
+
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Inspection Tests\', \'AO-2025-010\', default, default, default, default, default, default, default, default, default, default, 1, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mDefect Procedures Integration Tests[2m > [22mdefect.update
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, ?, default, ?, default, default, ?, ?, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 570131,Defect for Update Tests,reported,medium,1,CAR[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/routers.test.ts:[2m444:22[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'projectId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, 570131, default, \'Defect for Update Tests\', default, default, \'reported\', \'medium\', default, 1, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'projectId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/checklist-item-update.test.ts[2m > [22mChecklist Item Update
+[31m[1mError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, default, default, default, default, default, default, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project for Checklist Update,TEST-CL-UPDATE,active,450015[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m tests/checklist-item-update.test.ts:[2m24:27[22m[39m
+
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Checklist Update\', \'TEST-CL-UPDATE\', default, default, default, default, default, default, default, \'active\', default, default, 450015, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/project-delete.test.ts[2m > [22mProject Delete
+[31m[1mError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, default, default, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project for Deletion,TEST-DELETE-001,Test Location,draft,9999[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/__tests__/project-delete.test.ts:[2m47:21[22m[39m
+
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Deletion\', \'TEST-DELETE-001\', \'Test Location\', default, default, default, default, default, default, \'draft\', default, default, 9999, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router
+[31m[1mError[22m: Failed query: delete from `projects` where ?
+params: (t) => t.id.eq(testProjectId)[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/__tests__/projects.test.ts:[2m48:9[22m[39m
+    [90m 46| [39m      [35mif[39m (db) {
+    [90m 47| [39m        [35mconst[39m { projects } [33m=[39m [35mawait[39m [35mimport[39m([32m'../../drizzle/schema'[39m)[33m;[39m
+    [90m 48| [39m        await db.delete(projects).where((t: any) => t.id.eq(testProjec…
+    [90m   | [39m        [31m^[39m
+    [90m 49| [39m      }
+    [90m 50| [39m    }
+
+[31m[1mCaused by: Error[22m: Truncated incorrect DOUBLE value: '?'[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/delete.js:[2m91:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_TRUNCATED_WRONG_VALUE', errno: 1292, sql: 'delete from `projects` where \'(t) => t.id.eq(testProjectId)\'', sqlState: '22007', sqlMessage: 'Truncated incorrect DOUBLE value: \'?\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/e2e/auth.spec.ts[2m [ tests/e2e/auth.spec.ts ][22m
+[31m[1mError[22m: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.[39m
+[90m [2m❯[22m TestTypeImpl._currentSuite node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/common/testType.js:[2m74:13[22m[39m
+[90m [2m❯[22m TestTypeImpl._describe node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/common/testType.js:[2m114:24[22m[39m
+[90m [2m❯[22m Function.describe node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/transform/transform.js:[2m275:12[22m[39m
+[36m [2m❯[22m tests/e2e/auth.spec.ts:[2m13:6[22m[39m
+    [90m 11| [39m */[39m
+    [90m 12| [39m
+    [90m 13| [39mtest[33m.[39m[34mdescribe[39m([32m'Authentication Flow'[39m[33m,[39m () [33m=>[39m {
+    [90m   | [39m     [31m^[39m
+    [90m 14| [39m  test('should redirect to login when accessing protected page', async…
+    [90m 15| [39m    [90m// Navigate to dashboard (protected page)[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/e2e/inspection.spec.ts[2m [ tests/e2e/inspection.spec.ts ][22m
+[31m[1mError[22m: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.[39m
+[90m [2m❯[22m TestTypeImpl._currentSuite node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/common/testType.js:[2m74:13[22m[39m
+[90m [2m❯[22m TestTypeImpl._describe node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/common/testType.js:[2m114:24[22m[39m
+[90m [2m❯[22m Function.describe node_modules/.pnpm/playwright@1.56.1/node_modules/playwright/lib/transform/transform.js:[2m275:12[22m[39m
+[36m [2m❯[22m tests/e2e/inspection.spec.ts:[2m13:6[22m[39m
+    [90m 11| [39m */[39m
+    [90m 12| [39m
+    [90m 13| [39mtest[33m.[39m[34mdescribe[39m([32m'QC Inspection Workflow'[39m[33m,[39m () [33m=>[39m {
+    [90m   | [39m     [31m^[39m
+    [90m 14| [39m  test[33m.[39m[34mbeforeEach[39m([35masync[39m ({ page }) [33m=>[39m {
+    [90m 15| [39m    [90m// Note: These tests require authentication[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/31]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 23 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mDefect Management[2m > [22mcreateDefect[2m > [22mshould create a defect with valid data
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, ?, default, ?, ?, default, ?, ?, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 1,Test Defect,Test Description,reported,high,1,CAR[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Proxy.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/db.test.ts:[2m91:22[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'projectId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, 1, default, \'Test Defect\', \'Test Description\', default, \'reported\', \'high\', default, 1, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'projectId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mDefect Management[2m > [22mcreateDefect[2m > [22mshould set default status to 'reported'
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, ?, default, ?, default, default, ?, ?, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 1,Test Defect,reported,medium,1,CAR[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Proxy.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/db.test.ts:[2m103:22[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'projectId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, 1, default, \'Test Defect\', default, default, \'reported\', \'medium\', default, 1, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'projectId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould submit inspection with all passed items
+[31m[1mError[22m: [vitest] No "submitInspectionResults" export is defined on the "./db" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./db"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m server/db.test.ts:[2m124:28[22m[39m
+    [90m122| [39m      }[33m;[39m
+    [90m123| [39m
+    [90m124| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34msubmitInspectionResults[39m(inspectionData)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m125| [39m      [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m126| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould create defects for failed items
+[31m[1mError[22m: [vitest] No "submitInspectionResults" export is defined on the "./db" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./db"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m server/db.test.ts:[2m141:28[22m[39m
+    [90m139| [39m      }[33m;[39m
+    [90m140| [39m
+    [90m141| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34msubmitInspectionResults[39m(inspectionData)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m142| [39m      [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m143| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould set overall status to 'failed' when any item fails
+[31m[1mError[22m: [vitest] No "submitInspectionResults" export is defined on the "./db" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./db"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m server/db.test.ts:[2m157:28[22m[39m
+    [90m155| [39m      }[33m;[39m
+    [90m156| [39m
+    [90m157| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34msubmitInspectionResults[39m(inspectionData)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m158| [39m      [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m159| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould set overall status to 'completed' when all items pass
+[31m[1mError[22m: [vitest] No "submitInspectionResults" export is defined on the "./db" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./db"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m server/db.test.ts:[2m174:28[22m[39m
+    [90m172| [39m      }[33m;[39m
+    [90m173| [39m
+    [90m174| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34msubmitInspectionResults[39m(inspectionData)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m175| [39m      [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m176| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mTask Status Management[2m > [22mupdateTaskStatus[2m > [22mshould update task status
+[31m[1mError[22m: [vitest] No "updateTaskStatus" export is defined on the "./db" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./db"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m server/db.test.ts:[2m183:28[22m[39m
+    [90m181| [39m  [34mdescribe[39m([32m"updateTaskStatus"[39m[33m,[39m () [33m=>[39m {
+    [90m182| [39m    [34mit[39m([32m"should update task status"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m183| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34mupdateTaskStatus[39m([34m1[39m[33m,[39m [32m"in_progress"[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m184| [39m      [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m185| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mTask Status Management[2m > [22mupdateTaskStatus[2m > [22mshould handle all valid status values
+[31m[1mError[22m: [vitest] No "updateTaskStatus" export is defined on the "./db" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./db"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m server/db.test.ts:[2m191:30[22m[39m
+    [90m189| [39m      
+    [90m190| [39m      [35mfor[39m ([35mconst[39m status [35mof[39m statuses) {
+    [90m191| [39m        [35mconst[39m result [33m=[39m [35mawait[39m [34mupdateTaskStatus[39m([34m1[39m[33m,[39m status)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m192| [39m        [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m193| [39m      }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/inspection-stats.test.ts[2m > [22mError Tracking API[2m > [22mshould get error statistics
+[31m[1mAssertionError[22m: expected { total: +0, bySeverity: {}, …(1) } to have property "totalErrors"[39m
+[36m [2m❯[22m server/inspection-stats.test.ts:[2m173:20[22m[39m
+    [90m171| [39m    
+    [90m172| [39m    [34mexpect[39m(result)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m173| [39m    [34mexpect[39m(result)[33m.[39m[34mtoHaveProperty[39m([32m"totalErrors"[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m174| [39m    [34mexpect[39m(result)[33m.[39m[34mtoHaveProperty[39m([32m"criticalErrors"[39m)[33m;[39m
+    [90m175| [39m    [34mexpect[39m(result)[33m.[39m[34mtoHaveProperty[39m([32m"unresolvedErrors"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mDefect Procedures Integration Tests[2m > [22mdefect.create[2m > [22mshould create defect with valid input
+[31m[1mTRPCError[22m: [
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "projectId"
+    ],
+    "message": "Invalid input: expected number, received undefined"
+  }
+][39m
+[90m [2m❯[22m inputValidatorMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m44:10[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[36m [2m❯[22m server/routers.test.ts:[2m387:22[22m[39m
+    [90m385| [39m      const caller = createCaller(createTestContext(testUserId, 'admin…
+    [90m386| [39m
+    [90m387| [39m      [35mconst[39m result [33m=[39m [35mawait[39m caller[33m.[39mdefect[33m.[39m[34mcreate[39m({
+    [90m   | [39m                     [31m^[39m
+    [90m388| [39m        title[33m:[39m [32m'Test Defect'[39m[33m,[39m
+    [90m389| [39m        description[33m:[39m [32m'Test defect description'[39m[33m,[39m
+
+[31m[1mCaused by: ZodError[22m: [
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "projectId"
+    ],
+    "message": "Invalid input: expected number, received undefined"
+  }
+][39m
+[90m [2m❯[22m inputValidatorMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m42:24[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ _zod: { traits: { constructor: 'Function<Set>', has: 'Function<has>', add: 'Function<add>', delete: 'Function<delete>', clear: 'Function<clear>', entries: 'Function<entries>', forEach: 'Function<forEach>', size: 2, values: 'Function<values>', keys: 'Function<values>', union: 'Function<union>', intersection: 'Function<intersection>', difference: 'Function<difference>', symmetricDifference: 'Function<symmetricDifference>', isSubsetOf: 'Function<isSubsetOf>', isSupersetOf: 'Function<isSupersetOf>', isDisjointFrom: 'Function<isDisjointFrom>' }, constr: 'Function<ZodError>', def: [ { expected: 'number', code: 'invalid_type', path: [ 'projectId' ], message: 'Invalid input: expected number, received undefined' } ], deferred: [] }, issues: [ { expected: 'number', code: 'invalid_type', path: [ 'projectId' ], message: 'Invalid input: expected number, received undefined' } ], format: 'Function<value>', flatten: 'Function<value>', addIssue: 'Function<value>', addIssues: 'Function<value>', isEmpty: false }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mDatabase Integrity Tests[2m > [22mshould maintain referential integrity on project deletion
+[31m[1mTRPCError[22m: Failed query: insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)
+params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.logActivity server/db.ts:[2m2053:10[22m[39m
+    [90m2051| [39m  if (data.details !== undefined) values.details = data.details;
+    [90m2052| [39m
+    [90m2053| [39m  return await db.insert(activityLog).values(values);
+    [90m   | [39m         [31m^[39m
+    [90m2054| [39m}
+    [90m2055| [39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m243:7[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/critical-transactions.test.ts:[2m446:7[22m[39m
+
+[31m[1mCaused by: Error[22m: Failed query: insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)
+params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.logActivity server/db.ts:[2m2053:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m243:7[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/critical-transactions.test.ts:[2m446:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ query: 'insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)', params: [ 1, 600230, 'project_deleted', '{"name":"Integrity Test Project"}' ] }[39m
+[31m[1mCaused by: Error[22m: Cannot add or update a child row: a foreign key constraint fails (`xgufrkfw3wtjbzrcqsfjbu`.`activitylog`, CONSTRAINT `fk_activityLog_projectId` FOREIGN KEY (`projectId`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_REFERENCED_ROW_2', errno: 1452, sql: 'insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, 1, 600230, default, default, \'project_deleted\', default, default, default, default, default, default, \'{\"name\":\"Integrity Test Project\"}\', default)', sqlState: '23000', sqlMessage: 'Cannot add or update a child row: a foreign key constraint fails (`xgufrkfw3wtjbzrcqsfjbu`.`activitylog`, CONSTRAINT `fk_activityLog_projectId` FOREIGN KEY (`projectId`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mcreateProject[2m > [22mshould create a new project successfully
+[31m[1mTRPCError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project,TEST-001,Bangkok, Thailand,2025-01-01,2025-12-31,planning,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m87:22[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/projects.test.ts:[2m65:22[22m[39m
+
+[31m[1mCaused by: Error[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project,TEST-001,Bangkok, Thailand,2025-01-01,2025-12-31,planning,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m87:22[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/projects.test.ts:[2m65:22[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ query: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)', params: [ 'Test Project', 'TEST-001', 'Bangkok, Thailand', '2025-01-01', '2025-12-31', 'planning', 1 ] }[39m
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project\', \'TEST-001\', \'Bangkok, Thailand\', default, default, default, \'2025-01-01\', \'2025-12-31\', default, \'planning\', default, default, 1, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mgetProjectById[2m > [22mshould retrieve project by ID
+[31m[1mTRPCError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project for Get,TEST-002,Bangkok,2025-01-01,2025-12-31,planning,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m87:22[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/projects.test.ts:[2m102:25[22m[39m
+
+[31m[1mCaused by: Error[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project for Get,TEST-002,Bangkok,2025-01-01,2025-12-31,planning,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m87:22[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/projects.test.ts:[2m102:25[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ query: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)', params: [ 'Test Project for Get', 'TEST-002', 'Bangkok', '2025-01-01', '2025-12-31', 'planning', 1 ] }[39m
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Get\', \'TEST-002\', \'Bangkok\', default, default, default, \'2025-01-01\', \'2025-12-31\', default, \'planning\', default, default, 1, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mlistProjects[2m > [22mshould list all projects with pagination
+[31m[1mAssertionError[22m: expected 25 to be 10 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 10[39m
+[31m+ 25[39m
+
+[36m [2m❯[22m server/__tests__/projects.test.ts:[2m130:42[22m[39m
+    [90m128| [39m      [34mexpect[39m(result[33m.[39mpagination)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m129| [39m      [34mexpect[39m(result[33m.[39mpagination[33m.[39mcurrentPage)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m130| [39m      expect(result.pagination.pageSize).toBe(10); // Explicitly reque…
+    [90m   | [39m                                         [31m^[39m
+    [90m131| [39m    })[33m;[39m
+    [90m132| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mupdateProject[2m > [22mshould update project successfully
+[31m[1mTRPCError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project for Update,TEST-003,Bangkok,2025-01-01,2025-12-31,planning,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+    [90m324| [39m
+    [90m325| [39m    // Insert project
+    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
+    [90m   | [39m                     [31m^[39m
+    [90m327| [39m    
+    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m87:22[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/projects.test.ts:[2m162:25[22m[39m
+
+[31m[1mCaused by: Error[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)
+params: Test Project for Update,TEST-003,Bangkok,2025-01-01,2025-12-31,planning,1[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
+[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
+[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
+[90m [2m❯[22m server/routers/projectRouter.ts:[2m87:22[22m[39m
+[90m [2m❯[22m resolveMiddleware node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m221:17[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m callRecursive node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m256:18[22m[39m
+[90m [2m❯[22m procedure node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/initTRPC-CB9uBez5.mjs:[2m281:18[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@trpc+server@11.6.0_typescript@5.9.3/node_modules/@trpc/server/dist/tracked-Blz8XOf1.mjs:[2m298:13[22m[39m
+[90m [2m❯[22m server/__tests__/projects.test.ts:[2m162:25[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ query: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, ?, default, default, default, ?, ?, default, ?, default, default, ?, default, default, default, default, default)', params: [ 'Test Project for Update', 'TEST-003', 'Bangkok', '2025-01-01', '2025-12-31', 'planning', 1 ] }[39m
+[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
+[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Update\', \'TEST-003\', \'Bangkok\', default, default, default, \'2025-01-01\', \'2025-12-31\', default, \'planning\', default, default, 1, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould complete checklist items in correct order
+[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
+params: NaN,390023,na,NaN,390024,na,NaN,390025,na,NaN,390026,na[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
+    [90m7681| [39m  }));
+    [90m7682| [39m
+    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
+    [90m   | [39m  [31m^[39m
+    [90m7684| [39m
+    [90m7685| [39m  return { id: instanceId };
+[90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m179:28[22m[39m
+
+[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390023, \'na\', default, default, default, default), (default, NaN, 390024, \'na\', default, default, default, default), (default, NaN, 390025, \'na\', default, default, default, default), (default, NaN, 390026, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould enforce dependency constraints
+[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
+params: NaN,390027,na,NaN,390028,na,NaN,390029,na,NaN,390030,na[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
+    [90m7681| [39m  }));
+    [90m7682| [39m
+    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
+    [90m   | [39m  [31m^[39m
+    [90m7684| [39m
+    [90m7685| [39m  return { id: instanceId };
+[90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m246:28[22m[39m
+
+[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390027, \'na\', default, default, default, default), (default, NaN, 390028, \'na\', default, default, default, default), (default, NaN, 390029, \'na\', default, default, default, default), (default, NaN, 390030, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould handle failed checklist items
+[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
+params: NaN,390031,na,NaN,390032,na,NaN,390033,na,NaN,390034,na[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
+    [90m7681| [39m  }));
+    [90m7682| [39m
+    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
+    [90m   | [39m  [31m^[39m
+    [90m7684| [39m
+    [90m7685| [39m  return { id: instanceId };
+[90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m296:28[22m[39m
+
+[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390031, \'na\', default, default, default, default), (default, NaN, 390032, \'na\', default, default, default, default), (default, NaN, 390033, \'na\', default, default, default, default), (default, NaN, 390034, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould allow re-completion of failed items
+[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
+params: NaN,390035,na,NaN,390036,na,NaN,390037,na,NaN,390038,na[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
+    [90m7681| [39m  }));
+    [90m7682| [39m
+    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
+    [90m   | [39m  [31m^[39m
+    [90m7684| [39m
+    [90m7685| [39m  return { id: instanceId };
+[90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m340:28[22m[39m
+
+[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390035, \'na\', default, default, default, default), (default, NaN, 390036, \'na\', default, default, default, default), (default, NaN, 390037, \'na\', default, default, default, default), (default, NaN, 390038, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould auto-escalate overdue defect
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 600232,Minor defect for escalation test,Test defect,reported,low,1440147,1440147,CAR,2025-11-16 11:28:43.030[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m124:26[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600232, default, default, \'Minor defect for escalation test\', \'Test defect\', default, \'reported\', \'low\', 1440147, 1440147, default, default, default, default, \'CAR\', default, default, default, default, \'2025-11-16 11:28:43.030\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould handle manual escalation by PM
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 600234,Defect for manual escalation,Critical issue found,reported,medium,1440150,1440150,CAR[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m164:26[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600234, default, default, \'Defect for manual escalation\', \'Critical issue found\', default, \'reported\', \'medium\', 1440150, 1440150, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould escalate through multiple levels
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 600236,Multi-level escalation test,Test defect,reported,low,1440155,1440155,CAR,2025-11-09 11:28:47.476[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m207:26[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600236, default, default, \'Multi-level escalation test\', \'Test defect\', default, \'reported\', \'low\', 1440155, 1440155, default, default, default, default, \'CAR\', default, default, default, default, \'2025-11-09 11:28:47.476\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/31]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould prevent escalation beyond critical
+[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
+params: 600238,Already critical defect,Test defect,reported,critical,1440160,1440160,CAR[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
+[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
+    [90m1565| [39m  if (!db) throw new Error("Database not available");
+    [90m1566| [39m
+    [90m1567| [39m  const [result] = await db.insert(defects).values({
+    [90m   | [39m                   [31m^[39m
+    [90m1568| [39m    projectId: data.projectId,
+    [90m1569| [39m    taskId: data.taskId,
+[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m266:26[22m[39m
+
+[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
+[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
+[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
+[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
+[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600238, default, default, \'Already critical defect\', \'Test defect\', default, \'reported\', \'critical\', 1440160, 1440160, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/31]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m11 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (31)[39m
+[2m      Tests [22m [1m[31m23 failed[39m[22m[2m | [22m[1m[32m251 passed[39m[22m[2m | [22m[33m26 skipped[39m[90m (300)[39m
+[2m   Start at [22m 06:28:11
+[2m   Duration [22m 42.46s[2m (transform 2.99s, setup 0ms, collect 19.27s, tests 153.34s, environment 5ms, prepare 211ms)[22m
+
+ ELIFECYCLE  Test failed. See above for more details.
