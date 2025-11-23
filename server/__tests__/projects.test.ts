@@ -54,7 +54,7 @@ describe('Projects Router', () => {
     it('should create a new project successfully', async () => {
       const projectData = {
         name: 'Test Project',
-        code: 'TEST-001',
+        code: `TEST-${Date.now()}-001`,
         location: 'Bangkok, Thailand',
         startDate: '2025-01-01',
         endDate: '2025-12-31',
@@ -92,7 +92,7 @@ describe('Projects Router', () => {
         // Create a project first
         const projectData = {
           name: 'Test Project for Get',
-          code: 'TEST-002',
+          code: `TEST-${Date.now()}-002`,
           location: 'Bangkok',
           startDate: '2025-01-01',
           endDate: '2025-12-31',
@@ -150,9 +150,9 @@ describe('Projects Router', () => {
   describe('updateProject', () => {
     it('should update project successfully', async () => {
       if (!testProjectId) {
-        const projectData = {
-          name: 'Test Project for Update',
-          code: 'TEST-003',
+      const projectData = {
+        name: 'Test Project for Update',
+        code: `TEST-${Date.now()}-003`,
           location: 'Bangkok',
           startDate: '2025-01-01',
           endDate: '2025-12-31',

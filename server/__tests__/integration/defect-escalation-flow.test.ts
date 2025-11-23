@@ -93,7 +93,11 @@ describe("Defect Escalation Process Integration Tests", () => {
 
     try {
       if (projectId) {
-        await testDb.delete(escalationHistory).where(eq(escalationHistory.projectId, projectId));
+        // Get all defects first
+        const projectDefects = await testDb.select().from(defects).where(eq(defects.projectId, projectId));
+        for (const defect of projectDefects) {
+          await testDb.delete(escalationHistory).where(eq(escalationHistory.defectId, defect.id));
+        }
         await testDb.delete(defects).where(eq(defects.projectId, projectId));
         await testDb.delete(projectMembers).where(eq(projectMembers.projectId, projectId));
         await testDb.delete(projects).where(eq(projects.id, projectId));

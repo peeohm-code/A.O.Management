@@ -942,5 +942,63 @@
 - [x] Improved test pass rate (from 11 failed files → 11 failed files, but improved individual test count)
 - [x] Implemented all requested functions (checklist instance management, defect escalation)
 - [x] Fixed integration test imports and structure
-- [ ] Save checkpoint with descriptive message
-- [ ] Report completion to user
+- [x] Save checkpoint with descriptive message
+- [x] Report completion to user
+
+
+## งานปัจจุบัน: แก้ไข Integration Tests และพัฒนา Checklist Workflow
+
+### แก้ไข Integration Tests (23 → 20 failed tests)
+- [x] วิเคราะห์ test failures จาก test run ล่าสุด
+- [x] แก้ไข checklist-instance.test.ts (insertId และ schema mismatches)
+- [x] เพิ่ม escalationLevel column ใน defects table
+- [x] แก้ไข projects.test.ts unique codes
+- [ ] แก้ไข tests ที่เหลือ (20 failed) - ทำทีหลัง
+- [ ] รัน tests ทั้งหมดให้ผ่าน - ทำทีหลัง
+
+### เพิ่ม tRPC Procedures สำหรับ Checklist Workflow
+- [ ] เพิ่ม checklistInstance.create procedure
+- [ ] เพิ่ม checklistInstance.get procedure
+- [ ] เพิ่ม checklistInstance.list procedure
+- [ ] เพิ่ม checklistInstance.completeItem procedure
+- [ ] เพิ่ม checklistInstance.updateProgress procedure
+- [ ] ทดสอบ procedures ด้วย vitest
+
+### สร้าง UI สำหรับ Checklist Workflow
+- [ ] สร้าง ChecklistInstanceList component
+- [ ] สร้าง ChecklistInstanceDetail component
+- [ ] สร้าง ChecklistItemCompletion component
+- [ ] เพิ่ม progress tracking UI
+- [ ] เชื่อมต่อกับ tRPC procedures
+- [ ] ทดสอบ workflow ทั้งหมดใน browser
+
+
+## สรุปความคืบหน้าการแก้ไข Tests (23 → 20 failed)
+
+### ✅ แก้ไขสำเร็จ
+- [x] เพิ่ม escalationLevel column ใน defects table
+- [x] แก้ไข createChecklistInstance insertId handling (ใช้ bigIntToNumber)
+- [x] แก้ไข projects.test.ts ให้ใช้ unique project codes
+- [x] แก้ไข test cleanup logic สำหรับ checklist และ defect tests
+
+### ⚠️ ปัญหาที่เหลือ (20 failed tests)
+1. **Checklist tests** (3 failed): 
+   - completed field เป็น tinyint (1) แทน boolean - กำลังแก้ไข
+   - Status logic ไม่อัปเดตเมื่อมี failed items
+   - Test timeout issues
+
+2. **Defect escalation tests** (4 failed):
+   - escalationLevel ยัง return undefined - ต้องแก้ไข getDefectById
+   - Notification creation ล้มเหลุ
+
+3. **Projects tests** (1 failed):
+   - pageSize default ไม่ตรงกับ test expectation
+
+4. **Critical transactions tests** (7 failed):
+   - Transaction rollback tests
+   
+5. **Inspection stats tests** (1 failed):
+   - Error statistics query
+
+6. **Other tests** (4 failed):
+   - ต้องตรวจสอบเพิ่มเติม

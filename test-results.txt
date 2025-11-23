@@ -5,77 +5,116 @@
 
 [1m[46m RUN [49m[22m [36mv4.0.9 [39m[90m/home/ubuntu/construction_management_app[39m
 
-[90mstdout[2m | server/__tests__/checklist-pending-count.test.ts[2m > [22m[2mChecklist Pending Count
+[90mstdout[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests
 [22m[39m[Database] Connection pool created with limit: 10
 
 Sourcemap for "/home/ubuntu/construction_management_app/node_modules/.pnpm/node-cron@4.2.1/node_modules/node-cron/dist/esm/node-cron.js" points to missing source files
-[90mstdout[2m | server/routers.test.ts[2m > [22m[2mTask Procedures Integration Tests
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateProject - Project Creation Transaction[2m > [22m[2mshould create project with valid data
 [22m[39m[Database] Connection pool created with limit: 10
 
-[90mstdout[2m | tests/checklist-item-update.test.ts[2m > [22m[2mChecklist Item Update
+[90mstdout[2m | server/routers.test.ts[2m > [22m[2mTask Procedures Integration Tests
 [22m[39m[Database] Connection pool created with limit: 10
 
 [90mstdout[2m | server/__tests__/projects.test.ts[2m > [22m[2mProjects Router[2m > [22m[2mcreateProject[2m > [22m[2mshould create a new project successfully
 [22m[39m[Database] Connection pool created with limit: 10
 
-[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateProject - Project Creation Transaction[2m > [22m[2mshould create project with valid data
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould complete checklist items in correct order
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould auto-escalate overdue defect
+[22m[39m2025-11-23T11:37:03.174Z ERROR [Error: Failed query: insert into `notifications` (`id`, `userId`, `type`, `priority`, `title`, `content`, `relatedTaskId`, `relatedProjectId`, `relatedDefectId`, `isRead`, `createdAt`) values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+params: 1440225,defect_escalated,normal,Defect Auto-Escalated,,,,90034,0] [NotificationService] Failed to create notification:
+
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould auto-escalate overdue defect
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould enforce dependency constraints
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+ [31m❯[39m server/__tests__/projects.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 6876[2mms[22m[39m
+[31m       [31m×[31m should create a new project successfully[39m[33m 1878[2mms[22m[39m
+       [32m✓[39m should fail to create project without required fields[32m 3[2mms[22m[39m
+[31m       [31m×[31m should retrieve project by ID[39m[33m 673[2mms[22m[39m
+       [32m✓[39m should return null for non-existent project[32m 229[2mms[22m[39m
+[31m       [31m×[31m should list all projects with pagination[39m[33m 701[2mms[22m[39m
+       [33m[2m✓[22m[39m should filter projects by status [33m 685[2mms[22m[39m
+[31m       [31m×[31m should update project successfully[39m[33m 672[2mms[22m[39m
+       [33m[2m✓[22m[39m should return project statistics [33m 1808[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould handle manual escalation by PM
+[22m[39m2025-11-23T11:37:07.274Z ERROR [Error: Failed query: insert into `notifications` (`id`, `userId`, `type`, `priority`, `title`, `content`, `relatedTaskId`, `relatedProjectId`, `relatedDefectId`, `isRead`, `createdAt`) values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+params: 1440232,defect_escalated,normal,Defect Escalated,,,,90035,0] [NotificationService] Failed to create notification:
+
+[90mstdout[2m | tests/checklist-item-update.test.ts[2m > [22m[2mChecklist Item Update
 [22m[39m[Database] Connection pool created with limit: 10
 
- [31m❯[39m tests/checklist-item-update.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2196[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould handle manual escalation by PM
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+ [31m❯[39m tests/checklist-item-update.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2206[2mms[22m[39m
      [2m[90m↓[39m[22m should update checklist item result
      [2m[90m↓[39m[22m should update only result without comments
      [2m[90m↓[39m[22m should throw error for non-existent item
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould handle failed checklist items
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
 [90mstdout[2m | server/db.test.ts[2m > [22m[2mTask Management[2m > [22m[2mcreateTask[2m > [22m[2mshould create a task with valid data
 [22m[39m[Database] Connection pool created with limit: 10
 
- [31m❯[39m server/db.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 2288[2mms[22m[39m
-       [33m[2m✓[22m[39m should create a task with valid data [33m 1378[2mms[22m[39m
-       [32m✓[39m should convert string dates to Date objects[32m 222[2mms[22m[39m
-       [32m✓[39m should handle missing optional fields[32m 223[2mms[22m[39m
-[31m       [31m×[31m should create a defect with valid data[39m[32m 239[2mms[22m[39m
-[31m       [31m×[31m should set default status to 'reported'[39m[32m 219[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould escalate through multiple levels
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+ [31m❯[39m server/db.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 2258[2mms[22m[39m
+       [33m[2m✓[22m[39m should create a task with valid data [33m 1358[2mms[22m[39m
+       [32m✓[39m should convert string dates to Date objects[32m 219[2mms[22m[39m
+       [32m✓[39m should handle missing optional fields[32m 219[2mms[22m[39m
+[31m       [31m×[31m should create a defect with valid data[39m[32m 241[2mms[22m[39m
+[31m       [31m×[31m should set default status to 'reported'[39m[32m 216[2mms[22m[39m
 [31m       [31m×[31m should submit inspection with all passed items[39m[32m 1[2mms[22m[39m
-[31m       [31m×[31m should create defects for failed items[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create defects for failed items[39m[32m 0[2mms[22m[39m
 [31m       [31m×[31m should set overall status to 'failed' when any item fails[39m[32m 0[2mms[22m[39m
 [31m       [31m×[31m should set overall status to 'completed' when all items pass[39m[32m 1[2mms[22m[39m
 [31m       [31m×[31m should update task status[39m[32m 1[2mms[22m[39m
 [31m       [31m×[31m should handle all valid status values[39m[32m 1[2mms[22m[39m
-[90mstdout[2m | server/inspection-stats.test.ts[2m > [22m[2mInspection Statistics API[2m > [22m[2mshould get pass/fail rate statistics
-[22m[39m[Database] Connection pool created with limit: 10
-
- [31m❯[39m server/__tests__/projects.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 6929[2mms[22m[39m
-[31m       [31m×[31m should create a new project successfully[39m[33m 1895[2mms[22m[39m
-       [32m✓[39m should fail to create project without required fields[32m 3[2mms[22m[39m
-[31m       [31m×[31m should retrieve project by ID[39m[33m 677[2mms[22m[39m
-       [32m✓[39m should return null for non-existent project[32m 231[2mms[22m[39m
-[31m       [31m×[31m should list all projects with pagination[39m[33m 703[2mms[22m[39m
-       [33m[2m✓[22m[39m should filter projects by status [33m 688[2mms[22m[39m
-[31m       [31m×[31m should update project successfully[39m[33m 677[2mms[22m[39m
-       [33m[2m✓[22m[39m should return project statistics [33m 1819[2mms[22m[39m
-[90mstderr[2m | server/inspection-stats.test.ts[2m > [22m[2mError Tracking API[2m > [22m[2mshould log an error
-[22m[39mError logged: {
-  message: [32m'Test error message'[39m,
-  stack: [32m'Error: Test error\\n    at test.ts:1:1'[39m,
-  severity: [32m'error'[39m,
-  category: [32m'backend'[39m,
-  userId: [33m1[39m
-}
-
- [31m❯[39m server/inspection-stats.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2079[2mms[22m[39m
-     [33m[2m✓[22m[39m should get pass/fail rate statistics [33m 1379[2mms[22m[39m
-     [32m✓[39m should get defect trends[32m 248[2mms[22m[39m
-     [32m✓[39m should get inspector performance metrics[32m 223[2mms[22m[39m
-     [32m✓[39m should get checklist item statistics[32m 217[2mms[22m[39m
-     [32m✓[39m should log an error[32m 3[2mms[22m[39m
-     [32m✓[39m should get error logs with filtering[32m 1[2mms[22m[39m
-[31m     [31m×[31m should get error statistics[39m[32m 5[2mms[22m[39m
-     [32m✓[39m should update error status[32m 0[2mms[22m[39m
-[90mstdout[2m | server/__tests__/project-delete.test.ts[2m > [22m[2mProject Delete
-[22m[39m[Database] Connection pool created with limit: 10
-
- [32m✓[39m tests/integration/security.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 472[2mms[22m[39m
-       [33m[2m✓[22m[39m should enforce rate limits on API endpoints [33m 307[2mms[22m[39m
- [31m❯[39m server/routers.test.ts [2m([22m[2m24 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m16 skipped[39m[2m)[22m[33m 9239[2mms[22m[39m
+ [31m❯[39m server/routers.test.ts [2m([22m[2m24 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m16 skipped[39m[2m)[22m[33m 13270[2mms[22m[39m
        [2m[90m↓[39m[22m should create task with valid input
        [2m[90m↓[39m[22m should reject task creation with invalid status
        [2m[90m↓[39m[22m should reject task creation with invalid priority
@@ -91,7 +130,7 @@ Sourcemap for "/home/ubuntu/construction_management_app/node_modules/.pnpm/node-
        [2m[90m↓[39m[22m should reject inspection with invalid template item ID
 [31m       [31m×[31m should create defect with valid input[39m[32m 5[2mms[22m[39m
        [32m✓[39m should reject defect creation with empty title[32m 2[2mms[22m[39m
-       [32m✓[39m should reject defect creation with invalid severity[32m 0[2mms[22m[39m
+       [32m✓[39m should reject defect creation with invalid severity[32m 1[2mms[22m[39m
        [32m✓[39m should reject defect creation with invalid task ID[32m 1[2mms[22m[39m
        [2m[90m↓[39m[22m should update defect with valid data
        [2m[90m↓[39m[22m should reject update with invalid status
@@ -100,53 +139,200 @@ Sourcemap for "/home/ubuntu/construction_management_app/node_modules/.pnpm/node-
      [32m✓[39m should enforce type safety for task priority[32m 0[2mms[22m[39m
      [32m✓[39m should enforce type safety for defect severity[32m 0[2mms[22m[39m
      [32m✓[39m should enforce type safety for checklist result[32m 0[2mms[22m[39m
-[90mstdout[2m | server/__tests__/inspection-notification.test.ts[2m > [22m[2mInspection Notification System
+[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould allow re-completion of failed items
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+ [31m❯[39m server/__tests__/integration/checklist-completion-flow.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 15113[2mms[22m[39m
+[31m     [31m×[31m should complete checklist items in correct order[39m[33m 4688[2mms[22m[39m
+[31m     [31m×[31m should enforce dependency constraints[39m[33m 3472[2mms[22m[39m
+[31m     [31m×[31m should handle failed checklist items[39m[33m 3483[2mms[22m[39m
+[31m     [31m×[31m should allow re-completion of failed items[39m[33m 3466[2mms[22m[39m
+[90mstdout[2m | server/__tests__/project-delete.test.ts[2m > [22m[2mProject Delete
 [22m[39m[Database] Connection pool created with limit: 10
 
-[90mstdout[2m | server/__tests__/escalation.test.ts[2m > [22m[2mEscalation System
+[90mstdout[2m | server/inspection-stats.test.ts[2m > [22m[2mInspection Statistics API[2m > [22m[2mshould get pass/fail rate statistics
 [22m[39m[Database] Connection pool created with limit: 10
 
- [31m❯[39m server/__tests__/project-delete.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2009[2mms[22m[39m
+[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould prevent escalation beyond critical
+[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
+    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
+    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
+    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
+    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
+    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
+
+ [31m❯[39m server/__tests__/integration/defect-escalation-flow.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 16689[2mms[22m[39m
+[31m     [31m×[31m should auto-escalate overdue defect[39m[33m 5470[2mms[22m[39m
+[31m     [31m×[31m should handle manual escalation by PM[39m[33m 4094[2mms[22m[39m
+[31m     [31m×[31m should escalate through multiple levels[39m[33m 3884[2mms[22m[39m
+[31m     [31m×[31m should prevent escalation beyond critical[39m[33m 3235[2mms[22m[39m
+[90mstdout[2m | server/__tests__/checklist-pending-count.test.ts[2m > [22m[2mChecklist Pending Count
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [31m❯[39m server/__tests__/project-delete.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2112[2mms[22m[39m
      [2m[90m↓[39m[22m should allow admin to delete project
      [2m[90m↓[39m[22m should prevent non-admin from deleting project
      [2m[90m↓[39m[22m should return error when deleting non-existent project
+[90mstdout[2m | server/__tests__/escalation.test.ts[2m > [22m[2mEscalation System
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstderr[2m | server/inspection-stats.test.ts[2m > [22m[2mError Tracking API[2m > [22m[2mshould log an error
+[22m[39mError logged: {
+  message: [32m'Test error message'[39m,
+  stack: [32m'Error: Test error\\n    at test.ts:1:1'[39m,
+  severity: [32m'error'[39m,
+  category: [32m'backend'[39m,
+  userId: [33m1[39m
+}
+
+ [31m❯[39m server/inspection-stats.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2058[2mms[22m[39m
+     [33m[2m✓[22m[39m should get pass/fail rate statistics [33m 1374[2mms[22m[39m
+     [32m✓[39m should get defect trends[32m 231[2mms[22m[39m
+     [32m✓[39m should get inspector performance metrics[32m 220[2mms[22m[39m
+     [32m✓[39m should get checklist item statistics[32m 221[2mms[22m[39m
+     [32m✓[39m should log an error[32m 3[2mms[22m[39m
+     [32m✓[39m should get error logs with filtering[32m 1[2mms[22m[39m
+[31m     [31m×[31m should get error statistics[39m[32m 6[2mms[22m[39m
+     [32m✓[39m should update error status[32m 0[2mms[22m[39m
+[90mstdout[2m | server/__tests__/inspection-notification.test.ts[2m > [22m[2mInspection Notification System
+[22m[39m[Database] Connection pool created with limit: 10
+
 [90mstdout[2m | server/__tests__/inspection.test.ts[2m > [22m[2mInspection Router
 [22m[39m[Database] Connection pool created with limit: 10
 
- [32m✓[39m server/__tests__/checklist-pending-count.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 14201[2mms[22m[39m
-     [33m[2m✓[22m[39m should count pending and in_progress checklists correctly [33m 4084[2mms[22m[39m
-     [33m[2m✓[22m[39m should return 0 when no pending checklists exist [33m 1501[2mms[22m[39m
-[90mstdout[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mlist procedure[2m > [22m[2mshould return paginated projects list
-[22m[39m[Database] Connection pool created with limit: 10
+[90mstderr[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateDefect - Defect Creation Transaction[2m > [22m[2mshould validate project and task existence
+[22m[39m2025-11-23T11:37:20.833Z ERROR [[object Object]] Failed to create defect
 
- [32m✓[39m server/__tests__/inspection-notification.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 9444[2mms[22m[39m
-     [33m[2m✓[22m[39m should update notificationSent flag when inspection fails [33m 437[2mms[22m[39m
-     [33m[2m✓[22m[39m should send notification to task assignee when inspection fails [33m 652[2mms[22m[39m
-     [33m[2m✓[22m[39m should send notification to project manager when inspection fails [33m 432[2mms[22m[39m
+[90mstderr[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateDefect - Defect Creation Transaction[2m > [22m[2mshould validate project and task existence
+[22m[39m2025-11-23T11:37:21.051Z ERROR [[object Object]] Failed to create defect
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould maintain referential integrity on project deletion
+[22m[39m2025-11-23T11:37:25.434Z INFO  [AuditTrail] delete on project:600301 by user:1
+
+[90mstdout[2m | server/__tests__/escalation.test.ts[2m > [22m[2mEscalation System[2m > [22m[2mManual Escalation Trigger[2m > [22m[2mshould manually trigger escalation check
+[22m[39m2025-11-23T11:37:25.557Z INFO  [Escalation] No active escalation rules found
+
+ [32m✓[39m server/__tests__/inspection-notification.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 9567[2mms[22m[39m
+     [33m[2m✓[22m[39m should update notificationSent flag when inspection fails [33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m should send notification to task assignee when inspection fails [33m 663[2mms[22m[39m
+     [33m[2m✓[22m[39m should send notification to project manager when inspection fails [33m 451[2mms[22m[39m
+ [32m✓[39m server/__tests__/escalation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 9831[2mms[22m[39m
+       [33m[2m✓[22m[39m should create escalation rule [33m 1545[2mms[22m[39m
+       [33m[2m✓[22m[39m should list all escalation rules [33m 1733[2mms[22m[39m
+       [33m[2m✓[22m[39m should get escalation rule by ID [33m 1730[2mms[22m[39m
+       [33m[2m✓[22m[39m should update escalation rule [33m 2163[2mms[22m[39m
+       [33m[2m✓[22m[39m should manually trigger escalation check [33m 434[2mms[22m[39m
+ [32m✓[39m server/__tests__/inspection.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 8899[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle pagination correctly [33m 469[2mms[22m[39m
+       [33m[2m✓[22m[39m should return inspections for a specific project [33m 466[2mms[22m[39m
 [90mstdout[2m | server/__tests__/checklistItemUpdate.test.ts[2m > [22m[2mChecklist Item Update Tests - Comments Field
 [22m[39m[Database] Connection pool created with limit: 10
 
- [32m✓[39m server/__tests__/inspection.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 8404[2mms[22m[39m
-       [33m[2m✓[22m[39m should handle pagination correctly [33m 444[2mms[22m[39m
-       [33m[2m✓[22m[39m should return inspections for a specific project [33m 435[2mms[22m[39m
-[90mstdout[2m | server/__tests__/escalation.test.ts[2m > [22m[2mEscalation System[2m > [22m[2mManual Escalation Trigger[2m > [22m[2mshould manually trigger escalation check
-[22m[39m2025-11-23T11:28:34.406Z INFO  [Escalation] No active escalation rules found
-
- [32m✓[39m server/__tests__/escalation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 10083[2mms[22m[39m
-       [33m[2m✓[22m[39m should create escalation rule [33m 1567[2mms[22m[39m
-       [33m[2m✓[22m[39m should list all escalation rules [33m 1785[2mms[22m[39m
-       [33m[2m✓[22m[39m should get escalation rule by ID [33m 1781[2mms[22m[39m
-       [33m[2m✓[22m[39m should update escalation rule [33m 2226[2mms[22m[39m
-       [33m[2m✓[22m[39m should manually trigger escalation check [33m 444[2mms[22m[39m
 [90mstdout[2m | server/services/analytics.service.test.ts[2m > [22m[2mAnalytics Service - SQL Aggregations
 [22m[39m[Database] Connection pool created with limit: 10
 
+[90mstdout[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mlist procedure[2m > [22m[2mshould return paginated projects list
+[22m[39m[Database] Connection pool created with limit: 10
+
+ [32m✓[39m server/__tests__/checklist-pending-count.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 13671[2mms[22m[39m
+     [33m[2m✓[22m[39m should count pending and in_progress checklists correctly [33m 4245[2mms[22m[39m
+     [33m[2m✓[22m[39m should return 0 when no pending checklists exist [33m 1566[2mms[22m[39m
 [90mstdout[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanEditProject should return boolean for invalid inputs
 [22m[39m[Database] Connection pool created with limit: 10
 
-[90mstdout[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mupdate procedure[2m > [22m[2mshould update an existing project
-[22m[39m2025-11-23T11:28:35.375Z INFO  [AuditTrail] update on project:600227 by user:1
+[90mstderr[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanEditTask should return boolean for invalid inputs
+[22m[39m2025-11-23T11:37:30.868Z ERROR [[object Object]] [RBAC] canEditTask failed
+{}
 
+[90mstderr[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanDeleteTask should return boolean for invalid inputs
+[22m[39m2025-11-23T11:37:30.869Z ERROR [[object Object]] [RBAC] canDeleteTask failed
+{}
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
+[22m[39m2025-11-23T11:37:31.127Z INFO  [AuditTrail] update on project:600303 by user:1
+
+ [32m✓[39m server/__tests__/rbac.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2270[2mms[22m[39m
+       [33m[2m✓[22m[39m canEditProject should return boolean for invalid inputs [33m 1386[2mms[22m[39m
+ [32m✓[39m tests/integration/security.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 443[2mms[22m[39m
+[90mstdout[2m | server/services/analytics.service.test.ts[2m > [22m[2mPerformance Comparison[2m > [22m[2mshould demonstrate SQL aggregations are faster than JavaScript loops
+[22m[39mOptimized (SQL aggregations): 434ms
+
+ [32m✓[39m server/services/analytics.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 5722[2mms[22m[39m
+       [33m[2m✓[22m[39m should return dashboard statistics using SQL aggregations [33m 2234[2mms[22m[39m
+       [33m[2m✓[22m[39m should return project statistics using SQL aggregations [33m 651[2mms[22m[39m
+       [33m[2m✓[22m[39m should return stats for multiple projects using SQL aggregations [33m 651[2mms[22m[39m
+       [33m[2m✓[22m[39m should filter by project ID when provided [33m 431[2mms[22m[39m
+     [33m[2m✓[22m[39m should demonstrate SQL aggregations are faster than JavaScript loops [33m 651[2mms[22m[39m
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
+[22m[39m2025-11-23T11:37:32.322Z INFO  [AuditTrail] update on project:600303 by user:1
+
+[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
+[22m[39m2025-11-23T11:37:32.335Z INFO  [AuditTrail] update on project:600303 by user:1
+
+ [32m✓[39m server/middleware/__tests__/permissions.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m server/services/__tests__/defect.service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m server/__tests__/checklistOperations.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m server/services/__tests__/task.service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m server/__tests__/taskFiltering.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m server/utils/__tests__/bigint.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m server/__tests__/logger.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m server/__tests__/taskStatusCalculation.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m server/__tests__/routers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould establish database connection
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould close connection gracefully
+[22m[39m[Database] Connection pool closed
+
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould close connection gracefully
+[22m[39m[Database] Connection pool created with limit: 10
+
+[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection
+[22m[39m[Database] Connection pool closed
+
+ [32m✓[39m server/__tests__/db.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [31m❯[39m server/__tests__/critical-transactions.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m4 skipped[39m[2m)[22m[33m 34294[2mms[22m[39m
+       [33m[2m✓[22m[39m should create project with valid data [33m 3353[2mms[22m[39m
+       [32m✓[39m should validate required fields[32m 3[2mms[22m[39m
+       [33m[2m✓[22m[39m should prevent duplicate project codes [33m 2636[2mms[22m[39m
+       [33m[2m✓[22m[39m should set default values correctly [33m 1966[2mms[22m[39m
+       [33m[2m✓[22m[39m should create defect with valid data [33m 4183[2mms[22m[39m
+       [33m[2m✓[22m[39m should validate required fields for defect [33m 3090[2mms[22m[39m
+       [33m[2m✓[22m[39m should set default status to reported [33m 3967[2mms[22m[39m
+       [33m[2m✓[22m[39m should validate project and task existence [33m 3729[2mms[22m[39m
+       [2m[90m↓[39m[22m should create task checklist with valid data
+       [2m[90m↓[39m[22m should validate task existence
+       [2m[90m↓[39m[22m should validate template existence
+       [2m[90m↓[39m[22m should prevent duplicate checklists for same task and stage
+[31m       [31m×[31m should maintain referential integrity on project deletion[39m[33m 6785[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle concurrent updates correctly [33m 4580[2mms[22m[39m
+[90mstdout[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mupdate procedure[2m > [22m[2mshould update an existing project
+[22m[39m2025-11-23T11:37:34.118Z INFO  [AuditTrail] update on project:600305 by user:1
+
+[90mstdout[2m | server/__tests__/checklistItemUpdate.test.ts[2m > [22m[2mChecklist Item Update Tests - Comments Field
+[22m[39m[Database] Connection pool closed
+
+ [32m✓[39m server/__tests__/checklistItemUpdate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 8277[2mms[22m[39m
+       [33m[2m✓[22m[39m should update result and comments successfully [33m 455[2mms[22m[39m
+       [33m[2m✓[22m[39m should update comments with Thai text [33m 449[2mms[22m[39m
+       [33m[2m✓[22m[39m should update comments with long text [33m 448[2mms[22m[39m
+       [33m[2m✓[22m[39m should update comments to empty string [33m 683[2mms[22m[39m
+       [33m[2m✓[22m[39m should preserve comments when updating only result [33m 677[2mms[22m[39m
+       [33m[2m✓[22m[39m should update photoUrls and comments together [33m 449[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle special characters in comments [33m 448[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle newlines and tabs in comments [33m 451[2mms[22m[39m
+       [33m[2m✓[22m[39m should retrieve item with all fields including comments [33m 450[2mms[22m[39m
+[90mstdout[2m | server/test-template-create.test.ts[2m > [22m[2mTemplates Router[2m > [22m[2mshould have templates.create mutation
+[22m[39mtemplates.create mutation exists
+
+ [32m✓[39m server/test-template-create.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
 [90mstderr[2m | server/__tests__/projects-simple.test.ts[2m > [22m[2mProjects Router - Simple Tests[2m > [22m[2mupdate procedure[2m > [22m[2mshould update an existing project
 [22m[39m[Socket.io] Failed to emit notification: Error: Socket.io not initialized. Call initializeSocket first.
     at getIO [90m(/home/ubuntu/construction_management_app/[39mserver/_core/socket.ts:31:11[90m)[39m
@@ -166,191 +352,12 @@ Sourcemap for "/home/ubuntu/construction_management_app/node_modules/.pnpm/node-
     at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/projects-simple.test.ts:165:22
     at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:753:20
 
- [32m✓[39m server/__tests__/projects-simple.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 8130[2mms[22m[39m
-       [33m[2m✓[22m[39m should return paginated projects list [33m 1859[2mms[22m[39m
-       [33m[2m✓[22m[39m should handle pagination correctly [33m 676[2mms[22m[39m
-       [33m[2m✓[22m[39m should return project if exists [33m 896[2mms[22m[39m
-       [33m[2m✓[22m[39m should create a new project [33m 1337[2mms[22m[39m
-       [33m[2m✓[22m[39m should update an existing project [33m 2912[2mms[22m[39m
-[90mstderr[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateDefect - Defect Creation Transaction[2m > [22m[2mshould validate project and task existence
-[22m[39m2025-11-23T11:28:36.515Z ERROR [[object Object]] Failed to create defect
-
- [32m✓[39m server/middleware/__tests__/permissions.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 21[2mms[22m[39m
-[90mstderr[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mcreateDefect - Defect Creation Transaction[2m > [22m[2mshould validate project and task existence
-[22m[39m2025-11-23T11:28:36.745Z ERROR [[object Object]] Failed to create defect
-
-[90mstderr[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanEditTask should return boolean for invalid inputs
-[22m[39m2025-11-23T11:28:36.782Z ERROR [[object Object]] [RBAC] canEditTask failed
-{}
-
-[90mstderr[2m | server/__tests__/rbac.test.ts[2m > [22m[2mRBAC Authorization Tests[2m > [22m[2mAuthorization Functions Return Boolean[2m > [22m[2mcanDeleteTask should return boolean for invalid inputs
-[22m[39m2025-11-23T11:28:36.784Z ERROR [[object Object]] [RBAC] canDeleteTask failed
-{}
-
- [32m✓[39m server/services/__tests__/defect.service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m server/__tests__/taskFiltering.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m server/__tests__/rbac.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2284[2mms[22m[39m
-       [33m[2m✓[22m[39m canEditProject should return boolean for invalid inputs [33m 1392[2mms[22m[39m
- [32m✓[39m server/__tests__/checklistOperations.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m server/services/__tests__/task.service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m server/utils/__tests__/bigint.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m server/__tests__/logger.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m server/__tests__/taskStatusCalculation.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 7[2mms[22m[39m
-[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould establish database connection
-[22m[39m[Database] Connection pool created with limit: 10
-
-[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould close connection gracefully
-[22m[39m[Database] Connection pool closed
-
-[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection[2m > [22m[2mshould close connection gracefully
-[22m[39m[Database] Connection pool created with limit: 10
-
-[90mstdout[2m | server/__tests__/db.test.ts[2m > [22m[2mDatabase Connection
-[22m[39m[Database] Connection pool closed
-
- [32m✓[39m server/__tests__/db.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m server/__tests__/routers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
-[90mstdout[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests
-[22m[39m[Database] Connection pool created with limit: 10
-
-[90mstdout[2m | server/test-template-create.test.ts[2m > [22m[2mTemplates Router[2m > [22m[2mshould have templates.create mutation
-[22m[39mtemplates.create mutation exists
-
- [32m✓[39m server/test-template-create.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
-[90mstdout[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests
-[22m[39m[Database] Connection pool created with limit: 10
-
-[90mstdout[2m | server/services/analytics.service.test.ts[2m > [22m[2mPerformance Comparison[2m > [22m[2mshould demonstrate SQL aggregations are faster than JavaScript loops
-[22m[39mOptimized (SQL aggregations): 449ms
-
- [32m✓[39m server/services/analytics.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 5933[2mms[22m[39m
-       [33m[2m✓[22m[39m should return dashboard statistics using SQL aggregations [33m 2316[2mms[22m[39m
-       [33m[2m✓[22m[39m should return project statistics using SQL aggregations [33m 677[2mms[22m[39m
-       [33m[2m✓[22m[39m should return stats for multiple projects using SQL aggregations [33m 675[2mms[22m[39m
-       [33m[2m✓[22m[39m should filter by project ID when provided [33m 447[2mms[22m[39m
-     [33m[2m✓[22m[39m should demonstrate SQL aggregations are faster than JavaScript loops [33m 674[2mms[22m[39m
-[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould maintain referential integrity on project deletion
-[22m[39m2025-11-23T11:28:41.360Z INFO  [AuditTrail] delete on project:600230 by user:1
-
-[90mstdout[2m | server/__tests__/checklistItemUpdate.test.ts[2m > [22m[2mChecklist Item Update Tests - Comments Field
-[22m[39m[Database] Connection pool closed
-
- [32m✓[39m server/__tests__/checklistItemUpdate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 8186[2mms[22m[39m
-       [33m[2m✓[22m[39m should update result and comments successfully [33m 457[2mms[22m[39m
-       [33m[2m✓[22m[39m should update comments with Thai text [33m 447[2mms[22m[39m
-       [33m[2m✓[22m[39m should update comments with long text [33m 448[2mms[22m[39m
-       [33m[2m✓[22m[39m should update comments to empty string [33m 672[2mms[22m[39m
-       [33m[2m✓[22m[39m should preserve comments when updating only result [33m 672[2mms[22m[39m
-       [33m[2m✓[22m[39m should update photoUrls and comments together [33m 456[2mms[22m[39m
-       [33m[2m✓[22m[39m should handle special characters in comments [33m 447[2mms[22m[39m
-       [33m[2m✓[22m[39m should handle newlines and tabs in comments [33m 447[2mms[22m[39m
-       [33m[2m✓[22m[39m should retrieve item with all fields including comments [33m 448[2mms[22m[39m
-[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould auto-escalate overdue defect
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
-    at new Promise (<anonymous>)
-    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
-    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
-    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
-    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
-
-[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould complete checklist items in correct order
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-
-[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould handle manual escalation by PM
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
-    at new Promise (<anonymous>)
-    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
-    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
-    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
-    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
-
-[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould enforce dependency constraints
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-
-[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
-[22m[39m2025-11-23T11:28:47.375Z INFO  [AuditTrail] update on project:600235 by user:1
-
-[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould escalate through multiple levels
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
-    at new Promise (<anonymous>)
-    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
-    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
-    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
-    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
-
-[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
-[22m[39m2025-11-23T11:28:48.427Z INFO  [AuditTrail] update on project:600235 by user:1
-
-[90mstdout[2m | server/__tests__/critical-transactions.test.ts[2m > [22m[2mCritical Transaction Tests[2m > [22m[2mDatabase Integrity Tests[2m > [22m[2mshould handle concurrent updates correctly
-[22m[39m2025-11-23T11:28:48.496Z INFO  [AuditTrail] update on project:600235 by user:1
-
- [31m❯[39m server/__tests__/critical-transactions.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m4 skipped[39m[2m)[22m[33m 35842[2mms[22m[39m
-       [33m[2m✓[22m[39m should create project with valid data [33m 3522[2mms[22m[39m
-       [32m✓[39m should validate required fields[32m 3[2mms[22m[39m
-       [33m[2m✓[22m[39m should prevent duplicate project codes [33m 2780[2mms[22m[39m
-       [33m[2m✓[22m[39m should set default values correctly [33m 2101[2mms[22m[39m
-       [33m[2m✓[22m[39m should create defect with valid data [33m 4391[2mms[22m[39m
-       [33m[2m✓[22m[39m should validate required fields for defect [33m 3230[2mms[22m[39m
-       [33m[2m✓[22m[39m should set default status to reported [33m 4162[2mms[22m[39m
-       [33m[2m✓[22m[39m should validate project and task existence [33m 3927[2mms[22m[39m
-       [2m[90m↓[39m[22m should create task checklist with valid data
-       [2m[90m↓[39m[22m should validate task existence
-       [2m[90m↓[39m[22m should validate template existence
-       [2m[90m↓[39m[22m should prevent duplicate checklists for same task and stage
-[31m       [31m×[31m should maintain referential integrity on project deletion[39m[33m 7149[2mms[22m[39m
-       [33m[2m✓[22m[39m should handle concurrent updates correctly [33m 4574[2mms[22m[39m
-[90mstderr[2m | server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22m[2mDefect Escalation Process Integration Tests[2m > [22m[2mshould prevent escalation beyond critical
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'projectId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/defect-escalation-flow.test.ts:96:75
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:157:11
-    at [90mfile:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1636:20
-    at new Promise (<anonymous>)
-    at runWithTimeout [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1602:10[90m)[39m
-    at runHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1171:51[90m)[39m
-    at callSuiteHook [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1177:25[90m)[39m
-    at runTest [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1332:11[90m)[39m
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-    at runSuite [90m(file:///home/ubuntu/construction_management_app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.9/node_modules/[4m@vitest[24m/runner/dist/index.js:1468:8[90m)[39m
-
- [31m❯[39m server/__tests__/integration/defect-escalation-flow.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 10044[2mms[22m[39m
-[31m     [31m×[31m should auto-escalate overdue defect[39m[33m 3406[2mms[22m[39m
-[31m     [31m×[31m should handle manual escalation by PM[39m[33m 2214[2mms[22m[39m
-[31m     [31m×[31m should escalate through multiple levels[39m[33m 2208[2mms[22m[39m
-[31m     [31m×[31m should prevent escalation beyond critical[39m[33m 2211[2mms[22m[39m
-[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould handle failed checklist items
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-
-[90mstderr[2m | server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22m[2mMulti-step Checklist Completion Integration Tests[2m > [22m[2mshould allow re-completion of failed items
-[22m[39mCleanup error: TypeError: Cannot read properties of undefined (reading 'taskId')
-    at [90m/home/ubuntu/construction_management_app/[39mserver/__tests__/integration/checklist-completion-flow.test.ts:149:77
-[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
-
- [31m❯[39m server/__tests__/integration/checklist-completion-flow.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 15471[2mms[22m[39m
-[31m     [31m×[31m should complete checklist items in correct order[39m[33m 4759[2mms[22m[39m
-[31m     [31m×[31m should enforce dependency constraints[39m[33m 3570[2mms[22m[39m
-[31m     [31m×[31m should handle failed checklist items[39m[33m 3570[2mms[22m[39m
-[31m     [31m×[31m should allow re-completion of failed items[39m[33m 3568[2mms[22m[39m
+ [32m✓[39m server/__tests__/projects-simple.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 8057[2mms[22m[39m
+       [33m[2m✓[22m[39m should return paginated projects list [33m 1843[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle pagination correctly [33m 669[2mms[22m[39m
+       [33m[2m✓[22m[39m should return project if exists [33m 889[2mms[22m[39m
+       [33m[2m✓[22m[39m should create a new project [33m 1322[2mms[22m[39m
+       [33m[2m✓[22m[39m should update an existing project [33m 2887[2mms[22m[39m
 
 [31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
@@ -383,36 +390,20 @@ params: Test Project for Integration Tests,TEST-INT,Test Location,1[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mInspection Procedures Integration Tests
-[31m[1mError[22m: Failed query: insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, ?, ?, default, default, default, default, default, default, default, default, default, default, ?, default, default, default, default, default)
-params: Test Project for Inspection Tests,AO-2025-010,1[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m server/db.ts:[2m326:22[22m[39m
-    [90m324| [39m
-    [90m325| [39m    // Insert project
-    [90m326| [39m    const [result] = await tx.insert(projects).values(values);
-    [90m   | [39m                     [31m^[39m
-    [90m327| [39m    
-    [90m328| [39m    const projectId = bigIntToNumber(result.insertId);
-[90m [2m❯[22m MySql2Session.transaction node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m207:22[22m[39m
-[90m [2m❯[22m Module.createProject server/db.ts:[2m303:10[22m[39m
-[90m [2m❯[22m server/routers.test.ts:[2m225:21[22m[39m
+[31m[1mTypeError[22m: __vite_ssr_import_2__.createChecklistTemplateItem is not a function[39m
+[36m [2m❯[22m server/routers.test.ts:[2m249:14[22m[39m
+    [90m247| [39m
+    [90m248| [39m    [90m// Add template items[39m
+    [90m249| [39m    [35mawait[39m db[33m.[39m[34mcreateChecklistTemplateItem[39m({
+    [90m   | [39m             [31m^[39m
+    [90m250| [39m      templateId[33m:[39m testTemplateId[33m,[39m
+    [90m251| [39m      itemNumber[33m:[39m [34m1[39m[33m,[39m
 
-[31m[1mCaused by: Error[22m: Duplicate entry '?' for key 'projects.unique_code'[39m
-[90m [2m❯[22m PromisePoolConnection.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/connection.js:[2m29:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_DUP_ENTRY', errno: 1062, sql: 'insert into `projects` (`id`, `name`, `code`, `location`, `latitude`, `longitude`, `ownerName`, `startDate`, `endDate`, `budget`, `status`, `completionPercentage`, `color`, `createdBy`, `createdAt`, `updatedAt`, `archivedAt`, `archivedBy`, `archivedReason`) values (default, \'Test Project for Inspection Tests\', \'AO-2025-010\', default, default, default, default, default, default, default, default, default, default, 1, default, default, default, default, default)', sqlState: '23000', sqlMessage: 'Duplicate entry \'?\' for key \'projects.unique_code\'' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mDefect Procedures Integration Tests[2m > [22mdefect.update
 [31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, ?, default, ?, default, default, ?, ?, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
-params: 570131,Defect for Update Tests,reported,medium,1,CAR[39m
+params: 570169,Defect for Update Tests,reported,medium,1,CAR[39m
 [90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
 [90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
 [36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
@@ -433,7 +424,7 @@ params: 570131,Defect for Update Tests,reported,medium,1,CAR[39m
 [90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, 570131, default, \'Defect for Update Tests\', default, default, \'reported\', \'medium\', default, 1, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'projectId\' doesn\'t have a default value' }[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, default, 570169, default, \'Defect for Update Tests\', default, default, \'reported\', \'medium\', default, 1, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'projectId\' doesn\'t have a default value' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/checklist-item-update.test.ts[2m > [22mChecklist Item Update
@@ -801,7 +792,7 @@ vi.mock(import("./db"), async (importOriginal) => {
 
 [41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mDatabase Integrity Tests[2m > [22mshould maintain referential integrity on project deletion
 [31m[1mTRPCError[22m: Failed query: insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)
-params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
+params: 1,600301,project_deleted,{"name":"Integrity Test Project"}[39m
 [90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
 [90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
 [36m [2m❯[22m Module.logActivity server/db.ts:[2m2053:10[22m[39m
@@ -823,7 +814,7 @@ params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
 [90m [2m❯[22m server/__tests__/critical-transactions.test.ts:[2m446:7[22m[39m
 
 [31m[1mCaused by: Error[22m: Failed query: insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)
-params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
+params: 1,600301,project_deleted,{"name":"Integrity Test Project"}[39m
 [90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
 [90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
 [36m [2m❯[22m Module.logActivity server/db.ts:[2m2053:10[22m[39m
@@ -839,7 +830,7 @@ params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
 [90m [2m❯[22m server/__tests__/critical-transactions.test.ts:[2m446:7[22m[39m
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ query: 'insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)', params: [ 1, 600230, 'project_deleted', '{"name":"Integrity Test Project"}' ] }[39m
+[31m[1mSerialized Error:[22m[39m [90m{ query: 'insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, ?, ?, default, default, ?, default, default, default, default, default, default, ?, default)', params: [ 1, 600301, 'project_deleted', '{"name":"Integrity Test Project"}' ] }[39m
 [31m[1mCaused by: Error[22m: Cannot add or update a child row: a foreign key constraint fails (`xgufrkfw3wtjbzrcqsfjbu`.`activitylog`, CONSTRAINT `fk_activityLog_projectId` FOREIGN KEY (`projectId`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)[39m
 [90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
 [90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
@@ -849,7 +840,7 @@ params: 1,600230,project_deleted,{"name":"Integrity Test Project"}[39m
 [90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_REFERENCED_ROW_2', errno: 1452, sql: 'insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, 1, 600230, default, default, \'project_deleted\', default, default, default, default, default, default, \'{\"name\":\"Integrity Test Project\"}\', default)', sqlState: '23000', sqlMessage: 'Cannot add or update a child row: a foreign key constraint fails (`xgufrkfw3wtjbzrcqsfjbu`.`activitylog`, CONSTRAINT `fk_activityLog_projectId` FOREIGN KEY (`projectId`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)' }[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_REFERENCED_ROW_2', errno: 1452, sql: 'insert into `activityLog` (`id`, `userId`, `projectId`, `taskId`, `defectId`, `action`, `resourceType`, `resourceId`, `oldValue`, `newValue`, `ipAddress`, `userAgent`, `details`, `createdAt`) values (default, 1, 600301, default, default, \'project_deleted\', default, default, default, default, default, default, \'{\"name\":\"Integrity Test Project\"}\', default)', sqlState: '23000', sqlMessage: 'Cannot add or update a child row: a foreign key constraint fails (`xgufrkfw3wtjbzrcqsfjbu`.`activitylog`, CONSTRAINT `fk_activityLog_projectId` FOREIGN KEY (`projectId`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mcreateProject[2m > [22mshould create a new project successfully
@@ -1043,217 +1034,130 @@ params: Test Project for Update,TEST-003,Bangkok,2025-01-01,2025-12-31,planning,
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould complete checklist items in correct order
-[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
-params: NaN,390023,na,NaN,390024,na,NaN,390025,na,NaN,390026,na[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
-    [90m7681| [39m  }));
-    [90m7682| [39m
-    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
-    [90m   | [39m  [31m^[39m
-    [90m7684| [39m
-    [90m7685| [39m  return { id: instanceId };
+[31m[1mError[22m: Failed to create checklist instance: invalid insertId[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7677:11[22m[39m
+    [90m7675| [39m  
+    [90m7676| [39m  if (!instanceId || isNaN(instanceId)) {
+    [90m7677| [39m    throw new Error("Failed to create checklist instance: invalid inse…
+    [90m   | [39m          [31m^[39m
+    [90m7678| [39m  }
+    [90m7679| [39m
 [90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m179:28[22m[39m
 
-[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390023, \'na\', default, default, default, default), (default, NaN, 390024, \'na\', default, default, default, default), (default, NaN, 390025, \'na\', default, default, default, default), (default, NaN, 390026, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould enforce dependency constraints
-[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
-params: NaN,390027,na,NaN,390028,na,NaN,390029,na,NaN,390030,na[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
-    [90m7681| [39m  }));
-    [90m7682| [39m
-    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
-    [90m   | [39m  [31m^[39m
-    [90m7684| [39m
-    [90m7685| [39m  return { id: instanceId };
+[31m[1mError[22m: Failed to create checklist instance: invalid insertId[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7677:11[22m[39m
+    [90m7675| [39m  
+    [90m7676| [39m  if (!instanceId || isNaN(instanceId)) {
+    [90m7677| [39m    throw new Error("Failed to create checklist instance: invalid inse…
+    [90m   | [39m          [31m^[39m
+    [90m7678| [39m  }
+    [90m7679| [39m
 [90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m246:28[22m[39m
 
-[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390027, \'na\', default, default, default, default), (default, NaN, 390028, \'na\', default, default, default, default), (default, NaN, 390029, \'na\', default, default, default, default), (default, NaN, 390030, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould handle failed checklist items
-[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
-params: NaN,390031,na,NaN,390032,na,NaN,390033,na,NaN,390034,na[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
-    [90m7681| [39m  }));
-    [90m7682| [39m
-    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
-    [90m   | [39m  [31m^[39m
-    [90m7684| [39m
-    [90m7685| [39m  return { id: instanceId };
+[31m[1mError[22m: Failed to create checklist instance: invalid insertId[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7677:11[22m[39m
+    [90m7675| [39m  
+    [90m7676| [39m  if (!instanceId || isNaN(instanceId)) {
+    [90m7677| [39m    throw new Error("Failed to create checklist instance: invalid inse…
+    [90m   | [39m          [31m^[39m
+    [90m7678| [39m  }
+    [90m7679| [39m
 [90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m296:28[22m[39m
 
-[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390031, \'na\', default, default, default, default), (default, NaN, 390032, \'na\', default, default, default, default), (default, NaN, 390033, \'na\', default, default, default, default), (default, NaN, 390034, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould allow re-completion of failed items
-[31m[1mError[22m: Failed query: insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default), (default, ?, ?, ?, default, default, default, default)
-params: NaN,390035,na,NaN,390036,na,NaN,390037,na,NaN,390038,na[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7683:3[22m[39m
-    [90m7681| [39m  }));
-    [90m7682| [39m
-    [90m7683| [39m  await db.insert(checklistItemResults).values(itemValues);
-    [90m   | [39m  [31m^[39m
-    [90m7684| [39m
-    [90m7685| [39m  return { id: instanceId };
+[31m[1mError[22m: Failed to create checklist instance: invalid insertId[39m
+[36m [2m❯[22m Module.createChecklistInstance server/db.ts:[2m7677:11[22m[39m
+    [90m7675| [39m  
+    [90m7676| [39m  if (!instanceId || isNaN(instanceId)) {
+    [90m7677| [39m    throw new Error("Failed to create checklist instance: invalid inse…
+    [90m   | [39m          [31m^[39m
+    [90m7678| [39m  }
+    [90m7679| [39m
 [90m [2m❯[22m server/__tests__/integration/checklist-completion-flow.test.ts:[2m340:28[22m[39m
 
-[31m[1mCaused by: Error[22m: Unknown column 'nan' in 'field list'[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_BAD_FIELD_ERROR', errno: 1054, sql: 'insert into `checklistItemResults` (`id`, `taskChecklistId`, `templateItemId`, `result`, `photoUrls`, `comments`, `createdAt`, `updatedAt`) values (default, NaN, 390035, \'na\', default, default, default, default), (default, NaN, 390036, \'na\', default, default, default, default), (default, NaN, 390037, \'na\', default, default, default, default), (default, NaN, 390038, \'na\', default, default, default, default)', sqlState: '42S22', sqlMessage: 'Unknown column \'nan\' in \'field list\'' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould auto-escalate overdue defect
-[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
-params: 600232,Minor defect for escalation test,Test defect,reported,low,1440147,1440147,CAR,2025-11-16 11:28:43.030[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
-    [90m1565| [39m  if (!db) throw new Error("Database not available");
-    [90m1566| [39m
-    [90m1567| [39m  const [result] = await db.insert(defects).values({
-    [90m   | [39m                   [31m^[39m
-    [90m1568| [39m    projectId: data.projectId,
-    [90m1569| [39m    taskId: data.taskId,
-[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m124:26[22m[39m
+[31m[1mTypeError[22m: actual value must be number or bigint, received "undefined"[39m
+[36m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m158:46[22m[39m
+    [90m156| [39m    [35mconst[39m escalatedDefect [33m=[39m [35mawait[39m db[33m.[39m[34mgetDefectById[39m(defectId)[33m;[39m
+    [90m157| [39m    expect(escalatedDefect?.severity).toBe("medium"); // should increa…
+    [90m158| [39m    [34mexpect[39m(escalatedDefect[33m?.[39mescalationLevel)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                                             [31m^[39m
+    [90m159| [39m
+    [90m160| [39m    [90m// Step 4: ตรวจสอบ escalation history[39m
 
-[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600232, default, default, \'Minor defect for escalation test\', \'Test defect\', default, \'reported\', \'low\', 1440147, 1440147, default, default, default, default, \'CAR\', default, default, default, default, \'2025-11-16 11:28:43.030\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould handle manual escalation by PM
-[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
-params: 600234,Defect for manual escalation,Critical issue found,reported,medium,1440150,1440150,CAR[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
-    [90m1565| [39m  if (!db) throw new Error("Database not available");
-    [90m1566| [39m
-    [90m1567| [39m  const [result] = await db.insert(defects).values({
-    [90m   | [39m                   [31m^[39m
-    [90m1568| [39m    projectId: data.projectId,
-    [90m1569| [39m    taskId: data.taskId,
-[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m164:26[22m[39m
+[31m[1mAssertionError[22m: expected undefined to be 1 // Object.is equality[39m
 
-[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+[32m- Expected:[39m 
+1
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600234, default, default, \'Defect for manual escalation\', \'Critical issue found\', default, \'reported\', \'medium\', 1440150, 1440150, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m217:46[22m[39m
+    [90m215| [39m    [35mconst[39m escalatedDefect [33m=[39m [35mawait[39m db[33m.[39m[34mgetDefectById[39m(defectId)[33m;[39m
+    [90m216| [39m    [34mexpect[39m(escalatedDefect[33m?.[39mseverity)[33m.[39m[34mtoBe[39m([32m"critical"[39m)[33m;[39m
+    [90m217| [39m    [34mexpect[39m(escalatedDefect[33m?.[39mescalationLevel)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                                             [31m^[39m
+    [90m218| [39m
+    [90m219| [39m    [90m// ตรวจสอบ escalation history[39m
+
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould escalate through multiple levels
-[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
-params: 600236,Multi-level escalation test,Test defect,reported,low,1440155,1440155,CAR,2025-11-09 11:28:47.476[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
-    [90m1565| [39m  if (!db) throw new Error("Database not available");
-    [90m1566| [39m
-    [90m1567| [39m  const [result] = await db.insert(defects).values({
-    [90m   | [39m                   [31m^[39m
-    [90m1568| [39m    projectId: data.projectId,
-    [90m1569| [39m    taskId: data.taskId,
-[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m207:26[22m[39m
+[31m[1mAssertionError[22m: expected undefined to be 1 // Object.is equality[39m
 
-[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+[32m- Expected:[39m 
+1
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600236, default, default, \'Multi-level escalation test\', \'Test defect\', default, \'reported\', \'low\', 1440155, 1440155, default, default, default, default, \'CAR\', default, default, default, default, \'2025-11-09 11:28:47.476\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m274:37[22m[39m
+    [90m272| [39m    [35mlet[39m defect [33m=[39m [35mawait[39m db[33m.[39m[34mgetDefectById[39m(defectId)[33m;[39m
+    [90m273| [39m    [34mexpect[39m(defect[33m?.[39mseverity)[33m.[39m[34mtoBe[39m([32m"medium"[39m)[33m;[39m
+    [90m274| [39m    [34mexpect[39m(defect[33m?.[39mescalationLevel)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                                    [31m^[39m
+    [90m275| [39m
+    [90m276| [39m    [90m// Second escalation: medium -> high[39m
+
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/31]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould prevent escalation beyond critical
-[31m[1mError[22m: Failed query: insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, ?, default, default, ?, ?, default, ?, ?, ?, ?, default, default, default, default, ?, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)
-params: 600238,Already critical defect,Test defect,reported,critical,1440160,1440160,CAR[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m25:15[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:19[22m[39m
-[36m [2m❯[22m Module.createDefect server/db.ts:[2m1567:20[22m[39m
-    [90m1565| [39m  if (!db) throw new Error("Database not available");
-    [90m1566| [39m
-    [90m1567| [39m  const [result] = await db.insert(defects).values({
-    [90m   | [39m                   [31m^[39m
-    [90m1568| [39m    projectId: data.projectId,
-    [90m1569| [39m    taskId: data.taskId,
-[90m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m266:26[22m[39m
+[31m[1mAssertionError[22m: expected undefined to be +0 // Object.is equality[39m
 
-[31m[1mCaused by: Error[22m: Field 'taskId' doesn't have a default value[39m
-[90m [2m❯[22m PromisePool.query node_modules/.pnpm/mysql2@3.15.1/node_modules/mysql2/lib/promise/pool.js:[2m36:22[22m[39m
-[90m [2m❯[22m node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m53:29[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.queryWithCache node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/session.js:[2m23:22[22m[39m
-[90m [2m❯[22m MySql2PreparedQuery.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql2/session.js:[2m52:30[22m[39m
-[90m [2m❯[22m QueryPromise.execute node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/mysql-core/query-builders/insert.js:[2m121:27[22m[39m
-[90m [2m❯[22m QueryPromise.then node_modules/.pnpm/drizzle-orm@0.44.7_mysql2@3.15.1/node_modules/drizzle-orm/query-promise.js:[2m21:17[22m[39m
+[32m- Expected:[39m 
+0
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
-[31m[1mSerialized Error:[22m[39m [90m{ code: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364, sql: 'insert into `defects` (`id`, `projectId`, `taskId`, `checklistItemResultId`, `title`, `description`, `photoUrls`, `status`, `severity`, `assignedTo`, `reportedBy`, `resolvedBy`, `resolvedAt`, `resolutionPhotoUrls`, `resolutionComment`, `type`, `checklistId`, `rootCause`, `correctiveAction`, `preventiveAction`, `dueDate`, `actionMethod`, `actionResponsible`, `actionDeadline`, `actionNotes`, `ncrLevel`, `verifiedBy`, `verifiedAt`, `verificationComment`, `resolutionNotes`, `implementationMethod`, `beforePhotos`, `afterPhotos`, `closureNotes`, `createdAt`, `updatedAt`, `escalation`) values (default, 600238, default, default, \'Already critical defect\', \'Test defect\', default, \'reported\', \'critical\', 1440160, 1440160, default, default, default, default, \'CAR\', default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default)', sqlState: 'HY000', sqlMessage: 'Field \'taskId\' doesn\'t have a default value' }[39m
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m server/__tests__/integration/defect-escalation-flow.test.ts:[2m350:37[22m[39m
+    [90m348| [39m    [35mconst[39m defect [33m=[39m [35mawait[39m db[33m.[39m[34mgetDefectById[39m(defectId)[33m;[39m
+    [90m349| [39m    [34mexpect[39m(defect[33m?.[39mseverity)[33m.[39m[34mtoBe[39m([32m"critical"[39m)[33m;[39m
+    [90m350| [39m    [34mexpect[39m(defect[33m?.[39mescalationLevel)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m [90m// no escalation happened[39m
+    [90m   | [39m                                    [31m^[39m
+    [90m351| [39m  })[33m;[39m
+    [90m352| [39m})[33m;[39m
+
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/31]⎯[22m[39m
 
 
 [2m Test Files [22m [1m[31m11 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (31)[39m
 [2m      Tests [22m [1m[31m23 failed[39m[22m[2m | [22m[1m[32m251 passed[39m[22m[2m | [22m[33m26 skipped[39m[90m (300)[39m
-[2m   Start at [22m 06:28:11
-[2m   Duration [22m 42.46s[2m (transform 2.99s, setup 0ms, collect 19.27s, tests 153.34s, environment 5ms, prepare 211ms)[22m
+[2m   Start at [22m 06:36:57
+[2m   Duration [22m 37.97s[2m (transform 3.05s, setup 0ms, collect 18.87s, tests 161.72s, environment 5ms, prepare 197ms)[22m
 
  ELIFECYCLE  Test failed. See above for more details.

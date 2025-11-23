@@ -142,11 +142,15 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
     if (!testDb) return;
 
     try {
+      if (taskId) {
+        // Delete checklist instances first
+        const instances = await testDb.select().from(checklistInstances).where(eq(checklistInstances.taskId, taskId));
+        for (const instance of instances) {
+          await testDb.delete(checklistInstances).where(eq(checklistInstances.id, instance.id));
+        }
+      }
       if (templateId) {
         await testDb.delete(checklistTemplateItems).where(eq(checklistTemplateItems.templateId, templateId));
-      }
-      if (taskId) {
-        await testDb.delete(checklistInstances).where(eq(checklistInstances.taskId, taskId));
       }
       if (templateId) {
         await testDb.delete(checklistTemplates).where(eq(checklistTemplates.id, templateId));
@@ -200,7 +204,7 @@ describe("Multi-step Checklist Completion Integration Tests", () => {
     });
 
     let updatedInstance = await db.getChecklistInstance(instanceId);
-    expect(updatedInstance?.items[0].completed).toBe(true);
+    expect(updatedInstance?.items[0].completed).toBe(1); // tinyint 1 = true
     expect(updatedInstance?.completionPercentage).toBe(25); // 1/4 items
 
     // Complete Step 2

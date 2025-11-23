@@ -7664,14 +7664,14 @@ export async function createChecklistInstance(data: {
   }
 
   // Create checklist instance (using taskChecklists table)
-  const result = await db.insert(taskChecklists).values({
+  const [result] = await db.insert(taskChecklists).values({
     taskId: data.taskId,
     templateId: data.templateId,
     stage: "in_progress",
     status: "not_started",
   });
 
-  const instanceId = Number(result.insertId);
+  const instanceId = bigIntToNumber(result.insertId);
   
   if (!instanceId || isNaN(instanceId)) {
     throw new Error("Failed to create checklist instance: invalid insertId");

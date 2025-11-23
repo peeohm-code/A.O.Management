@@ -251,6 +251,7 @@ export const defects = mysqlTable("defects", {
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
 	escalation: text(),
+	escalationLevel: int().default(0).notNull(),
 },
 (table) => [
 	index("projectIdx").on(table.projectId),
