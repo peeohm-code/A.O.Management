@@ -1,11 +1,25 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  projects, 
+  tasks, 
+  qcChecklists, 
+  qcInspections, 
+  qcPhotos,
+  projectMembers,
+  InsertProject,
+  InsertTask,
+  InsertQcChecklist,
+  InsertQcInspection,
+  InsertQcPhoto,
+  InsertProjectMember
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +103,200 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Projects
+export async function createProject(project: InsertProject) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(projects).values(project);
+  return result;
+}
+
+export async function getProjectsByOwnerId(ownerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(projects).where(eq(projects.ownerId, ownerId)).orderBy(desc(projects.createdAt));
+}
+
+export async function getProjectById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateProject(id: number, data: Partial<InsertProject>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(projects).set(data).where(eq(projects.id, id));
+}
+
+export async function deleteProject(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(projects).where(eq(projects.id, id));
+}
+
+// Tasks
+export async function createTask(task: InsertTask) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(tasks).values(task);
+}
+
+export async function getTasksByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(tasks).where(eq(tasks.projectId, projectId)).orderBy(desc(tasks.createdAt));
+}
+
+export async function getTaskById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateTask(id: number, data: Partial<InsertTask>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(tasks).set(data).where(eq(tasks.id, id));
+}
+
+export async function deleteTask(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(tasks).where(eq(tasks.id, id));
+}
+
+// QC Checklists
+export async function createQcChecklist(checklist: InsertQcChecklist) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(qcChecklists).values(checklist);
+}
+
+export async function getQcChecklistsByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(qcChecklists).where(eq(qcChecklists.projectId, projectId)).orderBy(desc(qcChecklists.createdAt));
+}
+
+export async function getQcChecklistById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(qcChecklists).where(eq(qcChecklists.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateQcChecklist(id: number, data: Partial<InsertQcChecklist>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(qcChecklists).set(data).where(eq(qcChecklists.id, id));
+}
+
+export async function deleteQcChecklist(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(qcChecklists).where(eq(qcChecklists.id, id));
+}
+
+// QC Inspections
+export async function createQcInspection(inspection: InsertQcInspection) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(qcInspections).values(inspection);
+}
+
+export async function getQcInspectionsByChecklistId(checklistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(qcInspections).where(eq(qcInspections.checklistId, checklistId)).orderBy(desc(qcInspections.inspectionDate));
+}
+
+export async function getQcInspectionById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(qcInspections).where(eq(qcInspections.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateQcInspection(id: number, data: Partial<InsertQcInspection>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(qcInspections).set(data).where(eq(qcInspections.id, id));
+}
+
+export async function deleteQcInspection(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(qcInspections).where(eq(qcInspections.id, id));
+}
+
+// QC Photos
+export async function createQcPhoto(photo: InsertQcPhoto) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(qcPhotos).values(photo);
+}
+
+export async function getQcPhotosByInspectionId(inspectionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(qcPhotos).where(eq(qcPhotos.inspectionId, inspectionId)).orderBy(desc(qcPhotos.createdAt));
+}
+
+export async function deleteQcPhoto(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(qcPhotos).where(eq(qcPhotos.id, id));
+}
+
+// Project Members
+export async function addProjectMember(member: InsertProjectMember) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(projectMembers).values(member);
+}
+
+export async function getProjectMembersByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(projectMembers).where(eq(projectMembers.projectId, projectId));
+}
+
+export async function removeProjectMember(projectId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(projectMembers).where(
+    and(
+      eq(projectMembers.projectId, projectId),
+      eq(projectMembers.userId, userId)
+    )
+  );
+}
