@@ -1,9 +1,0 @@
-{
-  "query": "\n-- Assign checklists to task 1 with correct columns\nINSERT INTO taskChecklists (taskId, templateId, stage, status, createdAt, updatedAt)\nVALUES \n  (1, 1, 'pre_execution', 'pending', NOW(), NOW()),\n  (1, 2, 'in_progress', 'pending', NOW(), NOW());\n",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute \n-- Assign checklists to task 1 with correct columns\nINSERT INTO taskChecklists (taskId, templateId, stage, status, createdAt, updatedAt)\nVALUES \n  (1, 1, 'pre_execution', 'pending', NOW(), NOW()),\n  (1, 2, 'in_progress', 'pending', NOW(), NOW());\n",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 1566
-}

@@ -1,8 +1,0 @@
-{
-  "query": "ALTER TABLE escalationLogs \nADD COLUMN resolvedAt TIMESTAMP NULL,\nADD COLUMN resolvedBy INT NULL,\nADD INDEX resolvedAtIdx (resolvedAt),\nADD INDEX resolvedByIdx (resolvedBy);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute ALTER TABLE escalationLogs \nADD COLUMN resolvedAt TIMESTAMP NULL,\nADD COLUMN resolvedBy INT NULL,\nADD INDEX resolvedAtIdx (resolvedAt),\nADD INDEX resolvedByIdx (resolvedBy);",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1072 (42000) at line 1: column does not exist: resolvedAt"
-  ]
-}
