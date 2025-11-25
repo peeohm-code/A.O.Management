@@ -1,0 +1,46 @@
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mDatabase Integrity Tests[2m > [22mshould handle concurrent updates correctly
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mDatabase Integrity Tests[2m > [22mshould maintain referential integrity on project deletion
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateDefect - Defect Creation Transaction[2m > [22mshould create defect with valid data
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateDefect - Defect Creation Transaction[2m > [22mshould set default status to reported
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateProject - Project Creation Transaction[2m > [22mshould create project with valid data
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateProject - Project Creation Transaction[2m > [22mshould prevent duplicate project codes
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateProject - Project Creation Transaction[2m > [22mshould set default values correctly
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateTaskChecklist - Checklist Creation Transaction[2m > [22mshould create task checklist with valid data
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateTaskChecklist - Checklist Creation Transaction[2m > [22mshould prevent duplicate checklists for same task and stage
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateTaskChecklist - Checklist Creation Transaction[2m > [22mshould validate task existence
+[41m[1m FAIL [22m[49m server/__tests__/critical-transactions.test.ts[2m > [22mCritical Transaction Tests[2m > [22mcreateTaskChecklist - Checklist Creation Transaction[2m > [22mshould validate template existence
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould allow re-completion of failed items
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould complete checklist items in correct order
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould enforce dependency constraints
+[41m[1m FAIL [22m[49m server/__tests__/integration/checklist-completion-flow.test.ts[2m > [22mMulti-step Checklist Completion Integration Tests[2m > [22mshould handle failed checklist items
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould auto-escalate overdue defect
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould escalate through multiple levels
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould handle manual escalation by PM
+[41m[1m FAIL [22m[49m server/__tests__/integration/defect-escalation-flow.test.ts[2m > [22mDefect Escalation Process Integration Tests[2m > [22mshould prevent escalation beyond critical
+[41m[1m FAIL [22m[49m server/__tests__/project-delete.test.ts[2m > [22mProject Delete
+[41m[1m FAIL [22m[49m server/__tests__/projects-simple.test.ts[2m > [22mProjects Router - Simple Tests[2m > [22mget procedure[2m > [22mshould return null for non-existent project
+[41m[1m FAIL [22m[49m server/__tests__/projects-simple.test.ts[2m > [22mProjects Router - Simple Tests[2m > [22mlist procedure[2m > [22mshould return paginated projects list
+[41m[1m FAIL [22m[49m server/__tests__/projects-simple.test.ts[2m > [22mProjects Router - Simple Tests[2m > [22mupdate procedure[2m > [22mshould update an existing project
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mlistProjects[2m > [22mshould list all projects with pagination
+[41m[1m FAIL [22m[49m server/__tests__/projects.test.ts[2m > [22mProjects Router[2m > [22mupdateProject[2m > [22mshould update project successfully
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mDefect Management[2m > [22mcreateDefect[2m > [22mshould create a defect with valid data
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mDefect Management[2m > [22mcreateDefect[2m > [22mshould set default status to 'reported'
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould create defects for failed items
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould set overall status to 'completed' when all items pass
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould set overall status to 'failed' when any item fails
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mQC Inspection[2m > [22msubmitInspectionResults[2m > [22mshould submit inspection with all passed items
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mTask Status Management[2m > [22mupdateTaskStatus[2m > [22mshould handle all valid status values
+[41m[1m FAIL [22m[49m server/db.test.ts[2m > [22mTask Status Management[2m > [22mupdateTaskStatus[2m > [22mshould update task status
+[41m[1m FAIL [22m[49m server/inspection-stats.test.ts[2m > [22mError Tracking API[2m > [22mshould get error statistics
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mDefect Procedures Integration Tests[2m > [22mdefect.create[2m > [22mshould create defect with valid input
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mDefect Procedures Integration Tests[2m > [22mdefect.update
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mInspection Procedures Integration Tests
+[41m[1m FAIL [22m[49m server/routers.test.ts[2m > [22mTask Procedures Integration Tests[2m > [22mtask.update[2m > [22mshould update task with valid data
+[41m[1m FAIL [22m[49m tests/checklist-item-update.test.ts[2m > [22mChecklist Item Update[2m > [22mshould update checklist item result
+[41m[1m FAIL [22m[49m tests/checklist-item-update.test.ts[2m > [22mChecklist Item Update[2m > [22mshould update only result without comments
+[41m[1m FAIL [22m[49m tests/e2e/auth.spec.ts[2m [ tests/e2e/auth.spec.ts ][22m
+[41m[1m FAIL [22m[49m tests/e2e/inspection.spec.ts[2m [ tests/e2e/inspection.spec.ts ][22m
+[41m[1m FAIL [22m[49m tests/integration/security.test.ts[2m > [22mSecurity Features[2m > [22mInput Validation[2m > [22mshould validate file upload size

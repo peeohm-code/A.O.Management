@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, title, status FROM defects LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, title, status FROM defects LIMIT 5;",
+  "rows": [
+    {
+      "id": "60001",
+      "title": "งานฐานราก - ไม่ผ่านการตรวจสอบ",
+      "status": "reported"
+    },
+    {
+      "id": "90001",
+      "title": "งานฐานราก - ไม่ผ่านการตรวจสอบ",
+      "status": "closed"
+    },
+    {
+      "id": "120001",
+      "title": "ทดสอบ Workflow - รอยแตกบนผนัง",
+      "status": "reported"
+    },
+    {
+      "id": "120002",
+      "title": "ทดสอบ Workflow - รอยแตกบนผนัง",
+      "status": "assigned"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\n60001\tงานฐานราก - ไม่ผ่านการตรวจสอบ\treported\n90001\tงานฐานราก - ไม่ผ่านการตรวจสอบ\tclosed\n120001\tทดสอบ Workflow - รอยแตกบนผนัง\treported\n120002\tทดสอบ Workflow - รอยแตกบนผนัง\tassigned\n",
+  "stderr": "",
+  "execution_time_ms": 1563
+}

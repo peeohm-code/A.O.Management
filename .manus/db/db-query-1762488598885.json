@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO taskChecklists (taskId, templateId, stage, status) VALUES (150001, 90001, 'pre_execution', 'completed'), (150001, 90002, 'pre_execution', 'not_started'), (150002, 90001, 'pre_execution', 'not_started')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute INSERT INTO taskChecklists (taskId, templateId, stage, status) VALUES (150001, 90001, 'pre_execution', 'completed'), (150001, 90002, 'pre_execution', 'not_started'), (150002, 90001, 'pre_execution', 'not_started')",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1531
+}

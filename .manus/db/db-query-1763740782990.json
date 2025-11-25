@@ -1,0 +1,31 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'activityLog' AND TABLE_SCHEMA = DATABASE()",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'activityLog' AND TABLE_SCHEMA = DATABASE()",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "userId"
+    },
+    {
+      "COLUMN_NAME": "projectId"
+    },
+    {
+      "COLUMN_NAME": "taskId"
+    },
+    {
+      "COLUMN_NAME": "action"
+    },
+    {
+      "COLUMN_NAME": "details"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nuserId\nprojectId\ntaskId\naction\ndetails\ncreatedAt\n",
+  "stderr": "",
+  "execution_time_ms": 1643
+}

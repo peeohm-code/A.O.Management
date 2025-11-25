@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, name, code, status, createdAt FROM projects ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT id, name, code, status, createdAt FROM projects ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "โครงการทดสอบ Archive",
+      "code": "TEST-ARCHIVE-001",
+      "status": "active",
+      "createdAt": "2025-11-09 13:43:31"
+    },
+    {
+      "id": "2",
+      "name": "โครงการทดสอบ Archive System",
+      "code": "TEST-ARCH-001",
+      "status": "completed",
+      "createdAt": "2025-11-09 13:56:53"
+    },
+    {
+      "id": "30001",
+      "name": "บ้านพักอาศัย 2 ชั้น",
+      "code": "AO 2025-999",
+      "status": "planning",
+      "createdAt": "2025-11-09 15:37:20"
+    },
+    {
+      "id": "30002",
+      "name": "โครงการบ้านพักอาศัย 2 ชั้น",
+      "code": "HOUSE-2025-001",
+      "status": "planning",
+      "createdAt": "2025-11-09 15:47:32"
+    },
+    {
+      "id": "30003",
+      "name": "โครงการทดสอบ Edit",
+      "code": "TEST-2025-002",
+      "status": "planning",
+      "createdAt": "2025-11-09 15:55:15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcode\tstatus\tcreatedAt\n1\tโครงการทดสอบ Archive\tTEST-ARCHIVE-001\tactive\t2025-11-09 13:43:31\n2\tโครงการทดสอบ Archive System\tTEST-ARCH-001\tcompleted\t2025-11-09 13:56:53\n30001\tบ้านพักอาศัย 2 ชั้น\tAO 2025-999\tplanning\t2025-11-09 15:37:20\n30002\tโครงการบ้านพักอาศัย 2 ชั้น\tHOUSE-2025-001\tplanning\t2025-11-09 15:47:32\n30003\tโครงการทดสอบ Edit\tTEST-2025-002\tplanning\t2025-11-09 15:55:15\n",
+  "stderr": "",
+  "execution_time_ms": 1580
+}

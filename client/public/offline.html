@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ออฟไลน์ - Construction Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 32px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      background: #f3f4f6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon svg {
+      width: 60px;
+      height: 60px;
+      color: #9ca3af;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .features {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .features h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+
+    .features ul {
+      list-style: none;
+    }
+
+    .features li {
+      font-size: 14px;
+      color: #6b7280;
+      padding: 8px 0;
+      padding-left: 28px;
+      position: relative;
+    }
+
+    .features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .status {
+      margin-top: 24px;
+      padding: 12px;
+      background: #fef3c7;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #92400e;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .checking {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
+      </svg>
+    </div>
+
+    <h1>คุณกำลังออฟไลน์</h1>
+    <p>ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่อของคุณ</p>
+
+    <div class="features">
+      <h2>สิ่งที่คุณยังทำได้:</h2>
+      <ul>
+        <li>ดูข้อมูลที่เคยโหลดไว้</li>
+        <li>บันทึกผลการตรวจสอบ QC (จะซิงค์เมื่อกลับมาออนไลน์)</li>
+        <li>เข้าถึงหน้าที่เคยเปิดไว้</li>
+      </ul>
+    </div>
+
+    <button class="button" onclick="checkConnection()">ลองเชื่อมต่ออีกครั้ง</button>
+
+    <div id="status" class="status" style="display: none;">
+      <span class="checking">กำลังตรวจสอบการเชื่อมต่อ...</span>
+    </div>
+  </div>
+
+  <script>
+    function checkConnection() {
+      const statusDiv = document.getElementById('status');
+      statusDiv.style.display = 'block';
+      statusDiv.innerHTML = '<span class="checking">กำลังตรวจสอบการเชื่อมต่อ...</span>';
+
+      // Try to fetch the main page
+      fetch('/', { method: 'HEAD', cache: 'no-cache' })
+        .then(response => {
+          if (response.ok) {
+            statusDiv.innerHTML = '✓ เชื่อมต่อสำเร็จ! กำลังโหลดหน้าเว็บ...';
+            statusDiv.style.background = '#d1fae5';
+            statusDiv.style.color = '#065f46';
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1000);
+          } else {
+            throw new Error('Connection failed');
+          }
+        })
+        .catch(() => {
+          statusDiv.innerHTML = '✗ ยังไม่สามารถเชื่อมต่อได้ กรุณาลองอีกครั้ง';
+          statusDiv.style.background = '#fee2e2';
+          statusDiv.style.color = '#991b1b';
+          setTimeout(() => {
+            statusDiv.style.display = 'none';
+          }, 3000);
+        });
+    }
+
+    // Auto-check connection every 30 seconds
+    setInterval(() => {
+      fetch('/', { method: 'HEAD', cache: 'no-cache' })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/';
+          }
+        })
+        .catch(() => {
+          // Still offline
+        });
+    }, 30000);
+  </script>
+</body>
+</html>

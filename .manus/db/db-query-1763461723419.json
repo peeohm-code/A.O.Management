@@ -1,0 +1,59 @@
+{
+  "query": "SELECT tc.id, tc.taskId, tc.templateId, tc.status, \n(SELECT COUNT(*) FROM checklistItemResults WHERE taskChecklistId = tc.id) as item_count\nFROM taskChecklists tc\nORDER BY tc.id DESC\nLIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT tc.id, tc.taskId, tc.templateId, tc.status, \n(SELECT COUNT(*) FROM checklistItemResults WHERE taskChecklistId = tc.id) as item_count\nFROM taskChecklists tc\nORDER BY tc.id DESC\nLIMIT 10",
+  "rows": [
+    {
+      "id": "60003",
+      "taskId": "30001",
+      "templateId": "30001",
+      "status": "pending_inspection",
+      "item_count": "0"
+    },
+    {
+      "id": "60002",
+      "taskId": "30001",
+      "templateId": "30002",
+      "status": "pending_inspection",
+      "item_count": "0"
+    },
+    {
+      "id": "60001",
+      "taskId": "1",
+      "templateId": "30001",
+      "status": "pending_inspection",
+      "item_count": "0"
+    },
+    {
+      "id": "30001",
+      "taskId": "30001",
+      "templateId": "1",
+      "status": "pending_inspection",
+      "item_count": "0"
+    },
+    {
+      "id": "6",
+      "taskId": "3",
+      "templateId": "1",
+      "status": "completed",
+      "item_count": "0"
+    },
+    {
+      "id": "5",
+      "taskId": "2",
+      "templateId": "1",
+      "status": "pending_inspection",
+      "item_count": "0"
+    },
+    {
+      "id": "4",
+      "taskId": "1",
+      "templateId": "1",
+      "status": "pending_inspection",
+      "item_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\ttemplateId\tstatus\titem_count\n60003\t30001\t30001\tpending_inspection\t0\n60002\t30001\t30002\tpending_inspection\t0\n60001\t1\t30001\tpending_inspection\t0\n30001\t30001\t1\tpending_inspection\t0\n6\t3\t1\tcompleted\t0\n5\t2\t1\tpending_inspection\t0\n4\t1\t1\tpending_inspection\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1603
+}

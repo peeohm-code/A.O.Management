@@ -1,0 +1,8 @@
+{
+  "query": "SELECT tc.*, t.name as task_name, p.name as project_name, ct.name as template_name\nFROM task_checklists tc\nLEFT JOIN tasks t ON tc.task_id = t.id\nLEFT JOIN projects p ON t.project_id = p.id\nLEFT JOIN checklist_templates ct ON tc.template_id = ct.id\nWHERE tc.id = 60002",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute SELECT tc.*, t.name as task_name, p.name as project_name, ct.name as template_name\nFROM task_checklists tc\nLEFT JOIN tasks t ON tc.task_id = t.id\nLEFT JOIN projects p ON t.project_id = p.id\nLEFT JOIN checklist_templates ct ON tc.template_id = ct.id\nWHERE tc.id = 60002",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'xgufrkfw3wtjbzrcqsfjbu.task_checklists' doesn't exist"
+  ]
+}
