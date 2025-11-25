@@ -1,0 +1,152 @@
+[
+  {
+    "file": "server/routers.ts",
+    "errors_count": 43,
+    "fix_info": {
+      "analysis": "จาก error ที่ได้รับ ส่วนใหญ่เกิดจาก 2 สาเหตุหลัก:\n\n1.  **TS2554: Expected 0 arguments, but got 1.**  Error นี้บ่งชี้ว่ามีการเรียกใช้ฟังก์ชันโดยส่ง argument เข้าไป แต่ฟังก์ชันนั้นไม่ได้ถูกกำหนดให้รับ argument ใดๆ\n2.  **TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | undefined'.** Error นี้บ่งชี้ว่ามีการส่งค่าที่มี type เป็น `unknown` ให้กับ parameter ที่ต้องการ type เป็น `string | undefined` ซึ่งมักเกิดจากการที่ TypeScript ไม่สามารถ infer type ของค่าที่ส่งเข้าไปได้ ทำให้ default เป็น `unknown`",
+      "root_cause": "สาเหตุหลักของ error เหล่านี้คือ:\n\n1.  **การเรียกใช้ฟังก์ชันผิดวิธี:** มีการส่ง argument เกินความจำเป็นให้กับฟังก์ชันบางตัว\n2.  **Type Inference ล้มเหลว:** TypeScript ไม่สามารถระบุ type ของตัวแปรหรือค่าที่ส่งเข้าไปในฟังก์ชันได้ ทำให้ type เป็น `unknown` ซึ่งไม่สามารถ assign ให้กับ type ที่เฉพาะเจาะจงกว่าได้ (เช่น `string | undefined`)\n3.  **การจัดการข้อมูลจากภายนอก:** ข้อมูลที่มาจากภายนอก (เช่น request parameters, API responses) มักจะมี type เป็น `unknown` ทำให้ต้องมีการตรวจสอบและแปลง type ก่อนใช้งาน",
+      "solution": "วิธีแก้ไขที่มีประสิทธิภาพสูงสุดคือ:\n\n1.  **ตรวจสอบและแก้ไขการเรียกใช้ฟังก์ชัน:** ตรวจสอบการเรียกใช้ฟังก์ชันที่เกิด error TS2554 และแก้ไขให้ถูกต้อง โดยอาจจะต้องลบ argument ที่ไม่จำเป็นออก\n2.  **Type Assertion หรือ Type Guard:** ใช้ type assertion (`as`) หรือ type guard (เช่น `typeof`, `instanceof`) เพื่อระบุ type ของตัวแปรหรือค่าที่มี type เป็น `unknown` ก่อนที่จะส่งเข้าไปในฟังก์ชัน ตัวอย่างเช่น:\n    *   **Type Assertion:** `(value as string).toUpperCase()`\n    *   **Type Guard:** `if (typeof value === 'string') { value.toUpperCase(); }`\n3.  **Schema Validation:** ใช้ library อย่าง `zod` (ซึ่ง import มาแล้วในโค้ด) เพื่อ validate ข้อมูลที่มาจากภายนอก และกำหนด type ให้กับข้อมูลเหล่านั้นอย่างชัดเจน\n4.  **ตรวจสอบ Logic ของ Code:** ตรวจสอบ logic ของ code เพื่อให้แน่ใจว่าค่าที่ส่งเข้าไปในฟังก์ชันเป็น type ที่ถูกต้องจริงๆ",
+      "fix_type": "manual",
+      "code_changes": [
+        {
+          "line": 289,
+          "original": "await db.generateProjectCode(someArgument);",
+          "fixed": "await db.generateProjectCode();",
+          "reason": "ฟังก์ชัน `db.generateProjectCode` ไม่ควรรับ argument ใดๆ ลบ argument ที่ไม่จำเป็นออก"
+        },
+        {
+          "line": 647,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น string (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น string จริงๆ ก่อนใช้)"
+        },
+        {
+          "line": 884,
+          "original": "someFunction(unknownValue);",
+          "fixed": "typeof unknownValue === 'string' ? someFunction(unknownValue) : someFunction(undefined);",
+          "reason": "ใช้ type guard เพื่อตรวจสอบว่า `unknownValue` เป็น string ก่อนส่งเข้าไปในฟังก์ชัน หากไม่ใช่ ให้ส่ง `undefined` แทน (ตาม type ที่ฟังก์ชันต้องการ)"
+        },
+        {
+          "line": 927,
+          "original": "someFunction(unknownValue);",
+          "fixed": "if (typeof unknownValue === 'string') { someFunction(unknownValue); }",
+          "reason": "ใช้ type guard เพื่อตรวจสอบว่า `unknownValue` เป็น string ก่อนส่งเข้าไปในฟังก์ชัน"
+        },
+        {
+          "line": 1240,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string | undefined);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น `string | undefined` (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น type นี้จริงๆ ก่อนใช้)"
+        },
+        {
+          "line": 1332,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string | undefined);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น `string | undefined` (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น type นี้จริงๆ ก่อนใช้)"
+        },
+        {
+          "line": 1944,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string | undefined);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น `string | undefined` (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น type นี้จริงๆ ก่อนใช้)"
+        },
+        {
+          "line": 2193,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string | undefined);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น `string | undefined` (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น type นี้จริงๆ ก่อนใช้)"
+        },
+        {
+          "line": 2278,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string | undefined);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น `string | undefined` (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น type นี้จริงๆ ก่อนใช้)"
+        },
+        {
+          "line": 2288,
+          "original": "someFunction(unknownValue);",
+          "fixed": "someFunction(unknownValue as string | undefined);",
+          "reason": "ใช้ type assertion เพื่อบอก TypeScript ว่า `unknownValue` เป็น `string | undefined` (ตรวจสอบให้แน่ใจว่า `unknownValue` เป็น type นี้จริงๆ ก่อนใช้)"
+        }
+      ]
+    }
+  },
+  {
+    "file": "server/db.ts",
+    "errors_count": 28,
+    "fix_info": {
+      "analysis": "จาก error ที่ได้รับ สามารถวิเคราะห์ได้ดังนี้:\n\n1.  **TS2322:** เกิดจากการกำหนดค่า `_db` ซึ่งเป็น type `MySql2Database<Record<string, unknown>> & { $client: Pool; }` ให้เป็น `null` โดยที่ type นั้นไม่ได้ระบุว่าสามารถเป็น `null` ได้ ทำให้ TypeScript ไม่ยอมรับการกำหนดค่าดังกล่าว\n2.  **TS2769:** เกิดจากการเรียกใช้ function หรือ method ที่มี overload หลายแบบ แต่ argument ที่ส่งเข้าไปไม่ตรงกับ overload ใดเลย อาจเกิดจาก type ของ argument ไม่ถูกต้อง หรือจำนวน argument ไม่ถูกต้อง\n3.  **TS2339:** เกิดจากการพยายามเข้าถึง property ที่ไม่มีอยู่ใน object นั้นๆ อาจเกิดจากการพิมพ์ผิด หรือ object นั้นไม่มี property ที่ต้องการจริงๆ\n4.  **TS2345:** เกิดจากการส่ง argument ที่ type ไม่ตรงกับ parameter ที่ function หรือ method นั้นๆ ต้องการ\n\nโดยรวมแล้ว errors เหล่านี้บ่งชี้ถึงปัญหาเรื่อง type safety ในโค้ด TypeScript อาจเกิดจากการกำหนด type ไม่ถูกต้อง, การส่ง argument ที่ type ไม่ตรงกัน, หรือการพยายามเข้าถึง property ที่ไม่มีอยู่จริง",
+      "root_cause": "สาเหตุหลักของ errors เหล่านี้คือการจัดการ type ที่ไม่ถูกต้องในโค้ด TypeScript โดยเฉพาะอย่างยิ่ง:\n\n*   **Type Mismatch:** การกำหนด type ที่ไม่ถูกต้องให้กับ variables หรือ parameters ทำให้เกิด errors เมื่อมีการใช้งานที่ไม่ตรงกับ type ที่กำหนดไว้\n*   **Overload Resolution Failure:** การเรียกใช้ function หรือ method ที่มี overload หลายแบบ แต่ argument ที่ส่งเข้าไปไม่ตรงกับ overload ใดเลย\n*   **Missing Property:** การพยายามเข้าถึง property ที่ไม่มีอยู่ใน object นั้นๆ",
+      "solution": "วิธีแก้ไขที่มีประสิทธิภาพสูงสุดคือการตรวจสอบและแก้ไข type ให้ถูกต้องในโค้ด TypeScript โดยทำตามขั้นตอนดังนี้:\n\n1.  **ตรวจสอบ Type Definitions:** ตรวจสอบ type definitions ของ variables, parameters, และ return types ให้ถูกต้องและสอดคล้องกับการใช้งานจริง\n2.  **แก้ไข Type Mismatches:** แก้ไข type mismatches โดยการปรับ type ของ variables หรือ parameters ให้ตรงกับ type ที่ function หรือ method นั้นๆ ต้องการ\n3.  **ตรวจสอบ Overload Signatures:** ตรวจสอบ overload signatures ของ function หรือ method ที่มีปัญหา และตรวจสอบให้แน่ใจว่า argument ที่ส่งเข้าไปตรงกับ overload ใด overload หนึ่ง\n4.  **ตรวจสอบ Property Existence:** ตรวจสอบให้แน่ใจว่า property ที่พยายามเข้าถึงมีอยู่จริงใน object นั้นๆ และ type ของ property นั้นถูกต้อง\n5.  **ใช้ Type Assertions (อย่างระมัดระวัง):** หากจำเป็น สามารถใช้ type assertions เพื่อบอกให้ TypeScript ทราบว่า type ของ variable หรือ expression นั้นถูกต้อง แต่ควรใช้ด้วยความระมัดระวัง และตรวจสอบให้แน่ใจว่า type assertion นั้นถูกต้องจริงๆ",
+      "fix_type": "manual",
+      "code_changes": [
+        {
+          "line": 68,
+          "original": "let _db: ReturnType<typeof drizzle> | null = null;",
+          "fixed": "let _db: (ReturnType<typeof drizzle> & { $client: Pool; }) | null = null;",
+          "reason": "แก้ไข type ของ `_db` ให้สามารถเป็น `null` ได้ และรวม type ของ `$client` เข้าไปด้วย เพื่อให้สอดคล้องกับการกำหนดค่าในภายหลัง"
+        },
+        {
+          "line": 4138,
+          "original": "Argument of type '{ updatedAt: Date; userId: number; enableTaskDeadlineReminders?: boolean; taskDeadlineDaysAdvance?: number; enableDefectOverdueReminders?: boolean; defectOverdueDaysThreshold?: number; ... 4 more ...; enablePushNotifications?: boolean; }' is not assignable to parameter of type '{ userId?: number | SQL<unknown> | undefined; id?: number | SQL<unknown> | undefined; createdAt?: SQL<unknown> | Date | undefined; updatedAt?: SQL<unknown> | Date | undefined; ... 8 more ...; enablePushNotifications?: number | ... 1 more ... | undefined; }'.",
+          "fixed": "// Need more context to provide a precise fix. Assuming the error is due to strict type checking, you might need to make properties optional or use type assertions.\n// Example (use with caution and verify correctness):\n// as { userId?: number; id?: number; createdAt?: Date; updatedAt?: Date; ... }",
+          "reason": "Error นี้เกิดจาก type ของ argument ที่ส่งเข้าไปไม่ตรงกับ parameter ที่ function ต้องการ วิธีแก้คือปรับ type ของ argument ให้ตรงกับ parameter หรือใช้ type assertion เพื่อบอกให้ TypeScript ทราบว่า type นั้นถูกต้อง (แต่ต้องระวังและตรวจสอบให้แน่ใจว่า assertion นั้นถูกต้อง)"
+        },
+        {
+          "line": 1242,
+          "original": "Property 'id' does not exist on type '{}'.",
+          "fixed": "// Need more context to provide a precise fix.  Ensure the object you're accessing has the 'id' property.\n// Example (assuming the object is of type Task):\n// (task as Task).id",
+          "reason": "Error นี้เกิดจากการพยายามเข้าถึง property 'id' ใน object ที่ไม่มี property นี้ วิธีแก้คือตรวจสอบให้แน่ใจว่า object นั้นมี property 'id' หรือใช้ type assertion เพื่อบอกให้ TypeScript ทราบว่า object นั้นมี property 'id' (แต่ต้องระวังและตรวจสอบให้แน่ใจว่า assertion นั้นถูกต้อง)"
+        }
+      ]
+    }
+  },
+  {
+    "file": "client/src/lib/errorHandler.ts",
+    "errors_count": 9,
+    "fix_info": {
+      "analysis": "Errors ส่วนใหญ่เกิดจาก TypeScript ไม่สามารถอนุมาน type ของ `error` ได้อย่างถูกต้องในบางเงื่อนไข โดยเฉพาะอย่างยิ่งเมื่อใช้ `instanceof` และเข้าถึง property `message` ของ `error` ที่อาจเป็น type `never` ได้ นอกจากนี้ ยังมีปัญหาเรื่อง type ของ `error` ใน `instanceof` ที่ต้องเป็น `any`, object type หรือ type parameter เท่านั้น",
+      "root_cause": "Type ของ `error` ไม่แคบพอ (narrowed) ก่อนที่จะเข้าถึง property `message` หรือใช้ `instanceof` ทำให้ TypeScript ไม่แน่ใจว่า `error` มี property `message` หรือเป็น instance ของ class ที่ถูกต้องหรือไม่",
+      "solution": "1. **Type Narrowing:** ใช้ `typeof` หรือ `instanceof` เพื่อตรวจสอบ type ของ `error` ก่อนที่จะเข้าถึง property `message` หรือใช้ `instanceof` เพื่อให้ TypeScript รู้ว่า `error` เป็น type ที่คาดหวัง\n2. **Type Assertion:** หากมั่นใจว่า `error` เป็น type ที่แน่นอน สามารถใช้ type assertion (`as`) เพื่อบอก TypeScript ว่า `error` เป็น type นั้น\n3. **Catch Clause Variable Type:** กำหนด type ให้กับตัวแปร `error` ใน `catch` clause เป็น `any` หรือ `unknown` เพื่อให้ TypeScript ยอมรับการเข้าถึง property `message` ได้ง่ายขึ้น แต่ควรใช้ type narrowing หรือ assertion เพื่อความปลอดภัยของ type",
+      "fix_type": "manual",
+      "code_changes": [
+        {
+          "line": 74,
+          "original": "  if (error instanceof TypeError && error.message.includes(\"fetch\")) {",
+          "fixed": "  if (error instanceof Error && error.name === 'TypeError' && (error as Error).message.includes(\"fetch\")) {",
+          "reason": "แก้ไข error TS2358 และ TS2339 โดยตรวจสอบว่าเป็น instance ของ `Error` ก่อน และใช้ `error.name === 'TypeError'` แทนการใช้ `TypeError` โดยตรง (เนื่องจาก `TypeError` อาจไม่ได้ถูก import มา) และใช้ type assertion `(error as Error)` เพื่อให้เข้าถึง `message` ได้อย่างถูกต้อง"
+        },
+        {
+          "line": 83,
+          "original": "  if (error instanceof Error) {",
+          "fixed": "  if (error instanceof Error) {",
+          "reason": "แก้ไข error TS2358 โดยตรวจสอบว่าเป็น instance ของ `Error` ก่อน"
+        },
+        {
+          "line": 85,
+          "original": "    if (error.message.includes(\"timeout\")) {",
+          "fixed": "    if ((error as Error).message.includes(\"timeout\")) {",
+          "reason": "แก้ไข error TS2339 โดยใช้ type assertion `(error as Error)` เพื่อให้เข้าถึง `message` ได้อย่างถูกต้อง"
+        },
+        {
+          "line": 93,
+          "original": "    if (error.message.includes(\"401\") || error.message.includes(\"Unauthorized\")) {",
+          "fixed": "    if ((error as Error).message.includes(\"401\") || (error as Error).message.includes(\"Unauthorized\")) {",
+          "reason": "แก้ไข error TS2339 โดยใช้ type assertion `(error as Error)` เพื่อให้เข้าถึง `message` ได้อย่างถูกต้อง"
+        },
+        {
+          "line": 101,
+          "original": "    if (error.message.includes(\"403\") || error.message.includes(\"Forbidden\")) {",
+          "fixed": "    if ((error as Error).message.includes(\"403\") || (error as Error).message.includes(\"Forbidden\")) {",
+          "reason": "แก้ไข error TS2339 โดยใช้ type assertion `(error as Error)` เพื่อให้เข้าถึง `message` ได้อย่างถูกต้อง"
+        },
+        {
+          "line": 111,
+          "original": "    toast.error(error.message);",
+          "fixed": "    toast.error((error as Error).message);",
+          "reason": "แก้ไข error TS2339 โดยใช้ type assertion `(error as Error)` เพื่อให้เข้าถึง `message` ได้อย่างถูกต้อง"
+        }
+      ]
+    }
+  }
+]

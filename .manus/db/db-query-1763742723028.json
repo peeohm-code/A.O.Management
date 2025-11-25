@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS escalationRules (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(255) NOT NULL,\n  description TEXT,\n  eventType ENUM('failed_inspection', 'unresolved_defect', 'overdue_task') NOT NULL,\n  thresholdValue INT NOT NULL,\n  thresholdUnit ENUM('hours', 'days') DEFAULT 'hours' NOT NULL,\n  notifyRoles TEXT NOT NULL,\n  notifyUsers TEXT,\n  isActive TINYINT DEFAULT 1 NOT NULL,\n  createdBy INT NOT NULL,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n  INDEX eventTypeIdx (eventType),\n  INDEX isActiveIdx (isActive)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute CREATE TABLE IF NOT EXISTS escalationRules (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(255) NOT NULL,\n  description TEXT,\n  eventType ENUM('failed_inspection', 'unresolved_defect', 'overdue_task') NOT NULL,\n  thresholdValue INT NOT NULL,\n  thresholdUnit ENUM('hours', 'days') DEFAULT 'hours' NOT NULL,\n  notifyRoles TEXT NOT NULL,\n  notifyUsers TEXT,\n  isActive TINYINT DEFAULT 1 NOT NULL,\n  createdBy INT NOT NULL,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n  INDEX eventTypeIdx (eventType),\n  INDEX isActiveIdx (isActive)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1796
+}

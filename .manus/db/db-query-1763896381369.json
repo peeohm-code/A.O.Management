@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE projects p1\nLEFT JOIN (\n  SELECT MIN(id) as min_id, code\n  FROM projects\n  WHERE code IS NOT NULL\n  GROUP BY code\n  HAVING COUNT(*) > 1\n) p2 ON p1.code = p2.code AND p1.id != p2.min_id\nSET p1.code = CONCAT(p1.code, '-', p1.id)\nWHERE p2.code IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute UPDATE projects p1\nLEFT JOIN (\n  SELECT MIN(id) as min_id, code\n  FROM projects\n  WHERE code IS NOT NULL\n  GROUP BY code\n  HAVING COUNT(*) > 1\n) p2 ON p1.code = p2.code AND p1.id != p2.min_id\nSET p1.code = CONCAT(p1.code, '-', p1.id)\nWHERE p2.code IS NOT NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1540
+}

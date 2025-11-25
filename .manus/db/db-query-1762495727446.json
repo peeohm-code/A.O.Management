@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE notifications ADD COLUMN priority ENUM('urgent', 'high', 'normal', 'low') NOT NULL DEFAULT 'normal' AFTER type;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 33MDJNP9oQHNu88.9be2e504806b --database XGUfRkFw3wTJbZrCqsFJBu --execute ALTER TABLE notifications ADD COLUMN priority ENUM('urgent', 'high', 'normal', 'low') NOT NULL DEFAULT 'normal' AFTER type;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1853
+}

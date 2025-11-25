@@ -1,0 +1,266 @@
+{
+  "summary": {
+    "total_files_analyzed": 8,
+    "total_lines": 13768,
+    "total_functions": 502,
+    "total_issues": 4,
+    "high_severity_issues": 2,
+    "medium_severity_issues": 2
+  },
+  "files": {
+    "server/routers.ts": {
+      "lines": 3937,
+      "functions": 185,
+      "function_names": [
+        "from",
+        "in",
+        "in",
+        "in",
+        "in",
+        "in",
+        "in",
+        "offset",
+        "offset",
+        "taskId"
+      ],
+      "imports": 29,
+      "complexity": {
+        "if_statements": 93,
+        "loops": 15,
+        "try_catch": 25,
+        "async_await": 168,
+        "nested_depth": 9
+      }
+    },
+    "server/db.ts": {
+      "lines": 7626,
+      "functions": 246,
+      "function_names": [
+        "getDb",
+        "closeDbConnection",
+        "upsertUser",
+        "getUserByOpenId",
+        "getUserById",
+        "getAllUsers",
+        "updateUserRole",
+        "updateUserProfile",
+        "updateUserNotificationSettings",
+        "generateProjectCode"
+      ],
+      "imports": 8,
+      "complexity": {
+        "if_statements": 491,
+        "loops": 24,
+        "try_catch": 57,
+        "async_await": 241,
+        "nested_depth": 7
+      }
+    },
+    "drizzle/schema.ts": {
+      "lines": 806,
+      "functions": 0,
+      "function_names": [],
+      "imports": 2,
+      "complexity": {
+        "if_statements": 0,
+        "loops": 0,
+        "try_catch": 0,
+        "async_await": 0,
+        "nested_depth": 2
+      }
+    },
+    "server/services/project.service.ts": {
+      "lines": 227,
+      "functions": 3,
+      "function_names": [
+        "generateProjectCode",
+        "createProject",
+        "deleteProject"
+      ],
+      "imports": 6,
+      "complexity": {
+        "if_statements": 11,
+        "loops": 0,
+        "try_catch": 0,
+        "async_await": 5,
+        "nested_depth": 4
+      }
+    },
+    "server/services/task.service.ts": {
+      "lines": 272,
+      "functions": 17,
+      "function_names": [
+        "createTask",
+        "getTaskById",
+        "getTasksByProjectId",
+        "getTasksByAssignee",
+        "updateTask",
+        "deleteTask",
+        "createTaskDependency",
+        "getTaskDependencies",
+        "getTaskDependents",
+        "deleteTaskDependency"
+      ],
+      "imports": 5,
+      "complexity": {
+        "if_statements": 23,
+        "loops": 2,
+        "try_catch": 0,
+        "async_await": 19,
+        "nested_depth": 3
+      }
+    },
+    "server/services/defect.service.ts": {
+      "lines": 428,
+      "functions": 16,
+      "function_names": [
+        "createDefect",
+        "getDefectById",
+        "getDefectsByProjectId",
+        "getDefectsByStatus",
+        "getDefectsBySeverity",
+        "getDefectsByAssignee",
+        "updateDefect",
+        "deleteDefect",
+        "createDefectAttachment",
+        "getDefectAttachments"
+      ],
+      "imports": 5,
+      "complexity": {
+        "if_statements": 16,
+        "loops": 1,
+        "try_catch": 0,
+        "async_await": 18,
+        "nested_depth": 5
+      }
+    },
+    "server/services/user.service.ts": {
+      "lines": 251,
+      "functions": 19,
+      "function_names": [
+        "createUser",
+        "getUserById",
+        "getUserByOpenId",
+        "getUserByEmail",
+        "getAllUsers",
+        "searchUsers",
+        "updateUser",
+        "deleteUser",
+        "updateUserRole",
+        "getUsersByRole"
+      ],
+      "imports": 2,
+      "complexity": {
+        "if_statements": 23,
+        "loops": 0,
+        "try_catch": 0,
+        "async_await": 17,
+        "nested_depth": 3
+      }
+    },
+    "server/services/notification.service.ts": {
+      "lines": 221,
+      "functions": 16,
+      "function_names": [
+        "createNotification",
+        "getNotificationById",
+        "getNotificationsByUser",
+        "getUnreadNotifications",
+        "markNotificationAsRead",
+        "markAllNotificationsAsRead",
+        "deleteNotification",
+        "deleteAllNotifications",
+        "getUnreadCount",
+        "createBulkNotifications"
+      ],
+      "imports": 2,
+      "complexity": {
+        "if_statements": 12,
+        "loops": 0,
+        "try_catch": 0,
+        "async_await": 15,
+        "nested_depth": 3
+      }
+    }
+  },
+  "issues": [
+    {
+      "file": "server/routers.ts",
+      "type": "large_file",
+      "severity": "high",
+      "message": "ไฟล์มีขนาดใหญ่เกินไป (3937 บรรทัด)",
+      "recommendation": "ควรแยกเป็น modules ย่อยๆ"
+    },
+    {
+      "file": "server/routers.ts",
+      "type": "too_many_functions",
+      "severity": "medium",
+      "message": "มี functions มากเกินไป (185 functions)",
+      "recommendation": "ควรจัดกลุ่มและแยกเป็น modules"
+    },
+    {
+      "file": "server/db.ts",
+      "type": "large_file",
+      "severity": "high",
+      "message": "ไฟล์มีขนาดใหญ่เกินไป (7626 บรรทัด)",
+      "recommendation": "ควรแยกเป็น modules ย่อยๆ"
+    },
+    {
+      "file": "server/db.ts",
+      "type": "too_many_functions",
+      "severity": "medium",
+      "message": "มี functions มากเกินไป (246 functions)",
+      "recommendation": "ควรจัดกลุ่มและแยกเป็น modules"
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "แยก server/routers.ts เป็น Feature Routers",
+      "priority": "high",
+      "description": "ไฟล์ routers.ts มีขนาด 3,937 บรรทัด ควรแยกเป็น feature-based routers",
+      "steps": [
+        "สร้าง routers/projects.router.ts",
+        "สร้าง routers/tasks.router.ts",
+        "สร้าง routers/defects.router.ts",
+        "สร้าง routers/inspections.router.ts",
+        "สร้าง routers/checklists.router.ts",
+        "รวม routers ทั้งหมดใน routers.ts หลัก"
+      ]
+    },
+    {
+      "title": "แยก server/db.ts เป็น Repository Pattern",
+      "priority": "high",
+      "description": "ไฟล์ db.ts มีขนาด 7,626 บรรทัด ควรแยกเป็น repositories",
+      "steps": [
+        "สร้าง repositories/project.repository.ts",
+        "สร้าง repositories/task.repository.ts",
+        "สร้าง repositories/defect.repository.ts",
+        "สร้าง repositories/user.repository.ts",
+        "ย้าย database logic จาก db.ts ไปยัง repositories",
+        "ใช้ dependency injection ใน services"
+      ]
+    },
+    {
+      "title": "ปรับปรุง Service Layer",
+      "priority": "medium",
+      "description": "Services ควรใช้ repositories แทนการเรียก db helpers โดยตรง",
+      "steps": [
+        "แก้ไข services ให้ inject repositories",
+        "เพิ่ม transaction support",
+        "เพิ่ม error handling ที่สม่ำเสมอ",
+        "เพิ่ม logging และ monitoring"
+      ]
+    },
+    {
+      "title": "ปรับปรุง Type Safety",
+      "priority": "medium",
+      "description": "แก้ไข TypeScript errors และปรับปรุง type definitions",
+      "steps": [
+        "แก้ไข implicit any types",
+        "เพิ่ม strict type checking",
+        "สร้าง shared types สำหรับ DTOs",
+        "ใช้ Zod schemas สำหรับ validation"
+      ]
+    }
+  ]
+}
