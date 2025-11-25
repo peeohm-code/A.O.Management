@@ -266,3 +266,17 @@
 - [ ] อัปเดต Performance Metrics documentation
 
 **Target:** ✅ 13 new indexes added, improved query performance for inspection statistics
+
+
+## Phase 9: Documentation & Tutorial
+
+### 9.1 สร้างเอกสารคู่มือการพัฒนาแอป
+- [x] เขียนเอกสารแนะนำภาพรวมของแอป
+- [x] เขียนเอกสารอธิบาย Database Schema พร้อม ER Diagram
+- [x] เขียนเอกสารอธิบาย Backend Architecture (tRPC, Repositories)
+- [x] เขียนเอกสารอธิบาย Frontend Architecture (React, Components)
+- [x] เขียนเอกสารวิธีการสร้างแอปทีละขั้นตอน พร้อม code ตัวอย่าง
+- [x] รวบรวม code snippets สำคัญจากทุกส่วนของแอป
+- [x] สร้างเอกสาร Markdown ที่สมบูรณ์
+
+**Target:** เอกสารคู่มือที่ละเอียด ครบถ้วน พร้อม code ตัวอย่าง
