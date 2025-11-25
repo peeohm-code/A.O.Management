@@ -7,6 +7,16 @@
 
 ## 🎯 Current Sprint (Priority Order)
 
+### 0. แก้ไข OAuth Callback Failed (URGENT)
+**Impact:** Application unusable, blocking all features  
+**Estimated Effort:** 30 minutes
+
+- [x] ตรวจสอบ OAuth configuration
+- [x] ตรวจสอบ callback URL routing (พบว่า database schema ไม่ตรงกับ code)
+- [x] ทดสอบการ login (แก้ไขโดยเพิ่ม notification columns ลงใน users table)
+
+**Target:** Login working properly
+
 ### 1. Refactor db.ts เป็น Repository Pattern
 **Impact:** Maintainability, testability, code quality  
 **Estimated Effort:** 4-6 hours
