@@ -15,6 +15,34 @@
       "when": 1763991066884,
       "tag": "0001_narrow_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763993552127,
+      "tag": "0002_outgoing_tag",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763996441090,
+      "tag": "0003_fixed_whirlwind",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1764035477416,
+      "tag": "0004_known_darkstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1764080674118,
+      "tag": "0005_massive_sersi",
+      "breakpoints": true
     }
   ]
 }

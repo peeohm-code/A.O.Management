@@ -25,18 +25,98 @@ export const projects = mysqlTable("projects", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  location: varchar("location", { length: 500 }),
-  status: mysqlEnum("status", ["planning", "in_progress", "on_hold", "completed", "cancelled"]).default("planning").notNull(),
+  location: text("location"),
+  status: mysqlEnum("status", ["planning", "active", "on-hold", "completed", "cancelled"]).default("planning").notNull(),
   startDate: timestamp("startDate"),
   endDate: timestamp("endDate"),
-  budget: int("budget"), // เก็บเป็นหน่วยเล็กสุด เช่น สตางค์
-  ownerId: int("ownerId").notNull(), // ผู้สร้างโครงการ
+  budget: int("budget"), // in cents/satang
+  ownerId: int("ownerId").notNull(), // user who created the project
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;
+
+/**
+ * QC Checklists table - รายการตรวจสอบคุณภาพ
+ */
+export const qcChecklists = mysqlTable("qc_checklists", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }), // e.g., "Structural", "Electrical", "Plumbing"
+  inspectorId: int("inspectorId"), // user assigned to inspect
+  status: mysqlEnum("status", ["pending", "in-progress", "completed"]).default("pending").notNull(),
+  inspectionDate: timestamp("inspectionDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type QcChecklist = typeof qcChecklists.$inferSelect;
+export type InsertQcChecklist = typeof qcChecklists.$inferInsert;
+
+/**
+ * QC Checklist Items table - รายการย่อยในการตรวจสอบ
+ */
+export const qcChecklistItems = mysqlTable("qc_checklist_items", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistId: int("checklistId").notNull(),
+  itemName: varchar("itemName", { length: 255 }).notNull(),
+  description: text("description"),
+  result: mysqlEnum("result", ["pass", "fail", "pending", "na"]).default("pending").notNull(),
+  notes: text("notes"),
+  photoUrl: text("photoUrl"), // S3 URL
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type QcChecklistItem = typeof qcChecklistItems.$inferSelect;
+export type InsertQcChecklistItem = typeof qcChecklistItems.$inferInsert;
+
+/**
+ * Defects table - ข้อบกพร่องที่พบ
+ */
+export const defects = mysqlTable("defects", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  location: text("location"),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  status: mysqlEnum("status", ["open", "in-progress", "resolved", "closed"]).default("open").notNull(),
+  reportedById: int("reportedById").notNull(), // user who reported
+  assignedToId: int("assignedToId"), // user assigned to fix
+  photoUrl: text("photoUrl"), // S3 URL
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Defect = typeof defects.$inferSelect;
+export type InsertDefect = typeof defects.$inferInsert;
+
+/**
+ * Documents table - เอกสารและรูปภาพ
+ */
+export const documents = mysqlTable("documents", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: text("fileUrl").notNull(), // S3 URL
+  fileKey: varchar("fileKey", { length: 500 }).notNull(), // S3 key
+  fileType: varchar("fileType", { length: 100 }), // MIME type
+  fileSize: int("fileSize"), // in bytes
+  category: varchar("category", { length: 100 }), // e.g., "Drawing", "Photo", "Report"
+  uploadedById: int("uploadedById").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Document = typeof documents.$inferSelect;
+export type InsertDocument = typeof documents.$inferInsert;
 
 /**
  * Tasks table - งานในโครงการ
@@ -46,80 +126,15 @@ export const tasks = mysqlTable("tasks", {
   projectId: int("projectId").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  status: mysqlEnum("status", ["todo", "in_progress", "review", "completed"]).default("todo").notNull(),
-  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
-  assignedTo: int("assignedTo"), // user id ที่รับผิดชอบ
+  status: mysqlEnum("status", ["todo", "in-progress", "review", "completed"]).default("todo").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium").notNull(),
+  assignedToId: int("assignedToId"),
   dueDate: timestamp("dueDate"),
   completedAt: timestamp("completedAt"),
-  createdBy: int("createdBy").notNull(),
+  createdById: int("createdById").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = typeof tasks.$inferInsert;
-
-/**
- * QC Checklists table - รายการตรวจสอบคุณภาพ
- */
-export const qcChecklists = mysqlTable("qc_checklists", {
-  id: int("id").autoincrement().primaryKey(),
-  projectId: int("projectId").notNull(),
-  taskId: int("taskId"), // optional - อาจเชื่อมกับ task หรือไม่ก็ได้
-  title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
-  category: varchar("category", { length: 100 }), // เช่น "โครงสร้าง", "ระบบไฟฟ้า", "ระบบประปา"
-  createdBy: int("createdBy").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type QcChecklist = typeof qcChecklists.$inferSelect;
-export type InsertQcChecklist = typeof qcChecklists.$inferInsert;
-
-/**
- * QC Inspections table - การตรวจสอบคุณภาพแต่ละครั้ง
- */
-export const qcInspections = mysqlTable("qc_inspections", {
-  id: int("id").autoincrement().primaryKey(),
-  checklistId: int("checklistId").notNull(),
-  inspectedBy: int("inspectedBy").notNull(), // user id ผู้ตรวจสอบ
-  status: mysqlEnum("status", ["pass", "fail", "pending"]).default("pending").notNull(),
-  notes: text("notes"),
-  inspectionDate: timestamp("inspectionDate").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type QcInspection = typeof qcInspections.$inferSelect;
-export type InsertQcInspection = typeof qcInspections.$inferInsert;
-
-/**
- * QC Photos table - รูปภาพประกอบการตรวจสอบ
- */
-export const qcPhotos = mysqlTable("qc_photos", {
-  id: int("id").autoincrement().primaryKey(),
-  inspectionId: int("inspectionId").notNull(),
-  fileKey: varchar("fileKey", { length: 500 }).notNull(), // S3 key
-  url: varchar("url", { length: 1000 }).notNull(), // S3 URL
-  caption: text("caption"),
-  uploadedBy: int("uploadedBy").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type QcPhoto = typeof qcPhotos.$inferSelect;
-export type InsertQcPhoto = typeof qcPhotos.$inferInsert;
-
-/**
- * Project Members table - สมาชิกในโครงการ
- */
-export const projectMembers = mysqlTable("project_members", {
-  id: int("id").autoincrement().primaryKey(),
-  projectId: int("projectId").notNull(),
-  userId: int("userId").notNull(),
-  role: mysqlEnum("role", ["owner", "manager", "member", "viewer"]).default("member").notNull(),
-  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
-});
-
-export type ProjectMember = typeof projectMembers.$inferSelect;
-export type InsertProjectMember = typeof projectMembers.$inferInsert;
