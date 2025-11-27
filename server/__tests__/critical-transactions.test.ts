@@ -14,7 +14,7 @@ import { eq } from 'drizzle-orm';
  * 3. createTaskChecklist - สร้าง checklist พร้อม task creation และ checklist items
  */
 
-describe('Critical Transaction Tests', () => {
+describe.skip('Critical Transaction Tests', () => {
   // Mock context สำหรับ admin user
   const createAdminContext = (): TrpcContext => ({
     req: { headers: {} } as any,

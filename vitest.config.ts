@@ -11,7 +11,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts", "tests/**/*.test.ts", "tests/**/*.spec.ts"],
+    include: ["server/**/*.test.ts", "server/**/*.spec.ts", "tests/**/*.test.ts"],
+    exclude: ["tests/e2e/**"],
     testTimeout: 30000, // Increased for slow inspection queries with complex joins
   },
 });

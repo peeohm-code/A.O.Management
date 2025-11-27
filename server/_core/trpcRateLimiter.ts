@@ -158,7 +158,7 @@ export function createRateLimitMiddleware(config: RateLimitConfig) {
     }
 
     // Add rate limit info to response headers (if available)
-    if (ctx.res) {
+    if (ctx.res && typeof ctx.res.setHeader === "function") {
       ctx.res.setHeader("X-RateLimit-Limit", config.max.toString());
       ctx.res.setHeader("X-RateLimit-Remaining", result.remaining.toString());
       ctx.res.setHeader("X-RateLimit-Reset", new Date(result.resetAt).toISOString());

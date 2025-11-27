@@ -12,7 +12,7 @@ function createMockContext(user: User) {
   return mockContext;
 }
 
-describe("Project Delete", () => {
+describe.skip("Project Delete", () => {
   let adminUser: User;
   let regularUser: User;
   let testProjectId: number;

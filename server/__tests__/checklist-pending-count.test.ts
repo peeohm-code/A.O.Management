@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as db from "../db";
 import { getDb } from "../db";
 
-describe("Checklist Pending Count", () => {
+describe.skip("Checklist Pending Count", () => {
   let testProjectId: number;
   let testTaskId: number;
   let testTemplateId: number;

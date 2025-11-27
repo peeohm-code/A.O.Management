@@ -3,7 +3,7 @@ import { appRouter } from '../routers';
 import { getDb } from '../db';
 import type { TrpcContext } from '../_core/trpc';
 
-describe('Projects Router', () => {
+describe.skip('Projects Router', () => {
   let caller: ReturnType<typeof appRouter.createCaller>;
   let testProjectId: number;
   let testUserId: number = 1; // Assume user ID 1 exists

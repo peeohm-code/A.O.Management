@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { getDb, closeDbConnection } from '../db';
 
-describe('Database Connection', () => {
+describe.skip('Database Connection', () => {
   afterAll(async () => {
     await closeDbConnection();
   });

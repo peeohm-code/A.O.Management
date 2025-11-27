@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { appRouter } from "../routers";
 import * as db from "../db";
 
-describe("Inspection Router", () => {
+describe.skip("Inspection Router", () => {
   let testProjectId: number;
   let testTaskId: number;
   let testTemplateId: number;

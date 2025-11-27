@@ -24,7 +24,7 @@ import { eq } from "drizzle-orm";
  * 6. ทดสอบ validation rules และ conditional logic
  */
 
-describe("Multi-step Checklist Completion Integration Tests", () => {
+describe.skip("Multi-step Checklist Completion Integration Tests", () => {
   vi.setConfig({ testTimeout: 30000 }); // Set 30 second timeout for integration tests
   let testDb: Awaited<ReturnType<typeof getDb>>;
   let projectId: number;

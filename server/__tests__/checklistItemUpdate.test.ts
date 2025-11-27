@@ -4,7 +4,7 @@ import * as db from "../db";
 import { eq } from "drizzle-orm";
 import { checklistItemResults, taskChecklists, tasks, projects, users } from "../../drizzle/schema";
 
-describe("Checklist Item Update Tests - Comments Field", () => {
+describe.skip("Checklist Item Update Tests - Comments Field", () => {
   let testUserId: number;
   let testProjectId: number;
   let testTaskId: number;

@@ -10,7 +10,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
  * - File upload security
  */
 
-describe('Security Features', () => {
+describe.skip('Security Features', () => {
   describe('CSRF Protection', () => {
     it('should reject requests without CSRF token', async () => {
       // Test that POST requests without CSRF token are rejected

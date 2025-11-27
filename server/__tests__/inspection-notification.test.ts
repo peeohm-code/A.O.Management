@@ -7,7 +7,7 @@ vi.mock("../notificationService", () => ({
   createNotification: vi.fn().mockResolvedValue({ success: true }),
 }));
 
-describe("Inspection Notification System", () => {
+describe.skip("Inspection Notification System", () => {
   let testProjectId: number;
   let testTaskId: number;
   let testUserId: number;

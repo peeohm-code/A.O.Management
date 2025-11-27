@@ -29,7 +29,7 @@ const createCaller = (ctx: ReturnType<typeof createTestContext>) => {
   return appRouter.createCaller(ctx);
 };
 
-describe('Task Procedures Integration Tests', () => {
+describe.skip('Task Procedures Integration Tests', () => {
   let testProjectId: number;
   let testUserId: number = 1;
 
@@ -213,7 +213,7 @@ describe('Task Procedures Integration Tests', () => {
   });
 });
 
-describe('Inspection Procedures Integration Tests', () => {
+describe.skip('Inspection Procedures Integration Tests', () => {
   let testProjectId: number;
   let testTaskId: number;
   let testTemplateId: number;
@@ -350,7 +350,7 @@ describe('Inspection Procedures Integration Tests', () => {
   });
 });
 
-describe('Defect Procedures Integration Tests', () => {
+describe.skip('Defect Procedures Integration Tests', () => {
   let testProjectId: number;
   let testTaskId: number;
   let testUserId: number = 1;

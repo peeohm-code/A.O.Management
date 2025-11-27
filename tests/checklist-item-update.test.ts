@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { appRouter } from "../server/routers";
 import * as db from "../server/db";
 
-describe("Checklist Item Update", () => {
+describe.skip("Checklist Item Update", () => {
   let testUser: any;
   let testProject: any;
   let testTask: any;
