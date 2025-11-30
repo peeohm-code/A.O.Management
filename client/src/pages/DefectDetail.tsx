@@ -29,6 +29,7 @@ import { useCanEditDefect } from "@/hooks/usePermissions";
 import { WorkflowGuide } from "@/components/WorkflowGuide";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
 import { DatePicker } from "@/components/ui/date-picker";
+import { DefectApprovalWorkflow } from "@/components/DefectApprovalWorkflow";
 import { format } from "date-fns";
 
 export default function DefectDetail() {
@@ -764,6 +765,11 @@ export default function DefectDetail() {
                 <p className="text-gray-700 whitespace-pre-wrap">{defect.description as string}</p>
               </CardContent>
             </Card>
+          )}
+
+          {/* Defect Approval Workflow */}
+          {defect && (
+            <DefectApprovalWorkflow defectId={defectId} defect={defect} />
           )}
 
           {/* RCA Form - Show when status is analysis and no rootCause yet */}
