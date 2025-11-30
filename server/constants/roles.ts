@@ -19,6 +19,8 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
 // Project Member Roles
 export const PROJECT_MEMBER_ROLE = {
   PROJECT_MANAGER: 'project_manager',
+  OFFICE_ENGINEER: 'office_engineer',
+  SITE_ENGINEER: 'site_engineer',
   QC_INSPECTOR: 'qc_inspector',
   WORKER: 'worker',
 } as const;
@@ -26,8 +28,10 @@ export const PROJECT_MEMBER_ROLE = {
 export type ProjectMemberRole = typeof PROJECT_MEMBER_ROLE[keyof typeof PROJECT_MEMBER_ROLE];
 
 export const PROJECT_MEMBER_ROLE_LABELS: Record<ProjectMemberRole, string> = {
-  [PROJECT_MEMBER_ROLE.PROJECT_MANAGER]: 'ผู้จัดการโครงการ',
-  [PROJECT_MEMBER_ROLE.QC_INSPECTOR]: 'ผู้ตรวจสอบคุณภาพ',
+  [PROJECT_MEMBER_ROLE.PROJECT_MANAGER]: 'ผู้จัดการโครงการ (PM)',
+  [PROJECT_MEMBER_ROLE.OFFICE_ENGINEER]: 'วิศวกรสำนักงาน (OE)',
+  [PROJECT_MEMBER_ROLE.SITE_ENGINEER]: 'วิศวกรประจำหน้างาน (Site Engineer)',
+  [PROJECT_MEMBER_ROLE.QC_INSPECTOR]: 'ผู้ตรวจสอบคุณภาพ (QC)',
   [PROJECT_MEMBER_ROLE.WORKER]: 'พนักงาน',
 };
 

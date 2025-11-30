@@ -7,26 +7,32 @@ export const ROLES = {
   OWNER: "owner",
   ADMIN: "admin",
   PM: "project_manager",
+  OE: "office_engineer",
+  SITE_ENGINEER: "site_engineer",
   QC: "qc_inspector",
-  FIELD_ENGINEER: "field_engineer",
+  WORKER: "worker",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export const ROLE_LABELS: Record<Role, string> = {
-  [ROLES.OWNER]: "Owner",
-  [ROLES.ADMIN]: "Admin",
-  [ROLES.PM]: "PM",
-  [ROLES.QC]: "QC Inspector",
-  [ROLES.FIELD_ENGINEER]: "วิศวกรสนาม",
+  [ROLES.OWNER]: "เจ้าของระบบ",
+  [ROLES.ADMIN]: "ผู้ดูแลระบบ",
+  [ROLES.PM]: "ผู้จัดการโครงการ (PM)",
+  [ROLES.OE]: "วิศวกรสำนักงาน (OE)",
+  [ROLES.SITE_ENGINEER]: "วิศวกรประจำหน้างาน",
+  [ROLES.QC]: "ผู้ตรวจสอบคุณภาพ (QC)",
+  [ROLES.WORKER]: "พนักงาน",
 };
 
 export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   [ROLES.OWNER]: "เจ้าของระบบ - เข้าถึงและควบคุมทุกอย่าง",
   [ROLES.ADMIN]: "ผู้ดูแลระบบ - จัดการโครงการและผู้ใช้",
-  [ROLES.PM]: "ผู้จัดการโครงการ - จัดการโครงการที่รับผิดชอบ",
+  [ROLES.PM]: "ผู้จัดการโครงการ - สร้างและจัดการโครงการ, อนุมัติ QC และ Defects",
+  [ROLES.OE]: "วิศวกรสำนักงาน - สร้างแผนงาน, อนุมัติ QC และ Defects, ตรวจสอบงาน",
+  [ROLES.SITE_ENGINEER]: "วิศวกรประจำหน้างาน - ดูแลงานหน้างาน, update ความคืบหน้า, นัด QC, แก้ไข Defects",
   [ROLES.QC]: "ผู้ตรวจสอบคุณภาพ - ทำ QC Inspection และสร้าง Defects",
-  [ROLES.FIELD_ENGINEER]: "วิศวกรสนาม - ทำงานและแก้ไข Defects",
+  [ROLES.WORKER]: "พนักงาน - ทำงานตามที่ได้รับมอบหมาย",
 };
 
 /**
@@ -36,46 +42,49 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
 export const PERMISSIONS = {
   projects: {
     viewAll: [ROLES.OWNER, ROLES.ADMIN],
-    create: [ROLES.OWNER, ROLES.ADMIN],
-    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
+    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
     delete: [ROLES.OWNER, ROLES.ADMIN],
-    assignMembers: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
+    assignMembers: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
   },
   tasks: {
-    viewAll: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    updateProgress: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.FIELD_ENGINEER],
-    assign: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    comment: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER],
+    viewAll: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    updateProgress: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.WORKER],
+    assign: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    comment: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.QC, ROLES.WORKER],
   },
   defects: {
-    viewAll: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER],
-    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM], // PM can delete defects
-    resolve: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.FIELD_ENGINEER],
-    assign: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    comment: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER],
+    viewAll: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC, ROLES.SITE_ENGINEER],
+    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC, ROLES.SITE_ENGINEER],
+    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    resolve: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER],
+    assign: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    comment: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.QC],
+    approveFixPlan: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE], // New: PM/OE approve defect fix plan
+    approveResolution: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE], // New: PM/OE approve defect resolution
   },
   checklists: {
-    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    performInspection: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    approve: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
+    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC],
+    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC],
+    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    performInspection: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC],
+    approve: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    scheduleInspection: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER], // New: Schedule QC inspection
   },
   templates: {
-    view: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER],
-    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
+    view: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.QC, ROLES.WORKER],
+    create: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC],
+    edit: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC],
+    delete: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
   },
   reports: {
     viewAll: [ROLES.OWNER, ROLES.ADMIN],
-    export: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC],
-    generate: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
+    export: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.QC],
+    generate: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
   },
   users: {
     viewAll: [ROLES.OWNER, ROLES.ADMIN],
@@ -86,8 +95,8 @@ export const PERMISSIONS = {
   },
   settings: {
     system: [ROLES.OWNER],
-    project: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM],
-    personal: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER],
+    project: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE],
+    personal: [ROLES.OWNER, ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.QC, ROLES.WORKER],
   },
   system: {
     view: [ROLES.OWNER, ROLES.ADMIN],
@@ -135,39 +144,39 @@ export function canAccessProject(
 
 /**
  * Check if a user can edit a specific defect
- * - Owner, Admin, PM can edit any defect
+ * - Owner, Admin, PM, OE can edit any defect
  * - QC can edit defects they created or are assigned to
- * - Field Engineer can only edit defects assigned to them
+ * - Site Engineer can only edit defects assigned to them
  */
 export function canEditDefect(
   userRole: Role | string,
   userId: number,
   defect: { assignedTo?: number | null; reportedBy: number }
 ): boolean {
-  // Owner, Admin, PM can edit any defect
-  if (userRole === ROLES.OWNER || userRole === ROLES.ADMIN || userRole === ROLES.PM) {
+  // Owner, Admin, PM, OE can edit any defect
+  if (userRole === ROLES.OWNER || userRole === ROLES.ADMIN || userRole === ROLES.PM || userRole === ROLES.OE) {
     return true;
   }
-  
+
   // QC can edit defects they created or are assigned to
   if (userRole === ROLES.QC) {
     return defect.reportedBy === userId || defect.assignedTo === userId;
   }
-  
-  // Field Engineer can only edit defects assigned to them
-  if (userRole === ROLES.FIELD_ENGINEER) {
+
+  // Site Engineer can only edit defects assigned to them
+  if (userRole === ROLES.SITE_ENGINEER) {
     return defect.assignedTo === userId;
   }
-  
+
   return false;
 }
 
 /**
  * Check if a user can delete a specific defect
- * Only Owner, Admin, and PM can delete defects
+ * Only Owner, Admin, PM, and OE can delete defects
  */
 export function canDeleteDefect(userRole: Role | string): boolean {
-  return userRole === ROLES.OWNER || userRole === ROLES.ADMIN || userRole === ROLES.PM;
+  return userRole === ROLES.OWNER || userRole === ROLES.ADMIN || userRole === ROLES.PM || userRole === ROLES.OE;
 }
 
 /**
@@ -175,11 +184,13 @@ export function canDeleteDefect(userRole: Role | string): boolean {
  */
 export function getRoleLevel(role: Role | string): number {
   const levels: Record<string, number> = {
-    [ROLES.OWNER]: 5,
-    [ROLES.ADMIN]: 4,
-    [ROLES.PM]: 3,
+    [ROLES.OWNER]: 6,
+    [ROLES.ADMIN]: 5,
+    [ROLES.PM]: 4,
+    [ROLES.OE]: 4, // OE has same level as PM
+    [ROLES.SITE_ENGINEER]: 3,
     [ROLES.QC]: 2,
-    [ROLES.FIELD_ENGINEER]: 1,
+    [ROLES.WORKER]: 1,
   };
   return levels[role] || 0;
 }
@@ -216,13 +227,17 @@ export function canChangeUserRole(
  */
 export function getAssignableRoles(userRole: Role | string): Role[] {
   if (userRole === ROLES.OWNER) {
-    return [ROLES.ADMIN, ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER];
+    return [ROLES.ADMIN, ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.QC, ROLES.WORKER];
   }
-  
+
   if (userRole === ROLES.ADMIN) {
-    return [ROLES.PM, ROLES.QC, ROLES.FIELD_ENGINEER];
+    return [ROLES.PM, ROLES.OE, ROLES.SITE_ENGINEER, ROLES.QC, ROLES.WORKER];
   }
-  
+
+  if (userRole === ROLES.PM || userRole === ROLES.OE) {
+    return [ROLES.SITE_ENGINEER, ROLES.QC, ROLES.WORKER];
+  }
+
   return [];
 }
 

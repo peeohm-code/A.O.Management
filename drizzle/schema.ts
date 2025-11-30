@@ -355,7 +355,7 @@ export const projectMembers = mysqlTable("projectMembers", {
 	id: int().autoincrement().notNull(),
 	projectId: int().notNull(),
 	userId: int().notNull(),
-	role: mysqlEnum(['project_manager','qc_inspector','worker']).notNull(),
+	role: mysqlEnum(['project_manager','office_engineer','site_engineer','qc_inspector','worker']).notNull(),
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => [
