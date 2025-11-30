@@ -873,12 +873,233 @@ export const checklistRouter = router({
   getPendingCount: protectedProcedure.query(async () => {
     // Count checklists that are pending inspection
     const allChecklists = await db.getAllTaskChecklists();
-    
+
     // Filter for pending/in-progress checklists
-    const pendingCount = allChecklists.filter((checklist: any) => 
+    const pendingCount = allChecklists.filter((checklist: any) =>
       checklist.status === "pending_inspection" || checklist.status === "in_progress"
     ).length;
-    
+
     return pendingCount;
   }),
+
+  // QC Scheduling API
+  scheduleInspection: protectedProcedure
+    .input(
+      z.object({
+        checklistId: z.number(),
+        scheduledDate: z.string().datetime(),
+        assignedQCInspector: z.number(),
+        scheduledLocation: z.string().optional(),
+        scheduledNotes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+
+      // Check permission - only PM, OE, Admin, Owner can schedule
+      const canSchedule = ["project_manager", "office_engineer", "admin", "owner"].includes(user.role);
+      if (!canSchedule) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "คุณไม่มีสิทธิ์กำหนดวันนัดหมาย QC",
+        });
+      }
+
+      // Get checklist to verify it exists
+      const checklist = await db.getTaskChecklistById(input.checklistId);
+      if (!checklist) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "ไม่พบรายการตรวจสอบ",
+        });
+      }
+
+      // Update checklist with scheduling info
+      await db.updateTaskChecklist(input.checklistId, {
+        scheduledDate: new Date(input.scheduledDate),
+        scheduledBy: user.id,
+        scheduledAt: new Date(),
+        assignedQCInspector: input.assignedQCInspector,
+        scheduledLocation: input.scheduledLocation || null,
+        scheduledNotes: input.scheduledNotes || null,
+      });
+
+      // Send notification to assigned QC inspector
+      await createNotification({
+        userId: input.assignedQCInspector,
+        title: "มีการนัดหมาย QC ใหม่",
+        message: `คุณได้รับมอบหมายให้ตรวจสอบ QC ในวันที่ ${new Date(input.scheduledDate).toLocaleDateString("th-TH")}`,
+        type: "inspection",
+        relatedEntityType: "checklist",
+        relatedEntityId: input.checklistId,
+      });
+
+      return { success: true };
+    }),
+
+  updateScheduledInspection: protectedProcedure
+    .input(
+      z.object({
+        checklistId: z.number(),
+        scheduledDate: z.string().datetime().optional(),
+        assignedQCInspector: z.number().optional(),
+        scheduledLocation: z.string().optional(),
+        scheduledNotes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+
+      // Check permission
+      const canSchedule = ["project_manager", "office_engineer", "admin", "owner"].includes(user.role);
+      if (!canSchedule) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "คุณไม่มีสิทธิ์แก้ไขวันนัดหมาย QC",
+        });
+      }
+
+      const updateData: any = {};
+      if (input.scheduledDate) updateData.scheduledDate = new Date(input.scheduledDate);
+      if (input.assignedQCInspector) updateData.assignedQCInspector = input.assignedQCInspector;
+      if (input.scheduledLocation !== undefined) updateData.scheduledLocation = input.scheduledLocation;
+      if (input.scheduledNotes !== undefined) updateData.scheduledNotes = input.scheduledNotes;
+
+      await db.updateTaskChecklist(input.checklistId, updateData);
+
+      // If QC inspector changed, send new notification
+      if (input.assignedQCInspector) {
+        await createNotification({
+          userId: input.assignedQCInspector,
+          title: "การนัดหมาย QC มีการเปลี่ยนแปลง",
+          message: "รายละเอียดการนัดหมาย QC ของคุณถูกอัปเดต",
+          type: "inspection",
+          relatedEntityType: "checklist",
+          relatedEntityId: input.checklistId,
+        });
+      }
+
+      return { success: true };
+    }),
+
+  cancelScheduledInspection: protectedProcedure
+    .input(
+      z.object({
+        checklistId: z.number(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+
+      // Check permission
+      const canSchedule = ["project_manager", "office_engineer", "admin", "owner"].includes(user.role);
+      if (!canSchedule) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "คุณไม่มีสิทธิ์ยกเลิกวันนัดหมาย QC",
+        });
+      }
+
+      // Get checklist to get assigned QC for notification
+      const checklist = await db.getTaskChecklistById(input.checklistId);
+      if (!checklist) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "ไม่พบรายการตรวจสอบ",
+        });
+      }
+
+      // Clear scheduling data
+      await db.updateTaskChecklist(input.checklistId, {
+        scheduledDate: null,
+        scheduledBy: null,
+        scheduledAt: null,
+        assignedQCInspector: null,
+        scheduledLocation: null,
+        scheduledNotes: null,
+      });
+
+      // Notify assigned QC if there was one
+      if (checklist.assignedQCInspector) {
+        await createNotification({
+          userId: checklist.assignedQCInspector,
+          title: "การนัดหมาย QC ถูกยกเลิก",
+          message: input.reason || "การนัดหมาย QC ของคุณถูกยกเลิก",
+          type: "inspection",
+          relatedEntityType: "checklist",
+          relatedEntityId: input.checklistId,
+        });
+      }
+
+      return { success: true };
+    }),
+
+  getScheduledInspections: protectedProcedure
+    .input(
+      z
+        .object({
+          startDate: z.string().datetime().optional(),
+          endDate: z.string().datetime().optional(),
+          assignedQCInspector: z.number().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input, ctx }) => {
+      const { user } = ctx;
+
+      // Get all checklists with scheduling info
+      let checklists = await db.getAllTaskChecklists();
+
+      // Filter by scheduled inspections only
+      checklists = checklists.filter((c: any) => c.scheduledDate);
+
+      // Apply filters
+      if (input?.startDate) {
+        const startDate = new Date(input.startDate);
+        checklists = checklists.filter(
+          (c: any) => new Date(c.scheduledDate) >= startDate
+        );
+      }
+
+      if (input?.endDate) {
+        const endDate = new Date(input.endDate);
+        checklists = checklists.filter(
+          (c: any) => new Date(c.scheduledDate) <= endDate
+        );
+      }
+
+      if (input?.assignedQCInspector) {
+        checklists = checklists.filter(
+          (c: any) => c.assignedQCInspector === input.assignedQCInspector
+        );
+      }
+
+      // If user is QC inspector, only show their assigned inspections
+      if (user.role === "qc_inspector") {
+        checklists = checklists.filter(
+          (c: any) => c.assignedQCInspector === user.id
+        );
+      }
+
+      // Get related task and template info
+      const tasks = await db.getAllTasks();
+      const templates = await db.getAllChecklistTemplates();
+      const users = await db.getAllUsers();
+
+      return checklists.map((checklist: any) => {
+        const task = tasks.find((t: any) => t.id === checklist.taskId);
+        const template = templates.find((t: any) => t.id === checklist.templateId);
+        const assignedQC = users.find((u: any) => u.id === checklist.assignedQCInspector);
+        const scheduledByUser = users.find((u: any) => u.id === checklist.scheduledBy);
+
+        return {
+          ...checklist,
+          taskName: task?.name || "Unknown Task",
+          templateName: template?.name || "Unknown Template",
+          assignedQCName: assignedQC?.name || "Unassigned",
+          scheduledByName: scheduledByUser?.name || "Unknown",
+        };
+      });
+    }),
 });
