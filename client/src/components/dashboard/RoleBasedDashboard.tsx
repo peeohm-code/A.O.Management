@@ -41,7 +41,10 @@ export function RoleBasedDashboard() {
     case "admin":
       return <AdminDashboard data={dashboardData} />;
     case "project_manager":
+    case "office_engineer":
       return <ProjectManagerDashboard data={dashboardData} />;
+    case "site_engineer":
+      return <SiteEngineerDashboard data={dashboardData} />;
     case "qc_inspector":
       return <QCInspectorDashboard data={dashboardData} />;
     case "worker":
@@ -343,6 +346,100 @@ function WorkerDashboard({ data }: { data: any }) {
                 ดูงานทั้งหมด
               </Button>
             </Link>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function SiteEngineerDashboard({ data }: { data: any }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-2">งานประจำหน้างาน</h2>
+        <p className="text-muted-foreground">งาน, ปัญหา, และ QC ที่ต้องดูแล</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">งานทั้งหมด</CardTitle>
+            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.totalTasks || 0}</div>
+            <Link href="/tasks">
+              <Button variant="link" className="px-0 h-auto text-xs">
+                ดูงานทั้งหมด →
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ปัญหาที่รับผิดชอบ</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.totalDefects || 0}</div>
+            <Link href="/defects">
+              <Button variant="link" className="px-0 h-auto text-xs">
+                ดูปัญหา →
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">รอตรวจ QC</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.pendingInspections || 0}</div>
+            <Link href="/qc">
+              <Button variant="link" className="px-0 h-auto text-xs">
+                ดูรายการ →
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">งานเสร็จสิ้น</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.completedTasks || 0}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {data.tasks && data.tasks.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>งานที่กำลังดำเนินการ</CardTitle>
+            <CardDescription>งานที่ได้รับมอบหมายในหน้างาน</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {data.tasks.slice(0, 5).map((task: any) => (
+                <Link key={task.id} href={`/projects/${task.projectId}/tasks/${task.id}`}>
+                  <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors">
+                    <div className="flex-1">
+                      <p className="font-medium">{task.name}</p>
+                      <p className="text-sm text-muted-foreground">{task.projectName}</p>
+                    </div>
+                    <Badge variant={task.status === "in_progress" ? "default" : "secondary"}>
+                      {task.status === "todo" ? "รอทำ" : task.status === "in_progress" ? "กำลังทำ" : "เสร็จสิ้น"}
+                    </Badge>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

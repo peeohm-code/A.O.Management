@@ -34,15 +34,19 @@ import { toast } from "sonner";
 const roleLabels: Record<string, string> = {
   owner: "เจ้าของระบบ",
   admin: "ผู้ดูแลระบบ",
-  project_manager: "ผู้จัดการโครงการ",
-  qc_inspector: "QC Inspector",
-  worker: "Worker",
+  project_manager: "ผู้จัดการโครงการ (PM)",
+  office_engineer: "วิศวกรสำนักงาน (OE)",
+  site_engineer: "วิศวกรประจำหน้างาน",
+  qc_inspector: "ผู้ตรวจสอบคุณภาพ (QC)",
+  worker: "พนักงาน",
 };
 
 const roleColors: Record<string, string> = {
   owner: "bg-purple-100 text-purple-800 border-purple-300",
   admin: "bg-red-100 text-red-800 border-red-300",
   project_manager: "bg-blue-100 text-blue-800 border-blue-300",
+  office_engineer: "bg-cyan-100 text-cyan-800 border-cyan-300",
+  site_engineer: "bg-indigo-100 text-indigo-800 border-indigo-300",
   qc_inspector: "bg-green-100 text-green-800 border-green-300",
   worker: "bg-gray-100 text-gray-800 border-gray-300",
 };
@@ -57,7 +61,7 @@ export default function UserManagement() {
   const [createForm, setCreateForm] = useState({
     name: "",
     email: "",
-    role: "worker" as "admin" | "project_manager" | "qc_inspector" | "worker",
+    role: "worker" as "admin" | "project_manager" | "office_engineer" | "site_engineer" | "qc_inspector" | "worker",
     templateId: null as number | null,
   });
 
@@ -308,8 +312,10 @@ export default function UserManagement() {
                   <SelectItem value="owner">เจ้าของระบบ (Owner)</SelectItem>
                   <SelectItem value="admin">ผู้ดูแลระบบ (Admin)</SelectItem>
                   <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
-                  <SelectItem value="qc_inspector">QC Inspector</SelectItem>
-                  <SelectItem value="worker">Worker</SelectItem>
+                  <SelectItem value="office_engineer">วิศวกรสำนักงาน (OE)</SelectItem>
+                  <SelectItem value="site_engineer">วิศวกรประจำหน้างาน</SelectItem>
+                  <SelectItem value="qc_inspector">ผู้ตรวจสอบคุณภาพ (QC)</SelectItem>
+                  <SelectItem value="worker">พนักงาน</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -365,8 +371,10 @@ export default function UserManagement() {
                   <SelectValue placeholder="เลือก Role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="worker">Worker</SelectItem>
-                  <SelectItem value="qc_inspector">QC Inspector</SelectItem>
+                  <SelectItem value="worker">พนักงาน</SelectItem>
+                  <SelectItem value="qc_inspector">ผู้ตรวจสอบคุณภาพ (QC)</SelectItem>
+                  <SelectItem value="site_engineer">วิศวกรประจำหน้างาน</SelectItem>
+                  <SelectItem value="office_engineer">วิศวกรสำนักงาน (OE)</SelectItem>
                   <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
                   <SelectItem value="admin">ผู้ดูแลระบบ (Admin)</SelectItem>
                 </SelectContent>

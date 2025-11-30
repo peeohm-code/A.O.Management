@@ -17,7 +17,7 @@ export default function ProjectTeam() {
   const { user } = useAuth();
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [selectedRole, setSelectedRole] = useState<"project_manager" | "qc_inspector" | "worker">("worker");
+  const [selectedRole, setSelectedRole] = useState<"project_manager" | "office_engineer" | "site_engineer" | "qc_inspector" | "worker">("worker");
 
   const utils = trpc.useUtils();
   const { data: project } = trpc.project.get.useQuery({ id: Number(projectId) });
@@ -88,7 +88,7 @@ export default function ProjectTeam() {
     }
   };
 
-  const handleUpdateRole = (userId: number, newRole: "project_manager" | "qc_inspector" | "worker") => {
+  const handleUpdateRole = (userId: number, newRole: "project_manager" | "office_engineer" | "site_engineer" | "qc_inspector" | "worker") => {
     updateRoleMutation.mutate({
       projectId: Number(projectId),
       userId,
@@ -100,6 +100,10 @@ export default function ProjectTeam() {
     switch (role) {
       case "project_manager":
         return "default";
+      case "office_engineer":
+        return "default";
+      case "site_engineer":
+        return "secondary";
       case "qc_inspector":
         return "secondary";
       case "worker":
@@ -112,9 +116,13 @@ export default function ProjectTeam() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case "project_manager":
-        return "ผู้จัดการโครงการ";
+        return "ผู้จัดการโครงการ (PM)";
+      case "office_engineer":
+        return "วิศวกรสำนักงาน (OE)";
+      case "site_engineer":
+        return "วิศวกรประจำหน้างาน";
       case "qc_inspector":
-        return "ผู้ตรวจสอบ QC";
+        return "ผู้ตรวจสอบคุณภาพ (QC)";
       case "worker":
         return "พนักงาน";
       case "admin":
@@ -126,7 +134,7 @@ export default function ProjectTeam() {
     }
   };
 
-  const canManageTeam = user?.role === "owner" || user?.role === "admin" || user?.role === "project_manager";
+  const canManageTeam = user?.role === "owner" || user?.role === "admin" || user?.role === "project_manager" || user?.role === "office_engineer";
 
   // Filter out users who are already members
   const availableUsers = allUsers?.filter(
@@ -197,8 +205,10 @@ export default function ProjectTeam() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="project_manager">ผู้จัดการโครงการ</SelectItem>
-                      <SelectItem value="qc_inspector">ผู้ตรวจสอบ QC</SelectItem>
+                      <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
+                      <SelectItem value="office_engineer">วิศวกรสำนักงาน (OE)</SelectItem>
+                      <SelectItem value="site_engineer">วิศวกรประจำหน้างาน</SelectItem>
+                      <SelectItem value="qc_inspector">ผู้ตรวจสอบคุณภาพ (QC)</SelectItem>
                       <SelectItem value="worker">พนักงาน</SelectItem>
                     </SelectContent>
                   </Select>
@@ -320,8 +330,10 @@ export default function ProjectTeam() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="project_manager">ผู้จัดการโครงการ</SelectItem>
-                            <SelectItem value="qc_inspector">ผู้ตรวจสอบ QC</SelectItem>
+                            <SelectItem value="project_manager">ผู้จัดการโครงการ (PM)</SelectItem>
+                            <SelectItem value="office_engineer">วิศวกรสำนักงาน (OE)</SelectItem>
+                            <SelectItem value="site_engineer">วิศวกรประจำหน้างาน</SelectItem>
+                            <SelectItem value="qc_inspector">ผู้ตรวจสอบคุณภาพ (QC)</SelectItem>
                             <SelectItem value="worker">พนักงาน</SelectItem>
                           </SelectContent>
                         </Select>
