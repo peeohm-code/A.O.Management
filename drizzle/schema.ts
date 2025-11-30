@@ -182,6 +182,35 @@ export const dbStatistics = mysqlTable("dbStatistics", {
 	index("createdAtIdx").on(table.createdAt),
 ]);
 
+export const defectApprovals = mysqlTable("defectApprovals", {
+	id: int().autoincrement().notNull(),
+	defectId: int().notNull(),
+	approvalType: mysqlEnum(['fix_plan','resolution']).notNull(),
+	status: mysqlEnum(['pending','approved','rejected']).default('pending').notNull(),
+	requestedBy: int().notNull(),
+	requestedAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	reviewedBy: int(),
+	reviewedAt: timestamp({ mode: 'date' }),
+	comments: text(),
+	rejectionReason: text(),
+	// Reference data for audit trail
+	fixPlanDescription: text(),
+	fixPlanMethod: text(),
+	resolutionDescription: text(),
+	resolutionPhotoUrls: text(),
+	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("defectIdx").on(table.defectId),
+	index("approvalTypeIdx").on(table.approvalType),
+	index("statusIdx").on(table.status),
+	index("requestedByIdx").on(table.requestedBy),
+	index("reviewedByIdx").on(table.reviewedBy),
+	index("defectApprovalTypeIdx").on(table.defectId, table.approvalType),
+	index("defectStatusIdx").on(table.defectId, table.status),
+]);
+
 export const defectAttachments = mysqlTable("defectAttachments", {
 	id: int().autoincrement().notNull(),
 	defectId: int().notNull(),
@@ -251,6 +280,22 @@ export const defects = mysqlTable("defects", {
 	beforePhotos: text(),
 	afterPhotos: text(),
 	closureNotes: text(),
+	// Fix Plan Approval Workflow
+	fixPlanDescription: text(),
+	fixPlanMethod: text(),
+	fixPlanSubmittedBy: int(),
+	fixPlanSubmittedAt: timestamp({ mode: 'date' }),
+	fixPlanApprovedBy: int(),
+	fixPlanApprovedAt: timestamp({ mode: 'date' }),
+	fixPlanStatus: mysqlEnum(['draft','pending_approval','approved','rejected']).default('draft'),
+	fixPlanRejectionReason: text(),
+	// Resolution Approval Workflow
+	resolutionSubmittedBy: int(),
+	resolutionSubmittedAt: timestamp({ mode: 'date' }),
+	resolutionApprovedBy: int(),
+	resolutionApprovedAt: timestamp({ mode: 'date' }),
+	resolutionStatus: mysqlEnum(['pending','pending_approval','approved','rejected']).default('pending'),
+	resolutionRejectionReason: text(),
 	createdAt: timestamp({ mode: 'date' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ mode: 'date' }).defaultNow().onUpdateNow().notNull(),
 	escalation: text(),
@@ -266,6 +311,10 @@ export const defects = mysqlTable("defects", {
 	index("projectStatusIdx").on(table.projectId, table.status),
 	index("assignedStatusIdx").on(table.assignedTo, table.status),
 	index("projectTypeIdx").on(table.projectId, table.type),
+	index("fixPlanStatusIdx").on(table.fixPlanStatus),
+	index("resolutionStatusIdx").on(table.resolutionStatus),
+	index("fixPlanSubmittedByIdx").on(table.fixPlanSubmittedBy),
+	index("resolutionSubmittedByIdx").on(table.resolutionSubmittedBy),
 ]);
 
 export const memoryLogs = mysqlTable("memoryLogs", {
@@ -774,6 +823,7 @@ export type InsertUser = typeof users.$inferInsert;
 export type InsertProject = typeof projects.$inferInsert;
 export type InsertTask = typeof tasks.$inferInsert;
 export type InsertDefect = typeof defects.$inferInsert;
+export type InsertDefectApproval = typeof defectApprovals.$inferInsert;
 export type InsertDefectAttachment = typeof defectAttachments.$inferInsert;
 export type InsertDefectInspection = typeof defectInspections.$inferInsert;
 export type InsertNotification = typeof notifications.$inferInsert;

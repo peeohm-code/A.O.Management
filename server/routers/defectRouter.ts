@@ -756,4 +756,461 @@ export const defectRouter = router({
 
       return { success: true, deleted: successCount, total: defectIds.length };
     }),
+
+  // ========================================
+  // Defect Approval Workflow APIs
+  // ========================================
+
+  // Site Engineer: Submit fix plan for approval
+  submitFixPlan: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        fixPlanDescription: z.string().min(10, "Fix plan description must be at least 10 characters"),
+        fixPlanMethod: z.string().min(10, "Fix plan method must be at least 10 characters"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectId, fixPlanDescription, fixPlanMethod } = input;
+
+      // Get defect
+      const defect = await db.getDefectById(defectId);
+      if (!defect) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Defect not found",
+        });
+      }
+
+      // Check authorization (only assigned person can submit)
+      if (defect.assignedTo !== ctx.user!.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the assigned person can submit fix plan",
+        });
+      }
+
+      // Update defect with fix plan
+      await db.updateDefect(defectId, {
+        fixPlanDescription,
+        fixPlanMethod,
+        fixPlanSubmittedBy: ctx.user!.id,
+        fixPlanSubmittedAt: new Date(),
+        fixPlanStatus: "pending_approval",
+      });
+
+      // Create approval record
+      await db.createDefectApproval({
+        defectId,
+        approvalType: "fix_plan",
+        status: "pending",
+        requestedBy: ctx.user!.id,
+        fixPlanDescription,
+        fixPlanMethod,
+      });
+
+      // Send notification to PM/OE
+      const task = await db.getTaskById(defect.taskId);
+      if (task) {
+        const projectMembers = await db.getProjectMembers(task.projectId);
+        const approvers = projectMembers.filter(
+          (m: any) => m.role === "project_manager" || m.role === "office_engineer"
+        );
+
+        for (const approver of approvers) {
+          await createNotification({
+            userId: approver.userId,
+            type: "defect_status_changed",
+            title: "Fix Plan Pending Approval",
+            content: `Fix plan submitted for defect: ${defect.title}`,
+            relatedDefectId: defectId,
+            relatedTaskId: defect.taskId,
+            relatedProjectId: task.projectId,
+            priority: defect.severity === "critical" || defect.severity === "high" ? "high" : "normal",
+            sendEmail: true,
+          });
+        }
+      }
+
+      return { success: true, message: "Fix plan submitted for approval" };
+    }),
+
+  // PM/OE: Approve fix plan
+  approveFixPlan: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        comments: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectId, comments } = input;
+
+      // Check authorization (PM/OE only)
+      const userRole = ctx.user!.role;
+      if (!["admin", "project_manager", "office_engineer"].includes(userRole)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only PM/OE can approve fix plans",
+        });
+      }
+
+      // Get defect
+      const defect = await db.getDefectById(defectId);
+      if (!defect) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Defect not found",
+        });
+      }
+
+      // Check if fix plan exists and is pending
+      if (defect.fixPlanStatus !== "pending_approval") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Fix plan is not pending approval",
+        });
+      }
+
+      // Update defect
+      await db.updateDefect(defectId, {
+        fixPlanStatus: "approved",
+        fixPlanApprovedBy: ctx.user!.id,
+        fixPlanApprovedAt: new Date(),
+        status: "in_progress",
+      });
+
+      // Update approval record
+      const approvals = await db.getDefectApprovals(defectId, "fix_plan");
+      if (approvals && approvals.length > 0) {
+        const latestApproval = approvals[approvals.length - 1];
+        await db.updateDefectApproval(latestApproval.id, {
+          status: "approved",
+          reviewedBy: ctx.user!.id,
+          reviewedAt: new Date(),
+          comments,
+        });
+      }
+
+      // Notify assigned person
+      if (defect.assignedTo) {
+        await createNotification({
+          userId: defect.assignedTo,
+          type: "defect_status_changed",
+          title: "Fix Plan Approved",
+          content: `Your fix plan for "${defect.title}" has been approved. You can now proceed with the fix.`,
+          relatedDefectId: defectId,
+          relatedTaskId: defect.taskId,
+          priority: "normal",
+          sendEmail: true,
+        });
+      }
+
+      return { success: true, message: "Fix plan approved" };
+    }),
+
+  // PM/OE: Reject fix plan
+  rejectFixPlan: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        rejectionReason: z.string().min(10, "Rejection reason must be at least 10 characters"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectId, rejectionReason } = input;
+
+      // Check authorization (PM/OE only)
+      const userRole = ctx.user!.role;
+      if (!["admin", "project_manager", "office_engineer"].includes(userRole)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only PM/OE can reject fix plans",
+        });
+      }
+
+      // Get defect
+      const defect = await db.getDefectById(defectId);
+      if (!defect) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Defect not found",
+        });
+      }
+
+      // Update defect
+      await db.updateDefect(defectId, {
+        fixPlanStatus: "rejected",
+        fixPlanRejectionReason: rejectionReason,
+        fixPlanApprovedBy: ctx.user!.id,
+        fixPlanApprovedAt: new Date(),
+      });
+
+      // Update approval record
+      const approvals = await db.getDefectApprovals(defectId, "fix_plan");
+      if (approvals && approvals.length > 0) {
+        const latestApproval = approvals[approvals.length - 1];
+        await db.updateDefectApproval(latestApproval.id, {
+          status: "rejected",
+          reviewedBy: ctx.user!.id,
+          reviewedAt: new Date(),
+          rejectionReason,
+        });
+      }
+
+      // Notify assigned person
+      if (defect.assignedTo) {
+        await createNotification({
+          userId: defect.assignedTo,
+          type: "defect_status_changed",
+          title: "Fix Plan Rejected",
+          content: `Your fix plan for "${defect.title}" was rejected. Reason: ${rejectionReason}`,
+          relatedDefectId: defectId,
+          relatedTaskId: defect.taskId,
+          priority: "high",
+          sendEmail: true,
+        });
+      }
+
+      return { success: true, message: "Fix plan rejected" };
+    }),
+
+  // Site Engineer: Submit resolution for approval
+  submitResolution: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        resolutionComment: z.string().min(10, "Resolution description must be at least 10 characters"),
+        resolutionPhotoUrls: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectId, resolutionComment, resolutionPhotoUrls } = input;
+
+      // Get defect
+      const defect = await db.getDefectById(defectId);
+      if (!defect) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Defect not found",
+        });
+      }
+
+      // Check authorization
+      if (defect.assignedTo !== ctx.user!.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the assigned person can submit resolution",
+        });
+      }
+
+      // Check if fix plan is approved
+      if (defect.fixPlanStatus !== "approved") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Fix plan must be approved before submitting resolution",
+        });
+      }
+
+      // Update defect
+      await db.updateDefect(defectId, {
+        resolutionComment,
+        resolutionPhotoUrls,
+        resolutionSubmittedBy: ctx.user!.id,
+        resolutionSubmittedAt: new Date(),
+        resolutionStatus: "pending_approval",
+        status: "resolved",
+      });
+
+      // Create approval record
+      await db.createDefectApproval({
+        defectId,
+        approvalType: "resolution",
+        status: "pending",
+        requestedBy: ctx.user!.id,
+        resolutionDescription: resolutionComment,
+        resolutionPhotoUrls,
+      });
+
+      // Notify PM/OE
+      const task = await db.getTaskById(defect.taskId);
+      if (task) {
+        const projectMembers = await db.getProjectMembers(task.projectId);
+        const approvers = projectMembers.filter(
+          (m: any) => m.role === "project_manager" || m.role === "office_engineer"
+        );
+
+        for (const approver of approvers) {
+          await createNotification({
+            userId: approver.userId,
+            type: "defect_resolved",
+            title: "Resolution Pending Approval",
+            content: `Resolution submitted for defect: ${defect.title}`,
+            relatedDefectId: defectId,
+            relatedTaskId: defect.taskId,
+            relatedProjectId: task.projectId,
+            priority: defect.severity === "critical" || defect.severity === "high" ? "high" : "normal",
+            sendEmail: true,
+          });
+        }
+      }
+
+      return { success: true, message: "Resolution submitted for approval" };
+    }),
+
+  // PM/OE: Approve resolution
+  approveResolution: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        comments: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectId, comments } = input;
+
+      // Check authorization (PM/OE only)
+      const userRole = ctx.user!.role;
+      if (!["admin", "project_manager", "office_engineer"].includes(userRole)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only PM/OE can approve resolutions",
+        });
+      }
+
+      // Get defect
+      const defect = await db.getDefectById(defectId);
+      if (!defect) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Defect not found",
+        });
+      }
+
+      // Check if resolution is pending
+      if (defect.resolutionStatus !== "pending_approval") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Resolution is not pending approval",
+        });
+      }
+
+      // Update defect
+      await db.updateDefect(defectId, {
+        resolutionStatus: "approved",
+        resolutionApprovedBy: ctx.user!.id,
+        resolutionApprovedAt: new Date(),
+        status: "closed",
+        verifiedBy: ctx.user!.id,
+        verifiedAt: new Date(),
+      });
+
+      // Update approval record
+      const approvals = await db.getDefectApprovals(defectId, "resolution");
+      if (approvals && approvals.length > 0) {
+        const latestApproval = approvals[approvals.length - 1];
+        await db.updateDefectApproval(latestApproval.id, {
+          status: "approved",
+          reviewedBy: ctx.user!.id,
+          reviewedAt: new Date(),
+          comments,
+        });
+      }
+
+      // Notify assigned person
+      if (defect.assignedTo) {
+        await createNotification({
+          userId: defect.assignedTo,
+          type: "defect_status_changed",
+          title: "Resolution Approved - Defect Closed",
+          content: `Your resolution for "${defect.title}" has been approved. The defect is now closed.`,
+          relatedDefectId: defectId,
+          relatedTaskId: defect.taskId,
+          priority: "normal",
+          sendEmail: true,
+        });
+      }
+
+      return { success: true, message: "Resolution approved, defect closed" };
+    }),
+
+  // PM/OE: Reject resolution
+  rejectResolution: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        rejectionReason: z.string().min(10, "Rejection reason must be at least 10 characters"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { defectId, rejectionReason } = input;
+
+      // Check authorization (PM/OE only)
+      const userRole = ctx.user!.role;
+      if (!["admin", "project_manager", "office_engineer"].includes(userRole)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only PM/OE can reject resolutions",
+        });
+      }
+
+      // Get defect
+      const defect = await db.getDefectById(defectId);
+      if (!defect) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Defect not found",
+        });
+      }
+
+      // Update defect (loop back to in_progress)
+      await db.updateDefect(defectId, {
+        resolutionStatus: "rejected",
+        resolutionRejectionReason: rejectionReason,
+        resolutionApprovedBy: ctx.user!.id,
+        resolutionApprovedAt: new Date(),
+        status: "in_progress", // Loop back
+      });
+
+      // Update approval record
+      const approvals = await db.getDefectApprovals(defectId, "resolution");
+      if (approvals && approvals.length > 0) {
+        const latestApproval = approvals[approvals.length - 1];
+        await db.updateDefectApproval(latestApproval.id, {
+          status: "rejected",
+          reviewedBy: ctx.user!.id,
+          reviewedAt: new Date(),
+          rejectionReason,
+        });
+      }
+
+      // Notify assigned person
+      if (defect.assignedTo) {
+        await createNotification({
+          userId: defect.assignedTo,
+          type: "defect_status_changed",
+          title: "Resolution Rejected",
+          content: `Your resolution for "${defect.title}" was rejected. Reason: ${rejectionReason}. Please fix and resubmit.`,
+          relatedDefectId: defectId,
+          relatedTaskId: defect.taskId,
+          priority: "high",
+          sendEmail: true,
+        });
+      }
+
+      return { success: true, message: "Resolution rejected" };
+    }),
+
+  // Get approval history for a defect
+  getApprovals: protectedProcedure
+    .input(
+      z.object({
+        defectId: z.number().int().positive(),
+        approvalType: z.enum(["fix_plan", "resolution"]).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { defectId, approvalType } = input;
+      return await db.getDefectApprovals(defectId, approvalType);
+    }),
 });

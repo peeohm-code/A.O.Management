@@ -19,6 +19,8 @@ import {
   InsertDefectAttachment,
   defectInspections,
   InsertDefectInspection,
+  defectApprovals,
+  InsertDefectApproval,
   taskComments,
   taskAttachments,
   taskFollowers,
@@ -8497,4 +8499,102 @@ export async function updateErrorStatus(params: {
       resolvedAt: params.status === 'resolved' ? new Date() : null,
     })
     .where(eq(errorLogs.id, params.errorId));
+}
+
+// ========================================
+// Defect Approval Workflow Functions
+// ========================================
+
+/**
+ * Create a new defect approval record
+ */
+export async function createDefectApproval(data: InsertDefectApproval) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(defectApprovals).values(data);
+  return { id: bigIntToNumber(result.insertId) };
+}
+
+/**
+ * Get defect approval history
+ * @param defectId - Defect ID
+ * @param approvalType - Optional filter by approval type ('fix_plan' or 'resolution')
+ * @returns Array of approval records with requester and reviewer details
+ */
+export async function getDefectApprovals(
+  defectId: number,
+  approvalType?: "fix_plan" | "resolution"
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const query = db
+    .select({
+      id: defectApprovals.id,
+      defectId: defectApprovals.defectId,
+      approvalType: defectApprovals.approvalType,
+      status: defectApprovals.status,
+      requestedAt: defectApprovals.requestedAt,
+      reviewedAt: defectApprovals.reviewedAt,
+      comments: defectApprovals.comments,
+      rejectionReason: defectApprovals.rejectionReason,
+      fixPlanDescription: defectApprovals.fixPlanDescription,
+      fixPlanMethod: defectApprovals.fixPlanMethod,
+      resolutionDescription: defectApprovals.resolutionDescription,
+      resolutionPhotoUrls: defectApprovals.resolutionPhotoUrls,
+      requester: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+      reviewer: {
+        id: sql<number | null>`reviewer.id`,
+        name: sql<string | null>`reviewer.name`,
+        email: sql<string | null>`reviewer.email`,
+      },
+      createdAt: defectApprovals.createdAt,
+      updatedAt: defectApprovals.updatedAt,
+    })
+    .from(defectApprovals)
+    .leftJoin(users, eq(defectApprovals.requestedBy, users.id))
+    .leftJoin(
+      sql`users AS reviewer`,
+      sql`${defectApprovals.reviewedBy} = reviewer.id`
+    )
+    .where(eq(defectApprovals.defectId, defectId))
+    .orderBy(desc(defectApprovals.createdAt));
+
+  if (approvalType) {
+    return await query.where(
+      and(
+        eq(defectApprovals.defectId, defectId),
+        eq(defectApprovals.approvalType, approvalType)
+      )
+    );
+  }
+
+  return await query;
+}
+
+/**
+ * Update a defect approval record
+ */
+export async function updateDefectApproval(
+  id: number,
+  data: {
+    status?: "pending" | "approved" | "rejected";
+    reviewedBy?: number;
+    reviewedAt?: Date;
+    comments?: string;
+    rejectionReason?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(defectApprovals)
+    .set(data)
+    .where(eq(defectApprovals.id, id));
 }
