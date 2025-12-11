@@ -47,6 +47,7 @@ import {
   History,
   ChevronRight,
   Activity,
+  Calendar,
 } from "lucide-react";
 
 import NotificationBadge from "@/components/NotificationBadge";
@@ -125,6 +126,11 @@ const menuItems: MenuItem[] = [
     icon: ClipboardList,
     label: "QC Inspection",
     path: "/qc-inspection",
+  },
+  {
+    icon: Calendar,
+    label: "QC Scheduling",
+    path: "/qc-scheduling",
   },
   {
     icon: AlertTriangle,

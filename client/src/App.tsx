@@ -19,6 +19,7 @@ const NewDashboard = lazy(() => import("./pages/NewDashboard"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const QCInspection = lazy(() => import("./pages/QCInspection"));
+const QCScheduling = lazy(() => import("./pages/QCScheduling"));
 const Defects = lazy(() => import("./pages/Defects"));
 const DefectDetail = lazy(() => import("./pages/DefectDetail"));
 const NotificationCenter = lazy(() => import("./pages/NotificationCenter"));
@@ -167,6 +168,18 @@ function Router() {
               fallbackPath="/dashboard"
             >
               <QCInspection />
+            </PageErrorBoundary>
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path={"/qc-scheduling"}>
+        {() => (
+          <DashboardLayout>
+            <PageErrorBoundary
+              pageName="QCScheduling"
+              fallbackPath="/dashboard"
+            >
+              <QCScheduling />
             </PageErrorBoundary>
           </DashboardLayout>
         )}
