@@ -14,6 +14,7 @@
 2. **N22.2 Prep Save PO — "Code doesn't return items properly" (Exec 5668)**
 3. **Slip Matching — สลิปไม่ตรงกับ PO เพราะ VAT 7%**
 4. **Split Group Transfer — ไม่แสดงเลขบัญชีร้านค้า**
+5. **Split Group Transfer — ไม่มี bank account prompt (ต้องให้กรอกเลขบัญชีเหมือน Single PO)**
 
 ---
 
@@ -26,8 +27,10 @@
 | N4.7 Flex ยืนยันหมวด+CC | ใช้ ID จาก `$('N4.6.1 Save Quotation').first().json.id` | Fix ID Mismatch |
 | N22.1 Load Quotation | เพิ่ม `continueOnFail: true` | ป้องกัน crash เมื่อ 404 |
 | N22.2 Prep Save PO | เพิ่ม error detection flag (`error: true/false`) | ส่ง flag ให้ IF node ตัดสิน |
-| N25.1b Update Supabase | เพิ่ม shopName ใน vendor-account lookup body | Split group ต้องมี shopName |
-| N25.2 PO Confirmed | เพิ่ม bank info section สำหรับ split group | แสดงเลขบัญชีร้านค้า |
+| N25 Payment Handler | v5: Split group + transfer set `accountConfirmed: false` | ไม่ข้าม bank prompt |
+| N25.1b Update Supabase | เพิ่ม shopName + splitGroup ใน vendor-account lookup body | Split group ต้องมี shopName |
+| N25.2 PO Confirmed | เพิ่ม bank account prompt สำหรับ split group (เหมือน single PO) | ให้กรอก ธนาคาร/เลขบัญชี/ชื่อบัญชี |
+| N20 Parse Postback | เพิ่ม split_group support ใน confirm_account postback | ยืนยันบัญชีแล้ว route กลับ split group flow |
 | N31.1a VAT Tolerance | **Node ใหม่** — Code node ระหว่าง N31.1 กับ N31.2 | VAT 7% tolerance สำหรับ slip match |
 | N40.4 Compare + Confirm | เพิ่ม VAT tolerance logic | VAT 7% tolerance สำหรับ receipt match |
 | N41.2 Auto-Match Flex | เพิ่ม VAT tolerance logic | VAT 7% tolerance สำหรับ auto-match |
@@ -77,6 +80,16 @@
 
 **Root Cause:** Split group flow ถูกออกแบบให้ข้าม account confirmation step
 
+### Problem 4: Split Group ไม่มี Bank Account Prompt
+
+**Flow:** Split group + โอน → N25 set accountConfirmed=true → N25.2 ข้ามไป success message → ไม่มีหน้าให้กรอกเลขบัญชี
+
+**Impact:** user ไม่สามารถเพิ่มบัญชีร้านค้าได้ ต้องรู้เลขบัญชีเอง
+
+**Root Cause:** N25 Payment Handler set accountConfirmed=true สำหรับ split group ทุกกรณี + N25.2 split group section ไม่มี bank prompt logic
+
+**Fix:** N25 v5 set accountConfirmed=false เมื่อ transfer + N25.2 เพิ่ม bank prompt ใน split group section (เหมือน single PO) + N20 รองรับ split_group ใน confirm_account postback
+
 ---
 
 ## Remaining Issues / Known Risks
@@ -97,7 +110,10 @@
 - [x] Fix 4: N31.1a VAT Tolerance node exists and routes correctly
 - [x] Fix 5: N40.4 has VAT tolerance logic
 - [x] Fix 6: N41.2 has VAT tolerance logic
-- [x] Fix 7: N25.1b includes shopName for vendor-account lookup
+- [x] Fix 7: N25.1b includes shopName + splitGroup for vendor-account lookup
 - [x] Fix 8: N25.2 has split group bank info section
+- [x] Fix 9: N25 Payment Handler v5 — split group + transfer → accountConfirmed: false
+- [x] Fix 10: N25.2 split group bank account prompt (เพิ่มบัญชีร้านค้า / ยืนยันบัญชี)
+- [x] Fix 11: N20 Parse Postback — split_group support in confirm_account
 - [x] Workflow is active
-- [ ] End-to-end test: ส่งรูปใหม่ → ยืนยัน CC → อนุมัติ → โอน → ส่งสลิป (pending user test)
+- [ ] End-to-end test: แยกโครงการ → โอน → กรอกเลขบัญชี → ยืนยัน → ส่งสลิป (pending user test)

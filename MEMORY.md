@@ -61,8 +61,10 @@ n8n Code node (JavaScript) v2 **ไม่รองรับ** `numberOfOutputs >
 |---|---|---|
 | tempId | มี (จาก N4.6) | ไม่มี (ใช้ splitGroupId) |
 | vendor-account lookup | ใช้ tempId | ต้องใช้ shopName |
-| accountConfirmed | ผ่าน confirmation step | set true ทันที |
-| bank info | แสดงจาก vendor-account | ต้องเพิ่ม section แยก |
+| accountConfirmed | ผ่าน confirmation step | ผ่าน confirmation step เหมือนกัน (v5) |
+| bank info | แสดงจาก vendor-account | แสดงจาก vendor-account เหมือนกัน (v5) |
+| bank prompt | เพิ่มบัญชีร้านค้า Flex | เพิ่มบัญชีร้านค้า Flex เหมือนกัน (v5) |
+| confirm_account postback | temp_id + project_id | split_group + reason |
 
 ### 5. Flex Message ใน LINE แก้ไขไม่ได้
 
@@ -71,7 +73,19 @@ n8n Code node (JavaScript) v2 **ไม่รองรับ** `numberOfOutputs >
 - user ต้องส่งรูปใหม่เพื่อสร้าง Flex message ใหม่
 - error handling ควรแจ้ง user ให้ "ส่งรูปใหม่" แทนที่จะ crash
 
-### 6. Node Naming Convention
+### 6. Split Group + Transfer: Bank Account Prompt Flow (v5)
+
+เมื่อ split group + โอน:
+1. N25 Payment Handler set `accountConfirmed: false`
+2. N25.1b vendor-account lookup ใช้ shopName (ไม่มี tempId)
+3. N25.2 split group section ตรวจ `accountConfirmedSG`:
+   - `false` + `!hasAccount` → แสดง "เพิ่มบัญชีร้านค้า" prompt
+   - `false` + `hasAccount` → แสดง "ยืนยันบัญชี" + ปุ่มยืนยัน/แก้ไข
+   - `true` → ดำเนินการ approve-split ต่อ
+4. confirm_account postback ใช้ `split_group` + `reason` แทน `temp_id` + `project_id`
+5. N20 Parse Postback decode split_group และ route กลับ N25 ด้วย accountConfirmed=true
+
+### 7. Node Naming Convention
 
 - `N{number}.{sub}` — เลข node หลัก.เลข sub-step
 - `N8. ตอบกลับ LINE` — node สุดท้ายที่ส่ง LINE reply (ทุก flow ไหลมาที่นี่)
